@@ -15,7 +15,7 @@ import DecodeX exposing (DecodeResult)
 import DomX
 import Either exposing (Either(..))
 import Elevation exposing (elevation)
-import EventX
+import EventX exposing (onKeyDownPD)
 import Grain exposing (Grain)
 import GrainId exposing (GrainId)
 import GrainStore exposing (GrainStore)
@@ -23,6 +23,7 @@ import HotKey as K exposing (SoftKey(..))
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes as SA exposing (..)
 import Html.Styled.Events as SE exposing (onBlur, onClick, onFocus, onInput, onSubmit)
+import Html.Styled.Keyed
 import Json.Decode as D
 import Json.Decode.Pipeline exposing (optional)
 import Json.Encode as E exposing (Value)
@@ -107,6 +108,11 @@ overGrainWithId gid fn =
 ---- UPDATE ----
 
 
+addGrainWithInsertPosition ( insertPos, grain ) =
+    mapModel (overGrains (GrainStore.insertAt ( insertPos, grain )))
+        >> andThenDo cacheGrains
+
+
 updateGrain gid fn =
     mapModel (overGrainWithId gid fn)
         >> andThenDo cacheGrains
@@ -156,18 +162,28 @@ updateF message =
                 GMNew ->
                     andDoWith .inputValue
                         (\title ->
-                            Grain.newGeneratorWithTitleCmd (SubGM << GMOnGen) title
+                            Grain.newGeneratorWithTitleAndInsertPosition title Grain.Head
+                                |> Task.perform (SubGM << GMOnGen)
                         )
 
                 GMOnGen gen ->
                     andDo (Random.generate (SubGM << GMAdd) gen)
 
-                GMAdd grain ->
-                    mapModel (addGrain grain)
-                        >> andThenDo cacheGrains
+                GMAdd ( insertPosition, grain ) ->
+                    let
+                        _ =
+                            Debug.log "insertPosition" insertPosition
+                    in
+                    addGrainWithInsertPosition ( insertPosition, grain )
 
                 GMTitle gid newTitle ->
                     updateGrain gid (Grain.setTitle newTitle)
+
+                GMNewAfter gid ->
+                    andDo
+                        (Grain.newGeneratorWithTitleAndInsertPosition "" (Grain.After gid)
+                            |> Task.perform (SubGM << GMOnGen)
+                        )
 
         Prev ->
             identity
@@ -221,15 +237,18 @@ viewGrainList list =
     let
         viewItemChildren =
             if List.isEmpty list then
-                [ Html.form [ class "flex flex-column", onSubmit InputSubmit ]
-                    [ input [ onInput InputChanged ] []
-                    ]
+                [ ( "newInputField"
+                  , Html.form [ class "flex flex-column", onSubmit InputSubmit ]
+                        [ input [ onInput InputChanged ] []
+                        ]
+                  )
                 ]
 
             else
-                List.map (viewGrainItem False) list
+                List.map (\g -> ( GrainStore.grainDomId g, viewGrainItem False g )) list
     in
-    div [ id "grains-container", class "flex flex-column pv2" ]
+    Html.Styled.Keyed.node "div"
+        [ id "grains-container", class "flex flex-column pv2" ]
         viewItemChildren
 
 
@@ -265,6 +284,10 @@ viewGrainItem selected grain =
         , onInput (SubGM << GMTitle gid)
         , value title
         , autocomplete False
+        , SA.fromUnstyled <|
+            onKeyDownPD <|
+                K.bindEachToMsg
+                    [ ( K.enter, ( SubGM <| GMNewAfter gid, True ) ) ]
         ]
         []
 

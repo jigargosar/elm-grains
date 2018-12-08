@@ -4,11 +4,13 @@ module GrainStore exposing
     , decode
     , decoder
     , grainDomId
+    , insertAt
     , items
     , prepend
     , update
     )
 
+import BasicsX exposing (callWith, unwrapMaybe)
 import DecodeX exposing (Encoder)
 import Dict exposing (Dict)
 import Grain exposing (Grain)
@@ -74,6 +76,26 @@ mapItems fn =
 
 prepend grain =
     mapItems ((::) grain)
+
+
+insertAt ( insertPos, grain ) =
+    mapItems
+        (\list ->
+            case insertPos of
+                Grain.Head ->
+                    list
+
+                Grain.After gid ->
+                    List.findIndex (Grain.hasId gid) list
+                        |> unwrapMaybe list
+                            ((+) -2
+                                >> (\n ->
+                                        List.take n list
+                                            ++ [ grain ]
+                                            ++ List.drop n list
+                                   )
+                            )
+        )
 
 
 grainDomId =

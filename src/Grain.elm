@@ -1,5 +1,6 @@
 module Grain exposing
     ( Grain
+    , InsertPosition(..)
     , bucket
     , decoder
     , encoder
@@ -13,6 +14,7 @@ module Grain exposing
     , labelIds
     , moveToBucket
     , newGenerator
+    , newGeneratorWithTitleAndInsertPosition
     , newGeneratorWithTitleCmd
     , setTitle
     , title
@@ -83,6 +85,20 @@ newGenerator title_ =
 newGeneratorWithTitleCmd : (Generator Grain -> msg) -> String -> Cmd msg
 newGeneratorWithTitleCmd msg =
     Task.perform msg << newGenerator
+
+
+type InsertPosition
+    = After GrainId
+    | Head
+
+
+newGeneratorWithTitleAndInsertPosition newTitle insertPos =
+    Task.map
+        (\now ->
+            Random.map (init newTitle now) GrainId.generator
+                |> Random.map (\newGrain -> ( insertPos, newGrain ))
+        )
+        Time.now
 
 
 encoder : Encoder Grain
