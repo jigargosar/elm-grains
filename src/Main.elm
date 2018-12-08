@@ -64,6 +64,7 @@ type alias Flags =
 type alias Model =
     { grains : GrainStore
     , hasFocusIn : Bool
+    , inputValue : String
     }
 
 
@@ -73,6 +74,7 @@ init flags =
         (\grains ->
             { grains = grains
             , hasFocusIn = False
+            , inputValue = ""
             }
         )
         (GrainStore.decode flags.grains)
@@ -136,6 +138,9 @@ updateF message =
         BaseLayerFocusInChanged hasFocusIn ->
             mapModel (\model -> { model | hasFocusIn = hasFocusIn })
 
+        NewInputChanged inputValue ->
+            mapModel (\model -> { model | inputValue = inputValue })
+
         SubGM msg ->
             case msg of
                 GMNew title ->
@@ -197,8 +202,16 @@ viewBase model =
 
 viewGrainList : List Grain -> Html Msg
 viewGrainList list =
+    let
+        viewItemChildren =
+            if List.isEmpty list then
+                [ input [ onInput NewInputChanged ] [] ]
+
+            else
+                List.map (viewGrainItem False) list
+    in
     div [ id "grains-container", class "flex flex-column pv2" ]
-        (List.map (viewGrainItem False) list)
+        viewItemChildren
 
 
 viewGrainItem selected grain =

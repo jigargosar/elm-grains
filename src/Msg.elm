@@ -24,6 +24,7 @@ type Msg
     | LogError String
     | BrowserAnyKeyDown
     | BaseLayerFocusInChanged Bool
+    | NewInputChanged String
       -- GRAIN
     | SubGM GM
       -- GRAIN LIST NAVIGATION
