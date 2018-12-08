@@ -177,13 +177,13 @@ viewBase model =
         [ styled div
             [ Css.width <| px 400 ]
             [ class "flex flex-column pv3" ]
-            [ viewGrains (grainList model)
+            [ viewGrainList (grainList model)
             ]
         ]
 
 
-viewGrains : List Grain -> Html Msg
-viewGrains items =
+viewGrainList : List Grain -> Html Msg
+viewGrainList items =
     let
         viewItem selected grain =
             viewGrainItem
