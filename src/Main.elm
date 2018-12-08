@@ -137,16 +137,20 @@ andThenUpdate msg =
 
 
 update : Msg -> Model -> Return Msg Model
-update message model =
+update message =
+    updateF message << pure
+
+
+updateF message =
     case message of
         NoOp ->
-            pure model
+            identity
 
         LogError errMsg ->
-            pure model |> andDo (Port.error errMsg)
+            andDo (Port.error errMsg)
 
         SubGM msg ->
-            (case msg of
+            case msg of
                 GMNew title ->
                     andDo (Grain.newGeneratorWithTitleCmd (SubGM << GMOnGen) title)
 
@@ -156,15 +160,12 @@ update message model =
                 GMAdd grain ->
                     andMapModel (addGrain grain)
                         >> andThenDo cacheGrainListEffect
-            )
-            <|
-                pure model
 
         Prev ->
-            ( model, Cmd.none )
+            identity
 
         Next ->
-            ( model, Cmd.none )
+            identity
 
 
 handlerFromConfig =
