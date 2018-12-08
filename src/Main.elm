@@ -98,10 +98,12 @@ addGrain grain =
     overGrains (GrainStore.prepend grain)
 
 
+overGrainWithId : GrainId -> (Grain -> Grain) -> Model -> Model
+overGrainWithId gid fn =
+    overGrains (GrainStore.update gid fn)
 
---overGrainWithId : GrainId -> (Grain -> Grain) -> Model -> Model
---overGrainWithId gid fn =
---    overGrains (GrainStore.update gid fn)
+
+
 ---- UPDATE ----
 
 
@@ -158,6 +160,9 @@ updateF message =
                 GMAdd grain ->
                     mapModel (addGrain grain)
                         >> andThenDo cacheGrains
+
+                GMTitle gid newTitle ->
+                    overGrainWithId gid (Grain.setTitle newTitle)
 
         Prev ->
             identity
@@ -228,6 +233,9 @@ viewGrainItem selected grain =
         title =
             Grain.title grain
 
+        gid =
+            Grain.id grain
+
         viewGrainTitle =
             flexRow []
                 [ class "f4 pa1" ]
@@ -249,7 +257,7 @@ viewGrainItem selected grain =
         , classList [ ( "bg-lightest-blue", selected ) ]
 
         --              class "pa2 flex-grow-1 mr2 "
-        , onInput (\_ -> NoOp)
+        , onInput (SubGM << GMTitle gid)
         , value title
         , autocomplete False
         ]

@@ -6,6 +6,7 @@ module GrainStore exposing
     , grainDomId
     , items
     , prepend
+    , update
     )
 
 import DecodeX exposing (Encoder)
@@ -15,6 +16,7 @@ import GrainId exposing (GrainId)
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline exposing (required)
 import Json.Encode as E
+import List.Extra as List
 import Port
 
 
@@ -76,3 +78,7 @@ prepend grain =
 
 grainDomId =
     Grain.id >> GrainId.asString
+
+
+update gid fn =
+    mapItems (List.updateIf (Grain.hasId gid) fn)

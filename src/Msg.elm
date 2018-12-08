@@ -16,6 +16,7 @@ type GM
     = GMNew
     | GMOnGen (Generator Grain)
     | GMAdd Grain
+    | GMTitle GrainId String
 
 
 type Msg

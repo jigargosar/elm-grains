@@ -14,6 +14,7 @@ module Grain exposing
     , moveToBucket
     , newGenerator
     , newGeneratorWithTitleCmd
+    , setTitle
     , title
     , toggleComplete
     , toggleLabel
@@ -191,3 +192,7 @@ toggleTrash =
 
 moveToBucket newBucket =
     over (\model -> { model | bucket = newBucket })
+
+
+setTitle newTitle =
+    over (\model -> { model | title = newTitle })
