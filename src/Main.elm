@@ -68,17 +68,12 @@ type alias Model =
 
 init : Flags -> Return Msg Model
 init flags =
-    let
-        grainsReturn : Return msg GrainStore
-        grainsReturn =
-            GrainStore.decode flags.grains
-    in
     Return.map
         (\grains ->
             { grains = grains
             }
         )
-        grainsReturn
+        (GrainStore.decode flags.grains)
 
 
 grainList =
