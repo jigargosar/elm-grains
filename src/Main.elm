@@ -26,6 +26,7 @@ import Html.Styled.Events as SE exposing (onBlur, onClick, onFocus, onInput, onS
 import Json.Decode as D
 import Json.Decode.Pipeline exposing (optional)
 import Json.Encode as E exposing (Value)
+import List.Extra as List
 import Material.Icons.Action as MIcons
 import Material.Icons.Alert as MIcons
 import Material.Icons.Content as MIcons
@@ -33,8 +34,7 @@ import Material.Icons.Editor as MIcons
 import Material.Icons.Navigation as MIcons
 import Material.Icons.Toggle as MIcons
 import Maybe.Extra as Maybe
-import List.Extra as List
-import Msg exposing (Msg(..))
+import Msg exposing (GM(..), Msg(..))
 import Palette exposing (black, black10, white)
 import Port
 import QueryPrefix
@@ -73,7 +73,6 @@ init flags =
         grainsReturn =
             GrainList.decodeString flags.grains
                 |> DecodeX.resultToReturn GrainList.init
-
     in
     Return.map
         (\grains ->
@@ -111,11 +110,8 @@ overSelectedGrain fn model =
     model
 
 
-
 moveSelectedGrainToBucket bucket =
     overSelectedGrain (Grain.moveToBucket bucket)
-
-
 
 
 
@@ -125,8 +121,6 @@ moveSelectedGrainToBucket bucket =
 cacheGrainListEffect : Model -> Cmd msg
 cacheGrainListEffect =
     .grains >> GrainList.cacheCmd
-
-
 
 
 globalKeyBinding model =
@@ -151,21 +145,26 @@ update message model =
         LogError errMsg ->
             pure model |> andDo (Port.error errMsg)
 
-        GrainGeneratorReceived gen ->
-            ( model
-            , Random.generate GrainAdd gen
-            )
+        SubGM msg ->
+            (case msg of
+                GMNew title ->
+                    andDo (Grain.newGeneratorWithTitleCmd (SubGM << GMOnGen) title)
 
-        GrainAdd grain ->
-            addGrain grain model
-                |> withEffect cacheGrainListEffect
+                GMOnGen gen ->
+                    andDo (Random.generate (SubGM << GMAdd) gen)
+
+                GMAdd grain ->
+                    andMapModel (addGrain grain)
+                        >> andThenDo cacheGrainListEffect
+            )
+            <|
+                pure model
 
         Prev ->
-            (model, Cmd.none)
+            ( model, Cmd.none )
 
         Next ->
-            (model, Cmd.none)
-
+            ( model, Cmd.none )
 
 
 handlerFromConfig =
@@ -225,10 +224,9 @@ updateDispatcher msg model =
 
 keyBinding model =
     K.bindEachToMsg <|
-                [ ( K.arrowUp, ( NoOp, True ) )
-                , ( K.arrowDown, ( NoOp, True ) )
-                ]
-
+        [ ( K.arrowUp, ( NoOp, True ) )
+        , ( K.arrowDown, ( NoOp, True ) )
+        ]
 
 
 view : Model -> Html Msg
@@ -272,7 +270,7 @@ viewGrains grainList =
                 grain
     in
     div [ id "grains-container", class "flex flex-column pv2" ]
-        (grainList |> GrainList.toList |> List.map  (viewItem False))
+        (grainList |> GrainList.toList |> List.map (viewItem False))
 
 
 viewGrainItem { domId, gid, selected, title } grain =
@@ -287,7 +285,6 @@ viewGrainItem { domId, gid, selected, title } grain =
                     else
                         title
                 ]
-
     in
     flexCol []
         [ id domId

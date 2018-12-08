@@ -12,7 +12,7 @@ module Grain exposing
     , labelIds
     , moveToBucket
     , newGenerator
-    , newGeneratorCmd
+    , newGeneratorWithTitleCmd
     , title
     , toggleComplete
     , toggleLabel
@@ -78,7 +78,8 @@ newGenerator title_ =
         Time.now
 
 
-newGeneratorCmd msg =
+newGeneratorWithTitleCmd : (Generator Grain -> msg) -> String -> Cmd msg
+newGeneratorWithTitleCmd msg =
     Task.perform msg << newGenerator
 
 
