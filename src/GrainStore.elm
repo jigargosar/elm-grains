@@ -1,4 +1,3 @@
-
 module GrainStore exposing (GrainStore)
 
 import Dict exposing (Dict)
@@ -7,8 +6,17 @@ import GrainId exposing (GrainId)
 
 
 type alias Model =
-    { lookup : Dict GrainId Grain }
+    { lookup : Dict GrainId Grain
+    }
 
 
 type GrainStore
     = GrainStore Model
+
+
+unwrap (GrainStore model) =
+    model
+
+
+map fn =
+    unwrap >> fn >> GrainStore
