@@ -131,26 +131,6 @@ subscriptions model =
         [ Browser.Events.onKeyDown (globalKeyBinding model) ]
 
 
-andThenUpdate msg =
-    Return.andThen (update msg)
-
-
-updateDispatcher msg model =
-    let
-        config =
-            HandlerConfig
-                { handler = handle
-                , model = model
-                , cmd = Cmd.none
-                }
-
-        toReturn =
-            unwrapConfig >> (\c -> ( c.model, c.cmd ))
-    in
-    handle msg config
-        |> toReturn
-
-
 handlerFromConfig =
     unwrapConfig >> .handler
 
@@ -184,20 +164,12 @@ andThenDo fn c =
     andDo (fn (modelFromConfig c)) c
 
 
-update : Msg -> Model -> Return Msg Model
-update msg model =
-    let
-        config =
-            HandlerConfig
-                { handler = updateF
-                , model = model
-                , cmd = Cmd.none
-                }
-
-        toReturn =
-            unwrapConfig >> (\c -> ( c.model, c.cmd ))
-    in
-    handlerFromConfig config msg config |> toReturn
+type HandlerConfig msg model
+    = HandlerConfig
+        { handler : msg -> HandlerConfig msg model -> HandlerConfig msg model
+        , model : model
+        , cmd : Cmd msg
+        }
 
 
 toElmUpdateFn handler msg model =
@@ -240,24 +212,6 @@ updateF message =
 
         Next ->
             identity
-
-
-handle : Msg -> HandlerConfig Msg Model -> HandlerConfig Msg Model
-handle msg =
-    case msg of
-        NoOp ->
-            identity
-
-        _ ->
-            dispatch NoOp
-
-
-type HandlerConfig msg model
-    = HandlerConfig
-        { handler : msg -> HandlerConfig msg model -> HandlerConfig msg model
-        , model : model
-        , cmd : Cmd msg
-        }
 
 
 keyBinding model =
