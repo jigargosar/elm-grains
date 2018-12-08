@@ -1,7 +1,6 @@
 import './main.css'
 // noinspection ES6CheckImport
 import { Elm } from './Main.elm'
-import G from './StoreGenerator.elm'
 import registerServiceWorker from './registerServiceWorker'
 import { curry, forEachObjIndexed, isNil, partial, pathOr, tap } from 'ramda'
 
@@ -62,7 +61,7 @@ const app = Elm.Main.init({
   },
 })
 
-const sgApp = G.Elm.StoreGenerator.init ({node:document.getElementById('root2')})
+// const sgApp = G.Elm.StoreGenerator.init ({node:document.getElementById('root2')})
 // sgApp.ports.error.subscribe(e=>{
 //     console.log(`Generated Code`, e)
 //   }
