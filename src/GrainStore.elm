@@ -22,7 +22,7 @@ unwrap (GrainStore model) =
     model
 
 
-map fn =
+mapModel fn =
     unwrap >> fn >> GrainStore
 
 
