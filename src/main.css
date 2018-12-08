@@ -1,0 +1,29 @@
+@import "~tachyons";
+
+body, html {
+  height:100%;
+  width:100%;
+  overflow: auto;
+}
+
+#root, [data-elm-hot]{
+  min-width: 100vw;
+  min-height: 100vh;
+  height: 100%;
+  width: 100%;
+  overflow: scroll;
+}
+
+* [data-elm-hot] > :last-child {
+  left: 10px;
+  right: unset !important;
+  bottom: -10px !important;
+  /*width: 150px;*/
+  /*line-height: 1;*/
+}
+
+* [data-elm-hot] > :last-child  * {
+  padding: 0!important;
+  font-size: 10px;
+  line-height: 1.2;
+}

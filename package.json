@@ -1,0 +1,49 @@
+{
+  "name": "elm-record-update",
+  "version": "0.0.1",
+  "description": "This project is bootstrapped with [Create Elm App](https://github.com/halfzebra/create-elm-app).",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "start": "nodemon -w yarn.lock -w package-lock.json -w elm.json -x env ELM_DEBUGGER=true elm-app start",
+    "now-build": "npm add create-elm-app && elm-app build && mv build dist",
+    "build": "elm-app build",
+    "bs": "npm run build && serve build",
+    "deploy": "now -n elm-done && now alias",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Jigar Gosar <jigar.gosar@gmail.com> (https://jigargosar.com)",
+  "license": "MIT",
+  "prettier": {
+    "trailingComma": "all",
+    "arrowParens": "avoid",
+    "singleQuote": true,
+    "semi": false,
+    "printWidth": 80
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "post-commit": "git update-index -g"
+    }
+  },
+  "lint-staged": {
+    "*.{js,json,css,md}": [
+      "prettier --config package.json --write",
+      "git add"
+    ]
+  },
+  "dependencies": {
+    "googleapis": "^35.0.0",
+    "ramda": "^0.25.0",
+    "tachyons": "^4.11.1"
+  },
+  "devDependencies": {
+    "husky": "^1.1.4",
+    "lint-staged": "^8.0.4",
+    "prettier": "^1.15.2"
+  }
+}
