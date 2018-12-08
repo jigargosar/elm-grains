@@ -88,7 +88,7 @@ insertAt ( insertPos, grain ) =
                 Grain.After gid ->
                     List.findIndex (Grain.hasId gid) list
                         |> unwrapMaybe list
-                            ((+) -2
+                            ((+) 1
                                 >> (\n ->
                                         List.take n list
                                             ++ [ grain ]
