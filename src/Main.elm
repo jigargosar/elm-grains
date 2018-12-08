@@ -107,6 +107,11 @@ overGrainWithId gid fn =
 ---- UPDATE ----
 
 
+updateGrain gid fn =
+    mapModel (overGrainWithId gid fn)
+        >> andThenDo cacheGrains
+
+
 cacheGrains : Model -> Cmd msg
 cacheGrains =
     .grains >> GrainStore.cacheCmd
@@ -162,7 +167,7 @@ updateF message =
                         >> andThenDo cacheGrains
 
                 GMTitle gid newTitle ->
-                    mapModel (overGrainWithId gid (Grain.setTitle newTitle))
+                    updateGrain gid (Grain.setTitle newTitle)
 
         Prev ->
             identity
