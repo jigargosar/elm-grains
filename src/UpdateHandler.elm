@@ -1,7 +1,9 @@
 module UpdateHandler exposing
     ( andDo
     , andDoWhen
+    , andDoWith
     , andThenDo
+    , dispatch
     , mapModel
     , toElmUpdateFn
     )
@@ -36,6 +38,11 @@ mapModel fn =
 
 andDo cmd =
     overConfig (\c -> { c | cmd = Cmd.batch [ c.cmd, cmd ] })
+
+
+andDoWith : (model -> a) -> (a -> Cmd msg) -> HandlerConfig msg model -> HandlerConfig msg model
+andDoWith extract fn c =
+    andDo (fn (extract <| modelFromConfig c)) c
 
 
 andDoWhen pred cmd =

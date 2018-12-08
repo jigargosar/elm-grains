@@ -138,13 +138,19 @@ updateF message =
         BaseLayerFocusInChanged hasFocusIn ->
             mapModel (\model -> { model | hasFocusIn = hasFocusIn })
 
-        NewInputChanged inputValue ->
+        InputChanged inputValue ->
             mapModel (\model -> { model | inputValue = inputValue })
+
+        InputSubmit ->
+            dispatch (SubGM GMNew)
 
         SubGM msg ->
             case msg of
-                GMNew title ->
-                    andDo (Grain.newGeneratorWithTitleCmd (SubGM << GMOnGen) title)
+                GMNew ->
+                    andDoWith .inputValue
+                        (\title ->
+                            Grain.newGeneratorWithTitleCmd (SubGM << GMOnGen) title
+                        )
 
                 GMOnGen gen ->
                     andDo (Random.generate (SubGM << GMAdd) gen)
@@ -205,7 +211,10 @@ viewGrainList list =
     let
         viewItemChildren =
             if List.isEmpty list then
-                [ input [ onInput NewInputChanged ] [] ]
+                [ Html.form [ class "flex flex-column", onSubmit InputSubmit ]
+                    [ input [ onInput InputChanged ] []
+                    ]
+                ]
 
             else
                 List.map (viewGrainItem False) list

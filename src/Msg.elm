@@ -13,7 +13,7 @@ import Random exposing (Generator)
 
 
 type GM
-    = GMNew String
+    = GMNew
     | GMOnGen (Generator Grain)
     | GMAdd Grain
 
@@ -24,7 +24,8 @@ type Msg
     | LogError String
     | BrowserAnyKeyDown
     | BaseLayerFocusInChanged Bool
-    | NewInputChanged String
+    | InputChanged String
+    | InputSubmit
       -- GRAIN
     | SubGM GM
       -- GRAIN LIST NAVIGATION
