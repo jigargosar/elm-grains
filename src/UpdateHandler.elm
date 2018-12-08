@@ -1,4 +1,12 @@
-module UpdateHandler exposing (andDo, andThenDo, modModel, toElmUpdateFn)
+module UpdateHandler exposing
+    ( andDo
+    , andDoWhen
+    , andThenDo
+    , mapModel
+    , toElmUpdateFn
+    )
+
+import BasicsX exposing (when)
 
 
 handlerFromConfig =
@@ -22,7 +30,7 @@ dispatch msg config =
     handlerFromConfig config msg config
 
 
-modModel fn =
+mapModel fn =
     overConfig (\c -> { c | model = fn c.model })
 
 
@@ -30,8 +38,12 @@ andDo cmd =
     overConfig (\c -> { c | cmd = Cmd.batch [ c.cmd, cmd ] })
 
 
-andThenDo fn c =
-    andDo (fn (modelFromConfig c)) c
+andDoWhen pred cmd =
+    when (modelFromConfig >> pred) (andDo cmd)
+
+
+andThenDo fn cmd =
+    andDo (fn (modelFromConfig cmd)) cmd
 
 
 type HandlerConfig msg model

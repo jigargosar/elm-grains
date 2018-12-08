@@ -63,6 +63,7 @@ type alias Flags =
 
 type alias Model =
     { grains : GrainStore
+    , hasFocusIn : Bool
     }
 
 
@@ -71,6 +72,7 @@ init flags =
     Return.map
         (\grains ->
             { grains = grains
+            , hasFocusIn = False
             }
         )
         (GrainStore.decode flags.grains)
@@ -106,13 +108,17 @@ cacheGrains =
     .grains >> GrainStore.cacheCmd
 
 
+focusBaseLayerCmd =
+    Browser.Dom.focus "base-layer" |> Task.attempt (\_ -> NoOp)
+
+
 globalKeyBinding model =
     K.bindEachToMsg []
 
 
 subscriptions model =
     Sub.batch
-        [ Browser.Events.onKeyDown (globalKeyBinding model) ]
+        [ Browser.Events.onKeyDown <| D.succeed BrowserAnyKeyDown ]
 
 
 updateF message =
@@ -123,6 +129,9 @@ updateF message =
         LogError errMsg ->
             andDo (Port.error errMsg)
 
+        BrowserAnyKeyDown ->
+            andDoWhen (.hasFocusIn >> not) focusBaseLayerCmd
+
         SubGM msg ->
             case msg of
                 GMNew title ->
@@ -132,7 +141,7 @@ updateF message =
                     andDo (Random.generate (SubGM << GMAdd) gen)
 
                 GMAdd grain ->
-                    modModel (addGrain grain)
+                    mapModel (addGrain grain)
                         >> andThenDo cacheGrains
 
         Prev ->

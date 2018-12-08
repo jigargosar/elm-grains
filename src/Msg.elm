@@ -22,6 +22,7 @@ type Msg
     = ---- INJECT MSG BELOW ----
       NoOp
     | LogError String
+    | BrowserAnyKeyDown
       -- GRAIN
     | SubGM GM
       -- GRAIN LIST NAVIGATION
