@@ -162,7 +162,7 @@ updateF message =
                         >> andThenDo cacheGrains
 
                 GMTitle gid newTitle ->
-                    overGrainWithId gid (Grain.setTitle newTitle)
+                    mapModel (overGrainWithId gid (Grain.setTitle newTitle))
 
         Prev ->
             identity
