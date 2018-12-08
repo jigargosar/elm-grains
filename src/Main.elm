@@ -183,7 +183,7 @@ viewBase model =
 
 
 viewGrainList : List Grain -> Html Msg
-viewGrainList items =
+viewGrainList list =
     let
         viewItem selected grain =
             viewGrainItem
@@ -195,7 +195,7 @@ viewGrainList items =
                 grain
     in
     div [ id "grains-container", class "flex flex-column pv2" ]
-        (List.map (viewItem False) items)
+        (List.map (viewItem False) list)
 
 
 viewGrainItem { domId, gid, selected, title } grain =
