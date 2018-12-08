@@ -28,6 +28,7 @@ import Json.Decode as D
 import Json.Decode.Pipeline exposing (optional)
 import Json.Encode as E exposing (Value)
 import List.Extra as List
+import ListIndex exposing (ListIndex)
 import Material.Icons.Action as MIcons
 import Material.Icons.Alert as MIcons
 import Material.Icons.Content as MIcons
@@ -66,6 +67,7 @@ type alias Model =
     { grains : GrainStore
     , hasFocusIn : Bool
     , inputValue : String
+    , gLIdx : ListIndex
     }
 
 
@@ -76,12 +78,17 @@ init flags =
             { grains = grains
             , hasFocusIn = False
             , inputValue = ""
+            , gLIdx = ListIndex.empty
             }
         )
         (GrainStore.decode flags.grains)
 
 
-grainList =
+selectedGrain model =
+    ListIndex.selected (currentGrainList model) model.gLIdx
+
+
+currentGrainList =
     .grains >> GrainStore.items
 
 
@@ -120,6 +127,14 @@ addGrainWithInsertPosition ( insertPos, grain ) =
 
 focusGrain =
     GrainStore.grainDomId >> Browser.Dom.focus >> Task.attempt (\_ -> NoOp)
+
+
+focusMaybeGrain =
+    unwrapMaybe Cmd.none focusGrain
+
+
+andFocusSelectedGrain =
+    andThenDo (selectedGrain >> focusMaybeGrain)
 
 
 updateGrain gid fn =
@@ -196,6 +211,7 @@ updateF message =
 
                 GMDeleteIfEmpty gid ->
                     mapGrains (GrainStore.deleteIfEmpty gid)
+                        >> andFocusSelectedGrain
 
         Prev ->
             identity
@@ -239,7 +255,7 @@ viewBase model =
         [ styled div
             [ Css.width <| px 400 ]
             [ class "flex flex-column pv3" ]
-            [ viewGrainList (grainList model)
+            [ viewGrainList (currentGrainList model)
             ]
         ]
 

@@ -4,6 +4,7 @@ module GrainStore exposing
     , decode
     , decoder
     , deleteIfEmpty
+    , findById
     , grainDomId
     , insertAt
     , items
@@ -109,3 +110,7 @@ update gid fn =
 
 deleteIfEmpty gid =
     mapItems (List.filterNot (\g -> Grain.hasId gid g && (Grain.title g == "")))
+
+
+findById gid =
+    items >> List.find (Grain.hasId gid)

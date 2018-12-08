@@ -1,5 +1,6 @@
 module ListIndex exposing
     ( ListIndex
+    , empty
     , initFromList
     , rollBy
     , selected
