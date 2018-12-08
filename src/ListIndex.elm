@@ -3,11 +3,13 @@ module ListIndex exposing
     , empty
     , initFromList
     , rollBy
+    , selectBy
     , selected
     , selectedMap
     )
 
 import BasicsX exposing (atClampedIdx, clampIdxIn, rollIdx, unwrapMaybe)
+import List.Extra as List
 
 
 type alias Model =
@@ -36,6 +38,14 @@ idx =
     unwrap >> .idx
 
 
+map fn =
+    unwrap >> fn >> ListIndex
+
+
+mapIdx fn =
+    map (\model -> { model | idx = fn model.idx })
+
+
 selectedMap fn list listIndex =
     let
         ims si =
@@ -56,3 +66,7 @@ rollBy offset list listIndex =
 
 selected list listIndex =
     idx listIndex |> atClampedIdx list
+
+
+selectBy pred list =
+    mapIdx (\ii -> List.findIndex pred list |> Maybe.withDefault ii)

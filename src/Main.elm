@@ -218,6 +218,18 @@ updateF message =
                     mapGrains (GrainStore.deleteIfEmpty gid)
                         >> andFocusSelectedGrain
 
+                GMGrainFocused gid ->
+                    mapModel
+                        (\model ->
+                            let
+                                newGLIdx =
+                                    ListIndex.selectBy (Grain.hasId gid)
+                                        (currentGrainList model)
+                                        model.gLIdx
+                            in
+                            { model | gLIdx = newGLIdx }
+                        )
+
         Prev ->
             identity
 
@@ -306,17 +318,13 @@ viewGrainItem selected grain =
     in
     styled input
         [ Css.borderBottom3 (px 1) Css.solid (Css.rgba 0 0 0 0.3) ]
-        [ {- id "base-layer-input"
-             ,
-          -}
-          id (Grain.idAsString grain)
+        [ id (Grain.idAsString grain)
         , class "pa2 bn "
         , classList [ ( "bg-lightest-blue", selected ) ]
-
-        --              class "pa2 flex-grow-1 mr2 "
         , onInput (SubGM << GMTitle gid)
         , value title
         , autocomplete False
+        , onFocus <| SubGM <| GMGrainFocused gid
         , SA.fromUnstyled <|
             onKeyDownPD <|
                 K.bindEachToMsg

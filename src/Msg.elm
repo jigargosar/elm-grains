@@ -19,6 +19,7 @@ type GM
     | GMTitle GrainId String
     | GMNewAfter GrainId
     | GMDeleteIfEmpty GrainId
+    | GMGrainFocused GrainId
 
 
 type Msg
