@@ -109,7 +109,8 @@ cacheGrains =
 
 
 focusBaseLayerCmd =
-    Browser.Dom.focus "base-layer" |> Task.attempt (\_ -> NoOp)
+    Browser.Dom.focus "base-layer"
+        |> Task.attempt (\_ -> NoOp)
 
 
 globalKeyBinding model =
@@ -131,6 +132,9 @@ updateF message =
 
         BrowserAnyKeyDown ->
             andDoWhen (.hasFocusIn >> not) focusBaseLayerCmd
+
+        BaseLayerFocusInChanged hasFocusIn ->
+            mapModel (\model -> { model | hasFocusIn = hasFocusIn })
 
         SubGM msg ->
             case msg of
@@ -161,9 +165,14 @@ keyBinding model =
 view : Model -> Html Msg
 view model =
     styled div
-        [ Css.flexShrink <| num 0, Css.minWidth <| pct 100, Css.minHeight <| pct 100 ]
+        [ Css.flexShrink <| num 0
+        , Css.minWidth <| pct 100
+        , Css.minHeight <| pct 100
+        ]
         [ id "base-layer"
         , class "sans-serif flex flex-column"
+        , SA.fromUnstyled <| EventX.onFocusIn <| BaseLayerFocusInChanged True
+        , SA.fromUnstyled <| EventX.onFocusOut <| BaseLayerFocusInChanged False
         , tabindex -1
         , SA.fromUnstyled <|
             EventX.onKeyDownPD <|

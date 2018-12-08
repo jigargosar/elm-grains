@@ -23,6 +23,7 @@ type Msg
       NoOp
     | LogError String
     | BrowserAnyKeyDown
+    | BaseLayerFocusInChanged Bool
       -- GRAIN
     | SubGM GM
       -- GRAIN LIST NAVIGATION
