@@ -184,22 +184,15 @@ viewBase model =
 
 viewGrainList : List Grain -> Html Msg
 viewGrainList list =
-    let
-        viewItem selected grain =
-            viewGrainItem
-                { selected = selected
-                , gid = Grain.id grain
-                , domId = Grain.idAsString grain
-                , title = Grain.title grain
-                }
-                grain
-    in
     div [ id "grains-container", class "flex flex-column pv2" ]
-        (List.map (viewItem False) list)
+        (List.map (viewGrainItem False) list)
 
 
-viewGrainItem { domId, gid, selected, title } grain =
+viewGrainItem selected grain =
     let
+        title =
+            Grain.title grain
+
         viewGrainTitle =
             flexRow []
                 [ class "f4 pa1" ]
@@ -212,7 +205,7 @@ viewGrainItem { domId, gid, selected, title } grain =
                 ]
     in
     flexCol []
-        [ id domId
+        [ id (Grain.idAsString grain)
         , class "pa2 bb b--light-gray"
         , classList [ ( "bg-lightest-blue", selected ) ]
         ]
