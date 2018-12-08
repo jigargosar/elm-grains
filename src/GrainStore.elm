@@ -1,4 +1,12 @@
-module GrainStore exposing (GrainStore, decodeString)
+module GrainStore exposing
+    ( GrainStore
+    , cacheCmd
+    , decodeString
+    , decoder
+    , grainDomId
+    , items
+    , prepend
+    )
 
 import DecodeX exposing (Encoder)
 import Dict exposing (Dict)
@@ -7,6 +15,7 @@ import GrainId exposing (GrainId)
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline exposing (required)
 import Json.Encode as E
+import Port
 
 
 type alias Model =
@@ -16,14 +25,6 @@ type alias Model =
 
 type GrainStore
     = GrainStore Model
-
-
-unwrap (GrainStore model) =
-    model
-
-
-map fn =
-    unwrap >> fn >> GrainStore
 
 
 encoder : Encoder GrainStore
@@ -40,5 +41,38 @@ decoder =
         |> D.map GrainStore
 
 
-decodeString str =
-    D.decodeString decoder str
+decodeString =
+    DecodeX.decodeString empty decoder
+
+
+empty =
+    GrainStore { items = [] }
+
+
+unwrap (GrainStore model) =
+    model
+
+
+items =
+    unwrap >> .items
+
+
+cacheCmd : GrainStore -> Cmd msg
+cacheCmd =
+    items >> E.list Grain.encoder >> Port.cacheGrains
+
+
+map fn =
+    unwrap >> fn >> GrainStore
+
+
+mapItems fn =
+    map (\model -> { model | items = fn model.items })
+
+
+prepend grain =
+    mapItems ((::) grain)
+
+
+grainDomId =
+    Grain.id >> GrainId.asString

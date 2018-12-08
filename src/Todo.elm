@@ -145,7 +145,7 @@ cache =
                 [ ( "lookup", E.dict identity todoEncoder model.lookup )
                 ]
     in
-    Port.cacheGrainList << encoder
+    Port.cacheGrains << encoder
 
 
 all =

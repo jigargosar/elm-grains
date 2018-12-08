@@ -10,8 +10,8 @@ module GrainList exposing
     , init
     , prepend
     , remove
-    , update
     , toList
+    , update
     )
 
 import BasicsX exposing (..)
@@ -63,7 +63,7 @@ decodeString =
 
 cacheCmd : GrainList -> Cmd msg
 cacheCmd =
-    grainList2Model.get >> SList.toList >> E.list Grain.encoder >> Port.cacheGrainList
+    grainList2Model.get >> SList.toList >> E.list Grain.encoder >> Port.cacheGrains
 
 
 over : (GSList -> GSList) -> GrainList -> GrainList
@@ -90,8 +90,10 @@ filterMapCSToList : (Grain -> Bool) -> (Grain -> a) -> (Grain -> a) -> GrainList
 filterMapCSToList pred cFn sFn =
     unwrap >> SList.filterMapCSToList pred cFn sFn
 
+
 toList =
     unwrap >> SList.toList
+
 
 filteredRoll pred offset =
     over

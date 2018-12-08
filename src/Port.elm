@@ -1,5 +1,5 @@
 port module Port exposing
-    ( cacheGrainList
+    ( cacheGrains
     , cacheLabelList
     , cacheUserLabelList
     , error
@@ -8,7 +8,7 @@ port module Port exposing
 import Json.Encode exposing (Value)
 
 
-port cacheGrainList : Value -> Cmd msg
+port cacheGrains : Value -> Cmd msg
 
 
 port cacheLabelList : Value -> Cmd msg

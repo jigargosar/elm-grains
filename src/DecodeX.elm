@@ -1,4 +1,4 @@
-module DecodeX exposing (DecodeResult, Encoder, resultToReturn, start)
+module DecodeX exposing (DecodeResult, Encoder, decodeString, resultToReturn, start)
 
 import BasicsX exposing (callWith)
 import Json.Decode as D exposing (Decoder)
@@ -37,3 +37,8 @@ resultToReturn a =
         (D.errorToString >> Port.error >> return a)
         singleton
         >> Result.merge
+
+
+decodeString default decoder string =
+    D.decodeString decoder string
+        |> resultToReturn default

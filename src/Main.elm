@@ -18,7 +18,7 @@ import Elevation exposing (elevation)
 import EventX
 import Grain exposing (Grain)
 import GrainId exposing (GrainId)
-import GrainList exposing (GrainList)
+import GrainStore exposing (GrainStore)
 import HotKey as K exposing (SoftKey(..))
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes as SA exposing (..)
@@ -62,17 +62,16 @@ type alias Flags =
 
 
 type alias Model =
-    { grains : GrainList
+    { grains : GrainStore
     }
 
 
 init : Flags -> Return Msg Model
 init flags =
     let
-        grainsReturn : Return msg GrainList
+        grainsReturn : Return msg GrainStore
         grainsReturn =
-            GrainList.decodeString flags.grains
-                |> DecodeX.resultToReturn GrainList.init
+            GrainStore.decodeString flags.grains
     in
     Return.map
         (\grains ->
@@ -82,45 +81,34 @@ init flags =
         grainsReturn
 
 
+grainList =
+    .grains >> GrainStore.items
+
+
 setGrains grains model =
     { model | grains = grains }
 
 
-overGrainList : (GrainList -> GrainList) -> Model -> Model
-overGrainList fn model =
+overGrains : (GrainStore -> GrainStore) -> Model -> Model
+overGrains fn model =
     setGrains (fn model.grains) model
 
 
 addGrain : Grain -> Model -> Model
 addGrain grain =
-    overGrainList (GrainList.prepend grain)
-
-
-removeGrain : GrainId -> Model -> Model
-removeGrain gid =
-    overGrainList (GrainList.remove gid)
-
-
-overGrainWithId : GrainId -> (Grain -> Grain) -> Model -> Model
-overGrainWithId gid fn =
-    overGrainList (GrainList.update gid fn)
-
-
-overSelectedGrain fn model =
-    model
-
-
-moveSelectedGrainToBucket bucket =
-    overSelectedGrain (Grain.moveToBucket bucket)
+    overGrains (GrainStore.prepend grain)
 
 
 
+--overGrainWithId : GrainId -> (Grain -> Grain) -> Model -> Model
+--overGrainWithId gid fn =
+--    overGrains (GrainStore.update gid fn)
 ---- UPDATE ----
 
 
-cacheGrainListEffect : Model -> Cmd msg
-cacheGrainListEffect =
-    .grains >> GrainList.cacheCmd
+cacheGrains : Model -> Cmd msg
+cacheGrains =
+    .grains >> GrainStore.cacheCmd
 
 
 globalKeyBinding model =
@@ -150,7 +138,7 @@ updateF message =
 
                 GMAdd grain ->
                     modModel (addGrain grain)
-                        >> andThenDo cacheGrainListEffect
+                        >> andThenDo cacheGrains
 
         Prev ->
             identity
@@ -189,25 +177,25 @@ viewBase model =
         [ styled div
             [ Css.width <| px 400 ]
             [ class "flex flex-column pv3" ]
-            [ viewGrains model.grains
+            [ viewGrains (grainList model)
             ]
         ]
 
 
-viewGrains : GrainList -> Html Msg
-viewGrains grainList =
+viewGrains : List Grain -> Html Msg
+viewGrains items =
     let
         viewItem selected grain =
             viewGrainItem
                 { selected = selected
                 , gid = Grain.id grain
-                , domId = GrainList.grainDomId grain
+                , domId = Grain.idAsString grain
                 , title = Grain.title grain
                 }
                 grain
     in
     div [ id "grains-container", class "flex flex-column pv2" ]
-        (grainList |> GrainList.toList |> List.map (viewItem False))
+        (List.map (viewItem False) items)
 
 
 viewGrainItem { domId, gid, selected, title } grain =

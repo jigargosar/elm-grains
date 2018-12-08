@@ -5,6 +5,7 @@ module Grain exposing
     , encoder
     , hasId
     , id
+    , idAsString
     , isComplete
     , isInBucket
     , isInTrash
@@ -111,6 +112,10 @@ decoder =
 
 unwrap (Grain model) =
     model
+
+
+idAsString =
+    id >> GrainId.asString
 
 
 labelIds =

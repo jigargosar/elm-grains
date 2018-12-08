@@ -96,7 +96,7 @@ subscribe(
     error: data => {
       console.error(data)
     },
-    cacheGrainList: todos => {
+    cacheGrains: todos => {
       storageSet('grains', todos)
     },
     // cacheContextStore: contexts => {
