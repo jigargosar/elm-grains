@@ -57,7 +57,7 @@ import UpdateHandler exposing (..)
 type alias Flags =
     { now : Millis
     , windowSize : WindowSize
-    , grains : String
+    , grains : Value
     }
 
 
@@ -71,7 +71,7 @@ init flags =
     let
         grainsReturn : Return msg GrainStore
         grainsReturn =
-            GrainStore.decodeString flags.grains
+            GrainStore.decode flags.grains
     in
     Return.map
         (\grains ->

@@ -1,7 +1,7 @@
 module GrainStore exposing
     ( GrainStore
     , cacheCmd
-    , decodeString
+    , decode
     , decoder
     , grainDomId
     , items
@@ -41,8 +41,8 @@ decoder =
         |> D.map GrainStore
 
 
-decodeString =
-    DecodeX.decodeString empty decoder
+decode =
+    DecodeX.decode empty decoder
 
 
 empty =

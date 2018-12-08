@@ -1,4 +1,4 @@
-module DecodeX exposing (DecodeResult, Encoder, decodeString, resultToReturn, start)
+module DecodeX exposing (DecodeResult, Encoder, decode, resultToReturn, start)
 
 import BasicsX exposing (callWith)
 import Json.Decode as D exposing (Decoder)
@@ -39,6 +39,6 @@ resultToReturn a =
         >> Result.merge
 
 
-decodeString default decoder string =
-    D.decodeString decoder string
-        |> resultToReturn default
+decode default decoder =
+    D.decodeValue decoder
+        >> resultToReturn default

@@ -54,7 +54,7 @@ const app = Elm.Main.init({
   flags: {
     now: Date.now(),
     windowSize: { width: window.innerWidth, height: window.innerHeight },
-    grains: localStorage.getItem('grains') || '{"items":[]}',
+    grains: localStorage.getItem('grains'),
   },
 })
 
