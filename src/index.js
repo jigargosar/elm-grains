@@ -62,11 +62,11 @@ const app = Elm.Main.init({
   },
 })
 
-const sgApp = G.Elm.StoreGenerator.init ({})
-sgApp.ports.error.subscribe(e=>{
-    console.log(`Generated Code`, e)
-  }
-)
+const sgApp = G.Elm.StoreGenerator.init ({node:document.getElementById('root2')})
+// sgApp.ports.error.subscribe(e=>{
+//     console.log(`Generated Code`, e)
+//   }
+// )
 
 
 
