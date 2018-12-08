@@ -82,6 +82,7 @@ init flags =
             }
         )
         (GrainStore.decode flags.grains)
+        |> Return.effect_ focusSelectedGrain
 
 
 selectedGrain model =
@@ -133,8 +134,12 @@ focusMaybeGrain =
     unwrapMaybe Cmd.none focusGrain
 
 
+focusSelectedGrain =
+    selectedGrain >> focusMaybeGrain
+
+
 andFocusSelectedGrain =
-    andThenDo (selectedGrain >> focusMaybeGrain)
+    andThenDo focusSelectedGrain
 
 
 updateGrain gid fn =
