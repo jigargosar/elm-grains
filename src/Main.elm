@@ -111,6 +111,11 @@ overGrainWithId gid fn =
 addGrainWithInsertPosition ( insertPos, grain ) =
     mapModel (overGrains (GrainStore.insertAt ( insertPos, grain )))
         >> andThenDo cacheGrains
+        >> andDo (focusGrain grain)
+
+
+focusGrain =
+    GrainStore.grainDomId >> Browser.Dom.focus >> Task.attempt (\_ -> NoOp)
 
 
 updateGrain gid fn =
