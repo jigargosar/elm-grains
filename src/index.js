@@ -1,6 +1,7 @@
 import './main.css'
 // noinspection ES6CheckImport
 import { Elm } from './Main.elm'
+import G from './StoreGenerator.elm'
 import registerServiceWorker from './registerServiceWorker'
 import { curry, forEachObjIndexed, isNil, partial, pathOr, tap } from 'ramda'
 
@@ -60,6 +61,14 @@ const app = Elm.Main.init({
     userLabels: localStorage.getItem("userLabels") || "[]",
   },
 })
+
+const sgApp = G.Elm.StoreGenerator.init ({})
+sgApp.ports.error.subscribe(e=>{
+    console.log(`Generated Code`, e)
+  }
+)
+
+
 
 subscribe(
   {
