@@ -239,16 +239,21 @@ viewGrainItem selected grain =
                         title
                 ]
     in
-    flexCol []
-        [ id (Grain.idAsString grain)
-        , class "pa2 bb b--light-gray"
+    styled input
+        [ Css.borderBottom3 (px 1) Css.solid (Css.rgba 0 0 0 0.3) ]
+        [ {- id "base-layer-input"
+             ,
+          -}
+          id (Grain.idAsString grain)
+        , class "pa2 bn "
         , classList [ ( "bg-lightest-blue", selected ) ]
+
+        --              class "pa2 flex-grow-1 mr2 "
+        , onInput (\_ -> NoOp)
+        , value title
+        , autocomplete False
         ]
-        [ flexRow [ Css.justifyContent Css.spaceBetween ]
-            [ class "" ]
-            [ viewGrainTitle
-            ]
-        ]
+        []
 
 
 

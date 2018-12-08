@@ -59,7 +59,7 @@ items =
 
 cacheCmd : GrainStore -> Cmd msg
 cacheCmd =
-    items >> E.list Grain.encoder >> Port.cacheGrains
+    encoder >> Port.cacheGrains
 
 
 map fn =
