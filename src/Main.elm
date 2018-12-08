@@ -108,6 +108,10 @@ overGrainWithId gid fn =
 ---- UPDATE ----
 
 
+mapGrains fn =
+    mapModel <| overGrains fn
+
+
 addGrainWithInsertPosition ( insertPos, grain ) =
     mapModel (overGrains (GrainStore.insertAt ( insertPos, grain )))
         >> andThenDo cacheGrains
@@ -189,6 +193,9 @@ updateF message =
                         (Grain.newGeneratorWithTitleAndInsertPosition "" (Grain.After gid)
                             |> Task.perform (SubGM << GMOnGen)
                         )
+
+                GMDeleteIfEmpty gid ->
+                    mapGrains (GrainStore.deleteIfEmpty gid)
 
         Prev ->
             identity
@@ -292,7 +299,9 @@ viewGrainItem selected grain =
         , SA.fromUnstyled <|
             onKeyDownPD <|
                 K.bindEachToMsg
-                    [ ( K.enter, ( SubGM <| GMNewAfter gid, True ) ) ]
+                    [ ( K.enter, ( SubGM <| GMNewAfter gid, True ) )
+                    , ( ( [], "Backspace" ), ( SubGM <| GMDeleteIfEmpty gid, False ) )
+                    ]
         ]
         []
 

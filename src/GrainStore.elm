@@ -3,6 +3,7 @@ module GrainStore exposing
     , cacheCmd
     , decode
     , decoder
+    , deleteIfEmpty
     , grainDomId
     , insertAt
     , items
@@ -104,3 +105,7 @@ grainDomId =
 
 update gid fn =
     mapItems (List.updateIf (Grain.hasId gid) fn)
+
+
+deleteIfEmpty gid =
+    mapItems (List.filterNot (\g -> Grain.hasId gid g && (Grain.title g == "")))

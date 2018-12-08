@@ -18,6 +18,7 @@ type GM
     | GMAdd ( Grain.InsertPosition, Grain )
     | GMTitle GrainId String
     | GMNewAfter GrainId
+    | GMDeleteIfEmpty GrainId
 
 
 type Msg
