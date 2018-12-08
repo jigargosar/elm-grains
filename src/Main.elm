@@ -47,6 +47,7 @@ import Task
 import Theme exposing (spacingUnit)
 import TimeX exposing (Millis)
 import Tuple exposing (mapFirst)
+import UpdateHandler exposing (..)
 
 
 
@@ -129,62 +130,6 @@ globalKeyBinding model =
 subscriptions model =
     Sub.batch
         [ Browser.Events.onKeyDown (globalKeyBinding model) ]
-
-
-handlerFromConfig =
-    unwrapConfig >> .handler
-
-
-modelFromConfig =
-    unwrapConfig >> .model
-
-
-unwrapConfig (HandlerConfig hc) =
-    hc
-
-
-overConfig fn =
-    unwrapConfig >> fn >> HandlerConfig
-
-
-dispatch : msg -> HandlerConfig msg model -> HandlerConfig msg model
-dispatch msg config =
-    handlerFromConfig config |> callWith2 msg config
-
-
-modModel fn =
-    overConfig (\c -> { c | model = fn c.model })
-
-
-andDo cmd =
-    overConfig (\c -> { c | cmd = Cmd.batch [ c.cmd, cmd ] })
-
-
-andThenDo fn c =
-    andDo (fn (modelFromConfig c)) c
-
-
-type HandlerConfig msg model
-    = HandlerConfig
-        { handler : msg -> HandlerConfig msg model -> HandlerConfig msg model
-        , model : model
-        , cmd : Cmd msg
-        }
-
-
-toElmUpdateFn handler msg model =
-    let
-        config =
-            HandlerConfig
-                { handler = updateF
-                , model = model
-                , cmd = Cmd.none
-                }
-
-        toReturn =
-            unwrapConfig >> (\c -> ( c.model, c.cmd ))
-    in
-    handlerFromConfig config msg config |> toReturn
 
 
 updateF message =
