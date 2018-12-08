@@ -48,16 +48,13 @@ function storageSet(key, value) {
   localStorage.setItem(key, JSON.stringify(value))
 }
 
-
 // noinspection JSUnresolvedVariable
 const app = Elm.Main.init({
   node: document.getElementById('root'),
   flags: {
     now: Date.now(),
     windowSize: { width: window.innerWidth, height: window.innerHeight },
-    grains: localStorage.getItem("grains") || "[]",
-    labels: localStorage.getItem("labels") || "[]",
-    userLabels: localStorage.getItem("userLabels") || "[]",
+    grains: localStorage.getItem('grains') || '{"items":[]}',
   },
 })
 
@@ -66,8 +63,6 @@ const app = Elm.Main.init({
 //     console.log(`Generated Code`, e)
 //   }
 // )
-
-
 
 subscribe(
   {
