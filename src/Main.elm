@@ -41,8 +41,7 @@ import QueryPrefix
 import Random exposing (Generator, Seed)
 import RandomId
 import Result.Extra as Result
-import Ret exposing (..)
-import Return
+import Return exposing (Return)
 import SList exposing (SList)
 import Task
 import Theme exposing (spacingUnit)
@@ -133,43 +132,31 @@ subscriptions model =
 
 
 andThenUpdate msg =
-    andThen (update msg)
+    Return.andThen (update msg)
 
 
-update : Msg -> Model -> Return Msg Model
-update message =
-    updateF message << pure
+updateDispatcher msg model =
+    let
+        config =
+            HandlerConfig
+                { handler = handle
+                , model = model
+                , cmd = Cmd.none
+                }
 
-
-updateF message =
-    case message of
-        NoOp ->
-            identity
-
-        LogError errMsg ->
-            andDo (Port.error errMsg)
-
-        SubGM msg ->
-            case msg of
-                GMNew title ->
-                    andDo (Grain.newGeneratorWithTitleCmd (SubGM << GMOnGen) title)
-
-                GMOnGen gen ->
-                    andDo (Random.generate (SubGM << GMAdd) gen)
-
-                GMAdd grain ->
-                    andMapModel (addGrain grain)
-                        >> andThenDo cacheGrainListEffect
-
-        Prev ->
-            identity
-
-        Next ->
-            identity
+        toReturn =
+            unwrapConfig >> (\c -> ( c.model, c.cmd ))
+    in
+    handle msg config
+        |> toReturn
 
 
 handlerFromConfig =
     unwrapConfig >> .handler
+
+
+modelFromConfig =
+    unwrapConfig >> .model
 
 
 unwrapConfig (HandlerConfig hc) =
@@ -189,6 +176,72 @@ modModel fn =
     overConfig (\c -> { c | model = fn c.model })
 
 
+andDo cmd =
+    overConfig (\c -> { c | cmd = Cmd.batch [ c.cmd, cmd ] })
+
+
+andThenDo fn c =
+    andDo (fn (modelFromConfig c)) c
+
+
+update : Msg -> Model -> Return Msg Model
+update msg model =
+    let
+        config =
+            HandlerConfig
+                { handler = updateF
+                , model = model
+                , cmd = Cmd.none
+                }
+
+        toReturn =
+            unwrapConfig >> (\c -> ( c.model, c.cmd ))
+    in
+    handlerFromConfig config msg config |> toReturn
+
+
+toElmUpdateFn handler msg model =
+    let
+        config =
+            HandlerConfig
+                { handler = updateF
+                , model = model
+                , cmd = Cmd.none
+                }
+
+        toReturn =
+            unwrapConfig >> (\c -> ( c.model, c.cmd ))
+    in
+    handlerFromConfig config msg config |> toReturn
+
+
+updateF message =
+    case message of
+        NoOp ->
+            identity
+
+        LogError errMsg ->
+            andDo (Port.error errMsg)
+
+        SubGM msg ->
+            case msg of
+                GMNew title ->
+                    andDo (Grain.newGeneratorWithTitleCmd (SubGM << GMOnGen) title)
+
+                GMOnGen gen ->
+                    andDo (Random.generate (SubGM << GMAdd) gen)
+
+                GMAdd grain ->
+                    modModel (addGrain grain)
+                        >> andThenDo cacheGrainListEffect
+
+        Prev ->
+            identity
+
+        Next ->
+            identity
+
+
 handle : Msg -> HandlerConfig Msg Model -> HandlerConfig Msg Model
 handle msg =
     case msg of
@@ -205,22 +258,6 @@ type HandlerConfig msg model
         , model : model
         , cmd : Cmd msg
         }
-
-
-updateDispatcher msg model =
-    let
-        config =
-            HandlerConfig
-                { handler = handle
-                , model = model
-                , cmd = Cmd.none
-                }
-
-        toReturn =
-            unwrapConfig >> (\c -> ( c.model, c.cmd ))
-    in
-    handle msg config
-        |> toReturn
 
 
 keyBinding model =
@@ -308,8 +345,8 @@ main =
     Browser.element
         { view = Html.toUnstyled << view
         , init = init
+        , update = toElmUpdateFn updateF
 
-        --        , update = update
-        , update = updateDispatcher
+        --        , update = updateDispatcher
         , subscriptions = subscriptions
         }
