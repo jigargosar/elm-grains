@@ -2,6 +2,7 @@ module UpdateHandler exposing
     ( andDo
     , andDoWhen
     , andDoWith
+    , andThen
     , andThenDo
     , dispatch
     , mapModel
@@ -51,6 +52,10 @@ andDoWhen pred cmd =
 
 andThenDo fn cmd =
     andDo (fn (modelFromConfig cmd)) cmd
+
+
+andThen fn c =
+    fn (modelFromConfig c) c
 
 
 type HandlerConfig msg model

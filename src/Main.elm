@@ -229,35 +229,37 @@ updateF message =
                             in
                             { model | gLIdx = newGLIdx }
                         )
-                        >> andFocusSelectedGrain
 
         Prev ->
-            mapModel
-                (\model ->
-                    let
-                        newGLIdx =
-                            ListIndex.rollBy
-                                -1
-                                (currentGrainList model)
-                                model.gLIdx
-                    in
-                    { model | gLIdx = newGLIdx }
-                )
-                >> andFocusSelectedGrain
+            gotoPrev
 
         Next ->
             mapModel
                 (\model ->
                     let
                         newGLIdx =
-                            ListIndex.rollBy
-                                1
+                            ListIndex.rollBy 1
                                 (currentGrainList model)
                                 model.gLIdx
                     in
                     { model | gLIdx = newGLIdx }
                 )
                 >> andFocusSelectedGrain
+
+
+gotoPrev =
+    mapModel
+        (\model ->
+            let
+                newGLIdx =
+                    ListIndex.rollBy
+                        -1
+                        (currentGrainList model)
+                        model.gLIdx
+            in
+            { model | gLIdx = newGLIdx }
+        )
+        >> andFocusSelectedGrain
 
 
 keyBinding model =
