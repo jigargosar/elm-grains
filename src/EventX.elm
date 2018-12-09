@@ -2,9 +2,7 @@ module EventX exposing
     ( KeyEvent
     , keyEventDecoder
     , onFocusIn
-    , onFocusInActiveElId
     , onFocusOut
-    , onFocusOutActiveElId
     , onKeyDown
     , onKeyDownPD
     )
@@ -29,19 +27,6 @@ onFocusIn tagger =
 
 onFocusOut tagger =
     HE.on "focusout" (D.succeed tagger)
-
-
-activeElIdDecoder : Decoder String
-activeElIdDecoder =
-    D.at [ "target", "ownerDocument", "activeElement", "id" ] D.string
-
-
-onFocusOutActiveElId tagger =
-    HE.on "focusout" (D.map tagger activeElIdDecoder)
-
-
-onFocusInActiveElId tagger =
-    HE.on "focusin" (D.map tagger activeElIdDecoder)
 
 
 type alias KeyEvent =
