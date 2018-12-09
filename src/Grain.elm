@@ -1,6 +1,5 @@
 module Grain exposing
     ( Grain
-    , InsertPosition(..)
     , bucket
     , decoder
     , encoder
@@ -85,11 +84,6 @@ newGenerator title_ =
 newGeneratorWithTitleCmd : (Generator Grain -> msg) -> String -> Cmd msg
 newGeneratorWithTitleCmd msg =
     Task.perform msg << newGenerator
-
-
-type InsertPosition
-    = After GrainId
-    | Head
 
 
 newGeneratorWithTitleAndInsertPosition newTitle insertPos =

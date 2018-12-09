@@ -3,13 +3,8 @@ module GrainStore exposing
     , cacheCmd
     , decode
     , decoder
-    , deleteIfEmpty
-    , findById
     , grainDomId
-    , insertAt
     , items
-    , prepend
-    , update
     )
 
 import BasicsX exposing (callWith, unwrapMaybe)
@@ -76,41 +71,5 @@ mapItems fn =
     map (\model -> { model | items = fn model.items })
 
 
-prepend grain =
-    mapItems ((::) grain)
-
-
-insertAt ( insertPos, grain ) =
-    mapItems
-        (\list ->
-            case insertPos of
-                Grain.Head ->
-                    list
-
-                Grain.After gid ->
-                    List.findIndex (Grain.hasId gid) list
-                        |> unwrapMaybe list
-                            ((+) 1
-                                >> (\n ->
-                                        List.take n list
-                                            ++ [ grain ]
-                                            ++ List.drop n list
-                                   )
-                            )
-        )
-
-
 grainDomId =
     Grain.id >> GrainId.asString
-
-
-update gid fn =
-    mapItems (List.updateIf (Grain.hasId gid) fn)
-
-
-deleteIfEmpty gid =
-    mapItems (List.filterNot (\g -> Grain.hasId gid g && (Grain.title g == "")))
-
-
-findById gid =
-    items >> List.find (Grain.hasId gid)

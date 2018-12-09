@@ -36,7 +36,7 @@ import Material.Icons.Editor as MIcons
 import Material.Icons.Navigation as MIcons
 import Material.Icons.Toggle as MIcons
 import Maybe.Extra as Maybe
-import Msg exposing (GM(..), Msg(..))
+import Msg exposing (Msg(..))
 import Palette exposing (black, black10, white)
 import Port
 import QueryPrefix
@@ -66,7 +66,6 @@ type alias Flags =
 type alias Model =
     { grains : GrainStore
     , hasFocusIn : Bool
-    , gLIdx : ListIndex
     }
 
 
@@ -76,52 +75,13 @@ init flags =
         (\grains ->
             { grains = grains
             , hasFocusIn = False
-            , gLIdx = ListIndex.empty
             }
         )
         (GrainStore.decode flags.grains)
-        |> Return.effect_ focusSelectedGrain
-
-
-selectedGrain model =
-    ListIndex.selected (currentGrainList model) model.gLIdx
-
-
-currentGrainList =
-    .grains >> GrainStore.items
-
-
-setGrains grains model =
-    { model | grains = grains }
-
-
-overGrains : (GrainStore -> GrainStore) -> Model -> Model
-overGrains fn model =
-    setGrains (fn model.grains) model
-
-
-addGrain : Grain -> Model -> Model
-addGrain grain =
-    overGrains (GrainStore.prepend grain)
-
-
-overGrainWithId : GrainId -> (Grain -> Grain) -> Model -> Model
-overGrainWithId gid fn =
-    overGrains (GrainStore.update gid fn)
 
 
 
 ---- UPDATE ----
-
-
-mapGrains fn =
-    mapModel <| overGrains fn
-
-
-addGrainWithInsertPosition ( insertPos, grain ) =
-    mapModel (overGrains (GrainStore.insertAt ( insertPos, grain )))
-        >> andThenDo cacheGrains
-        >> andDo (focusGrain grain)
 
 
 focusGrain =
@@ -130,24 +90,6 @@ focusGrain =
 
 focusMaybeGrain =
     unwrapMaybe Cmd.none focusGrain
-
-
-focusSelectedGrain =
-    selectedGrain >> focusMaybeGrain
-
-
-andFocusSelectedGrain =
-    andThenDo focusSelectedGrain
-
-
-updateGrain gid fn =
-    mapModel (overGrainWithId gid fn)
-        >> andThenDo cacheGrains
-
-
-cacheGrains : Model -> Cmd msg
-cacheGrains =
-    .grains >> GrainStore.cacheCmd
 
 
 focusBaseLayerCmd =
@@ -177,74 +119,6 @@ updateF message =
 
         BaseLayerFocusInChanged hasFocusIn ->
             mapModel (\model -> { model | hasFocusIn = hasFocusIn })
-
-        SubGM msg ->
-            case msg of
-                GMOnGen gen ->
-                    andDo (Random.generate (SubGM << GMAdd) gen)
-
-                GMAdd ( insertPosition, grain ) ->
-                    let
-                        _ =
-                            Debug.log "insertPosition" insertPosition
-                    in
-                    addGrainWithInsertPosition ( insertPosition, grain )
-
-                GMTitle gid newTitle ->
-                    updateGrain gid (Grain.setTitle newTitle)
-
-                GMNewAfter gid ->
-                    andDo
-                        (Grain.newGeneratorWithTitleAndInsertPosition "" (Grain.After gid)
-                            |> Task.perform (SubGM << GMOnGen)
-                        )
-
-                GMDeleteIfEmpty gid ->
-                    mapGrains (GrainStore.deleteIfEmpty gid)
-                        >> andFocusSelectedGrain
-
-                GMGrainFocused gid ->
-                    mapModel
-                        (\model ->
-                            let
-                                newGLIdx =
-                                    ListIndex.selectBy (Grain.hasId gid)
-                                        (currentGrainList model)
-                                        model.gLIdx
-                            in
-                            { model | gLIdx = newGLIdx }
-                        )
-
-        Prev ->
-            gotoPrev
-
-        Next ->
-            mapModel
-                (\model ->
-                    let
-                        newGLIdx =
-                            ListIndex.rollBy 1
-                                (currentGrainList model)
-                                model.gLIdx
-                    in
-                    { model | gLIdx = newGLIdx }
-                )
-                >> andFocusSelectedGrain
-
-
-gotoPrev =
-    mapModel
-        (\model ->
-            let
-                newGLIdx =
-                    ListIndex.rollBy
-                        -1
-                        (currentGrainList model)
-                        model.gLIdx
-            in
-            { model | gLIdx = newGLIdx }
-        )
-        >> andFocusSelectedGrain
 
 
 keyBinding model =
@@ -282,58 +156,8 @@ viewBase model =
         [ styled div
             [ Css.width <| px 400 ]
             [ class "flex flex-column pv3" ]
-            [ viewGrainList (currentGrainList model)
-            ]
+            [{- viewGrainList (currentGrainList model) -}]
         ]
-
-
-viewGrainList : List Grain -> Html Msg
-viewGrainList list =
-    let
-        viewItemChildren =
-            List.map (\g -> ( GrainStore.grainDomId g, viewGrainItem False g )) list
-    in
-    Html.Styled.Keyed.node "div"
-        [ id "grains-container", class "flex flex-column pv2" ]
-        viewItemChildren
-
-
-viewGrainItem selected grain =
-    let
-        title =
-            Grain.title grain
-
-        gid =
-            Grain.id grain
-
-        viewGrainTitle =
-            flexRow []
-                [ class "f4 pa1" ]
-                [ text <|
-                    if isBlank title then
-                        "<no title>"
-
-                    else
-                        title
-                ]
-    in
-    styled input
-        [ Css.borderBottom3 (px 1) Css.solid (Css.rgba 0 0 0 0.3) ]
-        [ id (Grain.idAsString grain)
-        , class "pa2 bn "
-        , classList [ ( "bg-lightest-blue", selected ) ]
-        , onInput (SubGM << GMTitle gid)
-        , value title
-        , autocomplete False
-        , onFocus <| SubGM <| GMGrainFocused gid
-        , SA.fromUnstyled <|
-            onKeyDownPD <|
-                K.bindEachToMsg
-                    [ ( K.enter, ( SubGM <| GMNewAfter gid, True ) )
-                    , ( ( [], "Backspace" ), ( SubGM <| GMDeleteIfEmpty gid, False ) )
-                    ]
-        ]
-        []
 
 
 
