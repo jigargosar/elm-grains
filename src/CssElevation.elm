@@ -1,4 +1,4 @@
-module Elevation exposing (elevation)
+module CssElevation exposing (elevation)
 
 import Array
 import Css
