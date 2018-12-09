@@ -14,7 +14,7 @@ import CssLayout exposing (flexCol, flexRow, flexRowIC)
 import DecodeX exposing (DecodeResult)
 import Either exposing (Either(..))
 import EventX exposing (onKeyDownPD)
-import Grain
+import Grain exposing (Grain)
 import HotKey as K exposing (SoftKey(..))
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes as SA exposing (..)
@@ -55,8 +55,13 @@ type alias Flags =
     }
 
 
+type alias GrainStore =
+    List Grain
+
+
 type alias Model =
     { hasFocusIn : Bool
+    , grainStore : GrainStore
     }
 
 
@@ -64,7 +69,12 @@ init : Flags -> Return Msg Model
 init flags =
     Return.singleton
         { hasFocusIn = False
+        , grainStore = []
         }
+
+
+currentGrains =
+    .grainStore
 
 
 
@@ -135,7 +145,7 @@ viewBase model =
         [ styled div
             [ Css.width <| px 400 ]
             [ class "flex flex-column pv3" ]
-            [ viewGrainList Grain.mockList ]
+            [ viewGrainList (currentGrains model) ]
         ]
 
 

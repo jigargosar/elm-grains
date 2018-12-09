@@ -1,13 +1,22 @@
-module Grain exposing (Grain, mockList, title)
+module Grain exposing (Grain, generator, title)
+
+import GrainId exposing (GrainId(..))
+import Random exposing (Generator)
 
 
 type alias Model =
-    { title : String
+    { id : GrainId
+    , title : String
     }
 
 
 type Grain
     = Grain Model
+
+
+init : GrainId -> Grain
+init id =
+    Grain { id = id, title = "" }
 
 
 unwrap (Grain model) =
@@ -22,9 +31,6 @@ title =
     unwrap >> .title
 
 
-fromTitle =
-    Model >> Grain
-
-
-mockList =
-    List.map fromTitle [ "a", "b" ]
+generator : Generator Grain
+generator =
+    GrainId.generator |> Random.map init

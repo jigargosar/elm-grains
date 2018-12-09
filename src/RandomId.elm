@@ -1,4 +1,4 @@
-module RandomId exposing (generate, stringIdGenerator)
+module RandomId exposing (generator)
 
 import Random
 
@@ -27,6 +27,5 @@ stringIdGenerator =
     Random.list 21 idCharGenerator |> Random.map String.fromList
 
 
-generate : (String -> msg) -> Cmd msg
-generate toMsg =
-    Random.generate toMsg stringIdGenerator
+generator prefix =
+    stringIdGenerator |> Random.map ((++) prefix)
