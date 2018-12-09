@@ -14,6 +14,7 @@ import CssLayout exposing (flexCol, flexRow, flexRowIC)
 import DecodeX exposing (DecodeResult)
 import Either exposing (Either(..))
 import EventX exposing (onKeyDownPD)
+import Grain
 import HotKey as K exposing (SoftKey(..))
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes as SA exposing (..)
@@ -133,8 +134,23 @@ viewBase model =
         [ styled div
             [ Css.width <| px 400 ]
             [ class "flex flex-column pv3" ]
-            [{- viewGrainList (currentGrainList model) -}]
+            [ viewGrainList Grain.mockList ]
         ]
+
+
+viewGrainList list =
+    flexCol []
+        []
+        (List.map
+            (\g ->
+                let
+                    title =
+                        Grain.title g
+                in
+                flexCol [] [] [ text title ]
+            )
+            list
+        )
 
 
 

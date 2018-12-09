@@ -1,6 +1,6 @@
-module Grain exposing (Grain)
+module Grain exposing (Grain, mockList, title)
 
-import Tagged exposing (Tagged(..), tag)
+import Tagged exposing (Tagged(..), tag, untag)
 
 
 type GrainIdTag
@@ -21,13 +21,17 @@ type alias Internal =
     }
 
 
+title =
+    untag >> .title
+
+
 type alias Grain =
     Tagged GrainTag Internal
 
 
 mockInit : String -> Grain
-mockInit title =
-    tag { id = tag title, title = title }
+mockInit newTitle =
+    tag { id = tag newTitle, title = newTitle }
 
 
 mockList : List Grain
