@@ -8,17 +8,6 @@ import Result.Extra as Result
 import Return exposing (..)
 
 
-
---andMap : Decoder a -> Decoder (a -> b) -> Decoder b
---andMap =
---    D.map2 callOn
---
---
---required : String -> Decoder a -> Decoder (a -> b) -> Decoder b
---required name =
---    andMap << D.field name
-
-
 type alias Encoder a =
     a -> Value
 
