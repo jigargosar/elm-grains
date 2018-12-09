@@ -11,7 +11,6 @@ import CssElements exposing (..)
 import CssIcons exposing (viewIcon)
 import CssLayout exposing (flexCol, flexRow, flexRowIC)
 import DecodeX exposing (DecodeResult)
-import DomX
 import Either exposing (Either(..))
 import Elevation exposing (elevation)
 import EventX exposing (onKeyDownPD)
