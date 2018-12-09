@@ -13,8 +13,7 @@ import Random exposing (Generator)
 
 
 type GM
-    = GMNew
-    | GMOnGen (Generator ( Grain.InsertPosition, Grain ))
+    = GMOnGen (Generator ( Grain.InsertPosition, Grain ))
     | GMAdd ( Grain.InsertPosition, Grain )
     | GMTitle GrainId String
     | GMNewAfter GrainId
@@ -28,8 +27,6 @@ type Msg
     | LogError String
     | BrowserAnyKeyDown
     | BaseLayerFocusInChanged Bool
-    | InputChanged String
-    | InputSubmit
       -- GRAIN
     | SubGM GM
       -- GRAIN LIST NAVIGATION

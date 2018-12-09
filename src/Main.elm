@@ -66,7 +66,6 @@ type alias Flags =
 type alias Model =
     { grains : GrainStore
     , hasFocusIn : Bool
-    , inputValue : String
     , gLIdx : ListIndex
     }
 
@@ -77,7 +76,6 @@ init flags =
         (\grains ->
             { grains = grains
             , hasFocusIn = False
-            , inputValue = ""
             , gLIdx = ListIndex.empty
             }
         )
@@ -180,21 +178,8 @@ updateF message =
         BaseLayerFocusInChanged hasFocusIn ->
             mapModel (\model -> { model | hasFocusIn = hasFocusIn })
 
-        InputChanged inputValue ->
-            mapModel (\model -> { model | inputValue = inputValue })
-
-        InputSubmit ->
-            dispatch (SubGM GMNew)
-
         SubGM msg ->
             case msg of
-                GMNew ->
-                    andDoWith .inputValue
-                        (\title ->
-                            Grain.newGeneratorWithTitleAndInsertPosition title Grain.Head
-                                |> Task.perform (SubGM << GMOnGen)
-                        )
-
                 GMOnGen gen ->
                     andDo (Random.generate (SubGM << GMAdd) gen)
 
@@ -306,16 +291,7 @@ viewGrainList : List Grain -> Html Msg
 viewGrainList list =
     let
         viewItemChildren =
-            if List.isEmpty list then
-                [ ( "newInputField"
-                  , Html.form [ class "flex flex-column", onSubmit InputSubmit ]
-                        [ input [ onInput InputChanged ] []
-                        ]
-                  )
-                ]
-
-            else
-                List.map (\g -> ( GrainStore.grainDomId g, viewGrainItem False g )) list
+            List.map (\g -> ( GrainStore.grainDomId g, viewGrainItem False g )) list
     in
     Html.Styled.Keyed.node "div"
         [ id "grains-container", class "flex flex-column pv2" ]
