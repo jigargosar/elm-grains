@@ -6,7 +6,7 @@ import Browser.Dom
 import Browser.Events
 import BrowserX exposing (WindowSize)
 import Color
-import Css exposing (Style, alignItems, alignSelf, backgroundColor, center, color, column, displayFlex, flexDirection, flexGrow, fontSize, hex, int, justifyContent, maxWidth, minHeight, minWidth, num, overflow, padding, pct, px, rem, rgb, rgba, vh, vw, zero)
+import Css exposing (num, pct, px)
 import CssElements exposing (..)
 import CssIcons exposing (viewIcon)
 import CssLayout exposing (flexCol, flexRow, flexRowIC)
