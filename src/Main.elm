@@ -39,7 +39,6 @@ import RandomId
 import Result.Extra as Result
 import Return exposing (Return)
 import Task
-import TimeX exposing (Millis)
 import Tuple exposing (mapFirst)
 import UpdateHandler exposing (..)
 
@@ -109,13 +108,13 @@ keyBinding model =
 
 view : Model -> Html Msg
 view model =
-    styled div
+    flexCol
         [ Css.flexShrink <| num 0
         , Css.minWidth <| pct 100
         , Css.minHeight <| pct 100
         ]
         [ id "base-layer"
-        , class "sans-serif flex flex-column"
+        , class "sans-serif"
         , SA.fromUnstyled <| EventX.onFocusIn <| BaseLayerFocusInChanged True
         , SA.fromUnstyled <| EventX.onFocusOut <| BaseLayerFocusInChanged False
         , tabindex -1
