@@ -10,15 +10,11 @@ import Css exposing (Style, alignItems, alignSelf, backgroundColor, center, colo
 import CssElements exposing (..)
 import CssIcons exposing (viewIcon)
 import CssLayout exposing (flexCol, flexRow, flexRowIC)
-import Cursor exposing (Cursor)
 import DecodeX exposing (DecodeResult)
 import DomX
 import Either exposing (Either(..))
 import Elevation exposing (elevation)
 import EventX exposing (onKeyDownPD)
-import Grain exposing (Grain)
-import GrainId exposing (GrainId)
-import GrainStore exposing (GrainStore)
 import HotKey as K exposing (SoftKey(..))
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes as SA exposing (..)
@@ -37,16 +33,12 @@ import Material.Icons.Navigation as MIcons
 import Material.Icons.Toggle as MIcons
 import Maybe.Extra as Maybe
 import Msg exposing (Msg(..))
-import Palette exposing (black, black10, white)
 import Port
-import QueryPrefix
 import Random exposing (Generator, Seed)
 import RandomId
 import Result.Extra as Result
 import Return exposing (Return)
-import SList exposing (SList)
 import Task
-import Theme exposing (spacingUnit)
 import TimeX exposing (Millis)
 import Tuple exposing (mapFirst)
 import UpdateHandler exposing (..)
@@ -64,32 +56,19 @@ type alias Flags =
 
 
 type alias Model =
-    { grains : GrainStore
-    , hasFocusIn : Bool
+    { hasFocusIn : Bool
     }
 
 
 init : Flags -> Return Msg Model
 init flags =
-    Return.map
-        (\grains ->
-            { grains = grains
-            , hasFocusIn = False
-            }
-        )
-        (GrainStore.decode flags.grains)
+    Return.singleton
+        { hasFocusIn = False
+        }
 
 
 
 ---- UPDATE ----
-
-
-focusGrain =
-    GrainStore.grainDomId >> Browser.Dom.focus >> Task.attempt (\_ -> NoOp)
-
-
-focusMaybeGrain =
-    unwrapMaybe Cmd.none focusGrain
 
 
 focusBaseLayerCmd =

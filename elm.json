@@ -31,6 +31,7 @@
             "elm-community/undo-redo": "3.0.0",
             "hecrj/composable-form": "5.0.0",
             "jigargosar/elm-material-color": "1.0.0",
+            "joneshf/elm-tagged": "2.1.1",
             "miyamoen/select-list": "4.0.0",
             "rtfeldman/elm-css": "16.0.0",
             "stil4m/elm-syntax": "7.0.4",
