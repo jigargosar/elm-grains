@@ -69,12 +69,12 @@ sub :
     -> Return3F msg model reply
 sub su sm smo toMsg set replyToMsg update r3 =
     let
-        _ =
+        subR3 =
             su sm (singleton smo)
                 |> mapCmd toMsg
-                |> map (set >> callWith (getModel r3))
     in
     r3
+        |> map (set (getModel subR3))
 
 
 mapCmd fn r3 =
