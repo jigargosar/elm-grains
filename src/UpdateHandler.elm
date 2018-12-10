@@ -31,7 +31,7 @@ map fn =
 
 
 mapModel fn =
-    map (\c -> { c | model = fn c.model })
+    map <| Internal.mapModel fn
 
 
 andDo cmd =
