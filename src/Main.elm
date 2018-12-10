@@ -138,7 +138,7 @@ update message =
                         update
                 )
 
-        GrainStoreReply _ ->
+        GrainStoreReply reply ->
             identity
 
 
