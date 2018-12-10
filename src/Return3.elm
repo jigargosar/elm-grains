@@ -9,7 +9,7 @@ module Return3 exposing
     , toElmUpdate
     )
 
-import BasicsX exposing (callWith)
+import BasicsX exposing (callWith, when)
 import Return
 
 
@@ -31,8 +31,8 @@ andDo cmd =
 
 
 andDoWhen : (model -> Bool) -> Cmd msg -> Return3F msg model reply
-andDoWhen pred cmd r3 =
-    r3
+andDoWhen pred cmd =
+    when (getModel >> pred) (andDo cmd)
 
 
 map :
