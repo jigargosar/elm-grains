@@ -122,7 +122,7 @@ updateF message =
         BaseLayerFocusInChanged hasFocusIn ->
             mapModel (\model -> { model | hasFocusIn = hasFocusIn })
 
-        CreateNewRequest ->
+        AddNewClicked ->
             let
                 _ =
                     1
@@ -153,7 +153,8 @@ view model =
             EventX.onKeyDownPD <|
                 keyBinding model
         ]
-        [ GrainListView.view (mapStateToGrainListView model)
+        [ button [ onClick AddNewClicked ] [ text "add new empty" ]
+        , GrainListView.view (mapStateToGrainListView model)
         ]
 
 

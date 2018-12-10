@@ -10,4 +10,4 @@ type Msg
     | LogError String
     | BrowserAnyKeyDown
     | BaseLayerFocusInChanged Bool
-    | CreateNewRequest
+    | AddNewClicked
