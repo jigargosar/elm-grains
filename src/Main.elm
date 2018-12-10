@@ -108,6 +108,16 @@ subscriptions model =
         [ Browser.Events.onKeyDown <| D.succeed BrowserAnyKeyDown ]
 
 
+grainStoreSubConfig =
+    { subUpdate = GrainStore.update
+    , get = .grainStore
+    , set = setGrainStore
+    , toMsg = GrainStoreSubMsg
+    , replyToMsg = GrainStoreReply
+    , update = update
+    }
+
+
 update : Msg -> Return3F Msg Model ()
 update message =
     case message of
@@ -124,20 +134,10 @@ update message =
             R3.map (\model -> { model | hasFocusIn = hasFocusIn })
 
         AddNewClicked ->
-            identity
+            R3.dispatch GrainStore.newMsg grainStoreSubConfig
 
         GrainStoreSubMsg msg ->
-            let
-                config =
-                    { subUpdate = GrainStore.update
-                    , get = .grainStore
-                    , set = setGrainStore
-                    , toMsg = GrainStoreSubMsg
-                    , replyToMsg = GrainStoreReply
-                    , update = update
-                    }
-            in
-            R3.sub msg config
+            R3.sub msg grainStoreSubConfig
 
         GrainStoreReply reply ->
             identity

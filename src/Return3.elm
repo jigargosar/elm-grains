@@ -58,16 +58,19 @@ toElmUpdate update msg model =
         |> Tuple.first
 
 
+type alias SubConfig msgS modelS replyS msg model reply =
+    { subUpdate : Update3F msgS modelS replyS
+    , get : model -> modelS
+    , set : modelS -> model -> model
+    , toMsg : msgS -> msg
+    , replyToMsg : replyS -> msg
+    , update : Update3F msg model reply
+    }
+
+
 sub :
     msgS
-    ->
-        { subUpdate : Update3F msgS modelS replyS
-        , get : model -> modelS
-        , set : modelS -> model -> model
-        , toMsg : msgS -> msg
-        , replyToMsg : replyS -> msg
-        , update : Update3F msg model reply
-        }
+    -> SubConfig msgS modelS replyS msg model reply
     -> Return3F msg model reply
 sub subMsg { subUpdate, get, toMsg, set, replyToMsg, update } r3 =
     let
