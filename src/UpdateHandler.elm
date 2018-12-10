@@ -17,10 +17,15 @@ type HandlerConfig msg model
     = Private (Internal msg model)
 
 
+unwrap : HandlerConfig msg model -> Internal msg model
 unwrap (Private internal) =
     internal
 
 
+map :
+    (Internal msg model -> Internal msg model)
+    -> HandlerConfig msg model
+    -> HandlerConfig msg model
 map fn =
     unwrap >> fn >> Private
 
