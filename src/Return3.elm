@@ -4,6 +4,7 @@ module Return3 exposing
     , andDo
     , andDoWhen
     , andThen
+    , dispatch
     , map
     , sub
     , toElmUpdate
@@ -66,6 +67,14 @@ type alias SubConfig msgS modelS replyS msg model reply =
     , replyToMsg : replyS -> msg
     , update : Update3F msg model reply
     }
+
+
+dispatch :
+    msgS
+    -> SubConfig msgS modelS replyS msg model reply
+    -> Return3F msg model reply
+dispatch subMsg { toMsg, update } =
+    update (toMsg subMsg)
 
 
 sub :
