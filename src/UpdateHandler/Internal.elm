@@ -59,15 +59,14 @@ andThen fn c =
 
 
 init initialHandler initialModel =
-    Internal
-        { handler = initialHandler
-        , model = initialModel
-        , cmd = Cmd.none
-        }
+    { handler = initialHandler
+    , model = initialModel
+    , cmd = Cmd.none
+    }
 
 
-toElmReturn =
-    unwrap >> (\c -> ( c.model, c.cmd ))
+toElmReturn c =
+    ( c.model, c.cmd )
 
 
 toElmUpdateFn initialHandler initialMsg initialModel =
