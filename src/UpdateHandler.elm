@@ -44,18 +44,18 @@ dispatch msg config =
     handlerFromConfig config msg config
 
 
-dispatchSub msg { handler, toMsg, get, set } parentConfig =
+dispatchSub msg { handler, toMsg, get, set, toReply } parentConfig =
     let
-        childConfig =
+        childReturnConfig =
             HandlerConfig
                 { handler = handler
                 , model = get (modelFromConfig parentConfig)
                 , cmd = Cmd.none
                 , reply = []
                 }
+                |> dispatch msg
     in
-    childConfig
-        |> dispatch msg
+    childReturnConfig
         |> mapConfig
             (\cc ->
                 let
