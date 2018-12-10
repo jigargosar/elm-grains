@@ -58,13 +58,19 @@ sub :
     Update3F msgS modelS replyS
     -> msgS
     -> modelS
+    -> (msgS -> msg)
     -> Return3F msg model reply
-sub su sm smo r3 =
+sub su sm smo toMsg r3 =
     let
         _ =
             su sm (singleton smo)
+                |> mapCmd toMsg
     in
     r3
+
+
+mapCmd fn r3 =
+    r3 |> Tuple.mapFirst (Return.mapCmd fn)
 
 
 getModel : Return3 msg model reply -> model

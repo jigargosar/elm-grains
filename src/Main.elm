@@ -125,7 +125,7 @@ update message =
         GrainStoreSub msg ->
             R3.andThen
                 (\model ->
-                    R3.sub GrainStore.update msg model.grainStore
+                    R3.sub GrainStore.update msg model.grainStore GrainStoreSub
                 )
 
         GrainStoreSubReply ->
