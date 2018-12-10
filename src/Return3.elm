@@ -65,8 +65,9 @@ sub :
     -> (msgS -> msg)
     -> (modelS -> model -> model)
     -> (replyS -> msg)
+    -> Update3F msg model reply
     -> Return3F msg model reply
-sub su sm smo toMsg set replyToMsg r3 =
+sub su sm smo toMsg set replyToMsg update r3 =
     let
         _ =
             su sm (singleton smo)

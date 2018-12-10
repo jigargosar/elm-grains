@@ -135,6 +135,7 @@ update message =
                         GrainStoreSub
                         setGrainStore
                         GrainStoreSubReply
+                        update
                 )
 
         GrainStoreSubReply _ ->
