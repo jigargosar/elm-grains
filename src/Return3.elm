@@ -1,9 +1,9 @@
 module Return3 exposing
     ( Return3
     , Return3F
-    , andDo
-    , andDoWhen
     , dispatch
+    , do
+    , doWhen
     , map
     , sub
     , toElmUpdate
@@ -25,14 +25,14 @@ type alias Return3F msg model reply =
     Return3 msg model reply -> Return3 msg model reply
 
 
-andDo : Cmd msg -> Return3F msg model reply
-andDo cmd =
+do : Cmd msg -> Return3F msg model reply
+do cmd =
     Tuple.mapFirst (Return.command cmd)
 
 
-andDoWhen : Pred model -> Cmd msg -> Return3F msg model reply
-andDoWhen pred cmd =
-    when (getModel >> pred) (andDo cmd)
+doWhen : Pred model -> Cmd msg -> Return3F msg model reply
+doWhen pred cmd =
+    when (getModel >> pred) (do cmd)
 
 
 map :
@@ -93,7 +93,7 @@ sub subMsg { subUpdate, get, toMsg, set, replyToMsg, update } r3 =
     in
     r3
         |> map (set newSubModel)
-        >> andDo (Cmd.map toMsg subCmd)
+        >> do (Cmd.map toMsg subCmd)
         >> handleReplies
 
 

@@ -125,10 +125,10 @@ update message =
             identity
 
         LogError errMsg ->
-            R3.andDo (Port.error errMsg)
+            R3.do (Port.error errMsg)
 
         BrowserAnyKeyDown ->
-            R3.andDoWhen (.hasFocusIn >> not) focusBaseLayerCmd
+            R3.doWhen (.hasFocusIn >> not) focusBaseLayerCmd
 
         BaseLayerFocusInChanged hasFocusIn ->
             R3.map (\model -> { model | hasFocusIn = hasFocusIn })
