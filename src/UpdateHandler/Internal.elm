@@ -56,5 +56,10 @@ init model =
     }
 
 
+type alias Handler msg model =
+    msg -> Internal msg model -> Internal msg model
+
+
+toElmUpdateFn : Handler msg model -> msg -> model -> ( model, Cmd msg )
 toElmUpdateFn handler msg model =
     init model |> handler msg |> toElmReturn
