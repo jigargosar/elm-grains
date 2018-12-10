@@ -1,5 +1,6 @@
 module UpdateHandler exposing
-    ( andDo
+    ( HandlerConfig
+    , andDo
     , andDoWhen
     , andDoWith
     , andThen
@@ -10,6 +11,14 @@ module UpdateHandler exposing
     )
 
 import BasicsX exposing (when)
+
+
+type HandlerConfig msg model
+    = HandlerConfig
+        { handler : msg -> HandlerConfig msg model -> HandlerConfig msg model
+        , model : model
+        , cmd : Cmd msg
+        }
 
 
 handlerFromConfig =
@@ -56,14 +65,6 @@ andThenDo fn cmd =
 
 andThen fn c =
     fn (modelFromConfig c) c
-
-
-type HandlerConfig msg model
-    = HandlerConfig
-        { handler : msg -> HandlerConfig msg model -> HandlerConfig msg model
-        , model : model
-        , cmd : Cmd msg
-        }
 
 
 toElmUpdateFn handler msg model =

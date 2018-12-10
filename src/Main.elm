@@ -104,6 +104,7 @@ subscriptions model =
         [ Browser.Events.onKeyDown <| D.succeed BrowserAnyKeyDown ]
 
 
+updateF : Msg -> HandlerConfig Msg Model -> HandlerConfig Msg Model
 updateF message =
     case message of
         NoOp ->
