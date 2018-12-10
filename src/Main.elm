@@ -109,6 +109,13 @@ updateF message =
         BaseLayerFocusInChanged hasFocusIn ->
             mapModel (\model -> { model | hasFocusIn = hasFocusIn })
 
+        CreateNewRequest ->
+            let
+                _ =
+                    1
+            in
+            identity
+
 
 keyBinding model =
     K.bindEachToMsg <|
