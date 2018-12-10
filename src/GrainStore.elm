@@ -3,13 +3,13 @@ module GrainStore exposing
     , Msg
     , allAsList
     , generator
-    , handle
     , newMsg
+    , update
     )
 
 import Grain exposing (Grain)
 import Random exposing (Generator, Seed)
-import UpdateHandler exposing (HandlerConfig)
+import Return3 exposing (Return3F)
 
 
 type alias Model =
@@ -56,11 +56,8 @@ type Reply
     = NoReply
 
 
-handle :
-    Msg
-    -> HandlerConfig Msg GrainStore
-    -> HandlerConfig Msg GrainStore
-handle message =
+update : Msg -> Return3F Msg Model Reply
+update message =
     case message of
         NoOp ->
             identity

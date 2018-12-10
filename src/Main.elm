@@ -123,7 +123,10 @@ update message =
             identity
 
         GrainStoreSub msg ->
-            identity
+            R3.andThen
+                (\model ->
+                    R3.sub GrainStore.update msg model.grainStore
+                )
 
         GrainStoreSubReply ->
             identity
