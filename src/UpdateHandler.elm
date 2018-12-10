@@ -98,14 +98,14 @@ andThen fn c =
     fn (modelFromConfig c) c
 
 
-toElmUpdateFn handler msg model reply =
+toElmUpdateFn handler msg model =
     let
         config =
             HandlerConfig
                 { handler = handler
                 , model = model
                 , cmd = Cmd.none
-                , reply = reply
+                , reply = Nothing
                 }
 
         toReturn =

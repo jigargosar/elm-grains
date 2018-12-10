@@ -183,7 +183,7 @@ main =
     Browser.element
         { view = Html.toUnstyled << view
         , init = init
-        , update = \msg model -> toElmUpdateFn updateF msg model Nothing
+        , update = toElmUpdateFn updateF
 
         --        , update = updateDispatcher
         , subscriptions = subscriptions
