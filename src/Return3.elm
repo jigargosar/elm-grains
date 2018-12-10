@@ -16,6 +16,10 @@ type alias Return3 msg model reply =
     ( Return.Return msg model, List reply )
 
 
+type alias Update3F msg model reply =
+    msg -> Return3F msg model reply
+
+
 type alias Return3F msg model reply =
     Return3 msg model reply -> Return3 msg model reply
 
@@ -50,17 +54,24 @@ toElmUpdateFn update msg model =
         |> Tuple.first
 
 
+sub :
+    Update3F msgS modelS replyS
+    -> msgS
+    -> modelS
+    -> Return3F msg model reply
 sub su sm smo r3 =
     let
         _ =
-            su sm smo
+            su sm (singleton smo)
     in
     r3
 
 
+getModel : Return3 msg model reply -> model
 getModel r3 =
     r3 |> Tuple.first |> Tuple.first
 
 
+andThen : (model -> Return3F msg model reply) -> Return3F msg model reply
 andThen fn r3 =
     fn (getModel r3) r3
