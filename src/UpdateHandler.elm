@@ -6,7 +6,6 @@ module UpdateHandler exposing
     , andThen
     , andThenDo
     , dispatch
-    , dispatchSub
     , mapModel
     , toElmUpdateFn
     )
@@ -41,30 +40,6 @@ mapConfig fn =
 dispatch : msg -> HandlerConfig msg model -> HandlerConfig msg model
 dispatch msg config =
     handlerFromConfig config msg config
-
-
-dispatchSub msg { handler, toMsg, get, set } parentConfig =
-    let
-        childReturnConfig =
-            HandlerConfig
-                { handler = handler
-                , model = get (modelFromConfig parentConfig)
-                , cmd = Cmd.none
-                }
-                |> dispatch msg
-    in
-    childReturnConfig
-        |> mapConfig
-            (\cc ->
-                let
-                    parentConfigInternal =
-                        unwrapConfig parentConfig
-                in
-                { parentConfigInternal
-                    | model = set cc.model parentConfigInternal.model
-                    , cmd = Cmd.map toMsg cc.cmd
-                }
-            )
 
 
 mapModel fn =

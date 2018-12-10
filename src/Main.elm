@@ -123,15 +123,7 @@ handle message =
             mapModel (\model -> { model | hasFocusIn = hasFocusIn })
 
         AddNewClicked ->
-            let
-                subConfig =
-                    { handler = GrainStore.handle
-                    , toMsg = GrainStoreSub
-                    , get = .grainStore
-                    , set = \newGrainStore model -> { model | grainStore = newGrainStore }
-                    }
-            in
-            dispatchSub GrainStore.newMsg subConfig
+            identity
 
         GrainStoreSub msg ->
             identity
