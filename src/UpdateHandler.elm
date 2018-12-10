@@ -33,7 +33,7 @@ unwrap (HandlerConfig hc) =
     hc
 
 
-mapConfig fn =
+map fn =
     unwrap >> fn >> HandlerConfig
 
 
@@ -43,11 +43,11 @@ dispatch msg config =
 
 
 mapModel fn =
-    mapConfig (\c -> { c | model = fn c.model })
+    map (\c -> { c | model = fn c.model })
 
 
 andDo cmd =
-    mapConfig (\c -> { c | cmd = Cmd.batch [ c.cmd, cmd ] })
+    map (\c -> { c | cmd = Cmd.batch [ c.cmd, cmd ] })
 
 
 andDoWith :
