@@ -79,12 +79,9 @@ init initialHandler initialModel =
         }
 
 
-toElmUpdateFn handlerFn msg model =
-    let
-        config =
-            init handlerFn model
+toElmReturn =
+    unwrap >> (\c -> ( c.model, c.cmd ))
 
-        toReturn =
-            unwrap >> (\c -> ( c.model, c.cmd ))
-    in
-    dispatch msg config |> toReturn
+
+toElmUpdateFn handlerFn msg model =
+    init handlerFn model |> dispatch msg |> toElmReturn
