@@ -1,6 +1,7 @@
 module Return3 exposing
     ( Return3
     , Return3F
+    , andThen
     , dispatch
     , do
     , doWhen

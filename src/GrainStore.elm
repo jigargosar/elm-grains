@@ -10,21 +10,17 @@ module GrainStore exposing
 
 import Grain exposing (Grain)
 import Random exposing (Generator, Seed)
-import Return3 exposing (Return3F)
+import Return3 as R3 exposing (Return3F)
 
 
-type alias Model =
+type alias GrainStore =
     { list : List Grain
     , seed : Seed
     }
 
 
-type GrainStore
-    = GrainStore Model
-
-
 initWithSeed seed =
-    GrainStore { list = [], seed = seed }
+    { list = [], seed = seed }
 
 
 generator : Generator GrainStore
@@ -32,16 +28,12 @@ generator =
     Random.independentSeed |> Random.map initWithSeed
 
 
-unwrap (GrainStore model) =
-    model
-
-
 allAsList =
-    unwrap >> .list
+    .list
 
 
-map fn =
-    unwrap >> fn >> GrainStore
+setSeed seed =
+    \model -> { model | seed = seed }
 
 
 newMsg =
@@ -64,4 +56,11 @@ update message =
             identity
 
         CreateNew ->
-            identity
+            R3.andThen
+                (\model ->
+                    let
+                        ( newGrain, newSeed ) =
+                            Random.step Grain.generator model.seed
+                    in
+                    R3.map (setSeed newSeed)
+                )
