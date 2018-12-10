@@ -13,38 +13,23 @@ import Random exposing (Generator, Seed)
 import Return3 as R3 exposing (Return3F)
 
 
-type alias Model =
+type alias GrainStore =
     { list : List Grain
     , seed : Seed
     }
 
 
-type GrainStore
-    = GrainStore Model
-
-
-unwrap : GrainStore -> Model
-unwrap (GrainStore model) =
-    model
-
-
-map fn =
-    unwrap >> fn >> GrainStore
-
-
-initWithSeed : Seed -> Model
 initWithSeed seed =
     { list = [], seed = seed }
 
 
 generator : Generator GrainStore
 generator =
-    Random.independentSeed
-        |> Random.map (initWithSeed >> GrainStore)
+    Random.independentSeed |> Random.map initWithSeed
 
 
 allAsList =
-    unwrap >> .list
+    .list
 
 
 setSeed seed =
@@ -65,14 +50,7 @@ type Reply
 
 
 update : Msg -> Return3F Msg GrainStore Reply
-update message r3 =
-    R3.map unwrap r3
-        |> updateInternal message
-        |> R3.map GrainStore
-
-
-updateInternal : Msg -> Return3F Msg Model Reply
-updateInternal message =
+update message =
     case message of
         NoOp ->
             identity
