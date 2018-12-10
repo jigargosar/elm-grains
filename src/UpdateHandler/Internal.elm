@@ -1,9 +1,11 @@
-module Internal exposing
-    ( andDo
+module UpdateHandler.Internal exposing
+    ( Internal
+    , andDo
     , andDoWhen
     , andDoWith
     , andThen
     , andThenDo
+    , init
     , mapModel
     , toElmUpdateFn
     )

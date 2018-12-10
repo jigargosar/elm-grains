@@ -5,41 +5,24 @@ module UpdateHandler exposing
     , andDoWith
     , andThen
     , andThenDo
-    , dispatch
     , mapModel
     , toElmUpdateFn
     )
 
 import BasicsX exposing (when)
+import UpdateHandler.Internal as Internal exposing (Internal)
 
 
 type HandlerConfig msg model
-    = HandlerConfig
-        { handler : msg -> HandlerConfig msg model -> HandlerConfig msg model
-        , model : model
-        , cmd : Cmd msg
-        }
+    = Private (Internal msg model)
 
 
-handler =
-    unwrap >> .handler
-
-
-model =
-    unwrap >> .model
-
-
-unwrap (HandlerConfig hc) =
-    hc
+unwrap (Private internal) =
+    internal
 
 
 map fn =
-    unwrap >> fn >> HandlerConfig
-
-
-dispatch : msg -> HandlerConfig msg model -> HandlerConfig msg model
-dispatch msg config =
-    handler config msg config
+    unwrap >> fn >> Private
 
 
 mapModel fn =
@@ -47,7 +30,7 @@ mapModel fn =
 
 
 andDo cmd =
-    map (\c -> { c | cmd = Cmd.batch [ c.cmd, cmd ] })
+    map <| Internal.andDo cmd
 
 
 andDoWith :
@@ -55,33 +38,29 @@ andDoWith :
     -> (a -> Cmd msg)
     -> HandlerConfig msg model
     -> HandlerConfig msg model
-andDoWith extract fn c =
-    andDo (fn (extract <| model c)) c
+andDoWith extract fn =
+    map <| Internal.andDoWith extract fn
 
 
 andDoWhen pred cmd =
-    when (model >> pred) (andDo cmd)
+    map <| Internal.andDoWhen pred cmd
 
 
-andThenDo fn cmd =
-    andDo (fn (model cmd)) cmd
+andThenDo fn =
+    map <| Internal.andThenDo fn
 
 
-andThen fn c =
-    fn (model c) c
+andThen fn =
+    map <| Internal.andThen fn
 
 
-init initialHandler initialModel =
-    HandlerConfig
-        { handler = initialHandler
-        , model = initialModel
-        , cmd = Cmd.none
-        }
+lift fn =
+    Private >> fn >> unwrap
 
 
-toElmReturn =
-    unwrap >> (\c -> ( c.model, c.cmd ))
+lift2 fn a =
+    Private >> fn a >> unwrap
 
 
-toElmUpdateFn initialHandler initialMsg initialModel =
-    init initialHandler initialModel |> dispatch initialMsg |> toElmReturn
+toElmUpdateFn handler =
+    Internal.toElmUpdateFn (lift2 handler)
