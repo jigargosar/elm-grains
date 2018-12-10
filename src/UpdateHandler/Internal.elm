@@ -1,11 +1,9 @@
 module Internal exposing
-    ( HandlerConfig
-    , andDo
+    ( andDo
     , andDoWhen
     , andDoWith
     , andThen
     , andThenDo
-    , dispatch
     , mapModel
     , toElmUpdateFn
     )
@@ -14,19 +12,9 @@ import BasicsX exposing (when)
 
 
 type alias Internal msg model =
-    { handler : msg -> HandlerConfig msg model -> HandlerConfig msg model
-    , model : model
+    { model : model
     , cmd : Cmd msg
     }
-
-
-type HandlerConfig msg model
-    = HandlerConfig (Internal msg model)
-
-
-dispatch : msg -> Internal msg model -> Internal msg model
-dispatch msg config =
-    config.handler msg config
 
 
 mapModel fn config =
@@ -58,16 +46,15 @@ andThen fn c =
     fn c.model c
 
 
-init initialHandler initialModel =
-    { handler = initialHandler
-    , model = initialModel
+toElmReturn config =
+    ( config.model, config.cmd )
+
+
+init model =
+    { model = model
     , cmd = Cmd.none
     }
 
 
-toElmReturn c =
-    ( c.model, c.cmd )
-
-
-toElmUpdateFn initialHandler initialMsg initialModel =
-    init initialHandler initialModel |> dispatch initialMsg |> toElmReturn
+toElmUpdateFn handler msg model =
+    init model |> handler msg |> toElmReturn
