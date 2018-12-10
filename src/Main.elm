@@ -86,6 +86,10 @@ init flags =
         |> Tuple.mapSecond (always Cmd.none)
 
 
+setGrainStore grainStore model =
+    { model | grainStore = grainStore }
+
+
 
 ---- UPDATE ----
 
@@ -129,6 +133,7 @@ update message =
                         msg
                         model.grainStore
                         GrainStoreSub
+                        setGrainStore
                 )
 
         GrainStoreSubReply ->

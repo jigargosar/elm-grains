@@ -9,6 +9,7 @@ module Return3 exposing
     , toElmUpdateFn
     )
 
+import BasicsX exposing (callWith)
 import Return
 
 
@@ -34,9 +35,12 @@ andDoWhen pred cmd r3 =
     r3
 
 
-map : (model -> model) -> Return3F msg model reply
+map :
+    (modelA -> modelB)
+    -> Return3 msg modelA reply
+    -> Return3 msg modelB reply
 map fn r3 =
-    r3
+    Tuple.mapFirst (Return.map fn) r3
 
 
 singleton : model -> Return3 msg model reply
@@ -59,12 +63,14 @@ sub :
     -> msgS
     -> modelS
     -> (msgS -> msg)
+    -> (modelS -> model -> model)
     -> Return3F msg model reply
-sub su sm smo toMsg r3 =
+sub su sm smo toMsg set r3 =
     let
         _ =
             su sm (singleton smo)
                 |> mapCmd toMsg
+                |> map (set >> callWith (getModel r3))
     in
     r3
 
