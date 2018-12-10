@@ -6,6 +6,7 @@ module UpdateHandler exposing
     , andThen
     , andThenDo
     , dispatch
+    , dispatchSub
     , mapModel
     , toElmUpdateFn
     )
@@ -33,7 +34,7 @@ unwrapConfig (HandlerConfig hc) =
     hc
 
 
-overConfig fn =
+mapConfig fn =
     unwrapConfig >> fn >> HandlerConfig
 
 
@@ -42,15 +43,45 @@ dispatch msg config =
     handlerFromConfig config msg config
 
 
+dispatchSub msg { handler, toMsg, get, set } parentConfig =
+    let
+        parentModel =
+            modelFromConfig parentConfig
+
+        childModel =
+            get parentModel
+
+        childConfig =
+            HandlerConfig
+                { handler = handler
+                , model = childModel
+                , cmd = Cmd.none
+                }
+    in
+    childConfig
+        |> dispatch msg
+        |> mapConfig
+            (\cc ->
+                { model = set cc.model parentModel
+                , cmd = Cmd.map toMsg cc.cmd
+                , handler = handlerFromConfig parentConfig
+                }
+            )
+
+
 mapModel fn =
-    overConfig (\c -> { c | model = fn c.model })
+    mapConfig (\c -> { c | model = fn c.model })
 
 
 andDo cmd =
-    overConfig (\c -> { c | cmd = Cmd.batch [ c.cmd, cmd ] })
+    mapConfig (\c -> { c | cmd = Cmd.batch [ c.cmd, cmd ] })
 
 
-andDoWith : (model -> a) -> (a -> Cmd msg) -> HandlerConfig msg model -> HandlerConfig msg model
+andDoWith :
+    (model -> a)
+    -> (a -> Cmd msg)
+    -> HandlerConfig msg model
+    -> HandlerConfig msg model
 andDoWith extract fn c =
     andDo (fn (extract <| modelFromConfig c)) c
 

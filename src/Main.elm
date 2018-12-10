@@ -121,10 +121,14 @@ updateF message =
 
         AddNewClicked ->
             let
-                _ =
-                    1
+                subConfig =
+                    { handler = GrainStore.updateF
+                    , toMsg = GrainStoreSub
+                    , get = .grainStore
+                    , set = \newGrainStore model -> { model | grainStore = newGrainStore }
+                    }
             in
-            identity
+            dispatchSub GrainStore.newMsg subConfig
 
         GrainStoreSub msg ->
             identity

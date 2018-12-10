@@ -1,4 +1,11 @@
-module GrainStore exposing (GrainStore, Msg, allAsList, generator, updateF)
+module GrainStore exposing
+    ( GrainStore
+    , Msg
+    , allAsList
+    , generator
+    , newMsg
+    , updateF
+    )
 
 import Grain exposing (Grain)
 import Random exposing (Generator, Seed)
@@ -34,6 +41,10 @@ allAsList =
 
 map fn =
     unwrap >> fn >> GrainStore
+
+
+newMsg =
+    CreateNew
 
 
 type Msg
