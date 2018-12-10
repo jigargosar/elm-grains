@@ -26,8 +26,8 @@ type alias Return3F msg model reply =
 
 
 andDo : Cmd msg -> Return3F msg model reply
-andDo cmd r3 =
-    r3
+andDo cmd =
+    Tuple.mapFirst (Return.command cmd)
 
 
 andDoWhen : (model -> Bool) -> Cmd msg -> Return3F msg model reply
@@ -39,8 +39,8 @@ map :
     (modelA -> modelB)
     -> Return3 msg modelA reply
     -> Return3 msg modelB reply
-map fn r3 =
-    Tuple.mapFirst (Return.map fn) r3
+map fn =
+    Tuple.mapFirst (Return.map fn)
 
 
 singleton : model -> Return3 msg model reply
