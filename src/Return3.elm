@@ -98,10 +98,6 @@ sub subMsg { subUpdate, get, toMsg, set, replyToMsg, update } r3 =
         >> handleReplies
 
 
-mapCmd fn r3 =
-    r3 |> Tuple.mapFirst (Return.mapCmd fn)
-
-
 getModel : Return3 msg model reply -> model
 getModel r3 =
     r3 |> Tuple.first |> Tuple.first
