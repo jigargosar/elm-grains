@@ -1,6 +1,7 @@
 module GrainStore exposing
     ( GrainStore
     , Msg
+    , Reply
     , allAsList
     , generator
     , newMsg
