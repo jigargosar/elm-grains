@@ -1,5 +1,6 @@
 module Main exposing (main)
 
+import BaseView exposing (BaseView)
 import BasicsX exposing (..)
 import Browser
 import Browser.Dom
@@ -15,6 +16,7 @@ import DecodeX exposing (DecodeResult)
 import Either exposing (Either(..))
 import EventX exposing (onKeyDownPD)
 import Grain exposing (Grain)
+import GrainStore exposing (GrainStore)
 import HotKey as K exposing (SoftKey(..))
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes as SA exposing (..)
@@ -55,8 +57,9 @@ type alias Flags =
     }
 
 
-type alias GrainStore =
-    List Grain
+initialSeed : Flags -> Seed
+initialSeed =
+    .now >> Random.initialSeed
 
 
 type alias Model =
@@ -65,12 +68,22 @@ type alias Model =
     }
 
 
+initWithGrainStore : GrainStore -> Model
+initWithGrainStore initialGrainStore =
+    { hasFocusIn = False
+    , grainStore = initialGrainStore
+    }
+
+
+generator : Generator Model
+generator =
+    Random.map initWithGrainStore GrainStore.generator
+
+
 init : Flags -> Return Msg Model
 init flags =
-    Return.singleton
-        { hasFocusIn = False
-        , grainStore = []
-        }
+    Random.step generator (initialSeed flags)
+        |> Tuple.mapSecond (always Cmd.none)
 
 
 currentGrains =
@@ -140,35 +153,13 @@ view model =
             EventX.onKeyDownPD <|
                 keyBinding model
         ]
-        [ viewBase model
+        [ BaseView.view (mapStateToBaseViewProps model)
         ]
 
 
-viewBase : Model -> Html Msg
-viewBase model =
-    styled div
-        []
-        [ class "flex flex-column items-center" ]
-        [ styled div
-            [ Css.width <| px 400 ]
-            [ class "flex flex-column pv3" ]
-            [ viewGrainList (currentGrains model) ]
-        ]
-
-
-viewGrainList list =
-    flexCol []
-        []
-        (List.map
-            (\g ->
-                let
-                    title =
-                        Grain.title g
-                in
-                flexCol [] [] [ text title ]
-            )
-            list
-        )
+mapStateToBaseViewProps : Model -> BaseView
+mapStateToBaseViewProps model =
+    { grainList = model.grainStore |> GrainStore.allAsList }
 
 
 

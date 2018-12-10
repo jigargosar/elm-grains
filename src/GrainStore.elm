@@ -1,4 +1,4 @@
-module GrainStore exposing (GrainStore, updateF)
+module GrainStore exposing (GrainStore, allAsList, generator, updateF)
 
 import Grain exposing (Grain)
 import Random exposing (Generator, Seed)
@@ -14,8 +14,21 @@ type GrainStore
     = GrainStore Model
 
 
+initWithSeed seed =
+    GrainStore { list = [], seed = seed }
+
+
+generator : Generator GrainStore
+generator =
+    Random.independentSeed |> Random.map initWithSeed
+
+
 unwrap (GrainStore model) =
     model
+
+
+allAsList =
+    unwrap >> .list
 
 
 map fn =
@@ -25,15 +38,6 @@ map fn =
 type Msg
     = NoOp
     | CreateNew
-
-
-initWithSeed seed =
-    GrainStore { list = [], seed = seed }
-
-
-generator : Generator GrainStore
-generator =
-    Random.independentSeed |> Random.map initWithSeed
 
 
 updateF message =
