@@ -3,8 +3,8 @@ module GrainStore exposing
     , Msg
     , allAsList
     , generator
+    , handle
     , newMsg
-    , updateF
     )
 
 import Grain exposing (Grain)
@@ -56,11 +56,11 @@ type OutMsg
     = NoOut
 
 
-updateF :
+handle :
     Msg
     -> HandlerConfig Msg GrainStore
     -> HandlerConfig Msg GrainStore
-updateF message =
+handle message =
     case message of
         NoOp ->
             identity

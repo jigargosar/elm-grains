@@ -104,11 +104,11 @@ subscriptions model =
         [ Browser.Events.onKeyDown <| D.succeed BrowserAnyKeyDown ]
 
 
-updateF :
+handle :
     Msg
     -> HandlerConfig Msg Model
     -> HandlerConfig Msg Model
-updateF message =
+handle message =
     case message of
         NoOp ->
             identity
@@ -125,7 +125,7 @@ updateF message =
         AddNewClicked ->
             let
                 subConfig =
-                    { handler = GrainStore.updateF
+                    { handler = GrainStore.handle
                     , toMsg = GrainStoreSub
                     , get = .grainStore
                     , set = \newGrainStore model -> { model | grainStore = newGrainStore }
@@ -182,7 +182,7 @@ main =
     Browser.element
         { view = Html.toUnstyled << view
         , init = init
-        , update = toElmUpdateFn updateF
+        , update = toElmUpdateFn handle
 
         --        , update = updateDispatcher
         , subscriptions = subscriptions
