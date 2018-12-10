@@ -2,6 +2,7 @@ module GrainStore exposing (GrainStore, Msg, allAsList, generator, updateF)
 
 import Grain exposing (Grain)
 import Random exposing (Generator, Seed)
+import UpdateHandler exposing (HandlerConfig)
 
 
 type alias Model =
@@ -40,6 +41,7 @@ type Msg
     | CreateNew
 
 
+updateF : Msg -> HandlerConfig Msg GrainStore -> HandlerConfig Msg GrainStore
 updateF message =
     case message of
         NoOp ->
