@@ -106,8 +106,8 @@ subscriptions model =
 
 updateF :
     Msg
-    -> HandlerConfig Msg Model Never
-    -> HandlerConfig Msg Model Never
+    -> HandlerConfig Msg Model
+    -> HandlerConfig Msg Model
 updateF message =
     case message of
         NoOp ->

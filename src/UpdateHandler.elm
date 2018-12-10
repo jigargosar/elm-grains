@@ -14,12 +14,11 @@ module UpdateHandler exposing
 import BasicsX exposing (when)
 
 
-type HandlerConfig msg model reply
+type HandlerConfig msg model
     = HandlerConfig
-        { handler : msg -> HandlerConfig msg model reply -> HandlerConfig msg model reply
+        { handler : msg -> HandlerConfig msg model -> HandlerConfig msg model
         , model : model
         , cmd : Cmd msg
-        , reply : List reply
         }
 
 
@@ -39,19 +38,18 @@ mapConfig fn =
     unwrapConfig >> fn >> HandlerConfig
 
 
-dispatch : msg -> HandlerConfig msg model reply -> HandlerConfig msg model reply
+dispatch : msg -> HandlerConfig msg model -> HandlerConfig msg model
 dispatch msg config =
     handlerFromConfig config msg config
 
 
-dispatchSub msg { handler, toMsg, get, set, toReply } parentConfig =
+dispatchSub msg { handler, toMsg, get, set } parentConfig =
     let
         childReturnConfig =
             HandlerConfig
                 { handler = handler
                 , model = get (modelFromConfig parentConfig)
                 , cmd = Cmd.none
-                , reply = []
                 }
                 |> dispatch msg
     in
@@ -80,8 +78,8 @@ andDo cmd =
 andDoWith :
     (model -> a)
     -> (a -> Cmd msg)
-    -> HandlerConfig msg model reply
-    -> HandlerConfig msg model reply
+    -> HandlerConfig msg model
+    -> HandlerConfig msg model
 andDoWith extract fn c =
     andDo (fn (extract <| modelFromConfig c)) c
 
@@ -105,7 +103,6 @@ toElmUpdateFn handler msg model =
                 { handler = handler
                 , model = model
                 , cmd = Cmd.none
-                , reply = []
                 }
 
         toReturn =
