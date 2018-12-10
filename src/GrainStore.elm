@@ -9,7 +9,6 @@ module GrainStore exposing
 
 import Grain exposing (Grain)
 import Random exposing (Generator, Seed)
-import UpdateAndReplyHandler as UR exposing (ReplyHandleConfig)
 import UpdateHandler exposing (HandlerConfig)
 
 
