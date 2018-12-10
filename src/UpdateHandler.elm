@@ -25,7 +25,7 @@ handler =
     unwrap >> .handler
 
 
-modelFromConfig =
+model =
     unwrap >> .model
 
 
@@ -56,19 +56,19 @@ andDoWith :
     -> HandlerConfig msg model
     -> HandlerConfig msg model
 andDoWith extract fn c =
-    andDo (fn (extract <| modelFromConfig c)) c
+    andDo (fn (extract <| model c)) c
 
 
 andDoWhen pred cmd =
-    when (modelFromConfig >> pred) (andDo cmd)
+    when (model >> pred) (andDo cmd)
 
 
 andThenDo fn cmd =
-    andDo (fn (modelFromConfig cmd)) cmd
+    andDo (fn (model cmd)) cmd
 
 
 andThen fn c =
-    fn (modelFromConfig c) c
+    fn (model c) c
 
 
 init initialHandler initialModel =
@@ -83,5 +83,5 @@ toElmReturn =
     unwrap >> (\c -> ( c.model, c.cmd ))
 
 
-toElmUpdateFn handlerFn msg model =
-    init handlerFn model |> dispatch msg |> toElmReturn
+toElmUpdateFn initialHandler initialMsg initialModel =
+    init initialHandler initialModel |> dispatch initialMsg |> toElmReturn
