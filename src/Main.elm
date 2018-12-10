@@ -125,12 +125,7 @@ update message =
         GrainStoreSub msg ->
             R3.andThen
                 (\model ->
-                    let
-                        foo : Return3F Msg Model ()
-                        foo =
-                            R3.sub GrainStore.update msg model.grainStore
-                    in
-                    identity
+                    R3.sub GrainStore.update msg model.grainStore
                 )
 
         GrainStoreSubReply ->
