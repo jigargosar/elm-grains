@@ -61,21 +61,25 @@ toElmUpdate update msg model =
 sub :
     Update3F msgS modelS replyS
     -> msgS
-    -> modelS
+    -> (model -> modelS)
     -> (msgS -> msg)
     -> (modelS -> model -> model)
     -> (replyS -> msg)
     -> Update3F msg model reply
     -> Return3F msg model reply
-sub subUpdate3 subMsg subModel subMsgToMsg setSubModel replyToMsg update3 =
+sub subUpdate3 subMsg getSubModel subMsgToMsg setSubModel replyToMsg update3 r3 =
     let
+        subModel =
+            getSubModel (getModel r3)
+
         ( ( newSubModel, subCmd ), replies ) =
             subUpdate3 subMsg (singleton subModel)
 
         handleReplies newR3 =
             List.foldl (replyToMsg >> update3) newR3 replies
     in
-    map (setSubModel newSubModel)
+    r3
+        |> map (setSubModel newSubModel)
         >> andDo (Cmd.map subMsgToMsg subCmd)
         >> handleReplies
 
