@@ -140,7 +140,9 @@ update message =
             R3.sub msg grainStoreSubConfig
 
         GrainStoreReply reply ->
-            identity
+            case reply of
+                GrainStore.NoReply ->
+                    identity
 
 
 keyBinding model =
