@@ -19,7 +19,7 @@ type HandlerConfig msg model reply
         { handler : msg -> HandlerConfig msg model reply -> HandlerConfig msg model reply
         , model : model
         , cmd : Cmd msg
-        , reply : reply
+        , reply : List reply
         }
 
 
@@ -51,7 +51,7 @@ dispatchSub msg { handler, toMsg, get, set } parentConfig =
                 { handler = handler
                 , model = get (modelFromConfig parentConfig)
                 , cmd = Cmd.none
-                , reply = Nothing
+                , reply = []
                 }
     in
     childConfig
@@ -105,7 +105,7 @@ toElmUpdateFn handler msg model =
                 { handler = handler
                 , model = model
                 , cmd = Cmd.none
-                , reply = Nothing
+                , reply = []
                 }
 
         toReturn =

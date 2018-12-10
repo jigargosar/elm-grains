@@ -58,8 +58,8 @@ type OutMsg
 
 updateF :
     Msg
-    -> HandlerConfig Msg GrainStore (Maybe Never)
-    -> HandlerConfig Msg GrainStore (Maybe Never)
+    -> HandlerConfig Msg GrainStore Never
+    -> HandlerConfig Msg GrainStore Never
 updateF message =
     case message of
         NoOp ->
