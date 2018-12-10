@@ -104,7 +104,10 @@ subscriptions model =
         [ Browser.Events.onKeyDown <| D.succeed BrowserAnyKeyDown ]
 
 
-updateF : Msg -> HandlerConfig Msg Model -> HandlerConfig Msg Model
+updateF :
+    Msg
+    -> HandlerConfig Msg Model (Maybe Never)
+    -> HandlerConfig Msg Model (Maybe Never)
 updateF message =
     case message of
         NoOp ->
@@ -126,11 +129,15 @@ updateF message =
                     , toMsg = GrainStoreSub
                     , get = .grainStore
                     , set = \newGrainStore model -> { model | grainStore = newGrainStore }
+                    , reply = \_ -> GrainStoreSubReply
                     }
             in
             dispatchSub GrainStore.newMsg subConfig
 
         GrainStoreSub msg ->
+            identity
+
+        GrainStoreSubReply ->
             identity
 
 
@@ -176,7 +183,7 @@ main =
     Browser.element
         { view = Html.toUnstyled << view
         , init = init
-        , update = toElmUpdateFn updateF
+        , update = \msg model -> toElmUpdateFn updateF msg model Nothing
 
         --        , update = updateDispatcher
         , subscriptions = subscriptions

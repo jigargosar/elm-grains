@@ -13,3 +13,4 @@ type Msg
     | BaseLayerFocusInChanged Bool
     | AddNewClicked
     | GrainStoreSub GrainStore.Msg
+    | GrainStoreSubReply

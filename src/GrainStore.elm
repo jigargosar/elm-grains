@@ -52,7 +52,14 @@ type Msg
     | CreateNew
 
 
-updateF : Msg -> HandlerConfig Msg GrainStore -> HandlerConfig Msg GrainStore
+type OutMsg
+    = NoOut
+
+
+updateF :
+    Msg
+    -> HandlerConfig Msg GrainStore (Maybe Never)
+    -> HandlerConfig Msg GrainStore (Maybe Never)
 updateF message =
     case message of
         NoOp ->
