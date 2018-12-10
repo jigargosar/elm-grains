@@ -86,10 +86,6 @@ init flags =
         |> Tuple.mapSecond (always Cmd.none)
 
 
-currentGrains =
-    .grainStore
-
-
 
 ---- UPDATE ----
 
