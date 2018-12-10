@@ -56,7 +56,7 @@ type Reply
     = NoReply
 
 
-update : Msg -> Return3F Msg Model Reply
+update : Msg -> Return3F Msg GrainStore Reply
 update message =
     case message of
         NoOp ->
