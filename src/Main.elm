@@ -1,6 +1,5 @@
 module Main exposing (main)
 
-import BaseView exposing (BaseView)
 import BasicsX exposing (..)
 import Browser
 import Browser.Dom
@@ -16,6 +15,7 @@ import DecodeX exposing (DecodeResult)
 import Either exposing (Either(..))
 import EventX exposing (onKeyDownPD)
 import Grain exposing (Grain)
+import GrainListView exposing (GrainListView)
 import GrainStore exposing (GrainStore)
 import HotKey as K exposing (SoftKey(..))
 import Html.Styled as Html exposing (..)
@@ -153,12 +153,12 @@ view model =
             EventX.onKeyDownPD <|
                 keyBinding model
         ]
-        [ BaseView.view (mapStateToBaseViewProps model)
+        [ GrainListView.view (mapStateToGrainListView model)
         ]
 
 
-mapStateToBaseViewProps : Model -> BaseView
-mapStateToBaseViewProps model =
+mapStateToGrainListView : Model -> GrainListView
+mapStateToGrainListView model =
     { grainList = model.grainStore |> GrainStore.allAsList }
 
 

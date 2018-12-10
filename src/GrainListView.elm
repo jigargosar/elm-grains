@@ -1,4 +1,4 @@
-module BaseView exposing (BaseView, view, viewGrainList)
+module GrainListView exposing (GrainListView, view, viewGrainList)
 
 import Css exposing (px)
 import CssLayout exposing (flexCol)
@@ -8,11 +8,11 @@ import Html.Styled.Attributes exposing (class)
 import Msg exposing (Msg)
 
 
-type alias BaseView =
+type alias GrainListView =
     { grainList : List Grain }
 
 
-view : BaseView -> Html Msg
+view : GrainListView -> Html Msg
 view { grainList } =
     styled div
         []
