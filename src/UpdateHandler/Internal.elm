@@ -24,58 +24,42 @@ type HandlerConfig msg model
     = HandlerConfig (Internal msg model)
 
 
-handler =
-    unwrap >> .handler
-
-
-model =
-    unwrap >> .model
-
-
-unwrap (HandlerConfig hc) =
-    hc
-
-
-map fn =
-    unwrap >> fn >> HandlerConfig
-
-
-dispatch : msg -> HandlerConfig msg model -> HandlerConfig msg model
+dispatch : msg -> Internal msg model -> Internal msg model
 dispatch msg config =
-    handler config msg config
+    config.handler msg config
 
 
-mapModel fn =
-    map (\c -> { c | model = fn c.model })
+mapModel fn config =
+    { config | model = fn config.model }
 
 
-andDo cmd =
-    map (\c -> { c | cmd = Cmd.batch [ c.cmd, cmd ] })
+andDo cmd config =
+    { config | cmd = Cmd.batch [ config.cmd, cmd ] }
 
 
 andDoWith :
     (model -> a)
     -> (a -> Cmd msg)
-    -> HandlerConfig msg model
-    -> HandlerConfig msg model
+    -> Internal msg model
+    -> Internal msg model
 andDoWith extract fn c =
-    andDo (fn (extract <| model c)) c
+    andDo (fn (extract <| c.model)) c
 
 
 andDoWhen pred cmd =
-    when (model >> pred) (andDo cmd)
+    when (.model >> pred) (andDo cmd)
 
 
-andThenDo fn cmd =
-    andDo (fn (model cmd)) cmd
+andThenDo fn config =
+    andDo (fn config.model) config
 
 
 andThen fn c =
-    fn (model c) c
+    fn c.model c
 
 
 init initialHandler initialModel =
-    HandlerConfig
+    Internal
         { handler = initialHandler
         , model = initialModel
         , cmd = Cmd.none
