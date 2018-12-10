@@ -9,6 +9,7 @@ module GrainStore exposing
 
 import Grain exposing (Grain)
 import Random exposing (Generator, Seed)
+import UpdateAndReplyHandler as UR exposing (ReplyHandleConfig)
 import UpdateHandler exposing (HandlerConfig)
 
 
@@ -52,8 +53,8 @@ type Msg
     | CreateNew
 
 
-type OutMsg
-    = NoOut
+type Reply
+    = NoReply
 
 
 handle :
@@ -69,10 +70,23 @@ handle message =
             identity
 
 
-handleWithReply message =
+handleAndReply :
+    Msg
+    -> ReplyHandleConfig Msg GrainStore Reply
+    -> ReplyHandleConfig Msg GrainStore Reply
+handleAndReply message =
     case message of
         NoOp ->
             identity
 
         CreateNew ->
-            identity
+            UR.mapModel
+                (map
+                    (\model ->
+                        let
+                            ( newGrain, newSeed ) =
+                                Random.step Grain.generator model.seed
+                        in
+                        { model | list = newGrain :: model.list, seed = newSeed }
+                    )
+                )
