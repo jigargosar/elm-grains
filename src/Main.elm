@@ -134,11 +134,11 @@ update message =
                         model.grainStore
                         GrainStoreSub
                         setGrainStore
-                        GrainStoreSubReply
+                        GrainStoreReply
                         update
                 )
 
-        GrainStoreSubReply _ ->
+        GrainStoreReply _ ->
             identity
 
 
