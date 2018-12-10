@@ -49,7 +49,7 @@ singleton model =
 
 
 toElmUpdate :
-    (msg -> Return3F msg model reply)
+    Update3F msg model reply
     -> msg
     -> model
     -> Return.Return msg model
