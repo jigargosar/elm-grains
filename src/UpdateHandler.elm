@@ -21,7 +21,7 @@ type HandlerConfig msg model
         }
 
 
-handlerFromConfig =
+handler =
     unwrapConfig >> .handler
 
 
@@ -39,7 +39,7 @@ mapConfig fn =
 
 dispatch : msg -> HandlerConfig msg model -> HandlerConfig msg model
 dispatch msg config =
-    handlerFromConfig config msg config
+    handler config msg config
 
 
 mapModel fn =
@@ -71,11 +71,11 @@ andThen fn c =
     fn (modelFromConfig c) c
 
 
-toElmUpdateFn handler msg model =
+toElmUpdateFn handlerFn msg model =
     let
         config =
             HandlerConfig
-                { handler = handler
+                { handler = handlerFn
                 , model = model
                 , cmd = Cmd.none
                 }
@@ -83,4 +83,4 @@ toElmUpdateFn handler msg model =
         toReturn =
             unwrapConfig >> (\c -> ( c.model, c.cmd ))
     in
-    handlerFromConfig config msg config |> toReturn
+    handler config msg config |> toReturn
