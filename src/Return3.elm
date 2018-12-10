@@ -67,14 +67,17 @@ sub :
     -> (replyS -> msg)
     -> Update3F msg model reply
     -> Return3F msg model reply
-sub su sm smo toMsg set replyToMsg update r3 =
+sub subUpdate3 subMsg subModel subMsgToMsg setSubModel replyToMsg update3 =
     let
-        subR3 =
-            su sm (singleton smo)
-                |> mapCmd toMsg
+        ( ( newSubModel, subCmd ), replies ) =
+            subUpdate3 subMsg (singleton subModel)
+
+        handleReplies newR3 =
+            List.foldl (replyToMsg >> update3) newR3 replies
     in
-    r3
-        |> map (set (getModel subR3))
+    map (setSubModel newSubModel)
+        >> andDo (Cmd.map subMsgToMsg subCmd)
+        >> handleReplies
 
 
 mapCmd fn r3 =
@@ -84,6 +87,11 @@ mapCmd fn r3 =
 getModel : Return3 msg model reply -> model
 getModel r3 =
     r3 |> Tuple.first |> Tuple.first
+
+
+getReplies : Return3 msg model reply -> List reply
+getReplies r3 =
+    r3 |> Tuple.second
 
 
 andThen : (model -> Return3F msg model reply) -> Return3F msg model reply
