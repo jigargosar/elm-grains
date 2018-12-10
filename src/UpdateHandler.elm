@@ -22,19 +22,19 @@ type HandlerConfig msg model
 
 
 handler =
-    unwrapConfig >> .handler
+    unwrap >> .handler
 
 
 modelFromConfig =
-    unwrapConfig >> .model
+    unwrap >> .model
 
 
-unwrapConfig (HandlerConfig hc) =
+unwrap (HandlerConfig hc) =
     hc
 
 
 mapConfig fn =
-    unwrapConfig >> fn >> HandlerConfig
+    unwrap >> fn >> HandlerConfig
 
 
 dispatch : msg -> HandlerConfig msg model -> HandlerConfig msg model
@@ -71,16 +71,20 @@ andThen fn c =
     fn (modelFromConfig c) c
 
 
+init initialHandler initialModel =
+    HandlerConfig
+        { handler = initialHandler
+        , model = initialModel
+        , cmd = Cmd.none
+        }
+
+
 toElmUpdateFn handlerFn msg model =
     let
         config =
-            HandlerConfig
-                { handler = handlerFn
-                , model = model
-                , cmd = Cmd.none
-                }
+            init handlerFn model
 
         toReturn =
-            unwrapConfig >> (\c -> ( c.model, c.cmd ))
+            unwrap >> (\c -> ( c.model, c.cmd ))
     in
-    handler config msg config |> toReturn
+    dispatch msg config |> toReturn
