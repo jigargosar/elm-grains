@@ -184,7 +184,7 @@ main =
     Browser.element
         { view = Html.toUnstyled << view
         , init = init
-        , update = R3.toElmUpdateFn update
+        , update = R3.toElmUpdate update
 
         --        , update = updateDispatcher
         , subscriptions = subscriptions

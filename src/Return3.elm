@@ -6,7 +6,7 @@ module Return3 exposing
     , andThen
     , map
     , sub
-    , toElmUpdateFn
+    , toElmUpdate
     )
 
 import BasicsX exposing (callWith)
@@ -48,12 +48,12 @@ singleton model =
     ( Return.singleton model, [] )
 
 
-toElmUpdateFn :
+toElmUpdate :
     (msg -> Return3F msg model reply)
     -> msg
     -> model
     -> Return.Return msg model
-toElmUpdateFn update msg model =
+toElmUpdate update msg model =
     update msg (singleton model)
         |> Tuple.first
 
