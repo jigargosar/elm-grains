@@ -40,10 +40,10 @@ import Random exposing (Generator, Seed)
 import RandomId
 import Result.Extra as Result
 import Return exposing (Return)
+import Return3 as R3 exposing (Return3F)
 import Tagged
 import Task
 import Tuple exposing (mapFirst)
-import UpdateHandler exposing (..)
 
 
 
@@ -104,23 +104,20 @@ subscriptions model =
         [ Browser.Events.onKeyDown <| D.succeed BrowserAnyKeyDown ]
 
 
-handle :
-    Msg
-    -> HandlerConfig Msg Model
-    -> HandlerConfig Msg Model
-handle message =
+update : Msg -> Return3F Msg Model ()
+update message =
     case message of
         NoOp ->
             identity
 
         LogError errMsg ->
-            andDo (Port.error errMsg)
+            R3.andDo (Port.error errMsg)
 
         BrowserAnyKeyDown ->
-            andDoWhen (.hasFocusIn >> not) focusBaseLayerCmd
+            R3.andDoWhen (.hasFocusIn >> not) focusBaseLayerCmd
 
         BaseLayerFocusInChanged hasFocusIn ->
-            mapModel (\model -> { model | hasFocusIn = hasFocusIn })
+            R3.map (\model -> { model | hasFocusIn = hasFocusIn })
 
         AddNewClicked ->
             identity
@@ -174,7 +171,7 @@ main =
     Browser.element
         { view = Html.toUnstyled << view
         , init = init
-        , update = toElmUpdateFn handle
+        , update = R3.toElmUpdateFn update
 
         --        , update = updateDispatcher
         , subscriptions = subscriptions
