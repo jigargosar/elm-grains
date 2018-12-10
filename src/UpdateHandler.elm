@@ -45,16 +45,10 @@ dispatch msg config =
 
 dispatchSub msg { handler, toMsg, get, set } parentConfig =
     let
-        parentModel =
-            modelFromConfig parentConfig
-
-        childModel =
-            get parentModel
-
         childConfig =
             HandlerConfig
                 { handler = handler
-                , model = childModel
+                , model = get (modelFromConfig parentConfig)
                 , cmd = Cmd.none
                 }
     in
@@ -62,9 +56,13 @@ dispatchSub msg { handler, toMsg, get, set } parentConfig =
         |> dispatch msg
         |> mapConfig
             (\cc ->
-                { model = set cc.model parentModel
-                , cmd = Cmd.map toMsg cc.cmd
-                , handler = handlerFromConfig parentConfig
+                let
+                    parentConfigInternal =
+                        unwrapConfig parentConfig
+                in
+                { parentConfigInternal
+                    | model = set cc.model parentConfigInternal.model
+                    , cmd = Cmd.map toMsg cc.cmd
                 }
             )
 
