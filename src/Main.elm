@@ -129,7 +129,6 @@ updateF message =
                     , toMsg = GrainStoreSub
                     , get = .grainStore
                     , set = \newGrainStore model -> { model | grainStore = newGrainStore }
-                    , toReply = never
                     }
             in
             dispatchSub GrainStore.newMsg subConfig
