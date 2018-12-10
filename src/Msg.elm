@@ -12,5 +12,5 @@ type Msg
     | BrowserAnyKeyDown
     | BaseLayerFocusInChanged Bool
     | AddNewClicked
-    | GrainStoreSub GrainStore.Msg
+    | GrainStoreSubMsg GrainStore.Msg
     | GrainStoreReply GrainStore.Reply

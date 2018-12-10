@@ -126,14 +126,18 @@ update message =
         AddNewClicked ->
             identity
 
-        GrainStoreSub msg ->
-            R3.sub GrainStore.update
-                msg
-                .grainStore
-                GrainStoreSub
-                setGrainStore
-                GrainStoreReply
-                update
+        GrainStoreSubMsg msg ->
+            let
+                config =
+                    { subUpdate = GrainStore.update
+                    , get = .grainStore
+                    , set = setGrainStore
+                    , toMsg = GrainStoreSubMsg
+                    , replyToMsg = GrainStoreReply
+                    , update = update
+                    }
+            in
+            R3.sub msg config
 
         GrainStoreReply reply ->
             identity
