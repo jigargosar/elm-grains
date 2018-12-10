@@ -67,3 +67,12 @@ handle message =
 
         CreateNew ->
             identity
+
+
+handleWithReply message =
+    case message of
+        NoOp ->
+            identity
+
+        CreateNew ->
+            identity
