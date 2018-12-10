@@ -3,7 +3,6 @@ module Return3 exposing
     , Return3F
     , andDo
     , andDoWhen
-    , andThen
     , dispatch
     , map
     , sub
