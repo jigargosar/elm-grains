@@ -1,4 +1,4 @@
-module GrainStore exposing (GrainStore, allAsList, generator, updateF)
+module GrainStore exposing (GrainStore, Msg, allAsList, generator, updateF)
 
 import Grain exposing (Grain)
 import Random exposing (Generator, Seed)

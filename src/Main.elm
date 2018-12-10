@@ -125,6 +125,9 @@ updateF message =
             in
             identity
 
+        GrainStoreSub msg ->
+            identity
+
 
 keyBinding model =
     K.bindEachToMsg <|

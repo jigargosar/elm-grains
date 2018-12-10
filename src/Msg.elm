@@ -1,6 +1,7 @@
 module Msg exposing (Msg(..))
 
 import Browser.Dom
+import GrainStore
 import Random exposing (Generator)
 
 
@@ -11,3 +12,4 @@ type Msg
     | BrowserAnyKeyDown
     | BaseLayerFocusInChanged Bool
     | AddNewClicked
+    | GrainStoreSub GrainStore.Msg
