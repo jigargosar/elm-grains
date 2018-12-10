@@ -68,25 +68,3 @@ handle message =
 
         CreateNew ->
             identity
-
-
-handleAndReply :
-    Msg
-    -> ReplyHandleConfig Msg GrainStore Reply
-    -> ReplyHandleConfig Msg GrainStore Reply
-handleAndReply message =
-    case message of
-        NoOp ->
-            identity
-
-        CreateNew ->
-            UR.mapModel
-                (map
-                    (\model ->
-                        let
-                            ( newGrain, newSeed ) =
-                                Random.step Grain.generator model.seed
-                        in
-                        { model | list = newGrain :: model.list, seed = newSeed }
-                    )
-                )
