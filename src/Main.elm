@@ -280,7 +280,5 @@ main =
         { view = Html.toUnstyled << view
         , init = init
         , update = elmUpdate
-
-        --        , update = updateDispatcher
         , subscriptions = subscriptions
         }
