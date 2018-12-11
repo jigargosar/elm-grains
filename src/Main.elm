@@ -203,7 +203,8 @@ update message =
             R3.map (setRoute route) >> pushUrl
 
         UrlChanged url ->
-            R3.map (setRoute <| Route.fromString url)
+            --            R3.map (setRoute <| Route.fromString url)
+            update (RouteTo <| Route.fromString url)
 
 
 keyBinding model =

@@ -7,7 +7,6 @@ import createHistory from 'history/createBrowserHistory'
 
 const history = createHistory()
 
-
 export const tapLog = m => tap(partial(console.log, [m]))
 
 const sendTo = curry(function sendTo(app, port, data) {
@@ -59,7 +58,7 @@ const app = Elm.Main.init({
     now: Date.now(),
     windowSize: { width: window.innerWidth, height: window.innerHeight },
     grains: storageGetOr({ items: [] }, 'grains'),
-    url: document.URL
+    url: document.URL,
   },
 })
 
@@ -67,7 +66,7 @@ const app = Elm.Main.init({
 history.listen((location, action) => {
   // location is an object like window.location
   console.log(action, location.pathname, location.state)
-  sendTo(app, "urlChanged", document.URL)
+  sendTo(app, 'urlChanged', document.URL)
 })
 
 // const sgApp = G.Elm.StoreGenerator.init ({node:document.getElementById('root2')})
@@ -102,7 +101,9 @@ subscribe(
 
     pushUrl: url => {
       // Use push, replace, and go to navigate around.
-      history.push(url, { some: 'state' })
+      if (history.location.pathname !== url) {
+        history.push(url, { some: 'state' })
+      }
     },
 
     error: data => {
