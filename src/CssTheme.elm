@@ -1,4 +1,12 @@
-module CssTheme exposing (black80, blackAlpha, space2, space3, space4, white)
+module CssTheme exposing
+    ( black80
+    , blackAlpha
+    , contentWidth
+    , space2
+    , space3
+    , space4
+    , white
+    )
 
 import Css exposing (hex, px)
 
@@ -25,3 +33,7 @@ space4 =
 
 white =
     hex "#fff"
+
+
+contentWidth =
+    px 500
