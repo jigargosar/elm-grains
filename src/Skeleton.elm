@@ -15,7 +15,7 @@ import StyledEvents as SE
 
 view { onKeyDownPD, children } =
     flexColIC
-        [ CS.fg1
+        [ CS.flexGrow1
         , CS.absFill
         , CS.overflowScroll
         ]
@@ -27,7 +27,7 @@ view { onKeyDownPD, children } =
         , SE.onKeyDownPD onKeyDownPD
         ]
         [ flexCol
-            [ CS.fg1
+            [ CS.flexGrow1
             , Css.width CssTheme.contentWidth
             , Css.maxWidth <| vw 100
             ]

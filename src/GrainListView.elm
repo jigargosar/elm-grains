@@ -73,7 +73,7 @@ viewGrainList list =
             flexRow
                 [ Css.padding space2
                 , CS.pointer
-                , CS.fg1
+                , CS.flexGrow1
                 ]
                 [ onClick <| Msg.routeToGrain g ]
                 [ text title ]
@@ -98,7 +98,7 @@ viewGrainList list =
     in
     flexCol
         [ CS.p space2
-        , CS.fg1
+        , CS.flexGrow1
         , Css.marginBottom <| rem 3
         ]
         []

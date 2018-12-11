@@ -35,7 +35,7 @@ viewGrain grain =
     in
     styled textarea
         [ Css.displayFlex
-        , CS.fg1
+        , CS.flexGrow1
         , Css.resize Css.none
         , CS.p space2
         , Css.borderWidth zero

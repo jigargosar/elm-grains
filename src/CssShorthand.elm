@@ -3,8 +3,8 @@ module CssShorthand exposing
     , absFill
     , abs__fill
     , aic
-    , fg1
     , fixed
+    , flexGrow1
     , fs0
     , jcc
     , overflowScroll
@@ -35,7 +35,7 @@ jcc =
     Css.justifyContent Css.center
 
 
-fg1 =
+flexGrow1 =
     Css.flexGrow <| num 1
 
 
