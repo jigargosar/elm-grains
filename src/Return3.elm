@@ -5,6 +5,8 @@ module Return3 exposing
     , dispatch
     , do
     , doWhen
+    , doWith
+    , effect
     , map
     , reply
     , sub
@@ -35,6 +37,22 @@ do cmd =
 doWhen : Pred model -> Cmd msg -> Return3F msg model reply
 doWhen pred cmd =
     when (getModel >> pred) (do cmd)
+
+
+doWith : (model -> a) -> (a -> Cmd msg) -> Return3F msg model reply
+doWith with cmdFn r3 =
+    let
+        cmd =
+            getModel r3 |> with |> cmdFn
+    in
+    do cmd r3
+
+
+effect : (model -> Cmd msg) -> Return3F msg model reply
+effect fn r3 =
+    fn (getModel r3)
+        |> do
+        |> callWith r3
 
 
 map :
