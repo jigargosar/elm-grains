@@ -6,6 +6,7 @@
     "elm-version": "0.19.0",
     "dependencies": {
         "direct": {
+            "Chadtech/random-pipeline": "1.0.2",
             "Fresheyeball/elm-return": "7.0.0",
             "Microsoft/elm-json-tree-view": "2.0.0",
             "NoRedInk/elm-json-decode-pipeline": "1.0.0",

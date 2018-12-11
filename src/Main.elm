@@ -37,6 +37,7 @@ import Maybe.Extra as Maybe
 import Msg exposing (Msg(..))
 import Port
 import Random exposing (Generator, Seed)
+import Random.Pipeline as Random
 import RandomId
 import Result.Extra as Result
 import Return exposing (Return)
@@ -65,25 +66,22 @@ initialSeed =
 type alias Model =
     { hasFocusIn : Bool
     , grainStore : GrainStore
+    , seed : Seed
     }
 
 
-initWithGrainStore : GrainStore -> Model
-initWithGrainStore initialGrainStore =
-    { hasFocusIn = False
-    , grainStore = initialGrainStore
-    }
-
-
-generator : Generator Model
-generator =
-    Random.map initWithGrainStore GrainStore.generator
+initialHasFocusIn =
+    False
 
 
 init : Flags -> Return Msg Model
 init flags =
-    Random.step generator (initialSeed flags)
-        |> Tuple.mapSecond (always Cmd.none)
+    Model
+        |> Random.from (initialSeed flags)
+        |> Random.always initialHasFocusIn
+        |> Random.with GrainStore.generator
+        |> Random.finish
+        |> Return.singleton
 
 
 setGrainStore grainStore model =
@@ -134,7 +132,7 @@ update message =
             R3.map (\model -> { model | hasFocusIn = hasFocusIn })
 
         AddNewClicked ->
-            R3.dispatch GrainStore.newMsg grainStoreSubConfig
+            R3.dispatch GrainStore.createNewGrain grainStoreSubConfig
 
         GrainStoreSubMsg msg ->
             R3.sub msg grainStoreSubConfig

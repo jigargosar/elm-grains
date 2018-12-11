@@ -3,8 +3,8 @@ module GrainStore exposing
     , Msg
     , Reply(..)
     , allAsList
+    , createNewGrain
     , generator
-    , newMsg
     , update
     )
 
@@ -19,6 +19,7 @@ type alias GrainStore =
     }
 
 
+initWithSeed : Seed -> GrainStore
 initWithSeed seed =
     { list = [], seed = seed }
 
@@ -36,7 +37,7 @@ setSeed seed =
     \model -> { model | seed = seed }
 
 
-newMsg =
+createNewGrain =
     CreateNew
 
 
