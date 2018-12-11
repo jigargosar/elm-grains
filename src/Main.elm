@@ -126,6 +126,10 @@ focusDomId domId =
         |> Task.attempt (\_ -> NoOp)
 
 
+focusMaybeDomId =
+    unpackMaybe Cmd.none focusDomId
+
+
 focusBaseLayer =
     focusDomId "base-layer"
 
@@ -141,7 +145,7 @@ maybeAutoFocusRouteDomId route =
 
 autoFocusRoute route =
     maybeAutoFocusRouteDomId route
-        |> unpackMaybe Cmd.none focusDomId
+        |> focusMaybeDomId
 
 
 focusGrain =
