@@ -1,4 +1,4 @@
-module CssEvents exposing (..)
+module StyledEvents exposing (..)
 
 import EventX
 import Html.Styled as Html exposing (..)
