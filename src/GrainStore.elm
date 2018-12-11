@@ -5,6 +5,7 @@ module GrainStore exposing
     , allAsList
     , createNewGrain
     , generator
+    , get
     , load
     , update
     )
@@ -14,6 +15,7 @@ import Grain exposing (Grain)
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline exposing (hardcoded, required)
 import Json.Encode as E exposing (Value)
+import List.Extra as List
 import Port
 import Random exposing (Generator, Seed)
 import Random.Pipeline as Random
@@ -38,6 +40,10 @@ generator =
 
 allAsList =
     .list
+
+
+get gid =
+    .list >> List.find (Grain.idEq gid)
 
 
 setSeed seed =

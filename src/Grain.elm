@@ -3,10 +3,12 @@ module Grain exposing
     , decoder
     , encoder
     , generator
+    , idEq
     , title
     , toDomIdWithPrefix
     )
 
+import BasicsX exposing (eqs)
 import DecodeX exposing (Encoder)
 import GrainId exposing (GrainId(..))
 import Json.Decode as D exposing (Decoder)
@@ -60,6 +62,10 @@ title =
 
 id =
     unwrap >> .id
+
+
+idEq gid =
+    id >> eqs gid
 
 
 toDomIdWithPrefix prefix =

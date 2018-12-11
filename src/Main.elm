@@ -18,6 +18,7 @@ import Grain exposing (Grain)
 import GrainId exposing (GrainId)
 import GrainListView exposing (GrainListView)
 import GrainStore exposing (GrainStore)
+import GrainView
 import HotKey as K exposing (SoftKey(..))
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes as SA exposing (..)
@@ -101,6 +102,10 @@ mapToast fn model =
 
 mapToastR3 =
     R3.map << mapToast
+
+
+getGrain gid =
+    .grainStore >> GrainStore.get gid
 
 
 
@@ -206,9 +211,18 @@ view model =
             EventX.onKeyDownPD <|
                 keyBinding model
         ]
-        [ GrainListView.view (mapStateToGrainListView model)
+        [ viewRoute model
         , viewToast model.toast
         ]
+
+
+viewRoute model =
+    case model.route of
+        Route.GrainList ->
+            GrainListView.view (mapStateToGrainListView model)
+
+        Route.Grain gid ->
+            getGrain gid |> GrainView.view
 
 
 viewToast toast =
