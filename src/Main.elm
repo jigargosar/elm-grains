@@ -6,7 +6,7 @@ import Browser.Dom
 import Browser.Events
 import BrowserX exposing (WindowSize)
 import Color
-import Css exposing (num, pct, px)
+import Css exposing (em, num, pct, px)
 import CssElements exposing (..)
 import CssElevation exposing (elevation)
 import CssIcons exposing (viewIcon)
@@ -193,7 +193,25 @@ view model =
 
 viewToast : Toast -> Html Msg
 viewToast toast =
-    div [] [ text toast.title ]
+    flexRow
+        [ Css.position Css.fixed
+        , Css.bottom <| px 32
+        , Css.right <| px 16
+        , Css.minWidth <| px 150
+        , Css.maxWidth <| pct 80
+        , Css.backgroundColor <| Css.rgba 0 0 0 0.8
+        , Css.color <| Css.hex "#fff"
+        , Css.padding <| px 8
+        ]
+        []
+        [ flexRow
+            [ Css.flexGrow <| num 1
+            , Css.justifyContent Css.center
+            ]
+            []
+            [ text toast.title ]
+        , flexRow [] [] [ text "X" ]
+        ]
 
 
 mapStateToGrainListView : Model -> GrainListView
