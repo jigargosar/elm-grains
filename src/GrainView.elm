@@ -2,13 +2,13 @@ module GrainView exposing (view)
 
 import BasicsX exposing (defaultEmptyStringTo, unwrapMaybe)
 import Browser.Dom
-import Css exposing (num, pct, px)
+import Css exposing (num, pct, px, zero)
 import CssLayout exposing (flexCol, flexColIC)
 import CssShorthand as CS
 import CssTheme exposing (space2)
 import Grain exposing (Grain)
 import Html.Styled exposing (Html, button, div, input, styled, text, textarea)
-import Html.Styled.Attributes exposing (class, placeholder, value)
+import Html.Styled.Attributes exposing (autofocus, class, placeholder, value)
 import Html.Styled.Events exposing (onClick)
 import Msg exposing (Msg)
 import Skeleton
@@ -34,6 +34,10 @@ viewGrain grain =
         , CS.fg1
         , Css.resize Css.none
         , CS.p space2
+        , Css.borderWidth zero
         ]
-        [ placeholder "Start Typing...", value title ]
+        [ placeholder "Start Typing..."
+        , value title
+        , autofocus True
+        ]
         []
