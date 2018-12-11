@@ -13,22 +13,18 @@ import Msg
 
 
 view { onKeyDownPD, children } =
-    flexCol
+    flexColIC
         [ CS.fg1
-        , Css.width <| vw 100
-        , Css.height <| vh 100
+        , CS.abs
         ]
         [ id "base-layer"
-        , class "sans-serif"
+        , class "sans-serif absolute--fill"
         , SA.fromUnstyled <| EventX.onFocusIn <| Msg.BaseLayerFocusInChanged True
         , SA.fromUnstyled <| EventX.onFocusOut <| Msg.BaseLayerFocusInChanged False
         , tabindex -1
         , SA.fromUnstyled <| EventX.onKeyDownPD onKeyDownPD
         ]
-        [ flexColIC [ CS.fg1 ]
-            []
-            [ flexCol [ CS.wpx 400, CS.fg1, CS.rel ]
-                [ class "ba b--light-gray" ]
-                children
-            ]
+        [ flexCol [ Css.minHeight <| pct 100, CS.wpx 400, CS.rel ]
+            [ class "ba b--light-gray" ]
+            children
         ]

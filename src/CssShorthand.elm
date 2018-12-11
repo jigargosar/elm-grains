@@ -2,6 +2,7 @@ module CssShorthand exposing
     ( abs
     , aic
     , fg1
+    , fixed
     , fs0
     , p
     , pointer
@@ -51,3 +52,7 @@ rel =
 
 sticky =
     Css.position Css.sticky
+
+
+fixed =
+    Css.position Css.fixed

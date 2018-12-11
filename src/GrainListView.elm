@@ -45,7 +45,7 @@ view { grainList } =
 
 viewFab =
     CssElements.iconBtnWithStyles
-        [ CS.abs
+        [ CS.fixed
         , Css.bottom space4
         , Css.right space4
         , Css.backgroundColor black80
@@ -93,9 +93,11 @@ viewGrainList list =
     in
     flexCol
         [ CS.p space2
-        , Css.marginBottom <| rem 3
+        , Css.marginTop <| pct 50
+        , Css.marginBottom <| rem 4
         , CS.fg1
         , Css.minHeight <| pct 100
+        , Css.justifyContent Css.flexEnd
         ]
         []
         (List.map viewItem list)
