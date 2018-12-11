@@ -145,7 +145,7 @@ autoFocusRoute route =
 
 
 focusGrain =
-    GrainListView.focusGrain >> Task.attempt (\_ -> NoOp)
+    GrainListView.grainDomId >> focusDomId
 
 
 globalKeyBinding model =

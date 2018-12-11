@@ -1,6 +1,6 @@
 module GrainListView exposing
     ( GrainListView
-    , focusGrain
+    , grainDomId
     , view
     )
 
@@ -25,11 +25,6 @@ import Task exposing (Task)
 grainDomId : Grain -> String
 grainDomId =
     Grain.toDomIdWithPrefix "grain-list-item--"
-
-
-focusGrain : Grain -> Task Browser.Dom.Error ()
-focusGrain grain =
-    Browser.Dom.focus (grainDomId grain)
 
 
 type alias GrainListView =
