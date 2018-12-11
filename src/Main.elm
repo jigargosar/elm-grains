@@ -45,6 +45,7 @@ import Result.Extra as Result
 import Return exposing (Return)
 import Return3 as R3 exposing (Return3F)
 import Route exposing (Route)
+import Skeleton
 import Tagged
 import Task
 import Toast exposing (Toast)
@@ -234,6 +235,9 @@ viewRoute model =
 
         Route.Grain gid ->
             getGrain gid model |> GrainView.view
+
+        Route.NotFound ->
+            Skeleton.notFoundView
 
 
 viewToast toast =
