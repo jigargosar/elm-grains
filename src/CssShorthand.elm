@@ -5,6 +5,7 @@ module CssShorthand exposing
     , fg1
     , fixed
     , fs0
+    , jcc
     , p
     , pointer
     , rel
@@ -22,6 +23,10 @@ fs0 =
 
 aic =
     Css.alignItems Css.center
+
+
+jcc =
+    Css.justifyContent Css.center
 
 
 fg1 =

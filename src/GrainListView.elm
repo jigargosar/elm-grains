@@ -6,7 +6,7 @@ module GrainListView exposing
 
 import BasicsX exposing (defaultEmptyStringTo)
 import Browser.Dom
-import Css exposing (num, pct, px, rem, zero)
+import Css exposing (num, pct, px, rem, vw, zero)
 import CssElements
 import CssIcons
 import CssLayout exposing (flexCol, flexColIC, flexRow, flexRowIC)
@@ -39,18 +39,25 @@ view { grainList } =
 
 
 viewFab =
-    CssElements.iconBtnWithStyles
-        [ CS.fixed
-        , Css.bottom space4
-        , Css.right space4
-        , Css.backgroundColor black80
-        , Css.color white
-        , Css.borderRadius <| px 9999
-        , Css.boxShadow4 (px 1) (px 1) (px 8) (blackAlpha 0.5)
-        , CS.p space2
+    flexRow
+        [ CS.absFill
+        , Css.alignItems Css.flexEnd
+        , Css.justifyContent Css.flexEnd
         ]
-        [ onClick Msg.AddNewClicked ]
-        [ CssIcons.viewColorWhite CssIcons.add ]
+        []
+        [ CssElements.iconBtnWithStyles
+            [ CS.rel
+            , Css.bottom space4
+            , Css.right space4
+            , Css.backgroundColor black80
+            , Css.color white
+            , Css.borderRadius <| px 9999
+            , Css.boxShadow4 (px 1) (px 1) (px 8) (blackAlpha 0.5)
+            , CS.p space2
+            ]
+            [ onClick Msg.AddNewClicked ]
+            [ CssIcons.viewColorWhite CssIcons.add ]
+        ]
 
 
 grainDisplayTitle =
