@@ -44,6 +44,6 @@ viewGrain grain =
         , placeholder "Start Typing..."
         , value title
         , autofocus True
-        , onInput <| Msg.GrainTitleChanged (Grain.id grain)
+        , onInput <| Msg.grainTitleChanged grain
         ]
         []

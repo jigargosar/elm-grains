@@ -1,7 +1,7 @@
-module Msg exposing (Msg(..), deleteGrain, routeToGrain)
+module Msg exposing (Msg(..), deleteGrain, grainTitleChanged, routeToGrain)
 
 import Browser.Dom
-import Grain
+import Grain exposing (Grain)
 import GrainId exposing (GrainId)
 import GrainStore
 import Json.Encode exposing (Value)
@@ -22,7 +22,6 @@ type Msg
     | ToastDismiss
     | RouteTo Route
     | UrlChanged String
-    | GrainTitleChanged GrainId String
 
 
 routeTo route =
@@ -39,3 +38,7 @@ routeToGrainId gid =
 
 deleteGrain grain =
     GrainStoreSubMsg (GrainStore.deleteGrain grain)
+
+
+grainTitleChanged grain title =
+    GrainStoreSubMsg (GrainStore.setTitle grain title)

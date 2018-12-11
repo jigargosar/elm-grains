@@ -77,20 +77,24 @@ type Msg
     = NoOp
     | CreateNew
     | Load Value
-    | UpdateGrain GrainId GrainUpdateMsg
-    | DeleteGrain GrainId
+    | UpdateGrainId GrainId GrainUpdateMsg
+    | DeleteGrainId GrainId
 
 
-setTitle gid title =
-    UpdateGrain gid <| SetTitle title
+updateGrain grain =
+    UpdateGrainId (Grain.id grain)
+
+
+setTitle grain title =
+    updateGrain grain <| SetTitle title
 
 
 deleteGrain grain =
-    DeleteGrain (Grain.id grain)
+    DeleteGrainId (Grain.id grain)
 
 
-load =
-    Load
+load value =
+    Load value
 
 
 type Reply
@@ -145,7 +149,7 @@ update message =
                         >> R3.reply (NewGrainAddedReply newGrain)
                 )
 
-        UpdateGrain gid msg ->
+        UpdateGrainId gid msg ->
             let
                 updateGrainR3 fn =
                     R3.map (mapList (List.updateIf (Grain.idEq gid) fn))
@@ -155,6 +159,6 @@ update message =
                 SetTitle title ->
                     updateGrainR3 (Grain.setTitle title)
 
-        DeleteGrain gid ->
+        DeleteGrainId gid ->
             R3.map (mapList (List.filterNot (Grain.idEq gid)))
                 >> R3.effect cache

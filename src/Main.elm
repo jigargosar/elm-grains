@@ -233,9 +233,6 @@ update message =
         UrlChanged url ->
             R3.map (setRoute <| Route.fromString url)
 
-        GrainTitleChanged gid title ->
-            dispatchToGrainStore <| GrainStore.setTitle gid title
-
 
 keyBindings model =
     K.bindEachToMsg <|
