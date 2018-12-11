@@ -64,10 +64,15 @@ initialSeed =
 
 
 type alias Model =
-    { hasFocusIn : Bool
-    , grainStore : GrainStore
+    { grainStore : GrainStore
+    , hasFocusIn : Bool
+    , toast : Toast
     , seed : Seed
     }
+
+
+type alias Toast =
+    { title : String }
 
 
 initialHasFocusIn =
@@ -78,8 +83,9 @@ init : Flags -> Return Msg Model
 init flags =
     Model
         |> Random.from (initialSeed flags)
-        |> Random.always initialHasFocusIn
         |> Random.with GrainStore.generator
+        |> Random.always initialHasFocusIn
+        |> Random.always { title = "All Clear" }
         |> Random.finish
         |> Return.singleton
 
@@ -181,7 +187,13 @@ view model =
         ]
         [ button [ onClick AddNewClicked ] [ text "add new empty" ]
         , GrainListView.view (mapStateToGrainListView model)
+        , viewToast model.toast
         ]
+
+
+viewToast : Toast -> Html Msg
+viewToast toast =
+    div [] [ text toast.title ]
 
 
 mapStateToGrainListView : Model -> GrainListView
