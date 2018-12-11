@@ -219,8 +219,7 @@ view model =
     Skeleton.view
         { onKeyDownPD = keyBindings model
         , children =
-            viewRouteChildren model
-                ++ [ viewToast model.toast ]
+            viewRouteChildren model ++ [ viewToast model.toast ]
         , toastView = { dismiss = ToastDismiss }
         }
 
