@@ -23,8 +23,7 @@ view { onKeyDownPD, children } =
         , class "sans-serif"
         , CssEvents.onFocusIn <| Msg.BaseLayerFocusInChanged True
         , CssEvents.onFocusOut <| Msg.BaseLayerFocusInChanged False
-
-        --        , tabindex -1
+        , tabindex -1
         , SA.fromUnstyled <| EventX.onKeyDownPD onKeyDownPD
         ]
         [ flexCol
