@@ -207,7 +207,7 @@ update message =
             R3.map (setRoute <| Route.fromString url)
 
 
-keyBinding model =
+keyBindings model =
     K.bindEachToMsg <|
         [ ( K.arrowUp, ( NoOp, True ) )
         , ( K.arrowDown, ( NoOp, True ) )
@@ -217,7 +217,7 @@ keyBinding model =
 view : Model -> Html Msg
 view model =
     Skeleton.view
-        { onKeyDownPD = keyBinding model
+        { onKeyDownPD = keyBindings model
         , children =
             viewRouteChildren model
                 ++ [ viewToast model.toast ]
