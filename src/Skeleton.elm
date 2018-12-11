@@ -15,10 +15,10 @@ import Msg
 view { onKeyDownPD, children } =
     flexColIC
         [ CS.fg1
-        , CS.abs
+        , CS.absFill
         ]
         [ id "base-layer"
-        , class "sans-serif absolute--fill"
+        , class "sans-serif"
         , SA.fromUnstyled <| EventX.onFocusIn <| Msg.BaseLayerFocusInChanged True
         , SA.fromUnstyled <| EventX.onFocusOut <| Msg.BaseLayerFocusInChanged False
         , tabindex -1

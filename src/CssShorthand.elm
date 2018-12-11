@@ -1,5 +1,6 @@
 module CssShorthand exposing
     ( abs
+    , absFill
     , aic
     , fg1
     , fixed
@@ -11,7 +12,8 @@ module CssShorthand exposing
     , wpx
     )
 
-import Css exposing (num, px)
+import BasicsX exposing (callWith)
+import Css exposing (num, px, zero)
 
 
 fs0 =
@@ -44,6 +46,16 @@ pointer =
 
 abs =
     Css.position Css.absolute
+
+
+abs__fill =
+    [ Css.left, Css.right, Css.top, Css.bottom ]
+        |> List.map (callWith <| px 0)
+        |> Css.batch
+
+
+absFill =
+    Css.batch [ abs, abs__fill ]
 
 
 rel =
