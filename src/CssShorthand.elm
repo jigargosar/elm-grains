@@ -1,6 +1,7 @@
 module CssShorthand exposing
     ( abs
     , absFill
+    , abs__fill
     , aic
     , fg1
     , fixed
