@@ -35,8 +35,8 @@ view : GrainListView -> Html Msg
 view { grainList } =
     flexColIC [ CS.fg1 ]
         []
-        [ flexCol [ CS.wpx 400, CS.fg1 ]
-            [ class "pv3 ba b--light-gray" ]
+        [ flexCol [ CS.wpx 400, CS.fg1, CS.p space2 ]
+            [ class "b--light-gray" ]
             [ viewGrainList grainList ]
         ]
 
