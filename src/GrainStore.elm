@@ -10,6 +10,7 @@ module GrainStore exposing
 
 import Grain exposing (Grain)
 import Random exposing (Generator, Seed)
+import Random.Pipeline as Random
 import Return3 as R3 exposing (Return3F)
 
 
