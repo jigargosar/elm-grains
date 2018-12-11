@@ -19,6 +19,7 @@ import CssElevation exposing (elevation)
 import CssHtml exposing (viewIf, viewIfLazy)
 import CssIcons exposing (viewIcon)
 import CssLayout exposing (flexCol, flexRow, flexRowIC)
+import CssShorthand as CS
 import CssTheme exposing (black80, space2, space4, white)
 import DecodeX exposing (DecodeResult)
 import Either exposing (Either(..))
@@ -61,7 +62,7 @@ type alias Toast =
 
 
 init =
-    { title = "", visible = False }
+    { title = "", visible = True }
 
 
 dismiss model =
@@ -80,21 +81,21 @@ view toast =
 
 viewContent title =
     flexRow
-        [ Css.position Css.fixed
+        [ CS.abs
         , Css.bottom <| px 32
-        , Css.right space4
+        , Css.left space4
         , Css.minWidth <| px 150
         , Css.maxWidth <| pct 80
         , Css.backgroundColor black80
         , Css.color white
-        , Css.padding space2
         ]
         []
         [ flexRow
             [ Css.flexGrow <| num 1
             , Css.justifyContent Css.center
+            , CS.p space2
             ]
             []
             [ text title ]
-        , flexRow [] [ class "pointer", onClick ToastDismiss ] [ text "X" ]
+        , flexRow [ CS.p space2 ] [ class "pointer", onClick ToastDismiss ] [ text "X" ]
         ]

@@ -27,7 +27,7 @@ view { onKeyDownPD, children } =
         ]
         [ flexColIC [ CS.fg1 ]
             []
-            [ flexCol [ CS.wpx 400, CS.fg1]
+            [ flexCol [ CS.wpx 400, CS.fg1, CS.rel ]
                 [ class "ba b--light-gray" ]
                 children
             ]

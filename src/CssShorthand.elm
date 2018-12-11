@@ -1,4 +1,13 @@
-module CssShorthand exposing (aic, fg1, p, pointer, wpx)
+module CssShorthand exposing
+    ( abs
+    , aic
+    , fg1
+    , p
+    , pointer
+    , rel
+    , sticky
+    , wpx
+    )
 
 import Css exposing (num, px)
 
@@ -25,3 +34,15 @@ p2 =
 
 pointer =
     Css.cursor Css.pointer
+
+
+abs =
+    Css.position Css.absolute
+
+
+rel =
+    Css.position Css.relative
+
+
+sticky =
+    Css.position Css.sticky
