@@ -60,6 +60,7 @@ type alias Flags =
     { now : Millis
     , windowSize : WindowSize
     , grains : Value
+    , url : String
     }
 
 

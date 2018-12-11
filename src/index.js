@@ -55,6 +55,7 @@ const app = Elm.Main.init({
     now: Date.now(),
     windowSize: { width: window.innerWidth, height: window.innerHeight },
     grains: storageGetOr({ items: [] }, 'grains'),
+    url: document.URL
   },
 })
 
