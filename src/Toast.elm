@@ -70,16 +70,36 @@ view vm toast =
         (\_ -> viewContent toast.title vm)
 
 
+black80 =
+    Css.rgba 0 0 0 0.8
+
+
+space2 =
+    px 8
+
+
+space3 =
+    px 12
+
+
+space4 =
+    px 16
+
+
+white =
+    Css.hex "#fff"
+
+
 viewContent title vm =
     flexRow
         [ Css.position Css.fixed
         , Css.bottom <| px 32
-        , Css.right <| px 16
+        , Css.right space4
         , Css.minWidth <| px 150
         , Css.maxWidth <| pct 80
-        , Css.backgroundColor <| Css.rgba 0 0 0 0.8
-        , Css.color <| Css.hex "#fff"
-        , Css.padding <| px 8
+        , Css.backgroundColor black80
+        , Css.color white
+        , Css.padding space2
         ]
         []
         [ flexRow
@@ -88,5 +108,5 @@ viewContent title vm =
             ]
             []
             [ text title ]
-        , flexRow [] [ onClick vm.dismiss ] [ text "X" ]
+        , flexRow [] [ class "pointer", onClick vm.dismiss ] [ text "X" ]
         ]
