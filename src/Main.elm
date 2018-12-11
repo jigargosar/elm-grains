@@ -102,10 +102,6 @@ setRoute route model =
     { model | route = route }
 
 
-setRouteR3 route =
-    R3.map (setRoute route)
-
-
 mapToast fn model =
     { model | toast = fn model.toast }
 
@@ -204,11 +200,10 @@ update message =
             mapToastR3 Toast.dismiss
 
         RouteTo route ->
-            setRouteR3 route
-                >> pushUrl
+            R3.map (setRoute route) >> pushUrl
 
         UrlChanged url ->
-            setRouteR3 (Route.fromString url)
+            R3.map (setRoute <| Route.fromString url)
 
 
 keyBinding model =
