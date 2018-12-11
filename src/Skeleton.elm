@@ -27,8 +27,7 @@ view { onKeyDownPD, children } =
         [ flexCol
             [ CS.fg1
             , CS.wpx 500
-            , Css.maxWidth <| vh 100
-            , CS.rel
+            , Css.maxWidth <| vw 100
             ]
             [ class "ba b--light-gray" ]
             children
