@@ -5,6 +5,7 @@ module Grain exposing
     , generator
     , id
     , idEq
+    , setTitle
     , title
     , toDomIdWithPrefix
     )
@@ -53,6 +54,7 @@ unwrap (Grain model) =
     model
 
 
+map : (Model -> Model) -> Grain -> Grain
 map fn =
     unwrap >> fn >> Grain
 
@@ -76,3 +78,8 @@ toDomIdWithPrefix prefix =
 generator : Generator Grain
 generator =
     GrainId.generator |> Random.map init
+
+
+setTitle : String -> Grain -> Grain
+setTitle newTitle =
+    map (\model -> { model | title = newTitle })

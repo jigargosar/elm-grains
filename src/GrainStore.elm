@@ -7,11 +7,13 @@ module GrainStore exposing
     , generator
     , get
     , load
+    , setTitle
     , update
     )
 
 import DecodeX exposing (Encoder)
 import Grain exposing (Grain)
+import GrainId exposing (GrainId)
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline exposing (hardcoded, required)
 import Json.Encode as E exposing (Value)
@@ -50,8 +52,12 @@ setSeed seed =
     \model -> { model | seed = seed }
 
 
+mapList fn model =
+    { model | list = fn model.list }
+
+
 addGrain grain =
-    \model -> { model | list = grain :: model.list }
+    mapList ((::) grain)
 
 
 addGrainWithNewSeed grain seed =
@@ -62,10 +68,19 @@ createNewGrain =
     CreateNew
 
 
+type GrainUpdateMsg
+    = SetTitle String
+
+
 type Msg
     = NoOp
     | CreateNew
     | Load Value
+    | UpdateGrain GrainId GrainUpdateMsg
+
+
+setTitle gid title =
+    UpdateGrain gid <| SetTitle title
 
 
 load =
@@ -93,6 +108,10 @@ decoder seed =
     DecodeX.start GrainStore
         |> required "list" (D.list Grain.decoder)
         |> hardcoded seed
+
+
+updateGrainWithId gid fn =
+    mapList (List.updateIf (Grain.idEq gid) fn)
 
 
 update : Msg -> Return3F Msg GrainStore Reply
@@ -123,3 +142,8 @@ update message =
                         >> R3.effect cache
                         >> R3.reply (NewGrainAddedReply newGrain)
                 )
+
+        UpdateGrain gid msg ->
+            case msg of
+                SetTitle title ->
+                    R3.map (updateGrainWithId gid (Grain.setTitle title))

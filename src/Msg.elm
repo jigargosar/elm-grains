@@ -2,6 +2,7 @@ module Msg exposing (Msg(..), routeToGrain)
 
 import Browser.Dom
 import Grain
+import GrainId exposing (GrainId)
 import GrainStore
 import Json.Encode exposing (Value)
 import Random exposing (Generator)
@@ -21,6 +22,7 @@ type Msg
     | ToastDismiss
     | RouteTo Route
     | UrlChanged String
+    | GrainTitleChanged GrainId String
 
 
 routeTo route =
