@@ -2,6 +2,7 @@ module Skeleton exposing (view)
 
 import BasicsX exposing (defaultEmptyStringTo)
 import Css exposing (num, pct, px, vh, vw)
+import CssEvents
 import CssLayout exposing (flexCol, flexColIC)
 import CssShorthand as CS
 import CssTheme exposing (space2)
@@ -20,8 +21,8 @@ view { onKeyDownPD, children } =
         ]
         [ id "base-layer"
         , class "sans-serif"
-        , SA.fromUnstyled <| EventX.onFocusIn <| Msg.BaseLayerFocusInChanged True
-        , SA.fromUnstyled <| EventX.onFocusOut <| Msg.BaseLayerFocusInChanged False
+        , CssEvents.onFocusIn <| Msg.BaseLayerFocusInChanged True
+        , CssEvents.onFocusOut <| Msg.BaseLayerFocusInChanged False
 
         --        , tabindex -1
         , SA.fromUnstyled <| EventX.onKeyDownPD onKeyDownPD
