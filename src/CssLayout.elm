@@ -1,6 +1,7 @@
-module CssLayout exposing (flexCol, flexRow, flexRowIC)
+module CssLayout exposing (flexCol, flexColIC, flexRow, flexRowIC)
 
 import Css
+import CssShorthand as CS
 import Html.Styled exposing (div, styled)
 
 
@@ -17,7 +18,8 @@ flexRow styles =
 
 
 flexRowIC styles =
-    flexRow
-        (Css.alignItems Css.center
-            :: styles
-        )
+    flexRow (CS.aic :: styles)
+
+
+flexColIC styles =
+    flexCol (CS.aic :: styles)

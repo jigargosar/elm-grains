@@ -7,7 +7,8 @@ module GrainListView exposing
 import BasicsX exposing (defaultEmptyStringTo)
 import Browser.Dom
 import Css exposing (num, pct, px)
-import CssLayout exposing (flexCol)
+import CssLayout exposing (flexCol, flexColIC)
+import CssShorthand as CS
 import CssTheme exposing (space2)
 import Grain exposing (Grain)
 import Html.Styled exposing (Html, div, styled, text)
@@ -32,13 +33,9 @@ type alias GrainListView =
 
 view : GrainListView -> Html Msg
 view { grainList } =
-    styled div
-        [ Css.flexGrow <| num 1 ]
-        [ class "flex flex-column items-center" ]
-        [ styled div
-            [ Css.width <| px 400
-            , Css.flexGrow <| num 1
-            ]
+    flexColIC [ CS.fg1 ]
+        []
+        [ flexCol [ CS.wpx 400, CS.fg1 ]
             [ class "flex flex-column pv3 ba b--light-gray" ]
             [ viewGrainList grainList ]
         ]
