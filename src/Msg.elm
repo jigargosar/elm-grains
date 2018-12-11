@@ -1,6 +1,7 @@
 module Msg exposing (Msg(..), routeToGrain)
 
 import Browser.Dom
+import Grain
 import GrainStore
 import Json.Encode exposing (Value)
 import Random exposing (Generator)
@@ -26,5 +27,9 @@ routeTo route =
     RouteTo route
 
 
-routeToGrain gid =
+routeToGrain grain =
+    routeToGrainId (Grain.id grain)
+
+
+routeToGrainId gid =
     routeTo <| Route.Grain gid

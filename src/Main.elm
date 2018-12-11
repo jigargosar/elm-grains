@@ -195,7 +195,7 @@ update message =
                     identity
 
                 GrainStore.NewGrainAddedReply grain ->
-                    R3.do (focusGrain grain)
+                    update (Msg.routeToGrain grain)
 
         ToastDismiss ->
             mapToastR3 Toast.dismiss

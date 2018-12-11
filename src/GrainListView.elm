@@ -47,22 +47,19 @@ grainDisplayTitle =
 
 viewGrainList list =
     let
-        viewTitle title gid =
+        viewTitle title g =
             flexCol
                 [ Css.padding space2
                 , CS.pointer
                 ]
-                [ onClick <| Msg.routeToGrain gid ]
+                [ onClick <| Msg.routeToGrain g ]
                 [ text title ]
 
         viewItem g =
             let
                 title =
                     grainDisplayTitle g
-
-                gid =
-                    Grain.id g
             in
-            viewTitle title gid
+            viewTitle title g
     in
     flexCol [] [] (List.map viewItem list)
