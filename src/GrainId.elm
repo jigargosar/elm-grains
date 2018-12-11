@@ -2,6 +2,7 @@ module GrainId exposing
     ( GrainId
     , decoder
     , encoder
+    , fromString
     , generator
     , toDomIdWithPrefix
     )
@@ -22,6 +23,10 @@ type GrainId
     = GrainId Model
 
 
+prefix =
+    "GrainId_"
+
+
 generator : Generator GrainId
 generator =
     RandomId.generator "GrainId_"
@@ -38,6 +43,15 @@ decoder =
     D.string |> D.map GrainId
 
 
+fromString : String -> Maybe GrainId
+fromString string =
+    if RandomId.isValidWithPrefix prefix string then
+        Just <| GrainId string
+
+    else
+        Nothing
+
+
 unwrap (GrainId model) =
     model
 
@@ -46,5 +60,5 @@ asString =
     unwrap
 
 
-toDomIdWithPrefix prefix =
-    unwrap >> (++) prefix
+toDomIdWithPrefix prefix_ =
+    unwrap >> (++) prefix_

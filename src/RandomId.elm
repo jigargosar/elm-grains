@@ -1,5 +1,9 @@
-module RandomId exposing (generator)
+module RandomId exposing
+    ( generator
+    , isValidWithPrefix
+    )
 
+import BasicsX exposing (eqs)
 import Random
 
 
@@ -22,9 +26,28 @@ idCharGenerator =
     Random.uniform '~' idChars
 
 
+defaultLength =
+    21
+
+
+defaultLengthWithPrefix prefix =
+    String.length prefix + defaultLength
+
+
+isValidWithPrefix prefix =
+    let
+        expectedLength =
+            defaultLengthWithPrefix prefix
+    in
+    BasicsX.allPass
+        [ String.length >> eqs expectedLength
+        , String.startsWith prefix
+        ]
+
+
 stringIdGenerator : Random.Generator String
 stringIdGenerator =
-    Random.list 21 idCharGenerator |> Random.map String.fromList
+    Random.list defaultLength idCharGenerator |> Random.map String.fromList
 
 
 generator prefix =
