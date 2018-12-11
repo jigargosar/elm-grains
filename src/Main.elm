@@ -219,12 +219,12 @@ view model =
     Skeleton.view
         { onKeyDownPD = keyBinding model
         , children =
-            viewRoute model
+            viewRouteChildren model
                 ++ [ viewToast model.toast ]
         }
 
 
-viewRoute model =
+viewRouteChildren model =
     case model.route of
         Route.GrainList ->
             GrainListView.view (mapStateToGrainListView model)
