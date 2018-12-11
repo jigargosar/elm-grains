@@ -1,4 +1,4 @@
-module Skeleton exposing (notFoundView, viewChildren)
+module Skeleton exposing (viewChildren)
 
 import BasicsX exposing (defaultEmptyStringTo)
 import Css exposing (num, pct, px)
@@ -17,7 +17,3 @@ viewChildren children =
             [ class "ba b--light-gray" ]
             children
         ]
-
-
-notFoundView =
-    viewChildren [ div [] [ text "404 page not found" ] ]

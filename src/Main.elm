@@ -37,6 +37,7 @@ import Material.Icons.Navigation as MIcons
 import Material.Icons.Toggle as MIcons
 import Maybe.Extra as Maybe
 import Msg exposing (Msg(..))
+import NotFoundView
 import Port
 import Random exposing (Generator, Seed)
 import Random.Pipeline as Random
@@ -243,7 +244,7 @@ viewRoute model =
             getGrain gid model |> GrainView.view |> Skeleton.viewChildren
 
         Route.NotFound string ->
-            Skeleton.notFoundView
+            NotFoundView.view |> Skeleton.viewChildren
 
 
 viewToast toast =
