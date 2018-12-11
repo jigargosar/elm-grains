@@ -228,7 +228,7 @@ view model =
 viewRouteChildren model =
     case model.route of
         Route.GrainList ->
-            GrainListView.view (mapStateToGrainListView model)
+            mapStateToGrainListView model |> GrainListView.view
 
         Route.Grain gid ->
             getGrain gid model |> GrainView.view
