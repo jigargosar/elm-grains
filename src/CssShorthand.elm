@@ -7,6 +7,7 @@ module CssShorthand exposing
     , flexGrow1
     , fs0
     , jcc
+    , maxWidth100VW
     , overflowScroll
     , p
     , pointer
@@ -16,11 +17,15 @@ module CssShorthand exposing
     )
 
 import BasicsX exposing (callWith)
-import Css exposing (num, px, zero)
+import Css exposing (num, px, vw, zero)
 
 
 overflowScroll =
     Css.overflow Css.scroll
+
+
+maxWidth100VW =
+    Css.maxWidth <| vw 100
 
 
 fs0 =
