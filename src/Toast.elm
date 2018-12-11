@@ -1,10 +1,10 @@
 module Toast exposing
     ( Toast
     , dismiss
+    , init
     , showWithTitle
     , view
     , viewContent
-    , visible
     )
 
 import BasicsX exposing (..)
@@ -60,8 +60,8 @@ type alias Toast =
     { title : String, visible : Bool }
 
 
-visible title =
-    { title = title, visible = True }
+init =
+    { title = "", visible = False }
 
 
 dismiss model =
