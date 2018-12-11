@@ -7,6 +7,7 @@ module CssShorthand exposing
     , fixed
     , fs0
     , jcc
+    , overflowScroll
     , p
     , pointer
     , rel
@@ -16,6 +17,10 @@ module CssShorthand exposing
 
 import BasicsX exposing (callWith)
 import Css exposing (num, px, zero)
+
+
+overflowScroll =
+    Css.overflow Css.scroll
 
 
 fs0 =

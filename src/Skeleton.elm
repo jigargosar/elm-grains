@@ -17,7 +17,7 @@ view { onKeyDownPD, children } =
     flexColIC
         [ CS.fg1
         , CS.absFill
-        , Css.overflow Css.scroll
+        , CS.overflowScroll
         ]
         [ SA.id "base-layer"
         , SA.class "sans-serif"
