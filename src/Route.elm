@@ -1,4 +1,8 @@
-module Route exposing (Route(..), fromString, toString)
+module Route exposing
+    ( Route(..)
+    , fromString
+    , toString
+    )
 
 import GrainId exposing (GrainId)
 import Url

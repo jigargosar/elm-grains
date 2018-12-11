@@ -1,4 +1,4 @@
-module GrainView exposing (view)
+module GrainView exposing (autoFocusId, view)
 
 import BasicsX exposing (defaultEmptyStringTo, unwrapMaybe)
 import Browser.Dom
@@ -8,11 +8,15 @@ import CssShorthand as CS
 import CssTheme exposing (space2)
 import Grain exposing (Grain)
 import Html.Styled exposing (Html, button, div, input, styled, text, textarea)
-import Html.Styled.Attributes exposing (autofocus, class, placeholder, value)
+import Html.Styled.Attributes exposing (autofocus, class, id, placeholder, value)
 import Html.Styled.Events exposing (onClick, onInput)
 import Msg exposing (Msg)
 import Skeleton
 import Task exposing (Task)
+
+
+autoFocusId =
+    "grain-view-input"
 
 
 view maybeGrain =
@@ -36,7 +40,8 @@ viewGrain grain =
         , CS.p space2
         , Css.borderWidth zero
         ]
-        [ placeholder "Start Typing..."
+        [ id autoFocusId
+        , placeholder "Start Typing..."
         , value title
         , autofocus True
         , onInput <| Msg.GrainTitleChanged (Grain.id grain)

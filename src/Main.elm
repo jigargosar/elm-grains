@@ -119,9 +119,27 @@ getGrain gid =
 ---- UPDATE ----
 
 
-focusBaseLayerCmd =
-    Browser.Dom.focus "base-layer"
+focusDomId domId =
+    Browser.Dom.focus domId
         |> Task.attempt (\_ -> NoOp)
+
+
+focusBaseLayer =
+    focusDomId "base-layer"
+
+
+maybeAutoFocusRouteDomId route =
+    case route of
+        Route.Grain _ ->
+            Just GrainView.autoFocusId
+
+        _ ->
+            Nothing
+
+
+autoFocusRoute route =
+    maybeAutoFocusRouteDomId route
+        |> unpackMaybe Cmd.none focusDomId
 
 
 focusGrain =
@@ -175,7 +193,7 @@ update message =
             logErrorString "Dom Focus Error"
 
         BrowserAnyKeyDown ->
-            R3.doWhen (.hasFocusIn >> not) focusBaseLayerCmd
+            R3.doWhen (.hasFocusIn >> not) focusBaseLayer
 
         BaseLayerFocusInChanged hasFocusIn ->
             R3.map (\model -> { model | hasFocusIn = hasFocusIn })
@@ -201,7 +219,9 @@ update message =
             mapToastR3 Toast.dismiss
 
         RouteTo route ->
-            R3.map (setRoute route) >> pushUrl
+            R3.map (setRoute route)
+                >> pushUrl
+                >> R3.doWith .route autoFocusRoute
 
         UrlChanged url ->
             R3.map (setRoute <| Route.fromString url)
