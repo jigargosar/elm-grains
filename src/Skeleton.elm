@@ -10,7 +10,7 @@ import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes as SA exposing (..)
 import Html.Styled.Events as SE exposing (onBlur, onClick, onFocus, onInput, onSubmit)
 import Msg
-import StyledEvents
+import StyledEvents as SE
 
 
 view { onKeyDownPD, children } =
@@ -21,8 +21,8 @@ view { onKeyDownPD, children } =
         ]
         [ id "base-layer"
         , class "sans-serif"
-        , StyledEvents.onFocusIn <| Msg.BaseLayerFocusInChanged True
-        , StyledEvents.onFocusOut <| Msg.BaseLayerFocusInChanged False
+        , SE.onFocusIn <| Msg.BaseLayerFocusInChanged True
+        , SE.onFocusOut <| Msg.BaseLayerFocusInChanged False
         , tabindex -1
         , SA.fromUnstyled <| EventX.onKeyDownPD onKeyDownPD
         ]
