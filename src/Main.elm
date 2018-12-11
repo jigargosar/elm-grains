@@ -245,8 +245,7 @@ view model =
         { onKeyDownPD = keyBindings model
         , children =
             viewRouteChildren model
-                ++ [ viewFab
-                   , viewToast model.toast
+                ++ [ viewToast model.toast
                    ]
         }
 
@@ -265,21 +264,6 @@ viewRouteChildren model =
 
 viewToast toast =
     Toast.view toast
-
-
-viewFab =
-    CssElements.iconBtnWithStyles
-        [ CS.abs
-        , Css.bottom space4
-        , Css.right space4
-        , Css.backgroundColor black80
-        , Css.color white
-        , Css.borderRadius <| px 9999
-        , Css.boxShadow4 (px 1) (px 1) (px 8) (blackAlpha 0.5)
-        , CS.p space2
-        ]
-        [ onClick AddNewClicked ]
-        [ CssIcons.viewColorWhite CssIcons.add ]
 
 
 mapStateToGrainListView : Model -> GrainListView

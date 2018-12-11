@@ -11,7 +11,7 @@ import CssElements
 import CssIcons
 import CssLayout exposing (flexCol, flexColIC, flexRow, flexRowIC)
 import CssShorthand as CS
-import CssTheme exposing (space2)
+import CssTheme exposing (black80, blackAlpha, space2, space4, white)
 import Grain exposing (Grain)
 import Html.Styled exposing (Html, button, div, styled, text)
 import Html.Styled.Attributes exposing (class)
@@ -40,7 +40,23 @@ view : GrainListView -> List (Html Msg)
 view { grainList } =
     [ button [ onClick Msg.AddNewClicked ] [ text "add new empty" ]
     , viewGrainList grainList
+    , viewFab
     ]
+
+
+viewFab =
+    CssElements.iconBtnWithStyles
+        [ CS.abs
+        , Css.bottom space4
+        , Css.right space4
+        , Css.backgroundColor black80
+        , Css.color white
+        , Css.borderRadius <| px 9999
+        , Css.boxShadow4 (px 1) (px 1) (px 8) (blackAlpha 0.5)
+        , CS.p space2
+        ]
+        [ onClick Msg.AddNewClicked ]
+        [ CssIcons.viewColorWhite CssIcons.add ]
 
 
 grainDisplayTitle =
