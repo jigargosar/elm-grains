@@ -1,6 +1,5 @@
 module Toast exposing
     ( Toast
-    , ToastView
     , dismiss
     , showWithTitle
     , view
@@ -73,17 +72,13 @@ showWithTitle title model =
     { model | title = title, visible = True }
 
 
-type alias ToastView msg =
-    { dismiss : msg }
-
-
-view : ToastView msg -> Toast -> Html msg
-view vm toast =
+view : Toast -> Html Msg
+view toast =
     viewIfLazy toast.visible
-        (\_ -> viewContent toast.title vm)
+        (\_ -> viewContent toast.title)
 
 
-viewContent title vm =
+viewContent title =
     flexRow
         [ Css.position Css.fixed
         , Css.bottom <| px 32
@@ -101,5 +96,5 @@ viewContent title vm =
             ]
             []
             [ text title ]
-        , flexRow [] [ class "pointer", onClick vm.dismiss ] [ text "X" ]
+        , flexRow [] [ class "pointer", onClick ToastDismiss ] [ text "X" ]
         ]

@@ -237,11 +237,7 @@ viewRouteChildren model =
 
 
 viewToast toast =
-    let
-        toastView =
-            { dismiss = ToastDismiss }
-    in
-    Toast.view toastView toast
+    Toast.view toast
 
 
 mapStateToGrainListView : Model -> GrainListView
