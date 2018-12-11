@@ -3,6 +3,10 @@ import './main.css'
 import { Elm } from './Main.elm'
 import registerServiceWorker from './registerServiceWorker'
 import { curry, forEachObjIndexed, isNil, partial, pathOr, tap } from 'ramda'
+import createHistory from 'history/createBrowserHistory'
+
+const history = createHistory()
+
 
 export const tapLog = m => tap(partial(console.log, [m]))
 
@@ -59,6 +63,13 @@ const app = Elm.Main.init({
   },
 })
 
+// Listen for changes to the current location.
+history.listen((location, action) => {
+  // location is an object like window.location
+  console.log(action, location.pathname, location.state)
+  sendTo(app, "urlChanged", document.URL)
+})
+
 // const sgApp = G.Elm.StoreGenerator.init ({node:document.getElementById('root2')})
 // sgApp.ports.error.subscribe(e=>{
 //     console.log(`Generated Code`, e)
@@ -88,6 +99,11 @@ subscribe(
     //     console.error('Focus: Selector Not Found', escapedSelector)
     //   }
     // },
+
+    pushUrl: url => {
+      // Use push, replace, and go to navigate around.
+      history.push(url, { some: 'state' })
+    },
 
     error: data => {
       console.error(data)

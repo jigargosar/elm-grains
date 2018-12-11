@@ -137,7 +137,9 @@ globalKeyBinding model =
 
 subscriptions model =
     Sub.batch
-        [ Browser.Events.onKeyDown <| D.succeed BrowserAnyKeyDown ]
+        [ Browser.Events.onKeyDown <| D.succeed BrowserAnyKeyDown
+        , Port.urlChanged UrlChanged
+        ]
 
 
 grainStoreSubConfig =
@@ -204,6 +206,9 @@ update message =
         RouteTo route ->
             setRouteR3 route
                 >> pushUrl
+
+        UrlChanged url ->
+            logErrorString url
 
 
 keyBinding model =

@@ -19,6 +19,7 @@ type Msg
     | GrainStoreReply GrainStore.Reply
     | ToastDismiss
     | RouteTo Route
+    | UrlChanged String
 
 
 routeTo route =

@@ -4,6 +4,7 @@ port module Port exposing
     , cacheUserLabelList
     , error
     , pushUrl
+    , urlChanged
     )
 
 import Json.Encode exposing (Value)
@@ -22,3 +23,6 @@ port error : String -> Cmd msg
 
 
 port pushUrl : String -> Cmd msg
+
+
+port urlChanged : (String -> msg) -> Sub msg

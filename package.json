@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "googleapis": "^35.0.0",
+    "history": "^4.7.2",
     "ramda": "^0.25.0",
     "tachyons": "^4.11.1"
   },
