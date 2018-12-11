@@ -1,4 +1,4 @@
-module Route exposing (Route(..))
+module Route exposing (Route(..), fromString)
 
 import GrainId exposing (GrainId)
 import Url
@@ -26,8 +26,8 @@ grainId_ =
             GrainId.fromString segment
 
 
-toRoute : String -> Route
-toRoute string =
+fromString : String -> Route
+fromString string =
     case Url.fromString string of
         Nothing ->
             NotFound

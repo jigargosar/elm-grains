@@ -89,7 +89,7 @@ init flags =
         |> Random.with GrainStore.generator
         |> Random.always initialHasFocusIn
         |> Random.always (Toast.visible "App Init")
-        |> Random.always Route.GrainList
+        |> Random.always (Route.fromString flags.url)
         |> Random.finish
         |> elmUpdate (LoadGrainStore flags.grains)
 
