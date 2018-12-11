@@ -12,6 +12,7 @@ import CssElevation exposing (elevation)
 import CssHtml exposing (viewIf, viewIfLazy)
 import CssIcons exposing (viewIcon)
 import CssLayout exposing (flexCol, flexRow, flexRowIC)
+import CssTheme exposing (black80, space2, space4, white)
 import DecodeX exposing (DecodeResult)
 import Either exposing (Either(..))
 import EventX exposing (onKeyDownPD)
@@ -68,26 +69,6 @@ view : ToastView msg -> Toast -> Html msg
 view vm toast =
     viewIfLazy toast.visible
         (\_ -> viewContent toast.title vm)
-
-
-black80 =
-    Css.rgba 0 0 0 0.8
-
-
-space2 =
-    px 8
-
-
-space3 =
-    px 12
-
-
-space4 =
-    px 16
-
-
-white =
-    Css.hex "#fff"
 
 
 viewContent title vm =
