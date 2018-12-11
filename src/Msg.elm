@@ -1,4 +1,4 @@
-module Msg exposing (Msg(..), routeToGrain)
+module Msg exposing (Msg(..), deleteGrain, routeToGrain)
 
 import Browser.Dom
 import Grain
@@ -35,3 +35,7 @@ routeToGrain grain =
 
 routeToGrainId gid =
     routeTo <| Route.Grain gid
+
+
+deleteGrain grain =
+    GrainStoreSubMsg (GrainStore.deleteGrain grain)

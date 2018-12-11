@@ -4,6 +4,7 @@ module GrainStore exposing
     , Reply(..)
     , allAsList
     , createNewGrain
+    , deleteGrain
     , generator
     , get
     , load
@@ -77,10 +78,15 @@ type Msg
     | CreateNew
     | Load Value
     | UpdateGrain GrainId GrainUpdateMsg
+    | DeleteGrain GrainId
 
 
 setTitle gid title =
     UpdateGrain gid <| SetTitle title
+
+
+deleteGrain grain =
+    DeleteGrain (Grain.id grain)
 
 
 load =
@@ -148,3 +154,7 @@ update message =
             case msg of
                 SetTitle title ->
                     updateGrainR3 (Grain.setTitle title)
+
+        DeleteGrain gid ->
+            R3.map (mapList (List.filterNot (Grain.idEq gid)))
+                >> R3.effect cache

@@ -1,8 +1,9 @@
-module CssIcons exposing (add, viewIcon)
+module CssIcons exposing (add, delete, viewIcon)
 
 import Color
 import Html.Styled
-import Material.Icons.Content
+import Material.Icons.Action as MI
+import Material.Icons.Content as MI
 
 
 viewIcon icon =
@@ -10,4 +11,8 @@ viewIcon icon =
 
 
 add =
-    Material.Icons.Content.add
+    MI.add
+
+
+delete =
+    MI.delete

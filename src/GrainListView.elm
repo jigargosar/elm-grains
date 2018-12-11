@@ -7,7 +7,9 @@ module GrainListView exposing
 import BasicsX exposing (defaultEmptyStringTo)
 import Browser.Dom
 import Css exposing (num, pct, px)
-import CssLayout exposing (flexCol, flexColIC)
+import CssElements
+import CssIcons
+import CssLayout exposing (flexCol, flexColIC, flexRow, flexRowIC)
 import CssShorthand as CS
 import CssTheme exposing (space2)
 import Grain exposing (Grain)
@@ -48,18 +50,30 @@ grainDisplayTitle =
 viewGrainList list =
     let
         viewTitle title g =
-            flexCol
+            flexRow
                 [ Css.padding space2
                 , CS.pointer
+                , CS.fg1
                 ]
                 [ onClick <| Msg.routeToGrain g ]
                 [ text title ]
+
+        viewDelete g =
+            CssElements.iconBtnEl
+                [ onClick <| Msg.deleteGrain g
+                ]
+                [ CssIcons.viewIcon CssIcons.delete
+                ]
 
         viewItem g =
             let
                 title =
                     grainDisplayTitle g
             in
-            viewTitle title g
+            flexRowIC []
+                []
+                [ viewTitle title g
+                , viewDelete g
+                ]
     in
     flexCol [] [] (List.map viewItem list)
