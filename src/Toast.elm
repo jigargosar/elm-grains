@@ -1,4 +1,4 @@
-module Toast exposing (Toast, ToastView, dismiss, init, view, viewContent)
+module Toast exposing (Toast, ToastView, dismiss, view, viewContent, visible)
 
 import BasicsX exposing (..)
 import Browser
@@ -52,7 +52,7 @@ type alias Toast =
     { title : String, visible : Bool }
 
 
-init title =
+visible title =
     { title = title, visible = True }
 
 

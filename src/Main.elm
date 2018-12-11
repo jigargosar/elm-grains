@@ -82,7 +82,7 @@ init flags =
         |> Random.from (initialSeed flags)
         |> Random.with GrainStore.generator
         |> Random.always initialHasFocusIn
-        |> Random.always (Toast.init "App Init")
+        |> Random.always (Toast.visible "App Init")
         |> Random.finish
         |> Return.singleton
 
