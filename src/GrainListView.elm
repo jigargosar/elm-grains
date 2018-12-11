@@ -15,6 +15,7 @@ import Html.Styled exposing (Html, button, div, styled, text)
 import Html.Styled.Attributes exposing (class)
 import Html.Styled.Events exposing (onClick)
 import Msg exposing (Msg)
+import Route
 import Task exposing (Task)
 
 
@@ -50,14 +51,22 @@ grainDisplayTitle =
 
 viewGrainList list =
     let
-        viewTitle title =
-            flexCol [ Css.padding space2 ] [] [ text title ]
+        viewTitle title gid =
+            flexCol
+                [ Css.padding space2
+                , CS.pointer
+                ]
+                [ onClick <| Msg.routeToGrain gid ]
+                [ text title ]
 
         viewItem g =
             let
                 title =
                     grainDisplayTitle g
+
+                gid =
+                    Grain.id g
             in
-            viewTitle title
+            viewTitle title gid
     in
     flexCol [] [] (List.map viewItem list)

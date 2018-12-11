@@ -1,4 +1,4 @@
-module CssShorthand exposing (aic, fg1, p, wpx)
+module CssShorthand exposing (aic, fg1, p, pointer, wpx)
 
 import Css exposing (num, px)
 
@@ -21,3 +21,7 @@ p =
 
 p2 =
     Css.padding2
+
+
+pointer =
+    Css.cursor Css.pointer

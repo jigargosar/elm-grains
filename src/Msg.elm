@@ -1,4 +1,4 @@
-module Msg exposing (Msg(..))
+module Msg exposing (Msg(..), routeToGrain)
 
 import Browser.Dom
 import GrainStore
@@ -19,3 +19,11 @@ type Msg
     | GrainStoreReply GrainStore.Reply
     | ToastDismiss
     | RouteTo Route
+
+
+routeTo route =
+    RouteTo route
+
+
+routeToGrain gid =
+    routeTo <| Route.Grain gid

@@ -3,6 +3,7 @@ module Grain exposing
     , decoder
     , encoder
     , generator
+    , id
     , idEq
     , title
     , toDomIdWithPrefix
