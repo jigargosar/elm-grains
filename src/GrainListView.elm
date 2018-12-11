@@ -38,8 +38,7 @@ type alias GrainListView =
 
 view : GrainListView -> List (Html Msg)
 view { grainList } =
-    [ button [ onClick Msg.AddNewClicked ] [ text "add new empty" ]
-    , viewGrainList grainList
+    [ viewGrainList grainList
     , viewFab
     ]
 
