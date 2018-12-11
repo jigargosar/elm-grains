@@ -8,6 +8,7 @@ module Return3 exposing
     , doWith
     , effect
     , map
+    , mergeR2
     , reply
     , sub
     , toElmUpdate
@@ -68,6 +69,11 @@ singleton model =
     ( Return.singleton model, [] )
 
 
+mergeR2 : Return.Return msg model -> Return3F msg model reply
+mergeR2 ( model, cmd ) =
+    map (always model) >> do cmd
+
+
 toElmUpdate :
     Update3F msg model reply
     -> msg
@@ -89,10 +95,10 @@ type alias SubConfig msgS modelS replyS msg model reply =
 
 
 dispatch :
-    msgS
-    -> SubConfig msgS modelS replyS msg model reply
+    SubConfig msgS modelS replyS msg model reply
+    -> msgS
     -> Return3F msg model reply
-dispatch subMsg { toMsg, update } =
+dispatch { toMsg, update } subMsg =
     update (toMsg subMsg)
 
 

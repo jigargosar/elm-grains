@@ -5,13 +5,15 @@ module GrainStore exposing
     , allAsList
     , createNewGrain
     , generator
+    , load
     , update
     )
 
 import DecodeX exposing (Encoder)
 import Grain exposing (Grain)
-import Json.Decode as D
-import Json.Encode as E
+import Json.Decode as D exposing (Decoder)
+import Json.Decode.Pipeline exposing (hardcoded, required)
+import Json.Encode as E exposing (Value)
 import Port
 import Random exposing (Generator, Seed)
 import Random.Pipeline as Random
@@ -57,6 +59,11 @@ createNewGrain =
 type Msg
     = NoOp
     | CreateNew
+    | Load Value
+
+
+load =
+    Load
 
 
 type Reply
@@ -74,11 +81,11 @@ encoder model =
         [ ( "list", E.list Grain.encoder model.list ) ]
 
 
-
---decoder : Decoder GrainStore
---decoder =
---    DecodeX.start GrainStore
---      |>
+decoder : Seed -> Decoder GrainStore
+decoder seed =
+    DecodeX.start GrainStore
+        |> required "list" (D.list Grain.decoder)
+        |> hardcoded seed
 
 
 update : Msg -> Return3F Msg GrainStore Reply
@@ -86,6 +93,17 @@ update message =
     case message of
         NoOp ->
             identity
+
+        Load val ->
+            R3.andThen
+                (\model ->
+                    let
+                        r2 : ( GrainStore, Cmd Msg )
+                        r2 =
+                            DecodeX.decode model (decoder model.seed) val
+                    in
+                    R3.mergeR2 r2
+                )
 
         CreateNew ->
             R3.andThen

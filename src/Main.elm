@@ -84,7 +84,7 @@ init flags =
         |> Random.always initialHasFocusIn
         |> Random.always (Toast.visible "App Init")
         |> Random.finish
-        |> Return.singleton
+        |> elmUpdate (LoadGrainStore flags.grains)
 
 
 setGrainStore grainStore model =
@@ -136,6 +136,10 @@ logErrorString err =
         >> mapToastR3 (Toast.showWithTitle err)
 
 
+dispatchToGrainStore =
+    R3.dispatch grainStoreSubConfig
+
+
 update : Msg -> Return3F Msg Model ()
 update message =
     case message of
@@ -155,7 +159,10 @@ update message =
             R3.map (\model -> { model | hasFocusIn = hasFocusIn })
 
         AddNewClicked ->
-            R3.dispatch GrainStore.createNewGrain grainStoreSubConfig
+            dispatchToGrainStore GrainStore.createNewGrain
+
+        LoadGrainStore val ->
+            dispatchToGrainStore (GrainStore.load val)
 
         GrainStoreSubMsg msg ->
             R3.sub msg grainStoreSubConfig
@@ -218,12 +225,16 @@ mapStateToGrainListView model =
 ---- PROGRAM ----
 
 
+elmUpdate =
+    R3.toElmUpdate update
+
+
 main : Program Flags Model Msg
 main =
     Browser.element
         { view = Html.toUnstyled << view
         , init = init
-        , update = R3.toElmUpdate update
+        , update = elmUpdate
 
         --        , update = updateDispatcher
         , subscriptions = subscriptions

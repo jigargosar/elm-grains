@@ -2,6 +2,7 @@ module Msg exposing (Msg(..))
 
 import Browser.Dom
 import GrainStore
+import Json.Encode exposing (Value)
 import Random exposing (Generator)
 
 
@@ -12,6 +13,7 @@ type Msg
     | BrowserAnyKeyDown
     | BaseLayerFocusInChanged Bool
     | AddNewClicked
+    | LoadGrainStore Value
     | GrainStoreSubMsg GrainStore.Msg
     | GrainStoreReply GrainStore.Reply
     | ToastDismiss
