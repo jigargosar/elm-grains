@@ -221,6 +221,7 @@ view model =
         , children =
             viewRouteChildren model
                 ++ [ viewToast model.toast ]
+        , toastView = { dismiss = ToastDismiss }
         }
 
 
