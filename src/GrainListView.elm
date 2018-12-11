@@ -11,8 +11,9 @@ import CssLayout exposing (flexCol, flexColIC)
 import CssShorthand as CS
 import CssTheme exposing (space2)
 import Grain exposing (Grain)
-import Html.Styled exposing (Html, div, styled, text)
+import Html.Styled exposing (Html, button, div, styled, text)
 import Html.Styled.Attributes exposing (class)
+import Html.Styled.Events exposing (onClick)
 import Msg exposing (Msg)
 import Task exposing (Task)
 
@@ -37,7 +38,9 @@ view { grainList } =
         []
         [ flexCol [ CS.wpx 400, CS.fg1, CS.p space2 ]
             [ class "ba b--light-gray" ]
-            [ viewGrainList grainList ]
+            [ button [ onClick Msg.AddNewClicked ] [ text "add new empty" ]
+            , viewGrainList grainList
+            ]
         ]
 
 

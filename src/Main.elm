@@ -15,6 +15,7 @@ import DecodeX exposing (DecodeResult)
 import Either exposing (Either(..))
 import EventX exposing (onKeyDownPD)
 import Grain exposing (Grain)
+import GrainId exposing (GrainId)
 import GrainListView exposing (GrainListView)
 import GrainStore exposing (GrainStore)
 import HotKey as K exposing (SoftKey(..))
@@ -42,6 +43,7 @@ import RandomId
 import Result.Extra as Result
 import Return exposing (Return)
 import Return3 as R3 exposing (Return3F)
+import Route exposing (Route)
 import Tagged
 import Task
 import Toast exposing (Toast)
@@ -68,6 +70,7 @@ type alias Model =
     { grainStore : GrainStore
     , hasFocusIn : Bool
     , toast : Toast
+    , route : Route
     , seed : Seed
     }
 
@@ -83,6 +86,7 @@ init flags =
         |> Random.with GrainStore.generator
         |> Random.always initialHasFocusIn
         |> Random.always (Toast.visible "App Init")
+        |> Random.always Route.GrainList
         |> Random.finish
         |> elmUpdate (LoadGrainStore flags.grains)
 
@@ -202,8 +206,7 @@ view model =
             EventX.onKeyDownPD <|
                 keyBinding model
         ]
-        [ button [ onClick AddNewClicked ] [ text "add new empty" ]
-        , GrainListView.view (mapStateToGrainListView model)
+        [ GrainListView.view (mapStateToGrainListView model)
         , viewToast model.toast
         ]
 
