@@ -93,11 +93,8 @@ viewGrainList list =
     in
     flexCol
         [ CS.p space2
-        , Css.marginTop <| pct 50
-        , Css.marginBottom <| rem 4
         , CS.fg1
         , Css.minHeight <| pct 100
-        , Css.justifyContent Css.flexEnd
         ]
         []
         (List.map viewItem list)
