@@ -4,6 +4,7 @@ import Browser.Dom
 import GrainStore
 import Json.Encode exposing (Value)
 import Random exposing (Generator)
+import Route exposing (Route)
 
 
 type Msg
@@ -17,3 +18,4 @@ type Msg
     | GrainStoreSubMsg GrainStore.Msg
     | GrainStoreReply GrainStore.Reply
     | ToastDismiss
+    | RouteTo Route
