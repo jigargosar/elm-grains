@@ -16,12 +16,14 @@ view { onKeyDownPD, children } =
     flexColIC
         [ CS.fg1
         , CS.absFill
+        , Css.overflow Css.scroll
         ]
         [ id "base-layer"
         , class "sans-serif"
         , SA.fromUnstyled <| EventX.onFocusIn <| Msg.BaseLayerFocusInChanged True
         , SA.fromUnstyled <| EventX.onFocusOut <| Msg.BaseLayerFocusInChanged False
-        , tabindex -1
+
+        --        , tabindex -1
         , SA.fromUnstyled <| EventX.onKeyDownPD onKeyDownPD
         ]
         [ flexCol
