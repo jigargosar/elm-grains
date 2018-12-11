@@ -95,8 +95,8 @@ mapToast fn model =
     { model | toast = fn model.toast }
 
 
-setErrorToast title =
-    mapToast (Toast.showWithTitle title)
+mapToastR3 =
+    R3.map << mapToast
 
 
 
@@ -133,7 +133,7 @@ grainStoreSubConfig =
 
 logErrorString err =
     R3.do (Port.error err)
-        >> R3.map (setErrorToast err)
+        >> mapToastR3 (Toast.showWithTitle err)
 
 
 update : Msg -> Return3F Msg Model ()
@@ -169,7 +169,7 @@ update message =
                     R3.do (focusGrain grain)
 
         ToastDismiss ->
-            R3.map (mapToast Toast.dismiss)
+            mapToastR3 Toast.dismiss
 
 
 keyBinding model =
