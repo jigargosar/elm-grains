@@ -12,7 +12,7 @@ import Route exposing (Route)
 type Msg
     = ---- INJECT MSG BELOW ----
       NoOp
-    | FocusResult (Result Browser.Dom.Error ())
+    | FocusResult (Result String ())
     | BrowserAnyKeyDown
     | BaseLayerFocusInChanged Bool
     | AddNewClicked

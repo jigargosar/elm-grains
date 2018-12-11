@@ -123,6 +123,7 @@ getGrain gid =
 
 focusDomId domId =
     Browser.Dom.focus domId
+        |> Task.mapError (\_ -> "FocusError: domId=" ++ domId)
         |> Task.attempt FocusResult
 
 
@@ -195,8 +196,8 @@ update message =
         FocusResult (Ok ()) ->
             identity
 
-        FocusResult (Err err) ->
-            logErrorString "Dom Focus Error"
+        FocusResult (Err errorString) ->
+            logErrorString errorString
 
         BrowserAnyKeyDown ->
             R3.doWhen (.hasFocusIn >> not) focusBaseLayer
