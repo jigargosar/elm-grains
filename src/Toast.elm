@@ -62,7 +62,7 @@ type alias Toast =
 
 
 init =
-    { title = "", visible = True }
+    { title = "", visible = False }
 
 
 dismiss model =
