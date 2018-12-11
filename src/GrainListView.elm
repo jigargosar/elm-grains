@@ -36,7 +36,7 @@ view { grainList } =
     flexColIC [ CS.fg1 ]
         []
         [ flexCol [ CS.wpx 400, CS.fg1, CS.p space2 ]
-            [ class "b--light-gray" ]
+            [ class "ba b--light-gray" ]
             [ viewGrainList grainList ]
         ]
 
