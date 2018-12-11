@@ -147,3 +147,4 @@ update message =
             case msg of
                 SetTitle title ->
                     R3.map (updateGrainWithId gid (Grain.setTitle title))
+                        >> R3.effect cache
