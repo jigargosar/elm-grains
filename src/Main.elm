@@ -44,6 +44,7 @@ import Return exposing (Return)
 import Return3 as R3 exposing (Return3F)
 import Tagged
 import Task
+import Toast exposing (Toast)
 import Tuple exposing (mapFirst)
 
 
@@ -71,10 +72,6 @@ type alias Model =
     }
 
 
-type alias Toast =
-    { title : String, visible : Bool }
-
-
 initialHasFocusIn =
     False
 
@@ -85,13 +82,17 @@ init flags =
         |> Random.from (initialSeed flags)
         |> Random.with GrainStore.generator
         |> Random.always initialHasFocusIn
-        |> Random.always { title = "All Clear", visible = True }
+        |> Random.always (Toast.init "App Init")
         |> Random.finish
         |> Return.singleton
 
 
 setGrainStore grainStore model =
     { model | grainStore = grainStore }
+
+
+mapToast fn model =
+    { model | toast = fn model.toast }
 
 
 
@@ -161,6 +162,9 @@ update message =
                 GrainStore.NewGrainAddedReply grain ->
                     R3.do (focusGrain grain)
 
+        ToastDismiss ->
+            R3.map (mapToast Toast.dismiss)
+
 
 keyBinding model =
     K.bindEachToMsg <|
@@ -191,27 +195,12 @@ view model =
         ]
 
 
-viewToast : Toast -> Html Msg
 viewToast toast =
-    flexRow
-        [ Css.position Css.fixed
-        , Css.bottom <| px 32
-        , Css.right <| px 16
-        , Css.minWidth <| px 150
-        , Css.maxWidth <| pct 80
-        , Css.backgroundColor <| Css.rgba 0 0 0 0.8
-        , Css.color <| Css.hex "#fff"
-        , Css.padding <| px 8
-        ]
-        []
-        [ flexRow
-            [ Css.flexGrow <| num 1
-            , Css.justifyContent Css.center
-            ]
-            []
-            [ text toast.title ]
-        , flexRow [] [] [ text "X" ]
-        ]
+    let
+        toastView =
+            { dismiss = ToastDismiss }
+    in
+    Toast.view toastView toast
 
 
 mapStateToGrainListView : Model -> GrainListView

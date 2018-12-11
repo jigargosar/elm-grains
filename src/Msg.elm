@@ -15,3 +15,4 @@ type Msg
     | AddNewClicked
     | GrainStoreSubMsg GrainStore.Msg
     | GrainStoreReply GrainStore.Reply
+    | ToastDismiss
