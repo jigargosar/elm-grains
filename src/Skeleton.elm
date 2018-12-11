@@ -24,7 +24,12 @@ view { onKeyDownPD, children } =
         , tabindex -1
         , SA.fromUnstyled <| EventX.onKeyDownPD onKeyDownPD
         ]
-        [ flexCol [ Css.minHeight <| pct 100, CS.wpx 400, CS.rel ]
+        [ flexCol
+            [ CS.fg1
+            , CS.wpx 500
+            , Css.maxWidth <| vh 100
+            , CS.rel
+            ]
             [ class "ba b--light-gray" ]
             children
         ]
