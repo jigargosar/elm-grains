@@ -36,7 +36,7 @@ view { grainList } =
     flexColIC [ CS.fg1 ]
         []
         [ flexCol [ CS.wpx 400, CS.fg1 ]
-            [ class "flex flex-column pv3 ba b--light-gray" ]
+            [ class "pv3 ba b--light-gray" ]
             [ viewGrainList grainList ]
         ]
 
