@@ -1,4 +1,10 @@
-module Msg exposing (Msg(..), deleteGrain, grainTitleChanged, routeToGrain)
+module Msg exposing
+    ( Msg(..)
+    , addNewGrainClicked
+    , deleteGrain
+    , grainTitleChanged
+    , routeToGrain
+    )
 
 import Browser.Dom
 import Grain exposing (Grain)
@@ -15,7 +21,6 @@ type Msg
     | FocusResult (Result String ())
     | BrowserAnyKeyDown
     | BaseLayerFocusInChanged Bool
-    | AddNewClicked
     | LoadGrainStore Value
     | GrainStoreSubMsg GrainStore.Msg
     | GrainStoreReply GrainStore.Reply
@@ -42,3 +47,7 @@ deleteGrain grain =
 
 grainTitleChanged grain title =
     GrainStoreSubMsg (GrainStore.setTitle grain title)
+
+
+addNewGrainClicked =
+    GrainStoreSubMsg GrainStore.createNewGrain

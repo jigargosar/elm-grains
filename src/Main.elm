@@ -205,9 +205,6 @@ update message =
         BaseLayerFocusInChanged hasFocusIn ->
             R3.map (\model -> { model | hasFocusIn = hasFocusIn })
 
-        AddNewClicked ->
-            dispatchToGrainStore GrainStore.createNewGrain
-
         LoadGrainStore val ->
             dispatchToGrainStore (GrainStore.load val)
 
