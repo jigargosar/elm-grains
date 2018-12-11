@@ -123,7 +123,7 @@ getGrain gid =
 
 focusDomId domId =
     Browser.Dom.focus domId
-        |> Task.attempt (\_ -> NoOp)
+        |> Task.attempt FocusResult
 
 
 focusMaybeDomId =
