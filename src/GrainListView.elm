@@ -6,7 +6,7 @@ module GrainListView exposing
 
 import BasicsX exposing (defaultEmptyStringTo)
 import Browser.Dom
-import Css exposing (num, pct, px, zero)
+import Css exposing (num, pct, px, rem, zero)
 import CssElements
 import CssIcons
 import CssLayout exposing (flexCol, flexColIC, flexRow, flexRowIC)
@@ -91,4 +91,11 @@ viewGrainList list =
                 , viewDelete g
                 ]
     in
-    flexCol [ CS.p space2 ] [] (List.map viewItem list)
+    flexCol
+        [ CS.p space2
+        , Css.marginBottom <| rem 3
+        , CS.fg1
+        , Css.minHeight <| pct 100
+        ]
+        []
+        (List.map viewItem list)

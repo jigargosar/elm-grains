@@ -1,7 +1,7 @@
 module Skeleton exposing (view)
 
 import BasicsX exposing (defaultEmptyStringTo)
-import Css exposing (num, pct, px)
+import Css exposing (num, pct, px, vh, vw)
 import CssLayout exposing (flexCol, flexColIC)
 import CssShorthand as CS
 import CssTheme exposing (space2)
@@ -15,8 +15,8 @@ import Msg
 view { onKeyDownPD, children } =
     flexCol
         [ CS.fg1
-        , Css.minWidth <| pct 100
-        , Css.height <| pct 100
+        , Css.width <| vw 100
+        , Css.height <| vh 100
         ]
         [ id "base-layer"
         , class "sans-serif"
