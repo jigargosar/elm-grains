@@ -62,47 +62,18 @@ const app = Elm.Main.init({
   },
 })
 
-// Listen for changes to the current location.
+// noinspection JSUnresolvedFunction
 history.listen((location, action) => {
-  // location is an object like window.location
-  console.log(action, location.pathname, location.state)
+  console.debug(action, location.pathname, location.state)
   sendTo(app, 'urlChanged', document.URL)
 })
 
-// const sgApp = G.Elm.StoreGenerator.init ({node:document.getElementById('root2')})
-// sgApp.ports.error.subscribe(e=>{
-//     console.log(`Generated Code`, e)
-//   }
-// )
-
 subscribe(
   {
-    // warn: data => {
-    //   console.warn(data)
-    // },
-    // focusId: id => {
-    //   const el = document.getElementById(id)
-    //   if (el) {
-    //     el.focus()
-    //   } else {
-    //     console.error('Focus: El Not Found', id)
-    //   }
-    // },
-    //
-    // focusSelector: selector => {
-    //   let escapedSelector = selector.replace('~', '\\~')
-    //   const el = document.querySelector(escapedSelector)
-    //   if (el) {
-    //     el.focus()
-    //   } else {
-    //     console.error('Focus: Selector Not Found', escapedSelector)
-    //   }
-    // },
-
-    pushUrl: url => {
+    pushUrl: pathname => {
       // Use push, replace, and go to navigate around.
-      if (history.location.pathname !== url) {
-        history.push(url, { some: 'state' })
+      if (history.location.pathname !== pathname) {
+        history.push(pathname, { some: 'state' })
       }
     },
 
@@ -112,9 +83,6 @@ subscribe(
     cacheGrains: todos => {
       storageSet('grains', todos)
     },
-    // cacheContextStore: contexts => {
-    //   storageSet('contexts', contexts)
-    // },
   },
   app,
 )
