@@ -126,6 +126,12 @@ update message =
         NoOp ->
             identity
 
+        FocusResult (Ok ()) ->
+            identity
+
+        FocusResult (Err err) ->
+            update (LogError "Dom Focus Error")
+
         LogError errMsg ->
             R3.do (Port.error errMsg)
 

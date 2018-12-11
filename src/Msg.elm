@@ -9,6 +9,7 @@ type Msg
     = ---- INJECT MSG BELOW ----
       NoOp
     | LogError String
+    | FocusResult (Result Browser.Dom.Error ())
     | BrowserAnyKeyDown
     | BaseLayerFocusInChanged Bool
     | AddNewClicked
