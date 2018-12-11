@@ -11,7 +11,7 @@ import CssElements
 import CssIcons
 import CssLayout exposing (flexCol, flexColIC, flexRow, flexRowIC)
 import CssShorthand as CS
-import CssTheme exposing (black80, blackAlpha, space2, space4, white)
+import CssTheme exposing (black80, blackAlpha, space2, space3, space4, white)
 import Grain exposing (Grain)
 import Html.Styled exposing (Html, button, div, styled, text)
 import Html.Styled.Attributes exposing (class)
@@ -49,7 +49,10 @@ viewFab =
         ]
         []
         [ CssElements.iconBtnWithStyles
-            [ Css.backgroundColor black80
+            [ CS.rel
+            , Css.bottom <| space3
+            , Css.right <| space3
+            , Css.backgroundColor black80
             , Css.color white
             , Css.borderRadius <| px 9999
             , Css.boxShadow4 (px 1) (px 1) (px 8) (blackAlpha 0.5)
