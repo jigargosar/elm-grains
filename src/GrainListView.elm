@@ -43,8 +43,7 @@ viewFab =
         [ CS.fixed
         , Css.width <| CssTheme.contentWidth
         , Css.maxWidth <| vw 100
-        , Css.height <| vh 100
-        , Css.alignItems Css.flexEnd
+        , Css.bottom <| space4
         , Css.justifyContent Css.flexEnd
         , Css.pointerEvents Css.none
         ]
@@ -52,8 +51,7 @@ viewFab =
         [ CssElements.iconBtnWithStyles
             [ CS.rel
             , Css.pointerEventsAll
-            , Css.bottom <| space3
-            , Css.right <| space3
+            , Css.right <| space4
             , Css.backgroundColor black80
             , Css.color white
             , Css.borderRadius <| px 9999
