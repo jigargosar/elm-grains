@@ -179,10 +179,6 @@ logErrorString err =
         >> mapToastR3 (Toast.show err)
 
 
-dispatchToGrainStore =
-    R3.dispatch grainStoreSubConfig
-
-
 pushUrl =
     R3.doWith .route (Route.toString >> Port.pushUrl)
 
@@ -206,7 +202,7 @@ update message =
             R3.map (\model -> { model | hasFocusIn = hasFocusIn })
 
         LoadGrainStore val ->
-            dispatchToGrainStore (GrainStore.load val)
+            R3.dispatch grainStoreSubConfig (GrainStore.load val)
 
         GrainStoreSubMsg msg ->
             R3.sub msg grainStoreSubConfig
