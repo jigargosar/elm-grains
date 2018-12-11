@@ -97,6 +97,10 @@ focusBaseLayerCmd =
         |> Task.attempt (\_ -> NoOp)
 
 
+focusGrain =
+    GrainListView.focusGrain >> Task.attempt (\_ -> NoOp)
+
+
 globalKeyBinding model =
     K.bindEachToMsg []
 
@@ -143,7 +147,7 @@ update message =
                     identity
 
                 GrainStore.NewGrainAddedReply grain ->
-                    identity
+                    R3.do (focusGrain grain)
 
 
 keyBinding model =

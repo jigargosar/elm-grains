@@ -1,11 +1,27 @@
-module GrainListView exposing (GrainListView, view, viewGrainList)
+module GrainListView exposing
+    ( GrainListView
+    , focusGrain
+    , view
+    )
 
+import Browser.Dom
 import Css exposing (px)
 import CssLayout exposing (flexCol)
 import Grain exposing (Grain)
 import Html.Styled exposing (Html, div, styled, text)
 import Html.Styled.Attributes exposing (class)
 import Msg exposing (Msg)
+import Task exposing (Task)
+
+
+grainDomId : Grain -> String
+grainDomId =
+    Grain.toDomIdWithPrefix "grain-list-item--"
+
+
+focusGrain : Grain -> Task Browser.Dom.Error ()
+focusGrain grain =
+    Browser.Dom.focus (grainDomId grain)
 
 
 type alias GrainListView =

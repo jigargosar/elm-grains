@@ -1,4 +1,9 @@
-module Grain exposing (Grain, generator, title)
+module Grain exposing
+    ( Grain
+    , generator
+    , title
+    , toDomIdWithPrefix
+    )
 
 import GrainId exposing (GrainId(..))
 import Random exposing (Generator)
@@ -15,8 +20,8 @@ type Grain
 
 
 init : GrainId -> Grain
-init id =
-    Grain { id = id, title = "" }
+init initialId =
+    Grain { id = initialId, title = "" }
 
 
 unwrap (Grain model) =
@@ -29,6 +34,14 @@ map fn =
 
 title =
     unwrap >> .title
+
+
+id =
+    unwrap >> .id
+
+
+toDomIdWithPrefix prefix =
+    id >> GrainId.toDomIdWithPrefix prefix
 
 
 generator : Generator Grain

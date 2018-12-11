@@ -1,7 +1,12 @@
-module GrainId exposing (GrainId, asString, generator)
+module GrainId exposing
+    ( GrainId
+    , generator
+    , toDomIdWithPrefix
+    )
 
 import Random exposing (Generator)
 import RandomId
+import String.Extra as String
 
 
 type alias Model =
@@ -18,6 +23,10 @@ unwrap (GrainId model) =
 
 asString =
     unwrap
+
+
+toDomIdWithPrefix prefix =
+    unwrap >> (++) prefix
 
 
 generator : Generator GrainId
