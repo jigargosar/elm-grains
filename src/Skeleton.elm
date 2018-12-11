@@ -7,8 +7,8 @@ import CssShorthand as CS
 import CssTheme exposing (space2)
 import EventX
 import Html.Styled as Html exposing (..)
-import Html.Styled.Attributes as SA exposing (..)
-import Html.Styled.Events as SE exposing (onBlur, onClick, onFocus, onInput, onSubmit)
+import Html.Styled.Attributes as SA
+import Html.Styled.Events as SE
 import Msg
 import StyledEvents as SE
 
@@ -19,18 +19,18 @@ view { onKeyDownPD, children } =
         , CS.absFill
         , Css.overflow Css.scroll
         ]
-        [ id "base-layer"
-        , class "sans-serif"
+        [ SA.id "base-layer"
+        , SA.class "sans-serif"
         , SE.onFocusIn <| Msg.BaseLayerFocusInChanged True
         , SE.onFocusOut <| Msg.BaseLayerFocusInChanged False
-        , tabindex -1
-        , SA.fromUnstyled <| EventX.onKeyDownPD onKeyDownPD
+        , SA.tabindex -1
+        , SE.onKeyDownPD onKeyDownPD
         ]
         [ flexCol
             [ CS.fg1
             , Css.width CssTheme.contentWidth
             , Css.maxWidth <| vw 100
             ]
-            [ class "ba b--light-gray" ]
+            [ SA.class "ba b--light-gray" ]
             children
         ]
