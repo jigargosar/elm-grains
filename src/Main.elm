@@ -127,6 +127,10 @@ grainStoreSubConfig =
     }
 
 
+logErrorString err =
+    R3.do (Port.error err)
+
+
 update : Msg -> Return3F Msg Model ()
 update message =
     case message of
@@ -137,10 +141,7 @@ update message =
             identity
 
         FocusResult (Err err) ->
-            update (LogError "Dom Focus Error")
-
-        LogError errMsg ->
-            R3.do (Port.error errMsg)
+            logErrorString "Dom Focus Error"
 
         BrowserAnyKeyDown ->
             R3.doWhen (.hasFocusIn >> not) focusBaseLayerCmd
