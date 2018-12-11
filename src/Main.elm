@@ -72,7 +72,7 @@ type alias Model =
 
 
 type alias Toast =
-    { title : String }
+    { title : String, visible : Bool }
 
 
 initialHasFocusIn =
@@ -85,7 +85,7 @@ init flags =
         |> Random.from (initialSeed flags)
         |> Random.with GrainStore.generator
         |> Random.always initialHasFocusIn
-        |> Random.always { title = "All Clear" }
+        |> Random.always { title = "All Clear", visible = True }
         |> Random.finish
         |> Return.singleton
 
