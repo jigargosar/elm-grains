@@ -1,4 +1,4 @@
-module Route exposing (Route(..), fromString)
+module Route exposing (Route(..), fromString, toString)
 
 import GrainId exposing (GrainId)
 import Url
@@ -8,7 +8,7 @@ import Url.Parser exposing ((</>), Parser, custom, int, map, oneOf, parse, s, st
 type Route
     = GrainList
     | Grain GrainId
-    | NotFound
+    | NotFound String
 
 
 route : Parser (Route -> a) a
@@ -28,9 +28,25 @@ grainId_ =
 
 fromString : String -> Route
 fromString string =
+    let
+        defaultRoute =
+            NotFound string
+    in
     case Url.fromString string of
         Nothing ->
-            NotFound
+            defaultRoute
 
         Just url ->
-            Maybe.withDefault NotFound (parse route url)
+            Maybe.withDefault defaultRoute (parse route url)
+
+
+toString r =
+    case r of
+        GrainList ->
+            "/"
+
+        Grain gid ->
+            "/grain/" ++ GrainId.toString gid
+
+        NotFound string ->
+            string

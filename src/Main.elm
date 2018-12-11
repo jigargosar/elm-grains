@@ -159,6 +159,10 @@ dispatchToGrainStore =
     R3.dispatch grainStoreSubConfig
 
 
+pushUrl =
+    R3.doWith .route (Route.toString >> Port.pushUrl)
+
+
 update : Msg -> Return3F Msg Model ()
 update message =
     case message of
@@ -199,6 +203,7 @@ update message =
 
         RouteTo route ->
             setRouteR3 route
+                >> pushUrl
 
 
 keyBinding model =
@@ -237,7 +242,7 @@ viewRoute model =
         Route.Grain gid ->
             getGrain gid model |> GrainView.view
 
-        Route.NotFound ->
+        Route.NotFound string ->
             Skeleton.notFoundView
 
 

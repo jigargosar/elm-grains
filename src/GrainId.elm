@@ -5,6 +5,7 @@ module GrainId exposing
     , fromString
     , generator
     , toDomIdWithPrefix
+    , toString
     )
 
 import DecodeX exposing (Encoder)
@@ -56,7 +57,7 @@ unwrap (GrainId model) =
     model
 
 
-asString =
+toString =
     unwrap
 
 
