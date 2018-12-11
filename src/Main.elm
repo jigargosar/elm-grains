@@ -208,7 +208,7 @@ update message =
                 >> pushUrl
 
         UrlChanged url ->
-            logErrorString url
+            setRouteR3 (Route.fromString url)
 
 
 keyBinding model =
