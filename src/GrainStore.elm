@@ -110,8 +110,9 @@ decoder seed =
         |> hardcoded seed
 
 
-updateGrainWithId gid fn =
-    mapList (List.updateIf (Grain.idEq gid) fn)
+updateGrainWithIdR3 gid fn =
+    R3.map (mapList (List.updateIf (Grain.idEq gid) fn))
+        >> R3.effect cache
 
 
 update : Msg -> Return3F Msg GrainStore Reply
@@ -144,7 +145,10 @@ update message =
                 )
 
         UpdateGrain gid msg ->
+            let
+                updateGrainR3 =
+                    updateGrainWithIdR3 gid
+            in
             case msg of
                 SetTitle title ->
-                    R3.map (updateGrainWithId gid (Grain.setTitle title))
-                        >> R3.effect cache
+                    updateGrainR3 (Grain.setTitle title)
