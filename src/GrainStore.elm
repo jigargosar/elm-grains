@@ -71,6 +71,7 @@ type Reply
     | NewGrainAddedReply Grain
 
 
+cache : GrainStore -> Cmd msg
 cache =
     encoder >> Port.cacheGrains
 
