@@ -6,11 +6,13 @@ import Browser.Dom
 import Browser.Events
 import BrowserX exposing (WindowSize)
 import Color
-import Css exposing (em, num, pct, px)
+import Css exposing (em, num, pct, px, rgb)
 import CssElements exposing (..)
 import CssElevation exposing (elevation)
-import CssIcons exposing (viewIcon)
+import CssIcons exposing (view)
 import CssLayout exposing (flexCol, flexRow, flexRowIC)
+import CssShorthand as CS
+import CssTheme exposing (black80, blackAlpha, space2, space4, white)
 import DecodeX exposing (DecodeResult)
 import Either exposing (Either(..))
 import EventX exposing (onKeyDownPD)
@@ -242,8 +244,10 @@ view model =
     Skeleton.view
         { onKeyDownPD = keyBindings model
         , children =
-            viewRouteChildren model ++ [ viewToast model.toast ]
-        , toastView = { dismiss = ToastDismiss }
+            viewRouteChildren model
+                ++ [ viewFab
+                   , viewToast model.toast
+                   ]
         }
 
 
@@ -261,6 +265,21 @@ viewRouteChildren model =
 
 viewToast toast =
     Toast.view toast
+
+
+viewFab =
+    CssElements.iconBtnWithStyles
+        [ CS.abs
+        , Css.bottom space4
+        , Css.right space4
+        , Css.backgroundColor black80
+        , Css.color white
+        , Css.borderRadius <| px 9999
+        , Css.boxShadow4 (px 1) (px 1) (px 8) (blackAlpha 0.5)
+        , CS.p space2
+        ]
+        []
+        [ CssIcons.viewColorWhite CssIcons.add ]
 
 
 mapStateToGrainListView : Model -> GrainListView

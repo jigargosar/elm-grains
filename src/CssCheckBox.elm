@@ -26,4 +26,4 @@ view styles checked attrs =
             ++ styles
         )
         (type_ "button" :: attrs)
-        [ CssIcons.viewIcon checkBoxIcon ]
+        [ CssIcons.view checkBoxIcon ]

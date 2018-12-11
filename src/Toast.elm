@@ -17,7 +17,7 @@ import Css exposing (em, num, pct, px)
 import CssElements exposing (..)
 import CssElevation exposing (elevation)
 import CssHtml exposing (viewIf, viewIfLazy)
-import CssIcons exposing (viewIcon)
+import CssIcons exposing (view)
 import CssLayout exposing (flexCol, flexRow, flexRowIC)
 import CssShorthand as CS
 import CssTheme exposing (black80, space2, space4, white)
