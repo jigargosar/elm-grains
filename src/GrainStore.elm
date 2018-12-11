@@ -38,6 +38,14 @@ setSeed seed =
     \model -> { model | seed = seed }
 
 
+addGrain grain =
+    \model -> { model | list = grain :: model.list }
+
+
+addGrainWithNewSeed grain seed =
+    addGrain grain >> setSeed seed
+
+
 createNewGrain =
     CreateNew
 
@@ -49,7 +57,7 @@ type Msg
 
 type Reply
     = NoReply
-    | CreateNewReply Grain
+    | NewGrainAddedReply Grain
 
 
 update : Msg -> Return3F Msg GrainStore Reply
@@ -65,6 +73,6 @@ update message =
                         ( newGrain, newSeed ) =
                             Random.step Grain.generator model.seed
                     in
-                    R3.map (setSeed newSeed)
-                        >> R3.reply (CreateNewReply newGrain)
+                    R3.map (addGrainWithNewSeed newGrain newSeed)
+                        >> R3.reply (NewGrainAddedReply newGrain)
                 )

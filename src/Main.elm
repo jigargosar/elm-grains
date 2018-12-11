@@ -142,7 +142,7 @@ update message =
                 GrainStore.NoReply ->
                     identity
 
-                GrainStore.CreateNewReply grain ->
+                GrainStore.NewGrainAddedReply grain ->
                     identity
 
 
