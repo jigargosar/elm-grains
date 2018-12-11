@@ -17,3 +17,7 @@ wpx pVal =
 
 p =
     Css.padding
+
+
+p2 =
+    Css.padding2
