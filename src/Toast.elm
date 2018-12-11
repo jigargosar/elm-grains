@@ -2,7 +2,7 @@ module Toast exposing
     ( Toast
     , dismiss
     , init
-    , showWithTitle
+    , show
     , view
     , viewContent
     )
@@ -68,7 +68,7 @@ dismiss model =
     { model | visible = False }
 
 
-showWithTitle title model =
+show title model =
     { model | title = title, visible = True }
 
 

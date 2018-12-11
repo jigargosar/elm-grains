@@ -169,7 +169,7 @@ grainStoreSubConfig =
 
 logErrorString err =
     R3.do (Port.error err)
-        >> mapToastR3 (Toast.showWithTitle err)
+        >> mapToastR3 (Toast.show err)
 
 
 dispatchToGrainStore =
