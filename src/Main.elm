@@ -216,35 +216,24 @@ keyBinding model =
 
 view : Model -> Html Msg
 view model =
-    flexCol
-        [ Css.flexShrink <| num 0
-        , Css.minWidth <| pct 100
-        , Css.minHeight <| pct 100
-        ]
-        [ id "base-layer"
-        , class "sans-serif"
-        , SA.fromUnstyled <| EventX.onFocusIn <| BaseLayerFocusInChanged True
-        , SA.fromUnstyled <| EventX.onFocusOut <| BaseLayerFocusInChanged False
-        , tabindex -1
-        , SA.fromUnstyled <|
-            EventX.onKeyDownPD <|
-                keyBinding model
-        ]
-        [ viewRoute model
-        , viewToast model.toast
-        ]
+    Skeleton.view
+        { onKeyDownPD = keyBinding model
+        , children =
+            viewRoute model
+                ++ [ viewToast model.toast ]
+        }
 
 
 viewRoute model =
     case model.route of
         Route.GrainList ->
-            GrainListView.view (mapStateToGrainListView model) |> Skeleton.viewChildren
+            GrainListView.view (mapStateToGrainListView model)
 
         Route.Grain gid ->
-            getGrain gid model |> GrainView.view |> Skeleton.viewChildren
+            getGrain gid model |> GrainView.view
 
         Route.NotFound string ->
-            NotFoundView.view |> Skeleton.viewChildren
+            NotFoundView.view
 
 
 viewToast toast =
