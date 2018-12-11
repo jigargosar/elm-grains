@@ -142,6 +142,9 @@ update message =
                 GrainStore.NoReply ->
                     identity
 
+                GrainStore.CreateNewReply grain ->
+                    identity
+
 
 keyBinding model =
     K.bindEachToMsg <|

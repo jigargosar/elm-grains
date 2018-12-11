@@ -6,6 +6,7 @@ module Return3 exposing
     , do
     , doWhen
     , map
+    , reply
     , sub
     , toElmUpdate
     )
@@ -111,3 +112,7 @@ getReplies r3 =
 andThen : (model -> Return3F msg model reply) -> Return3F msg model reply
 andThen fn r3 =
     fn (getModel r3) r3
+
+
+reply rep =
+    Tuple.mapSecond ((::) rep)

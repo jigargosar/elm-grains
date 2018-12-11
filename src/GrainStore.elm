@@ -49,6 +49,7 @@ type Msg
 
 type Reply
     = NoReply
+    | CreateNewReply Grain
 
 
 update : Msg -> Return3F Msg GrainStore Reply
@@ -65,4 +66,5 @@ update message =
                             Random.step Grain.generator model.seed
                     in
                     R3.map (setSeed newSeed)
+                        >> R3.reply (CreateNewReply newGrain)
                 )
