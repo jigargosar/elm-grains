@@ -1,4 +1,12 @@
-module Toast exposing (Toast, ToastView, dismiss, view, viewContent, visible)
+module Toast exposing
+    ( Toast
+    , ToastView
+    , dismiss
+    , showWithTitle
+    , view
+    , viewContent
+    , visible
+    )
 
 import BasicsX exposing (..)
 import Browser
@@ -59,6 +67,10 @@ visible title =
 
 dismiss model =
     { model | visible = False }
+
+
+showWithTitle title model =
+    { model | title = title, visible = True }
 
 
 type alias ToastView msg =

@@ -95,6 +95,10 @@ mapToast fn model =
     { model | toast = fn model.toast }
 
 
+setErrorToast title =
+    mapToast (Toast.showWithTitle title)
+
+
 
 ---- UPDATE ----
 
@@ -129,6 +133,7 @@ grainStoreSubConfig =
 
 logErrorString err =
     R3.do (Port.error err)
+        >> R3.map (setErrorToast err)
 
 
 update : Msg -> Return3F Msg Model ()
