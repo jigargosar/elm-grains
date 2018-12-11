@@ -1,4 +1,4 @@
-module GrainView exposing (grainDisplayTitle, view, viewGrain, viewNotFound)
+module GrainView exposing (view)
 
 import BasicsX exposing (defaultEmptyStringTo, unwrapMaybe)
 import Browser.Dom
@@ -7,8 +7,8 @@ import CssLayout exposing (flexCol, flexColIC)
 import CssShorthand as CS
 import CssTheme exposing (space2)
 import Grain exposing (Grain)
-import Html.Styled exposing (Html, button, div, styled, text)
-import Html.Styled.Attributes exposing (class)
+import Html.Styled exposing (Html, button, div, input, styled, text, textarea)
+import Html.Styled.Attributes exposing (class, placeholder, value)
 import Html.Styled.Events exposing (onClick)
 import Msg exposing (Msg)
 import Skeleton
@@ -24,13 +24,16 @@ viewNotFound =
     div [] [ text "Grain Not Found" ]
 
 
-grainDisplayTitle =
-    Grain.title >> defaultEmptyStringTo "<empty>"
-
-
 viewGrain grain =
     let
         title =
-            grainDisplayTitle grain
+            Grain.title grain
     in
-    flexCol [ Css.padding space2 ] [] [ text title ]
+    styled textarea
+        [ Css.displayFlex
+        , CS.fg1
+        , Css.resize Css.none
+        , CS.p space2
+        ]
+        [ placeholder "Start Typing...", value title ]
+        []
