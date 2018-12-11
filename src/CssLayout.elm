@@ -6,12 +6,18 @@ import Html.Styled exposing (div, styled)
 
 
 flexCol styles =
-    styled div ([ Css.displayFlex, Css.flexDirection Css.column ] ++ styles)
+    styled div
+        (Css.displayFlex
+            :: Css.flexDirection Css.column
+            :: CS.fs0
+            :: styles
+        )
 
 
 flexRow styles =
     styled div
         (Css.displayFlex
+            :: CS.fs0
             :: Css.flexDirection Css.row
             :: styles
         )

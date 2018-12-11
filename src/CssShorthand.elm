@@ -2,6 +2,7 @@ module CssShorthand exposing
     ( abs
     , aic
     , fg1
+    , fs0
     , p
     , pointer
     , rel
@@ -10,6 +11,10 @@ module CssShorthand exposing
     )
 
 import Css exposing (num, px)
+
+
+fs0 =
+    Css.flexShrink <| num 0
 
 
 aic =

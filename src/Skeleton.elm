@@ -14,9 +14,9 @@ import Msg
 
 view { onKeyDownPD, children } =
     flexCol
-        [ Css.flexShrink <| num 0
+        [ CS.fg1
         , Css.minWidth <| pct 100
-        , Css.minHeight <| pct 100
+        , Css.height <| pct 100
         ]
         [ id "base-layer"
         , class "sans-serif"
