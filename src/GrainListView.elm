@@ -46,10 +46,12 @@ viewFab =
         , Css.height <| vh 100
         , Css.alignItems Css.flexEnd
         , Css.justifyContent Css.flexEnd
+        , Css.pointerEvents Css.none
         ]
         []
         [ CssElements.iconBtnWithStyles
             [ CS.rel
+            , Css.pointerEventsAll
             , Css.bottom <| space3
             , Css.right <| space3
             , Css.backgroundColor black80
