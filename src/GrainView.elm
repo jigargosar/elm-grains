@@ -16,13 +16,12 @@ import Task exposing (Task)
 
 
 view maybeGrain =
-    Skeleton.viewChildren
-        [ unwrapMaybe viewNotFound viewGrain maybeGrain
-        ]
+    [ unwrapMaybe viewNotFound viewGrain maybeGrain
+    ]
 
 
 viewNotFound =
-    div [] [ text "Not Found" ]
+    div [] [ text "Grain Not Found" ]
 
 
 grainDisplayTitle =

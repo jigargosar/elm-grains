@@ -34,12 +34,11 @@ type alias GrainListView =
     { grainList : List Grain }
 
 
-view : GrainListView -> Html Msg
+view : GrainListView -> List (Html Msg)
 view { grainList } =
-    Skeleton.viewChildren
-        [ button [ onClick Msg.AddNewClicked ] [ text "add new empty" ]
-        , viewGrainList grainList
-        ]
+    [ button [ onClick Msg.AddNewClicked ] [ text "add new empty" ]
+    , viewGrainList grainList
+    ]
 
 
 grainDisplayTitle =

@@ -203,8 +203,7 @@ update message =
             R3.map (setRoute route) >> pushUrl
 
         UrlChanged url ->
-            --            R3.map (setRoute <| Route.fromString url)
-            update (RouteTo <| Route.fromString url)
+            R3.map (setRoute <| Route.fromString url)
 
 
 keyBinding model =
@@ -238,10 +237,10 @@ view model =
 viewRoute model =
     case model.route of
         Route.GrainList ->
-            GrainListView.view (mapStateToGrainListView model)
+            GrainListView.view (mapStateToGrainListView model) |> Skeleton.viewChildren
 
         Route.Grain gid ->
-            getGrain gid model |> GrainView.view
+            getGrain gid model |> GrainView.view |> Skeleton.viewChildren
 
         Route.NotFound string ->
             Skeleton.notFoundView
