@@ -222,7 +222,7 @@ viewRoute model =
             GrainListView.view (mapStateToGrainListView model)
 
         Route.Grain gid ->
-            getGrain gid |> GrainView.view
+            getGrain gid model |> GrainView.view
 
 
 viewToast toast =
