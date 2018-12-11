@@ -16,6 +16,7 @@ import Html.Styled.Attributes exposing (class)
 import Html.Styled.Events exposing (onClick)
 import Msg exposing (Msg)
 import Route
+import Skeleton
 import Task exposing (Task)
 
 
@@ -35,13 +36,9 @@ type alias GrainListView =
 
 view : GrainListView -> Html Msg
 view { grainList } =
-    flexColIC [ CS.fg1 ]
-        []
-        [ flexCol [ CS.wpx 400, CS.fg1, CS.p space2 ]
-            [ class "ba b--light-gray" ]
-            [ button [ onClick Msg.AddNewClicked ] [ text "add new empty" ]
-            , viewGrainList grainList
-            ]
+    Skeleton.viewChildren
+        [ button [ onClick Msg.AddNewClicked ] [ text "add new empty" ]
+        , viewGrainList grainList
         ]
 
 

@@ -17,8 +17,7 @@ import Task exposing (Task)
 
 view maybeGrain =
     Skeleton.viewChildren
-        [ button [ onClick Msg.AddNewClicked ] [ text "add new empty" ]
-        , unwrapMaybe viewNotFound viewGrain maybeGrain
+        [ unwrapMaybe viewNotFound viewGrain maybeGrain
         ]
 
 
