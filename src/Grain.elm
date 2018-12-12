@@ -24,7 +24,6 @@ import Revision exposing (Revision)
 type alias Model =
     { id : GrainId
     , content : String
-    , revision : Revision
     }
 
 
@@ -34,7 +33,7 @@ type Grain
 
 init : GrainId -> Grain
 init initialId =
-    Grain { id = initialId, content = "", revision = Revision.init }
+    Grain { id = initialId, content = "" }
 
 
 encoder : Encoder Grain
@@ -42,7 +41,6 @@ encoder (Grain model) =
     E.object
         [ ( "id", GrainId.encoder model.id )
         , ( "content", E.string model.content )
-        , ( "revision", Revision.encoder model.revision )
         ]
 
 
@@ -51,7 +49,6 @@ decoder =
     DecodeX.start Model
         |> required "id" GrainId.decoder
         |> required "content" D.string
-        |> required "revision" Revision.decoder
         |> D.map Grain
 
 
