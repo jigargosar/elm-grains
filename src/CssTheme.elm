@@ -1,6 +1,7 @@
 module CssTheme exposing
     ( black80
     , blackAlpha
+    , pageWidth
     , space2
     , space4
     , space8
@@ -8,6 +9,7 @@ module CssTheme exposing
     )
 
 import Css exposing (hex, px, rem)
+import CssShorthand as CS
 
 
 black80 =
@@ -32,3 +34,7 @@ space8 =
 
 white =
     hex "#fff"
+
+
+pageWidth =
+    CS.max_w_full
