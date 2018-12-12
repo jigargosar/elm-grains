@@ -10,6 +10,7 @@ flexCol styles =
         (Css.displayFlex
             :: Css.flexDirection Css.column
             :: CS.fs0
+            :: CS.flexGrow1
             :: styles
         )
 

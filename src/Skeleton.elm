@@ -14,19 +14,17 @@ import StyledEvents as SE
 
 
 view { onKeyDownPD, children } =
-    flexColIC
-        [ CS.min100V
-        ]
+    flexCol
+        [ CS.minHeight100VH ]
         [ SA.id "base-layer"
+        , SA.class "container grid-xs"
         , SE.onFocusIn <| Msg.BaseLayerFocusInChanged True
         , SE.onFocusOut <| Msg.BaseLayerFocusInChanged False
         , SA.tabindex -1
         , SE.onKeyDownPD onKeyDownPD
         ]
         [ flexCol
-            [ CS.flexGrow1
-            , Css.width CssTheme.contentWidth
-            ]
-            [ SA.class "ba b--light-gray" ]
+            []
+            [ SA.class "columns ba b--light-gray" ]
             children
         ]
