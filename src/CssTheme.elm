@@ -37,4 +37,4 @@ white =
 
 
 pageWidth =
-    CS.max_w_full
+    CS.w_xs
