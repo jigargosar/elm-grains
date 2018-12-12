@@ -32,7 +32,7 @@ type Grain
 
 init : GrainId -> Grain
 init initialId =
-    Grain { id = initialId, content = "" }
+    Grain { id = initialId, content = "", revision = Revision.init }
 
 
 encoder : Encoder Grain
