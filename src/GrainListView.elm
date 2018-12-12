@@ -42,7 +42,6 @@ viewFab =
     flexRow
         [ CS.fixed
         , Css.width <| CssTheme.contentWidth
-        , Css.maxWidth <| vw 100
         , Css.bottom <| space4
         , Css.justifyContent Css.flexEnd
         , Css.pointerEvents Css.none

@@ -17,15 +17,20 @@ module CssShorthand exposing
     , pointer
     , rel
     , sticky
+    , w100
     , wpx
     )
 
 import BasicsX exposing (callWith)
-import Css exposing (num, px, vh, vw, zero)
+import Css exposing (num, pct, px, vh, vw, zero)
 
 
 overflowScroll =
     Css.overflow Css.scroll
+
+
+w100 =
+    Css.width <| pct 100
 
 
 min100V =
