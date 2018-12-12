@@ -11,7 +11,7 @@ import CssElements
 import CssIcons
 import CssLayout exposing (flexCol, flexColIC, flexRow, flexRowIC)
 import CssShorthand as CS
-import CssTheme exposing (black80, blackAlpha, space2, space3, space4, white)
+import CssTheme exposing (black80, blackAlpha, space1, space2, white)
 import Grain exposing (Grain)
 import Html.Styled exposing (Html, button, div, styled, text)
 import Html.Styled.Attributes exposing (class)
@@ -41,8 +41,8 @@ view { grainList } =
 viewFab =
     flexRow
         [ CS.fixed
-        , Css.width <| Css.calc CssTheme.contentWidth Css.minus space4
-        , Css.bottom <| space4
+        , Css.width <| Css.calc CssTheme.contentWidth Css.minus space2
+        , Css.bottom <| space2
         , Css.justifyContent Css.flexEnd
         , Css.pointerEvents Css.none
         ]
@@ -50,12 +50,12 @@ viewFab =
         [ CssElements.iconBtnWithStyles
             [ CS.rel
             , Css.pointerEventsAll
-            , Css.right <| space4
+            , Css.right <| space2
             , Css.backgroundColor black80
             , Css.color white
             , Css.borderRadius <| px 9999
             , Css.boxShadow4 (px 1) (px 1) (px 8) (blackAlpha 0.5)
-            , CS.p space2
+            , CS.p space1
             ]
             [ onClick Msg.addNewGrainClicked ]
             [ CssIcons.viewColorWhite CssIcons.add ]
@@ -70,7 +70,7 @@ viewGrainList list =
     let
         viewTitle title g =
             flexRow
-                [ Css.padding space2
+                [ Css.padding space1
                 , CS.pointer
                 , CS.flexGrow1
                 ]
@@ -96,7 +96,7 @@ viewGrainList list =
                 ]
     in
     flexCol
-        [ CS.p space2
+        [ CS.p space1
         , CS.flexGrow1
         , Css.marginBottom <| rem 3
         ]

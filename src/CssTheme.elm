@@ -2,12 +2,12 @@ module CssTheme exposing
     ( black80
     , blackAlpha
     , contentWidth
+    , space1
     , space2
-    , space4
     , white
     )
 
-import Css exposing (hex, px)
+import Css exposing (hex, px, rem)
 
 
 black80 =
@@ -18,12 +18,12 @@ blackAlpha alpha =
     Css.rgba 0 0 0 alpha
 
 
+space1 =
+    rem 0.5
+
+
 space2 =
-    px 8
-
-
-space4 =
-    px 16
+    rem 1
 
 
 white =

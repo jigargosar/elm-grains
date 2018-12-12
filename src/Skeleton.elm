@@ -4,7 +4,7 @@ import BasicsX exposing (defaultEmptyStringTo)
 import Css exposing (num, pct, px, vh, vw)
 import CssLayout exposing (flexCol, flexColIC)
 import CssShorthand as CS
-import CssTheme exposing (space2)
+import CssTheme exposing (space1)
 import EventX
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes as SA
