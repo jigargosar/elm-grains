@@ -47,12 +47,7 @@ decoder : Decoder Grain
 decoder =
     DecodeX.start Model
         |> required "id" GrainId.decoder
-        |> custom
-            (D.oneOf
-                [ D.field "content" D.string
-                , D.field "title" D.string
-                ]
-            )
+        |> required "content" D.string
         |> D.map Grain
 
 
