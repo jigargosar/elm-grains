@@ -3,7 +3,9 @@ module CssShorthand exposing
     , absFill
     , abs__fill
     , aic
+    , ellipsis
     , fixed
+    , flex11Auto
     , flexGrow1
     , fs0
     , jcc
@@ -24,6 +26,23 @@ module CssShorthand exposing
 
 import BasicsX exposing (callWith)
 import Css exposing (num, pct, px, vh, vw, zero)
+
+
+flex11Auto =
+    Css.batch
+        [ Css.flexShrink <| num 1
+        , Css.flexGrow <| num 1
+        , Css.flexBasis Css.auto
+        ]
+
+
+ellipsis =
+    Css.batch
+        [ Css.display Css.inlineBlock
+        , Css.overflow Css.hidden
+        , Css.textOverflow Css.ellipsis
+        , Css.whiteSpace Css.noWrap
+        ]
 
 
 overflowScroll =

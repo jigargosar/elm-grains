@@ -72,11 +72,8 @@ viewGrainList list =
             styled div
                 [ CS.p2 space2 zero
                 , CS.pointer
-                , Css.flexShrink <| num 1
-                , Css.flexGrow <| num 1
-                , Css.overflow Css.hidden
-                , Css.textOverflow Css.ellipsis
-                , Css.whiteSpace Css.noWrap
+                , CS.flex11Auto
+                , CS.ellipsis
                 ]
                 [ onClick <| Msg.routeToGrain g ]
                 [ text title ]
