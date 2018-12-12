@@ -15,9 +15,7 @@ import StyledEvents as SE
 
 view { onKeyDownPD, children } =
     flexColIC
-        [ CS.flexGrow1
-        , CS.absFill
-        , CS.overflowScroll
+        [ CS.minHeight100VH
         ]
         [ SA.id "base-layer"
         , SE.onFocusIn <| Msg.BaseLayerFocusInChanged True
