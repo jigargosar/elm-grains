@@ -1,13 +1,7 @@
 {
   "version": 2,
-  "alias": [
-    "elm-grains",
-    "elm-grains.functional-programmer.com"
-  ],
-  "builds": [
-    {"src": "package.json", "use": "@now/static-build"}
-
-  ],
+  "alias": ["grains", "grains.functional-programmer.com"],
+  "builds": [{ "src": "package.json", "use": "@now/static-build" }],
   "routes": [
     {
       "src": "/static/(.*)",
@@ -20,12 +14,12 @@
     {
       "src": "/service-worker.js",
       "dest": "/service-worker.js",
-      "headers": {"cache-control": "s-maxage=1000"}
+      "headers": { "cache-control": "s-maxage=1000" }
     },
     {
       "src": "/manifest.json",
       "dest": "/manifest.json",
-      "headers": {"cache-control": "s-maxage=1000"}
+      "headers": { "cache-control": "s-maxage=1000" }
     },
     {
       "src": "/.*",
