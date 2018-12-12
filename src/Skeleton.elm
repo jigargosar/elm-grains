@@ -18,9 +18,9 @@ view { onKeyDownPD, children } =
         [ CS.minHeight100VH
         , CS.w100
         , Css.maxWidth <| CssTheme.contentWidth
+        , Css.margin Css.auto
         ]
         [ SA.id "base-layer"
-        , SA.class "container grid-xs"
         , SE.onFocusIn <| Msg.BaseLayerFocusInChanged True
         , SE.onFocusOut <| Msg.BaseLayerFocusInChanged False
         , SA.tabindex -1
