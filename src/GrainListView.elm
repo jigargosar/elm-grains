@@ -66,7 +66,7 @@ viewFab =
 
 
 grainDisplayTitle =
-    Grain.title >> defaultEmptyStringTo "<empty>"
+    Grain.titleOrEmpty >> defaultEmptyStringTo "<empty>"
 
 
 viewGrainList list =

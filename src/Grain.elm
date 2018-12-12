@@ -1,12 +1,13 @@
 module Grain exposing
     ( Grain
+    , content
     , decoder
     , encoder
     , generator
     , id
     , idEq
-    , setTitle
-    , title
+    , setContent
+    , titleOrEmpty
     , toDomIdWithPrefix
     )
 
@@ -14,14 +15,14 @@ import BasicsX exposing (eqs)
 import DecodeX exposing (Encoder)
 import GrainId exposing (GrainId(..))
 import Json.Decode as D exposing (Decoder)
-import Json.Decode.Pipeline exposing (required)
+import Json.Decode.Pipeline exposing (custom, required)
 import Json.Encode as E
 import Random exposing (Generator)
 
 
 type alias Model =
     { id : GrainId
-    , title : String
+    , content : String
     }
 
 
@@ -31,14 +32,14 @@ type Grain
 
 init : GrainId -> Grain
 init initialId =
-    Grain { id = initialId, title = "" }
+    Grain { id = initialId, content = "" }
 
 
 encoder : Encoder Grain
 encoder (Grain model) =
     E.object
         [ ( "id", GrainId.encoder model.id )
-        , ( "title", E.string model.title )
+        , ( "content", E.string model.content )
         ]
 
 
@@ -46,7 +47,12 @@ decoder : Decoder Grain
 decoder =
     DecodeX.start Model
         |> required "id" GrainId.decoder
-        |> required "title" D.string
+        |> custom
+            (D.oneOf
+                [ D.field "content" D.string
+                , D.field "title" D.string
+                ]
+            )
         |> D.map Grain
 
 
@@ -59,8 +65,19 @@ map fn =
     unwrap >> fn >> Grain
 
 
-title =
-    unwrap >> .title
+titleFromContent =
+    String.trim
+        >> String.split "\n"
+        >> List.head
+        >> Maybe.map String.trim
+
+
+titleOrEmpty =
+    content >> titleFromContent >> Maybe.withDefault ""
+
+
+content =
+    unwrap >> .content
 
 
 id =
@@ -80,6 +97,6 @@ generator =
     GrainId.generator |> Random.map init
 
 
-setTitle : String -> Grain -> Grain
-setTitle newTitle =
-    map (\model -> { model | title = newTitle })
+setContent : String -> Grain -> Grain
+setContent newContent =
+    map (\model -> { model | content = newContent })

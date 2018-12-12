@@ -29,10 +29,6 @@ viewNotFound =
 
 
 viewGrain grain =
-    let
-        title =
-            Grain.title grain
-    in
     styled textarea
         [ Css.displayFlex
         , CS.flexGrow1
@@ -42,8 +38,8 @@ viewGrain grain =
         ]
         [ id autoFocusId
         , placeholder "Start Typing..."
-        , value title
+        , value <| Grain.content grain
         , autofocus True
-        , onInput <| Msg.grainTitleChanged grain
+        , onInput <| Msg.grainContentChanged grain
         ]
         []

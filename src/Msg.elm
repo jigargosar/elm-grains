@@ -2,7 +2,7 @@ module Msg exposing
     ( Msg(..)
     , addNewGrainClicked
     , deleteGrain
-    , grainTitleChanged
+    , grainContentChanged
     , routeToGrain
     )
 
@@ -45,8 +45,8 @@ deleteGrain grain =
     GrainStoreSubMsg (GrainStore.deleteGrain grain)
 
 
-grainTitleChanged grain title =
-    GrainStoreSubMsg (GrainStore.setTitle grain title)
+grainContentChanged grain content =
+    GrainStoreSubMsg (GrainStore.setContent grain content)
 
 
 addNewGrainClicked =

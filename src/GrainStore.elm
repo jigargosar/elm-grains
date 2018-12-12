@@ -8,7 +8,7 @@ module GrainStore exposing
     , generator
     , get
     , load
-    , setTitle
+    , setContent
     , update
     )
 
@@ -70,7 +70,7 @@ createNewGrain =
 
 
 type GrainUpdateMsg
-    = SetTitle String
+    = SetContent String
 
 
 type Msg
@@ -85,8 +85,8 @@ updateGrain grain =
     UpdateGrainId (Grain.id grain)
 
 
-setTitle grain title =
-    updateGrain grain <| SetTitle title
+setContent grain title =
+    updateGrain grain <| SetContent title
 
 
 deleteGrain grain =
@@ -156,8 +156,8 @@ update message =
                         >> R3.effect cache
             in
             case msg of
-                SetTitle title ->
-                    updateGrainR3 (Grain.setTitle title)
+                SetContent title ->
+                    updateGrainR3 (Grain.setContent title)
 
         DeleteGrainId gid ->
             R3.map (mapList (List.filterNot (Grain.idEq gid)))
