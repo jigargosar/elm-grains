@@ -16,7 +16,9 @@ import StyledEvents as SE
 view { onKeyDownPD, children } =
     flexCol
         [ CS.min_h_screen
-        , CS.w_full
+        , CS.w_sm
+        , CS.max_w_screen
+        , Css.margin Css.auto
         , Css.outline Css.none
         ]
         [ SA.id "base-layer"
@@ -26,10 +28,7 @@ view { onKeyDownPD, children } =
         , SE.onKeyDownPD onKeyDownPD
         ]
         [ flexCol
-            [ CS.w_xs
-            , CS.max_w_screen
-            , Css.margin Css.auto
-            ]
+            []
             [ SA.class "ba b--light-gray" ]
             children
         ]

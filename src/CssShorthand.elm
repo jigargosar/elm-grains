@@ -24,6 +24,7 @@ module CssShorthand exposing
     , relative
     , sticky
     , w_full
+    , w_sm
     , w_xs
     , wpx
     )
@@ -61,6 +62,14 @@ w_full =
     Css.width full
 
 
+sm =
+    rem 30
+
+
+w_sm =
+    Css.width sm
+
+
 max_w_sm =
     Css.maxWidth <| rem 30
 
@@ -69,12 +78,12 @@ xs =
     rem 20
 
 
-max_w_xs =
-    Css.maxWidth xs
-
-
 w_xs =
     Css.width xs
+
+
+max_w_xs =
+    Css.maxWidth xs
 
 
 min100V =
