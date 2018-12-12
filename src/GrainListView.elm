@@ -79,7 +79,7 @@ viewGrainList list =
                 [ text title ]
 
         viewDelete g =
-            CssElements.iconBtnEl
+            CssElements.iconBtnWithStyles [ CS.asc ]
                 [ onClick <| Msg.deleteGrain g
                 ]
                 [ CssIcons.view CssIcons.delete

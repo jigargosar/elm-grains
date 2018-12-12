@@ -3,6 +3,7 @@ module CssShorthand exposing
     , absFill
     , abs__fill
     , aic
+    , asc
     , ellipsis
     , fixed
     , flex11Auto
@@ -79,6 +80,10 @@ fs0 =
 
 aic =
     Css.alignItems Css.center
+
+
+asc =
+    Css.alignSelf Css.center
 
 
 jcc =
