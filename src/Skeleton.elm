@@ -14,8 +14,7 @@ import StyledEvents as SE
 
 
 view { onKeyDownPD, children } =
-    flexCol
-        [ CS.minHeight100VH ]
+    flexCol [ CS.minHeight100VH ]
         [ SA.id "base-layer"
         , SA.class "container grid-xs"
         , SE.onFocusIn <| Msg.BaseLayerFocusInChanged True
@@ -23,8 +22,7 @@ view { onKeyDownPD, children } =
         , SA.tabindex -1
         , SE.onKeyDownPD onKeyDownPD
         ]
-        [ flexCol
-            []
+        [ flexCol []
             [ SA.class "columns ba b--light-gray" ]
             children
         ]
