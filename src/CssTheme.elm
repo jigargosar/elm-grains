@@ -19,11 +19,11 @@ blackAlpha alpha =
 
 
 space1 =
-    rem 0.5
+    rem 0.4
 
 
 space2 =
-    rem 1
+    rem 0.8
 
 
 white =
