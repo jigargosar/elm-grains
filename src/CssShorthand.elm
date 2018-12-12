@@ -11,6 +11,7 @@ module CssShorthand exposing
     , fs0
     , jcc
     , maxHeight100VH
+    , max_w_full
     , max_w_screen
     , max_w_sm
     , max_w_xs
@@ -60,6 +61,10 @@ full =
 
 w_full =
     Css.width full
+
+
+max_w_full =
+    Css.maxWidth full
 
 
 sm =

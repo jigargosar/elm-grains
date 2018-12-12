@@ -41,18 +41,17 @@ view { grainList } =
 viewFab =
     flexRow
         [ CS.fixed
-        , CS.w_full
-        , CS.max_w_sm
-        , Css.margin Css.auto
         , Css.bottom <| space4
+        , CS.w_sm
+        , CS.max_w_full
         , Css.justifyContent Css.flexEnd
         , Css.pointerEvents Css.none
         ]
         []
         [ CssElements.iconBtnWithStyles
             [ CS.relative
-            , Css.pointerEventsAll
             , Css.right <| space4
+            , Css.pointerEventsAll
             , Css.backgroundColor black80
             , Css.color white
             , Css.borderRadius <| px 9999
