@@ -11,7 +11,7 @@
     "now-build": "npm add create-elm-app && elm-app build && mv build dist",
     "build": "elm-app build",
     "bs": "npm run build && serve build",
-    "deploy": "now -n elm-done && now alias",
+    "deploy": "now -n grains && now alias",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

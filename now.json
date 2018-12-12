@@ -1,0 +1,35 @@
+{
+  "version": 2,
+  "alias": [
+    "grains",
+    "grains.functional-programmer.com"
+  ],
+  "builds": [
+    {"src": "package.json", "use": "@now/static-build"}
+
+  ],
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
+    },
+    {
+      "src": "(.*\\.(ico|json|js))",
+      "dest": "$1"
+    },
+    {
+      "src": "/service-worker.js",
+      "dest": "/service-worker.js",
+      "headers": {"cache-control": "s-maxage=1000"}
+    },
+    {
+      "src": "/manifest.json",
+      "dest": "/manifest.json",
+      "headers": {"cache-control": "s-maxage=1000"}
+    },
+    {
+      "src": "/.*",
+      "dest": "/index.html"
+    }
+  ]
+}
