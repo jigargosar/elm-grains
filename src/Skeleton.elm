@@ -17,9 +17,6 @@ view { onKeyDownPD, children } =
     flexCol
         [ CS.min_h_screen
         , CS.w_full
-        , CS.max_w_xs
-        , CS.relative
-        , Css.margin Css.auto
         , Css.outline Css.none
         ]
         [ SA.id "base-layer"
@@ -28,7 +25,11 @@ view { onKeyDownPD, children } =
         , SA.tabindex -1
         , SE.onKeyDownPD onKeyDownPD
         ]
-        [ flexCol []
+        [ flexCol
+            [ CS.w_xs
+            , CS.max_w_screen
+            , Css.margin Css.auto
+            ]
             [ SA.class "ba b--light-gray" ]
             children
         ]
