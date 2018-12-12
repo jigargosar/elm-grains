@@ -3,7 +3,6 @@ module CssTheme exposing
     , blackAlpha
     , contentWidth
     , space2
-    , space3
     , space4
     , white
     )
@@ -21,10 +20,6 @@ blackAlpha alpha =
 
 space2 =
     px 8
-
-
-space3 =
-    px 12
 
 
 space4 =
