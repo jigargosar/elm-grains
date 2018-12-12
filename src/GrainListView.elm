@@ -69,10 +69,14 @@ grainDisplayTitle =
 viewGrainList list =
     let
         viewTitle title g =
-            flexRow
+            styled div
                 [ CS.p2 space2 zero
                 , CS.pointer
-                , CS.flexGrow1
+                , Css.flexShrink <| num 1
+                , Css.flexGrow <| num 1
+                , Css.overflow Css.hidden
+                , Css.textOverflow Css.ellipsis
+                , Css.whiteSpace Css.noWrap
                 ]
                 [ onClick <| Msg.routeToGrain g ]
                 [ text title ]
@@ -89,7 +93,11 @@ viewGrainList list =
                 title =
                     grainDisplayTitle g
             in
-            flexRowIC []
+            styled div
+                [ Css.displayFlex
+                , Css.flexDirection Css.row
+                , Css.maxWidth <| pct 100
+                ]
                 []
                 [ viewTitle title g
                 , viewDelete g
