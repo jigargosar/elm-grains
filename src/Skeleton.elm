@@ -20,7 +20,6 @@ view { onKeyDownPD, children } =
         , CS.overflowScroll
         ]
         [ SA.id "base-layer"
-        , SA.class "sans-serif"
         , SE.onFocusIn <| Msg.BaseLayerFocusInChanged True
         , SE.onFocusOut <| Msg.BaseLayerFocusInChanged False
         , SA.tabindex -1

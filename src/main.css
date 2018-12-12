@@ -1,18 +1,21 @@
 @import "~tachyons";
+@import "~spectre.css/dist/spectre.css";
+@import "~spectre.css/dist/spectre-exp.css";
+@import "~spectre.css/dist/spectre-icons.css";
 
 body, html {
-  height:100%;
-  width:100%;
-  overflow: auto;
+  /*height:100%;*/
+  /*width:100%;*/
+  /*overflow: auto;*/
   font-size: 18px;
 }
 
 #root, [data-elm-hot]{
-  min-width: 100vw;
-  min-height: 100vh;
-  height: 100%;
-  width: 100%;
-  overflow: scroll;
+  /*min-width: 100vw;*/
+  /*min-height: 100vh;*/
+  /*height: 100%;*/
+  /*width: 100%;*/
+  /*overflow: scroll;*/
 }
 
 * [data-elm-hot] > :last-child {
