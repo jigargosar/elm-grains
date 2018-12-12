@@ -1,8 +1,8 @@
 {
   "version": 2,
   "alias": [
-    "grains",
-    "grains.functional-programmer.com"
+    "elm-grains",
+    "elm-grains.functional-programmer.com"
   ],
   "builds": [
     {"src": "package.json", "use": "@now/static-build"}
