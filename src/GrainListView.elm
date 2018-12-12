@@ -44,13 +44,14 @@ viewFab =
 
         --        , Css.width <| Css.calc CssTheme.contentWidth Css.minus space4
         , Css.width CssTheme.contentWidth
+        , CS.maxWidth100VW
         , Css.bottom <| space4
         , Css.justifyContent Css.flexEnd
         , Css.pointerEvents Css.none
         ]
         []
         [ CssElements.iconBtnWithStyles
-            [ CS.rel
+            [ CS.relative
             , Css.pointerEventsAll
             , Css.right <| space4
             , Css.backgroundColor black80

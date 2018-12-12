@@ -1,7 +1,7 @@
 module CssShorthand exposing
-    ( abs
-    , absFill
+    ( absFill
     , abs__fill
+    , absolute
     , aic
     , asc
     , ellipsis
@@ -19,7 +19,7 @@ module CssShorthand exposing
     , p
     , p2
     , pointer
-    , rel
+    , relative
     , sticky
     , w100
     , wpx
@@ -110,7 +110,7 @@ pointer =
     Css.cursor Css.pointer
 
 
-abs =
+absolute =
     Css.position Css.absolute
 
 
@@ -121,10 +121,10 @@ abs__fill =
 
 
 absFill =
-    Css.batch [ abs, abs__fill ]
+    Css.batch [ Css.position Css.absolute, abs__fill ]
 
 
-rel =
+relative =
     Css.position Css.relative
 
 

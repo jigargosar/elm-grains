@@ -18,6 +18,7 @@ view { onKeyDownPD, children } =
         [ CS.minHeight100VH
         , CS.w100
         , Css.maxWidth <| CssTheme.contentWidth
+        , CS.relative
         , Css.margin Css.auto
         ]
         [ SA.id "base-layer"
