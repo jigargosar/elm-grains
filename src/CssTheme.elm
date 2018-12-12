@@ -2,8 +2,8 @@ module CssTheme exposing
     ( black80
     , blackAlpha
     , contentWidth
-    , space1
     , space2
+    , space4
     , white
     )
 
@@ -18,11 +18,11 @@ blackAlpha alpha =
     Css.rgba 0 0 0 alpha
 
 
-space1 =
+space2 =
     px 8
 
 
-space2 =
+space4 =
     px 16
 
 

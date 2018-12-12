@@ -12,7 +12,7 @@ import CssElevation exposing (elevation)
 import CssIcons exposing (view)
 import CssLayout exposing (flexCol, flexRow, flexRowIC)
 import CssShorthand as CS
-import CssTheme exposing (black80, blackAlpha, space1, space2, white)
+import CssTheme exposing (black80, blackAlpha, space2, space4, white)
 import DecodeX exposing (DecodeResult)
 import Either exposing (Either(..))
 import EventX exposing (onKeyDownPD)
