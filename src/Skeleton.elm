@@ -15,9 +15,9 @@ import StyledEvents as SE
 
 view { onKeyDownPD, children } =
     flexCol
-        [ CS.minHeight100VH
-        , CS.w100
-        , Css.maxWidth <| CssTheme.contentWidth
+        [ CS.min_h_screen
+        , CS.w_full
+        , CS.max_w_xs
         , CS.relative
         , Css.margin Css.auto
         , Css.outline Css.none

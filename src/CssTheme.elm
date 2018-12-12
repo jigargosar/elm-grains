@@ -1,7 +1,6 @@
 module CssTheme exposing
     ( black80
     , blackAlpha
-    , contentWidth
     , space2
     , space4
     , space8
@@ -33,7 +32,3 @@ space8 =
 
 white =
     hex "#fff"
-
-
-contentWidth =
-    px 500

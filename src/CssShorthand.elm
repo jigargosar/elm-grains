@@ -11,22 +11,25 @@ module CssShorthand exposing
     , fs0
     , jcc
     , maxHeight100VH
-    , maxWidth100VW
+    , max_w_screen
+    , max_w_sm
+    , max_w_xs
     , min100V
-    , minHeight100VH
     , minWidth100VW
+    , min_h_screen
     , overflowScroll
     , p
     , p2
     , pointer
     , relative
     , sticky
-    , w100
+    , w_full
+    , w_xs
     , wpx
     )
 
 import BasicsX exposing (callWith)
-import Css exposing (num, pct, px, vh, vw, zero)
+import Css exposing (num, pct, px, rem, vh, vw, zero)
 
 
 flex11Auto =
@@ -50,15 +53,35 @@ overflowScroll =
     Css.overflow Css.scroll
 
 
-w100 =
-    Css.width <| pct 100
+full =
+    pct 100
+
+
+w_full =
+    Css.width full
+
+
+max_w_sm =
+    Css.maxWidth <| rem 30
+
+
+xs =
+    rem 20
+
+
+max_w_xs =
+    Css.maxWidth xs
+
+
+w_xs =
+    Css.width xs
 
 
 min100V =
-    Css.batch [ minWidth100VW, minHeight100VH ]
+    Css.batch [ minWidth100VW, min_h_screen ]
 
 
-maxWidth100VW =
+max_w_screen =
     Css.maxWidth <| vw 100
 
 
@@ -70,7 +93,7 @@ maxHeight100VH =
     Css.maxHeight <| vh 100
 
 
-minHeight100VH =
+min_h_screen =
     Css.minHeight <| vh 100
 
 

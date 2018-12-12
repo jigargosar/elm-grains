@@ -41,10 +41,8 @@ view { grainList } =
 viewFab =
     flexRow
         [ CS.fixed
-
-        --        , Css.width <| Css.calc CssTheme.contentWidth Css.minus space4
-        , Css.width CssTheme.contentWidth
-        , CS.maxWidth100VW
+        , CS.w_xs
+        , CS.max_w_screen
         , Css.bottom <| space4
         , Css.justifyContent Css.flexEnd
         , Css.pointerEvents Css.none
