@@ -4,6 +4,7 @@ module CssTheme exposing
     , contentWidth
     , space2
     , space4
+    , space8
     , white
     )
 
@@ -24,6 +25,10 @@ space2 =
 
 space4 =
     px 16
+
+
+space8 =
+    px 32
 
 
 white =

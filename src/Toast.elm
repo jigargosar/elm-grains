@@ -20,7 +20,7 @@ import CssHtml exposing (viewIf, viewIfLazy)
 import CssIcons exposing (view)
 import CssLayout exposing (flexCol, flexRow, flexRowIC)
 import CssShorthand as CS
-import CssTheme exposing (black80, space2, space4, white)
+import CssTheme exposing (black80, space2, space4, space8, white)
 import DecodeX exposing (DecodeResult)
 import Either exposing (Either(..))
 import EventX exposing (onKeyDownPD)
@@ -82,7 +82,7 @@ view toast =
 viewContent title =
     flexRow
         [ CS.abs
-        , Css.bottom <| px 32
+        , Css.bottom <| space8
         , Css.left space4
         , Css.minWidth <| px 150
         , Css.maxWidth <| pct 80

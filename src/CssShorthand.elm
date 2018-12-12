@@ -14,6 +14,7 @@ module CssShorthand exposing
     , minWidth100VW
     , overflowScroll
     , p
+    , p2
     , pointer
     , rel
     , sticky

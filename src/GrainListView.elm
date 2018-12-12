@@ -70,7 +70,7 @@ viewGrainList list =
     let
         viewTitle title g =
             flexRow
-                [ Css.padding space2
+                [ CS.p2 space2 zero
                 , CS.pointer
                 , CS.flexGrow1
                 ]
