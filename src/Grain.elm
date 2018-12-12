@@ -18,11 +18,13 @@ import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline exposing (custom, required)
 import Json.Encode as E
 import Random exposing (Generator)
+import Revision exposing (Revision)
 
 
 type alias Model =
     { id : GrainId
     , content : String
+    , revision : Revision
     }
 
 
@@ -40,6 +42,7 @@ encoder (Grain model) =
     E.object
         [ ( "id", GrainId.encoder model.id )
         , ( "content", E.string model.content )
+        , ( "revision", Revision.encoder model.revision )
         ]
 
 
@@ -48,6 +51,7 @@ decoder =
     DecodeX.start Model
         |> required "id" GrainId.decoder
         |> required "content" D.string
+        |> required "revision" Revision.decoder
         |> D.map Grain
 
 
