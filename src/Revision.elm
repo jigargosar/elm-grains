@@ -29,7 +29,7 @@ encoder (Revision model) =
 decoder : Decoder Revision
 decoder =
     DecodeX.start Model
-        |> required "revision" D.int
+        |> required "version" D.int
         |> D.map Revision
 
 
