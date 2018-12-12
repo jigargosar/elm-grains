@@ -54,7 +54,7 @@ viewFab =
             , Css.pointerEventsAll
             , Css.backgroundColor black80
             , Css.color white
-            , Css.borderRadius <| px 9999
+            , CS.br_pill
             , Css.boxShadow4 (px 1) (px 1) (px 8) (blackAlpha 0.5)
             , CS.p space2
             ]

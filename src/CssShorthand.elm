@@ -4,6 +4,7 @@ module CssShorthand exposing
     , absolute
     , aic
     , asc
+    , br_pill
     , ellipsis
     , fixed
     , flex11Auto
@@ -65,6 +66,10 @@ w_full =
 
 max_w_full =
     Css.maxWidth full
+
+
+br_pill =
+    Css.borderRadius <| px 9999
 
 
 sm =
