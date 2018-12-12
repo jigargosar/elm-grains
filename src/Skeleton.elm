@@ -20,6 +20,7 @@ view { onKeyDownPD, children } =
         , Css.maxWidth <| CssTheme.contentWidth
         , CS.relative
         , Css.margin Css.auto
+        , Css.outline Css.none
         ]
         [ SA.id "base-layer"
         , SE.onFocusIn <| Msg.BaseLayerFocusInChanged True
