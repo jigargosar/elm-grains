@@ -9,6 +9,7 @@ module CssShorthand exposing
     , jcc
     , maxHeight100VH
     , maxWidth100VW
+    , min100V
     , minHeight100VH
     , minWidth100VW
     , overflowScroll
