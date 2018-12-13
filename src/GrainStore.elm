@@ -85,8 +85,7 @@ type GrainUpdateMsg
 
 
 type Msg
-    = NoOp
-    | CreateNew
+    = CreateNew
     | UpdateGrainId GrainId GrainUpdateMsg
     | DeleteGrainId GrainId
     | Firestore (List GrainChange)
@@ -149,9 +148,6 @@ type alias ReturnF =
 update : Msg -> ReturnF
 update message =
     case message of
-        NoOp ->
-            identity
-
         CreateNew ->
             R3.andThen
                 (\model ->
