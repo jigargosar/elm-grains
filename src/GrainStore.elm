@@ -82,7 +82,6 @@ createNewGrain =
 
 type GrainUpdateMsg
     = SetContent String
-    | FromFireStoreChange GrainChange
 
 
 type Msg
@@ -92,7 +91,6 @@ type Msg
     | UpdateGrainId GrainId GrainUpdateMsg
     | DeleteGrainId GrainId
     | Firestore (List GrainChange)
-    | UpdateAll (List ( GrainId, GrainUpdateMsg ))
 
 
 updateGrain grain =
@@ -183,52 +181,42 @@ update message =
                 )
 
         UpdateGrainId gid msg ->
-            update <| UpdateAll [ ( gid, msg ) ]
+            let
+                updateGrainR3 fn =
+                    R3.map (mapLookup (GrainLookup.update gid fn))
+            in
+            case msg of
+                SetContent title ->
+                    updateGrainR3 (Grain.setContent title)
+                        >> cacheAndPersistR3
 
         DeleteGrainId gid ->
             removeByGidR3 gid
                 >> cacheAndPersistR3
 
         Firestore changes ->
-            List.map (\c -> ( Grain.id c.doc, FromFireStoreChange c )) changes
-                |> UpdateAll
-                |> update
-
-        UpdateAll changes ->
             let
-                updateOne ( gid, msg ) =
-                    let
-                        updateGrainR3 fn =
-                            R3.map (mapLookup (GrainLookup.update gid fn))
-                    in
-                    case msg of
-                        SetContent title ->
-                            updateGrainR3 (Grain.setContent title)
+                updateOne { doc, type_ } =
+                    case type_ of
+                        GrainChange.Added ->
+                            R3.andThen (upsert doc)
 
-                        FromFireStoreChange { doc, type_ } ->
-                            case type_ of
-                                GrainChange.Added ->
-                                    R3.andThen (upsert gid doc)
+                        GrainChange.Modified ->
+                            R3.andThen (upsert doc)
 
-                                GrainChange.Modified ->
-                                    R3.andThen (upsert gid doc)
-
-                                GrainChange.Removed ->
-                                    removeByGidR3 gid
+                        GrainChange.Removed ->
+                            removeByGidR3 (Grain.id doc)
             in
             List.foldr updateOne
                 >> callWith changes
-                >> cacheAndPersistR3
+                >> cache
 
 
-upsert : GrainId -> Grain -> GrainStore -> ReturnF
-upsert gid grain model =
+upsert : Grain -> GrainStore -> ReturnF
+upsert grain model =
     let
         mapper : GrainLookup -> GrainLookup
-        mapper lookup_ =
-            get gid model
-                |> Maybe.unpack (\_ -> GrainLookup.insert grain)
-                    (\_ -> GrainLookup.insert grain)
-                |> callWith lookup_
+        mapper =
+            GrainLookup.insert grain
     in
     R3.map (mapLookup mapper)
