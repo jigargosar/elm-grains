@@ -37,6 +37,7 @@
     ]
   },
   "dependencies": {
+    "firebase": "^5.7.0",
     "history": "^4.7.2",
     "ramda": "^0.25.0",
     "spectre.css": "^0.5.7",
