@@ -182,12 +182,12 @@ update message =
 
         UpdateGrainId gid msg ->
             let
-                updateGrainR3 fn =
-                    R3.map (mapLookup (GrainLookup.update gid fn))
+                updateByGid fn =
+                    mapLookup (GrainLookup.update gid fn)
             in
             case msg of
                 SetContent title ->
-                    updateGrainR3 (Grain.setContent title)
+                    R3.map (updateByGid (Grain.setContent title))
                         >> cacheAndPersistR3
 
         DeleteGrainId gid ->
