@@ -31,6 +31,7 @@ type Msg
     | Firebase Value
     | AuthUser FireUser
     | AuthUserNone
+    | SignIn
 
 
 routeTo route =

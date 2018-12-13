@@ -242,6 +242,9 @@ update message =
         AuthUserNone ->
             logErrorString "UserNotLoggedIn"
 
+        SignIn ->
+            R3.do (Port.signIn ())
+
 
 handleFire2Elm val model =
     D.decodeValue Fire2Elm.decoder val
