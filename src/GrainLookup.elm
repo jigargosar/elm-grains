@@ -5,9 +5,9 @@ module GrainLookup exposing
     , encoder
     , get
     , init
-    , insert
     , remove
     , update
+    , upsert
     )
 
 import Dict exposing (Dict)
@@ -47,7 +47,7 @@ get gid =
     unwrap >> Dict.get (GrainId.toString gid)
 
 
-insert grain =
+upsert grain =
     map <| Dict.insert (Grain.id grain |> GrainId.toString) grain
 
 

@@ -69,7 +69,7 @@ mapLookup fn model =
 
 
 addGrain grain =
-    mapLookup (GrainLookup.insert grain)
+    mapLookup (GrainLookup.upsert grain)
 
 
 addGrainWithNewSeed grain seed =
@@ -217,6 +217,6 @@ upsert grain model =
     let
         mapper : GrainLookup -> GrainLookup
         mapper =
-            GrainLookup.insert grain
+            GrainLookup.upsert grain
     in
     R3.map (mapLookup mapper)
