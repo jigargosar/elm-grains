@@ -175,15 +175,9 @@ update message =
                 >> cacheAndPersistR3
 
         Firestore changes ->
-            List.foldr
-                (\c ->
-                    let
-                        gid =
-                            Grain.id c.doc
-                    in
-                    update <| UpdateGrainId gid <| FromFireStoreChange c
-                )
-                >> callWith changes
+            List.map (\c -> ( Grain.id c.doc, FromFireStoreChange c )) changes
+                |> UpdateAll
+                |> update
 
         UpdateAll changes ->
             let
@@ -194,7 +188,6 @@ update message =
                     let
                         updateGrainR3 fn =
                             R3.map (mapList (List.updateIf (Grain.idEq gid) fn))
-                                >> cacheAndPersistR3
                     in
                     case msg of
                         SetContent title ->
@@ -210,12 +203,14 @@ update message =
                                     R3.andThen (upsert gid doc)
 
                                 GrainChange.Modified ->
-                                    identity
+                                    R3.andThen (upsert gid doc)
 
                                 GrainChange.Removed ->
                                     identity
             in
-            List.foldr updateOne >> callWith changes
+            List.foldr updateOne
+                >> callWith changes
+                >> cacheAndPersistR3
 
 
 upsert gid grain model =
