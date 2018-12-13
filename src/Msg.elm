@@ -27,6 +27,7 @@ type Msg
     | GrainStoreSubMsg GrainStore.Msg
     | ToastDismiss
     | GrainContentChanged Grain String
+    | FirestoreGrainChanges (List GrainChange)
     | RouteTo Route
     | UrlChanged String
     | Firebase Value

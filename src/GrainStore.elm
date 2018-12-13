@@ -10,8 +10,10 @@ module GrainStore exposing
     , firestoreChanges
     , generator
     , get
+    , remove
     , setGrainTitle
     , update
+    , upsertGrain
     )
 
 import BasicsX exposing (callWith, unwrapMaybe)
@@ -126,6 +128,10 @@ decoder seed =
         |> hardcoded seed
 
 
+remove gid =
+    mapLookup <| GrainLookup.remove gid
+
+
 removeByGidR3 gid =
     R3.map (mapLookup <| GrainLookup.remove gid)
 
@@ -167,3 +173,13 @@ upsert grain model =
             GrainLookup.upsert grain
     in
     R3.map (mapLookup mapper)
+
+
+upsertGrain : Grain -> GrainStore -> GrainStore
+upsertGrain grain =
+    let
+        mapper : GrainLookup -> GrainLookup
+        mapper =
+            GrainLookup.upsert grain
+    in
+    mapLookup mapper

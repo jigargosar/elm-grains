@@ -19,6 +19,7 @@ import Either exposing (Either(..))
 import EventX exposing (onKeyDownPD)
 import Fire2Elm
 import Grain exposing (Grain)
+import GrainChange
 import GrainId exposing (GrainId)
 import GrainListView exposing (GrainListView)
 import GrainStore exposing (GrainStore)
@@ -125,6 +126,10 @@ getGrain gid =
     .grainStore >> GrainStore.get gid
 
 
+mapGrainStore fn model =
+    { model | grainStore = fn model.grainStore }
+
+
 
 ---- UPDATE ----
 
@@ -227,6 +232,29 @@ update message =
                             (.grainStore
                                 >> GrainStore.encoder
                                 >> cacheAndPersistEncodedGrainStore
+                            )
+                )
+
+        FirestoreGrainChanges changes ->
+            R3.andThen
+                (\model ->
+                    let
+                        updateOne { doc, type_ } =
+                            case type_ of
+                                GrainChange.Added ->
+                                    GrainStore.upsertGrain doc
+
+                                GrainChange.Modified ->
+                                    GrainStore.upsertGrain doc
+
+                                GrainChange.Removed ->
+                                    GrainStore.remove (Grain.id doc)
+                    in
+                    R3.map (setGrainStore (List.foldr updateOne model.grainStore changes))
+                        >> R3.effect
+                            (.grainStore
+                                >> GrainStore.encoder
+                                >> Port.cacheGrains
                             )
                 )
 
