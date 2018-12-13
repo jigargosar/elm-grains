@@ -241,7 +241,7 @@ update message =
 
 handleFire2Elm val model =
     D.decodeValue Fire2Elm.decoder val
-        |> Result.mapError D.errorToString
+        |> Result.mapError (D.errorToString >> Debug.log "es")
         |> Result.unpack logErrorString update
 
 

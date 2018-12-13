@@ -14,10 +14,10 @@ decoder =
 decoderWithMsg msg =
     case msg of
         "UserLoggedIn" ->
-            D.succeed Msg.NoOp
+            D.succeed Msg.UserLoggedIn
 
         "UserNotLoggedIn" ->
-            D.succeed Msg.NoOp
+            D.succeed Msg.UserNotLoggedIn
 
         _ ->
             D.fail "Invalid fire2Elm msg"
