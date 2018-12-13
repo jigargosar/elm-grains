@@ -2,54 +2,14 @@ import './main.css'
 // noinspection ES6CheckImport
 import { Elm } from './Main.elm'
 import registerServiceWorker from './registerServiceWorker'
-import { curry, forEachObjIndexed, isNil, partial, pathOr, tap } from 'ramda'
+import { partial, tap } from 'ramda'
 import createHistory from 'history/createBrowserHistory'
+import { sendToElmAppApp, setElmAppPortSubscriptions } from './elm-app'
+import { jsonCacheGetOr, jsonCacheSet } from './json-cache'
 
 const history = createHistory()
 
 export const tapLog = m => tap(partial(console.log, [m]))
-
-const sendTo = curry(function sendTo(app, port, data) {
-  if (!pathOr(null, ['ports', port, 'send'])(app)) {
-    console.error('sendTo port not found', port, 'data ignored', data)
-    return
-  }
-  app.ports[port].send(data)
-})
-
-function subscribe(options, app) {
-  if (!app || !app.ports) {
-    console.error('no ports found', app)
-    return
-  }
-
-  forEachObjIndexed((fn, sub) => {
-    if (!pathOr(null, ['ports', sub, 'subscribe'])(app)) {
-      console.error('sub port not found', sub)
-      return
-    }
-    // noinspection JSIgnoredPromiseFromCall, JSCheckFunctionSignatures
-    app.ports[sub].subscribe(data => fn(data, sendTo(app)))
-  })(options)
-}
-
-function storageGetOr(defaultValue, key) {
-  try {
-    let item = localStorage.getItem(key)
-    if (isNil(item)) return defaultValue
-    return JSON.parse(item)
-  } catch (e) {
-    return defaultValue
-  }
-}
-
-function storageSet(key, value) {
-  if (isNil(value) || isNil(key)) {
-    console.warn('Invalid Args', 'storageSet', key, value)
-    return
-  }
-  localStorage.setItem(key, JSON.stringify(value))
-}
 
 // noinspection JSUnresolvedVariable
 const app = Elm.Main.init({
@@ -57,7 +17,7 @@ const app = Elm.Main.init({
   flags: {
     now: Date.now(),
     windowSize: { width: window.innerWidth, height: window.innerHeight },
-    grains: storageGetOr({ list: [] }, 'grains'),
+    grains: jsonCacheGetOr({ list: [] }, 'grains'),
     url: document.URL,
   },
 })
@@ -65,10 +25,10 @@ const app = Elm.Main.init({
 // noinspection JSUnresolvedFunction
 history.listen((location, action) => {
   console.debug(action, location.pathname, location.state)
-  sendTo(app, 'urlChanged', document.URL)
+  sendToElmAppApp(app, 'urlChanged', document.URL)
 })
 
-subscribe(
+setElmAppPortSubscriptions(
   {
     pushUrl: pathname => {
       // Use push, replace, and go to navigate around.
@@ -81,7 +41,7 @@ subscribe(
       console.error(data)
     },
     cacheGrains: todos => {
-      storageSet('grains', todos)
+      jsonCacheSet('grains', todos)
     },
   },
   app,

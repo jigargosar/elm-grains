@@ -9,3 +9,9 @@ const config = {
   messagingSenderId: '476064436883',
 }
 firebase.initializeApp(config)
+const auth = firebase.auth()
+const firestore = firebase.firestore()
+
+function initElmApp(app) {}
+
+export default initElmApp
