@@ -284,7 +284,7 @@ viewAppBar authState =
 
         viewAuthState =
             case authState of
-                AuthState.Unknown ->
+                AuthState.Loading ->
                     button [ class "btn loading" ] [ text "SignIn" ]
 
                 AuthState.Authenticated user ->

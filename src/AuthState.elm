@@ -4,10 +4,10 @@ import FireUser exposing (FireUser)
 
 
 type AuthState
-    = Unknown
+    = Loading
     | Authenticated FireUser
     | NoUser
 
 
 init =
-    Unknown
+    Loading
