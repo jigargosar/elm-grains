@@ -16,6 +16,7 @@ import CssTheme exposing (black80, blackAlpha, space2, space4, white)
 import DecodeX exposing (DecodeResult)
 import Either exposing (Either(..))
 import EventX exposing (onKeyDownPD)
+import Fire2Elm
 import Grain exposing (Grain)
 import GrainId exposing (GrainId)
 import GrainListView exposing (GrainListView)
@@ -161,6 +162,7 @@ subscriptions model =
     Sub.batch
         [ Browser.Events.onKeyDown <| D.succeed BrowserAnyKeyDown
         , Port.urlChanged UrlChanged
+        , Port.fire2Elm Firebase
         ]
 
 
@@ -174,6 +176,7 @@ grainStoreSubConfig =
     }
 
 
+logErrorString : String -> Return3F Msg Model ()
 logErrorString err =
     R3.do (Port.error err)
         >> mapToastR3 (Toast.show err)
@@ -225,6 +228,21 @@ update message =
 
         UrlChanged url ->
             R3.map (setRoute <| Route.fromString url)
+
+        Firebase val ->
+            R3.andThen (handleFire2Elm val)
+
+        UserLoggedIn ->
+            logErrorString "UserLoggedIn"
+
+        UserNotLoggedIn ->
+            logErrorString "UserNotLoggedIn"
+
+
+handleFire2Elm val model =
+    D.decodeValue Fire2Elm.decoder val
+        |> Result.mapError D.errorToString
+        |> Result.unpack logErrorString update
 
 
 keyBindings model =

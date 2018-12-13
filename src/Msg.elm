@@ -27,6 +27,9 @@ type Msg
     | ToastDismiss
     | RouteTo Route
     | UrlChanged String
+    | Firebase Value
+    | UserLoggedIn
+    | UserNotLoggedIn
 
 
 routeTo route =

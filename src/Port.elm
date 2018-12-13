@@ -1,6 +1,7 @@
 port module Port exposing
     ( cacheGrains
     , error
+    , fire2Elm
     , pushUrl
     , urlChanged
     )
@@ -18,3 +19,6 @@ port pushUrl : String -> Cmd msg
 
 
 port urlChanged : (String -> msg) -> Sub msg
+
+
+port fire2Elm : (Value -> msg) -> Sub msg
