@@ -13,6 +13,7 @@ module GrainStore exposing
     , update
     )
 
+import BasicsX exposing (callWith)
 import DecodeX exposing (Encoder)
 import Grain exposing (Grain)
 import GrainChange exposing (GrainChange)
@@ -73,6 +74,7 @@ createNewGrain =
 
 type GrainUpdateMsg
     = SetContent String
+    | FromFireStoreChange GrainChange
 
 
 type Msg
@@ -81,7 +83,7 @@ type Msg
     | Load Value
     | UpdateGrainId GrainId GrainUpdateMsg
     | DeleteGrainId GrainId
-    | FireChanges (List GrainChange)
+    | Firestore (List GrainChange)
 
 
 updateGrain grain =
@@ -97,7 +99,7 @@ deleteGrain grain =
 
 
 firestoreChanges =
-    FireChanges
+    Firestore
 
 
 load value =
@@ -173,13 +175,28 @@ update message =
                 SetContent title ->
                     updateGrainR3 (Grain.setContent title)
 
+                FromFireStoreChange { doc, type_ } ->
+                    let
+                        _ =
+                            Debug.log "doc,type_" ( type_, doc )
+                    in
+                    identity
+
         DeleteGrainId gid ->
             R3.map (mapList (List.filterNot (Grain.idEq gid)))
                 >> cacheAndPersistR3
 
-        FireChanges changes ->
+        Firestore changes ->
             let
                 _ =
                     Debug.log "changes" changes
             in
-            identity
+            List.foldr
+                (\c ->
+                    let
+                        gid =
+                            Grain.id c.doc
+                    in
+                    update <| UpdateGrainId gid <| FromFireStoreChange c
+                )
+                >> callWith changes
