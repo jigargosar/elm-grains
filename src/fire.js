@@ -50,7 +50,13 @@ function getFireSubscriptions(app) {
       send({ msg: 'UserNotLoggedIn', payload: {} })
     }
   })
-  return {}
+  return {
+    signIn: async () => {
+      const gp = new firebase.auth.GoogleAuthProvider()
+      gp.setCustomParameters({ prompt: 'select_account' })
+      await auth.signInWithPopup(gp)
+    },
+  }
 }
 
 export default getFireSubscriptions
