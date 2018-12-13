@@ -13,7 +13,7 @@ module GrainStore exposing
     , update
     )
 
-import BasicsX exposing (callWith)
+import BasicsX exposing (callWith, unwrapMaybe)
 import DecodeX exposing (Encoder)
 import Grain exposing (Grain)
 import GrainChange exposing (GrainChange)
@@ -48,6 +48,7 @@ allAsList =
     .list
 
 
+get : GrainId -> GrainStore -> Maybe Grain
 get gid =
     .list >> List.find (Grain.idEq gid)
 
@@ -204,6 +205,27 @@ update message =
                                 _ =
                                     Debug.log "doc,type_" ( type_, doc )
                             in
-                            identity
+                            case type_ of
+                                GrainChange.Added ->
+                                    R3.andThen (upsert gid doc)
+
+                                GrainChange.Modified ->
+                                    identity
+
+                                GrainChange.Removed ->
+                                    identity
             in
             List.foldr updateOne >> callWith changes
+
+
+upsert gid grain model =
+    let
+        replaceByGid =
+            List.setIf (Grain.idEq gid)
+
+        mapper list_ =
+            get gid model
+                |> unwrapMaybe ((::) grain) replaceByGid
+                |> callWith list_
+    in
+    R3.map (mapList mapper)
