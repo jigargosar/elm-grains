@@ -264,10 +264,21 @@ view model =
     Skeleton.view
         { onKeyDownPD = keyBindings model
         , children =
-            viewRouteChildren model
+            [ viewAppBar ]
+                ++ viewRouteChildren model
                 ++ [ viewToast model.toast
                    ]
         }
+
+
+viewAppBar =
+    let
+        viewTitle =
+            styled div [ CS.p space2 ] [] [ text "Grains" ]
+    in
+    flexRow [ CS.sticky, Css.top <| px 0 ]
+        [ class "white bg-black-80" ]
+        [ viewTitle ]
 
 
 viewRouteChildren model =

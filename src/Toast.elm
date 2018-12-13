@@ -81,9 +81,8 @@ view toast =
 
 viewContent title =
     flexRow
-        [ CS.absolute
-        , Css.bottom <| space8
-        , Css.left space4
+        [ CS.sticky
+        , Css.bottom <| space4
         , Css.minWidth <| px 150
         , Css.maxWidth <| pct 80
         , Css.backgroundColor black80
