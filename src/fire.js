@@ -12,6 +12,8 @@ firebase.initializeApp(config)
 const auth = firebase.auth()
 const firestore = firebase.firestore()
 
-function initElmApp(app) {}
+function getSubscriptions(app) {
+  return {}
+}
 
-export default initElmApp
+export default getSubscriptions
