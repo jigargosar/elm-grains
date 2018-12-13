@@ -26,7 +26,6 @@ type Msg
     | LoadGrainStore Value
     | NewGrain
     | GrainStoreSubMsg GrainStore.Msg
-    | GrainStoreReply GrainStore.Reply
     | ToastDismiss
     | RouteTo Route
     | UrlChanged String

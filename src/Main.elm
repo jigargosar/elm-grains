@@ -178,7 +178,7 @@ grainStoreSubConfig =
     , get = .grainStore
     , set = setGrainStore
     , toMsg = GrainStoreSubMsg
-    , replyToMsg = GrainStoreReply
+    , replyToMsg = \_ -> NoOp
     , update = update
     }
 
@@ -258,14 +258,6 @@ update message =
 
         GrainStoreSubMsg msg ->
             R3.sub msg grainStoreSubConfig
-
-        GrainStoreReply reply ->
-            case reply of
-                GrainStore.NoReply ->
-                    identity
-
-                GrainStore.NewGrainAddedReply grain ->
-                    update (Msg.routeToGrain grain)
 
         ToastDismiss ->
             mapToastR3 Toast.dismiss

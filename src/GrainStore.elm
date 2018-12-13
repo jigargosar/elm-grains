@@ -1,7 +1,6 @@
 module GrainStore exposing
     ( GrainStore
     , Msg
-    , Reply(..)
     , addGrainWithNewSeed
     , allAsList
     , cacheAndPersistR3
@@ -104,11 +103,6 @@ firestoreChanges =
     Firestore
 
 
-type Reply
-    = NoReply
-    | NewGrainAddedReply Grain
-
-
 cache =
     R3.effect (encoder >> Port.cacheGrains)
 
@@ -139,7 +133,7 @@ removeByGidR3 gid =
 
 
 type alias ReturnF =
-    Return3F Msg GrainStore Reply
+    Return3F Msg GrainStore ()
 
 
 update : Msg -> ReturnF
