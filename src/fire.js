@@ -44,7 +44,7 @@ function getFireSubscriptions(app) {
     if (user) {
       send({
         msg: 'UserLoggedIn',
-        payload: { user: R.pick('displayName', 'uid', 'email')(user) },
+        payload: { user: R.pick(['displayName', 'uid', 'email'])(user) },
       })
     } else {
       send({ msg: 'UserNotLoggedIn', payload: {} })

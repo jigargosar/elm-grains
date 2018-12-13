@@ -6,7 +6,7 @@ import Browser.Dom
 import Browser.Events
 import BrowserX exposing (WindowSize)
 import Color
-import Css exposing (em, num, pct, px, rgb)
+import Css exposing (em, num, pct, px, rgb, zero)
 import CssElements exposing (..)
 import CssElevation exposing (elevation)
 import CssIcons exposing (view)
@@ -274,11 +274,20 @@ view model =
 viewAppBar =
     let
         viewTitle =
-            styled div [ CS.p space2 ] [] [ text "Grains" ]
+            styled div [ CS.p2 space2 zero, CS.flex11Auto ] [] [ text "Grains" ]
+
+        viewAuthState =
+            button [ class "btn", onClick SignIn ] [ text "SignIn" ]
     in
-    flexRow [ CS.sticky, Css.top <| px 0 ]
-        [ class "white bg-black-80" ]
-        [ viewTitle ]
+    flexRowIC
+        [ CS.sticky
+        , Css.top <| px 0
+        , CS.p2 zero space2
+        ]
+        [ class "bg-dark" ]
+        [ viewTitle
+        , viewAuthState
+        ]
 
 
 viewRouteChildren model =
