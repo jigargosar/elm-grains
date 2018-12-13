@@ -7,7 +7,6 @@ module GrainStore exposing
     , decoder
     , deleteGrain
     , encoder
-    , firestoreChanges
     , generator
     , get
     , remove
@@ -81,7 +80,6 @@ addGrainWithNewSeed grain seed =
 
 type Msg
     = DeleteGrainId GrainId
-    | Firestore (List GrainChange)
 
 
 setGrainTitle grain title =
@@ -97,10 +95,6 @@ setGrainTitle grain title =
 
 deleteGrain grain =
     DeleteGrainId (Grain.id grain)
-
-
-firestoreChanges =
-    Firestore
 
 
 cache =
@@ -146,33 +140,6 @@ update message =
         DeleteGrainId gid ->
             removeByGidR3 gid
                 >> cacheAndPersistR3
-
-        Firestore changes ->
-            let
-                updateOne { doc, type_ } =
-                    case type_ of
-                        GrainChange.Added ->
-                            R3.andThen (upsert doc)
-
-                        GrainChange.Modified ->
-                            R3.andThen (upsert doc)
-
-                        GrainChange.Removed ->
-                            removeByGidR3 (Grain.id doc)
-            in
-            List.foldr updateOne
-                >> callWith changes
-                >> cache
-
-
-upsert : Grain -> GrainStore -> ReturnF
-upsert grain model =
-    let
-        mapper : GrainLookup -> GrainLookup
-        mapper =
-            GrainLookup.upsert grain
-    in
-    R3.map (mapLookup mapper)
 
 
 upsertGrain : Grain -> GrainStore -> GrainStore

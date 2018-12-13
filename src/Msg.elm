@@ -1,7 +1,6 @@
 module Msg exposing
     ( Msg(..)
     , deleteGrain
-    , grainFirestoreChanges
     , routeToGrain
     )
 
@@ -51,7 +50,3 @@ routeToGrainId gid =
 
 deleteGrain grain =
     GrainStoreSubMsg (GrainStore.deleteGrain grain)
-
-
-grainFirestoreChanges =
-    GrainStoreSubMsg << GrainStore.firestoreChanges
