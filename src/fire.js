@@ -74,8 +74,11 @@ function getFireSubscriptions(app) {
     persistGrains: async ({ list }) => {
       console.log(`fire: persistGrains started`, list)
       const gcRef = createCRef('grains')
-      const pList = list.map(g => gcRef.doc(g.id).set(g))
-      await Promise.all(pList)
+      const batch = firestore.batch()
+
+      list.map(g => batch.set(gcRef.doc(g.id), g))
+
+      await batch.commit()
       console.log(`fire: persistGrains completed`)
     },
   }
