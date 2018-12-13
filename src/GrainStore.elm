@@ -1,6 +1,5 @@
 module GrainStore exposing
     ( GrainStore
-    , GrainUpdateMsg(..)
     , Msg
     , addGrainWithNewSeed
     , allAsList
@@ -76,10 +75,6 @@ addGrain grain =
 
 addGrainWithNewSeed grain seed =
     addGrain grain >> setSeed seed
-
-
-type GrainUpdateMsg
-    = SetContent String
 
 
 type Msg
