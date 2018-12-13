@@ -45,11 +45,20 @@ const createCRef = cName =>
 
 function getFireSubscriptions(app) {
   const send = sendToElmApp(app, 'fire2Elm')
+  let grainsListener = R.identity
   auth.onAuthStateChanged(function(user) {
     if (user) {
       send({
         msg: 'UserLoggedIn',
         payload: { user: R.pick(['displayName', 'uid', 'email'])(user) },
+      })
+      grainsListener()
+      grainsListener = createCRef('grains').onSnapshot(function(qs) {
+        const changes = qs
+          .docChanges()
+          .map(({ type, doc }) => ({ type, doc: doc.data() }))
+        console.log('Change Snapshot Received', changes)
+        send({ msg: 'GrainChanges', payload: { changes } })
       })
     } else {
       send({ msg: 'UserNotLoggedIn', payload: {} })
@@ -63,11 +72,11 @@ function getFireSubscriptions(app) {
     },
     signOut: () => auth.signOut(),
     persistGrains: async ({ list }) => {
-      console.log(`list`, list)
+      console.log(`persistGrains called`, list)
       const gcRef = createCRef('grains')
       const pList = list.map(g => gcRef.doc(g.id).set(g))
-      const rList = await Promise.all(pList)
-      console.log(`rList`, rList)
+      await Promise.all(pList)
+      console.log(`persistGrains completed`)
     },
   }
 }

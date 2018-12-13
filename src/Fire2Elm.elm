@@ -2,8 +2,10 @@ module Fire2Elm exposing (decoder)
 
 import DecodeX
 import FireUser
+import Grain exposing (Grain)
+import GrainChange exposing (GrainChange)
 import Json.Decode as D exposing (Decoder)
-import Json.Decode.Pipeline exposing (requiredAt)
+import Json.Decode.Pipeline exposing (required, requiredAt)
 import Json.Encode as E
 import Msg exposing (Msg)
 
@@ -22,6 +24,10 @@ decoderWithMsg msg =
 
         "UserNotLoggedIn" ->
             D.succeed Msg.AuthUserNone
+
+        "GrainChanges" ->
+            DecodeX.start Msg.GrainChanges
+                |> requiredAt [ "payload", "changes" ] GrainChange.listDecoder
 
         _ ->
             D.fail "Invalid fire2Elm msg"

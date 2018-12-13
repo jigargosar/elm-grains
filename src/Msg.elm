@@ -9,6 +9,7 @@ module Msg exposing
 import Browser.Dom
 import FireUser exposing (FireUser)
 import Grain exposing (Grain)
+import GrainChange exposing (GrainChange)
 import GrainId exposing (GrainId)
 import GrainStore
 import Json.Encode exposing (Value)
@@ -33,6 +34,7 @@ type Msg
     | AuthUserNone
     | SignIn
     | SignOut
+    | GrainChanges (List GrainChange)
 
 
 routeTo route =
