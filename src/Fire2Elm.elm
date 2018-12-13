@@ -26,7 +26,7 @@ decoderWithMsg msg =
             D.succeed Msg.AuthUserNone
 
         "GrainChanges" ->
-            DecodeX.start Msg.GrainChanges
+            DecodeX.start Msg.grainFirestoreChanges
                 |> requiredAt [ "payload", "changes" ] GrainChange.listDecoder
 
         _ ->

@@ -211,13 +211,6 @@ update message =
         BaseLayerFocusInChanged hasFocusIn ->
             R3.map (\model -> { model | hasFocusIn = hasFocusIn })
 
-        GrainChanges list ->
-            let
-                _ =
-                    Debug.log "list" list
-            in
-            identity
-
         LoadGrainStore val ->
             R3.dispatch grainStoreSubConfig (GrainStore.load val)
 

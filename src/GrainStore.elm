@@ -5,6 +5,7 @@ module GrainStore exposing
     , allAsList
     , createNewGrain
     , deleteGrain
+    , firestoreChanges
     , generator
     , get
     , load
@@ -14,6 +15,7 @@ module GrainStore exposing
 
 import DecodeX exposing (Encoder)
 import Grain exposing (Grain)
+import GrainChange exposing (GrainChange)
 import GrainId exposing (GrainId)
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline exposing (hardcoded, required)
@@ -79,6 +81,7 @@ type Msg
     | Load Value
     | UpdateGrainId GrainId GrainUpdateMsg
     | DeleteGrainId GrainId
+    | FireChanges (List GrainChange)
 
 
 updateGrain grain =
@@ -91,6 +94,10 @@ setContent grain title =
 
 deleteGrain grain =
     DeleteGrainId (Grain.id grain)
+
+
+firestoreChanges =
+    FireChanges
 
 
 load value =
@@ -169,3 +176,10 @@ update message =
         DeleteGrainId gid ->
             R3.map (mapList (List.filterNot (Grain.idEq gid)))
                 >> cacheAndPersistR3
+
+        FireChanges changes ->
+            let
+                _ =
+                    Debug.log "changes" changes
+            in
+            identity

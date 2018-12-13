@@ -3,6 +3,7 @@ module Msg exposing
     , addNewGrainClicked
     , deleteGrain
     , grainContentChanged
+    , grainFirestoreChanges
     , routeToGrain
     )
 
@@ -34,7 +35,6 @@ type Msg
     | AuthUserNone
     | SignIn
     | SignOut
-    | GrainChanges (List GrainChange)
 
 
 routeTo route =
@@ -59,3 +59,7 @@ grainContentChanged grain content =
 
 addNewGrainClicked =
     GrainStoreSubMsg GrainStore.createNewGrain
+
+
+grainFirestoreChanges =
+    GrainStoreSubMsg << GrainStore.firestoreChanges
