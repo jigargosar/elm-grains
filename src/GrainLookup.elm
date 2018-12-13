@@ -1,65 +1,68 @@
-module GrainLookup exposing (GrainLookup, asList, decoder, encoder, get, init, insert, remove, replace, update)
+module GrainLookup exposing
+    ( GrainLookup
+    , asList
+    , decoder
+    , encoder
+    , get
+    , init
+    , insert
+    , remove
+    , update
+    )
 
 import Dict exposing (Dict)
+import Dict.Extra as Dict
 import Grain exposing (Grain)
+import GrainId
 import Json.Decode as D
 import Json.Encode as E
 import List.Extra as List
 
 
-
---type alias Model =
---    { dict : Dict String Grain
---    }
---type GrainLookup
---    = GrainLookup Model
---unwrap (GrainLookup model) =
---    model
---
---
---map fn =
---    unwrap >> fn >> GrainLookup
---
---
---init =
---    Dict.empty
+type alias Model =
+    Dict String Grain
 
 
-type alias GrainLookup =
-    List Grain
+type GrainLookup
+    = GrainLookup Model
+
+
+unwrap (GrainLookup model) =
+    model
+
+
+map fn =
+    unwrap >> fn >> GrainLookup
 
 
 init =
-    []
+    Dict.empty |> GrainLookup
 
 
 asList =
-    identity
+    unwrap >> Dict.values
 
 
 get gid =
-    List.find (Grain.idEq gid)
+    unwrap >> Dict.get (GrainId.toString gid)
 
 
 insert grain =
-    (::) grain
+    map <| Dict.insert (Grain.id grain |> GrainId.toString) grain
 
 
 encoder =
-    E.list Grain.encoder
+    unwrap >> E.dict identity Grain.encoder
 
 
 decoder =
-    D.list Grain.decoder
+    D.dict Grain.decoder
+        |> D.map GrainLookup
 
 
 remove gid =
-    List.filterNot (Grain.idEq gid)
+    map <| Dict.remove (GrainId.toString gid)
 
 
 update gid fn =
-    List.updateIf (Grain.idEq gid) fn
-
-
-replace gid grain =
-    List.setIf (Grain.idEq gid) grain
+    map <| Dict.update (GrainId.toString gid) (Maybe.map fn)

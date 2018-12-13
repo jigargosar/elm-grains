@@ -228,7 +228,7 @@ upsert gid grain model =
         mapper lookup_ =
             get gid model
                 |> Maybe.unpack (\_ -> GrainLookup.insert grain)
-                    (\_ -> GrainLookup.replace gid grain)
+                    (\_ -> GrainLookup.insert grain)
                 |> callWith lookup_
     in
     R3.map (mapLookup mapper)
