@@ -212,7 +212,19 @@ update message =
             R3.map (\model -> { model | hasFocusIn = hasFocusIn })
 
         LoadGrainStore val ->
-            R3.dispatch grainStoreSubConfig (GrainStore.load val)
+            R3.andThen
+                (\model ->
+                    let
+                        r2 : GrainStore -> ( GrainStore, Cmd msg )
+                        r2 gs =
+                            DecodeX.decode gs (GrainStore.decoder gs.seed) val
+
+                        ( grainStore, cmd ) =
+                            r2 model.grainStore
+                    in
+                    R3.map (setGrainStore grainStore)
+                        >> R3.do cmd
+                )
 
         GrainStoreSubMsg msg ->
             R3.sub msg grainStoreSubConfig

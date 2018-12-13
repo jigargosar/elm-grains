@@ -4,11 +4,11 @@ module GrainStore exposing
     , Reply(..)
     , allAsList
     , createNewGrain
+    , decoder
     , deleteGrain
     , firestoreChanges
     , generator
     , get
-    , load
     , setContent
     , update
     )
@@ -87,7 +87,6 @@ type GrainUpdateMsg
 type Msg
     = NoOp
     | CreateNew
-    | Load Value
     | UpdateGrainId GrainId GrainUpdateMsg
     | DeleteGrainId GrainId
     | Firestore (List GrainChange)
@@ -107,10 +106,6 @@ deleteGrain grain =
 
 firestoreChanges =
     Firestore
-
-
-load value =
-    Load value
 
 
 type Reply
@@ -156,17 +151,6 @@ update message =
     case message of
         NoOp ->
             identity
-
-        Load val ->
-            R3.andThen
-                (\model ->
-                    let
-                        r2 : ( GrainStore, Cmd Msg )
-                        r2 =
-                            DecodeX.decode model (decoder model.seed) val
-                    in
-                    R3.mergeR2 r2
-                )
 
         CreateNew ->
             R3.andThen
