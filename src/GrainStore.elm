@@ -181,9 +181,6 @@ update message =
 
         UpdateAll changes ->
             let
-                _ =
-                    Debug.log "changes" changes
-
                 updateOne ( gid, msg ) =
                     let
                         updateGrainR3 fn =
@@ -194,10 +191,6 @@ update message =
                             updateGrainR3 (Grain.setContent title)
 
                         FromFireStoreChange { doc, type_ } ->
-                            let
-                                _ =
-                                    Debug.log "doc,type_" ( type_, doc )
-                            in
                             case type_ of
                                 GrainChange.Added ->
                                     R3.andThen (upsert gid doc)
