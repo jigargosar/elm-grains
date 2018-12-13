@@ -1,5 +1,6 @@
 module GrainStore exposing
     ( GrainStore
+    , GrainUpdateMsg(..)
     , Msg
     , addGrainWithNewSeed
     , allAsList
@@ -10,7 +11,7 @@ module GrainStore exposing
     , firestoreChanges
     , generator
     , get
-    , setContent
+    , setGrainTitle
     , update
     )
 
@@ -82,17 +83,19 @@ type GrainUpdateMsg
 
 
 type Msg
-    = UpdateGrainId GrainId GrainUpdateMsg
-    | DeleteGrainId GrainId
+    = DeleteGrainId GrainId
     | Firestore (List GrainChange)
 
 
-updateGrain grain =
-    UpdateGrainId (Grain.id grain)
+setGrainTitle grain title =
+    let
+        gid =
+            Grain.id grain
 
-
-setContent grain title =
-    updateGrain grain <| SetContent title
+        updateByGid fn =
+            mapLookup (GrainLookup.update gid fn)
+    in
+    updateByGid (Grain.setContent title)
 
 
 deleteGrain grain =
@@ -139,16 +142,6 @@ type alias ReturnF =
 update : Msg -> ReturnF
 update message =
     case message of
-        UpdateGrainId gid msg ->
-            let
-                updateByGid fn =
-                    mapLookup (GrainLookup.update gid fn)
-            in
-            case msg of
-                SetContent title ->
-                    R3.map (updateByGid (Grain.setContent title))
-                        >> cacheAndPersistR3
-
         DeleteGrainId gid ->
             removeByGidR3 gid
                 >> cacheAndPersistR3

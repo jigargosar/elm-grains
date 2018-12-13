@@ -40,6 +40,6 @@ viewGrain grain =
         , placeholder "Start Typing..."
         , value <| Grain.content grain
         , autofocus True
-        , onInput <| Msg.grainContentChanged grain
+        , onInput <| Msg.GrainContentChanged grain
         ]
         []

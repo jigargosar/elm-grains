@@ -1,7 +1,6 @@
 module Msg exposing
     ( Msg(..)
     , deleteGrain
-    , grainContentChanged
     , grainFirestoreChanges
     , routeToGrain
     )
@@ -27,6 +26,7 @@ type Msg
     | NewGrain
     | GrainStoreSubMsg GrainStore.Msg
     | ToastDismiss
+    | GrainContentChanged Grain String
     | RouteTo Route
     | UrlChanged String
     | Firebase Value
@@ -50,10 +50,6 @@ routeToGrainId gid =
 
 deleteGrain grain =
     GrainStoreSubMsg (GrainStore.deleteGrain grain)
-
-
-grainContentChanged grain content =
-    GrainStoreSubMsg (GrainStore.setContent grain content)
 
 
 grainFirestoreChanges =

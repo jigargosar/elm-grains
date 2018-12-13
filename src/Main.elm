@@ -215,6 +215,21 @@ update message =
         BaseLayerFocusInChanged hasFocusIn ->
             R3.map (\model -> { model | hasFocusIn = hasFocusIn })
 
+        GrainContentChanged grain title ->
+            R3.andThen
+                (\model ->
+                    let
+                        newGrainStore =
+                            GrainStore.setGrainTitle grain title model.grainStore
+                    in
+                    R3.map (setGrainStore newGrainStore)
+                        >> R3.effect
+                            (.grainStore
+                                >> GrainStore.encoder
+                                >> cacheAndPersistEncodedGrainStore
+                            )
+                )
+
         NewGrain ->
             R3.andThen
                 (\model ->
