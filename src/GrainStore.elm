@@ -2,10 +2,13 @@ module GrainStore exposing
     ( GrainStore
     , Msg
     , Reply(..)
+    , addGrainWithNewSeed
     , allAsList
+    , cacheAndPersistR3
     , createNewGrain
     , decoder
     , deleteGrain
+    , encoder
     , firestoreChanges
     , generator
     , get

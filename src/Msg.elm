@@ -25,6 +25,7 @@ type Msg
     | BrowserAnyKeyDown
     | BaseLayerFocusInChanged Bool
     | LoadGrainStore Value
+    | NewGrain
     | GrainStoreSubMsg GrainStore.Msg
     | GrainStoreReply GrainStore.Reply
     | ToastDismiss

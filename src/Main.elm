@@ -193,6 +193,10 @@ pushUrl =
     R3.doWith .route (Route.toString >> Port.pushUrl)
 
 
+cacheAndPersistEncodedGrainStore encoded =
+    Cmd.batch [ Port.cacheGrains encoded, Port.persistGrains encoded ]
+
+
 update : Msg -> Return3F Msg Model ()
 update message =
     case message of
@@ -210,6 +214,31 @@ update message =
 
         BaseLayerFocusInChanged hasFocusIn ->
             R3.map (\model -> { model | hasFocusIn = hasFocusIn })
+
+        NewGrain ->
+            R3.andThen
+                (\model ->
+                    let
+                        grainStore =
+                            model.grainStore
+
+                        ( newGrain, newSeed ) =
+                            Random.step Grain.generator model.grainStore.seed
+                    in
+                    R3.map
+                        (setGrainStore
+                            (GrainStore.addGrainWithNewSeed
+                                newGrain
+                                newSeed
+                                model.grainStore
+                            )
+                        )
+                        >> R3.effect
+                            (.grainStore
+                                >> GrainStore.encoder
+                                >> cacheAndPersistEncodedGrainStore
+                            )
+                )
 
         LoadGrainStore val ->
             R3.andThen
