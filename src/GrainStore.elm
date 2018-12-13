@@ -187,10 +187,6 @@ update message =
                 >> cacheAndPersistR3
 
         Firestore changes ->
-            let
-                _ =
-                    Debug.log "changes" changes
-            in
             List.foldr
                 (\c ->
                     let
