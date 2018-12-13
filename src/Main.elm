@@ -238,6 +238,7 @@ update message =
                                 >> GrainStore.encoder
                                 >> cacheAndPersistEncodedGrainStore
                             )
+                        >> update (Msg.routeToGrain newGrain)
                 )
 
         LoadGrainStore val ->

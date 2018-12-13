@@ -5,7 +5,6 @@ module GrainStore exposing
     , addGrainWithNewSeed
     , allAsList
     , cacheAndPersistR3
-    , createNewGrain
     , decoder
     , deleteGrain
     , encoder
@@ -79,17 +78,12 @@ addGrainWithNewSeed grain seed =
     addGrain grain >> setSeed seed
 
 
-createNewGrain =
-    CreateNew
-
-
 type GrainUpdateMsg
     = SetContent String
 
 
 type Msg
-    = CreateNew
-    | UpdateGrainId GrainId GrainUpdateMsg
+    = UpdateGrainId GrainId GrainUpdateMsg
     | DeleteGrainId GrainId
     | Firestore (List GrainChange)
 
@@ -151,18 +145,6 @@ type alias ReturnF =
 update : Msg -> ReturnF
 update message =
     case message of
-        CreateNew ->
-            R3.andThen
-                (\model ->
-                    let
-                        ( newGrain, newSeed ) =
-                            Random.step Grain.generator model.seed
-                    in
-                    R3.map (addGrainWithNewSeed newGrain newSeed)
-                        >> cacheAndPersistR3
-                        >> R3.reply (NewGrainAddedReply newGrain)
-                )
-
         UpdateGrainId gid msg ->
             let
                 updateByGid fn =

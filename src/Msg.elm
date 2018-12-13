@@ -1,6 +1,5 @@
 module Msg exposing
     ( Msg(..)
-    , addNewGrainClicked
     , deleteGrain
     , grainContentChanged
     , grainFirestoreChanges
@@ -56,10 +55,6 @@ deleteGrain grain =
 
 grainContentChanged grain content =
     GrainStoreSubMsg (GrainStore.setContent grain content)
-
-
-addNewGrainClicked =
-    GrainStoreSubMsg GrainStore.createNewGrain
 
 
 grainFirestoreChanges =
