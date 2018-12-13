@@ -84,6 +84,7 @@ type Msg
     | UpdateGrainId GrainId GrainUpdateMsg
     | DeleteGrainId GrainId
     | Firestore (List GrainChange)
+    | UpdateAll (List ( GrainId, GrainUpdateMsg ))
 
 
 updateGrain grain =
@@ -166,21 +167,7 @@ update message =
                 )
 
         UpdateGrainId gid msg ->
-            let
-                updateGrainR3 fn =
-                    R3.map (mapList (List.updateIf (Grain.idEq gid) fn))
-                        >> cacheAndPersistR3
-            in
-            case msg of
-                SetContent title ->
-                    updateGrainR3 (Grain.setContent title)
-
-                FromFireStoreChange { doc, type_ } ->
-                    let
-                        _ =
-                            Debug.log "doc,type_" ( type_, doc )
-                    in
-                    identity
+            update <| UpdateAll [ ( gid, msg ) ]
 
         DeleteGrainId gid ->
             R3.map (mapList (List.filterNot (Grain.idEq gid)))
@@ -196,3 +183,27 @@ update message =
                     update <| UpdateGrainId gid <| FromFireStoreChange c
                 )
                 >> callWith changes
+
+        UpdateAll changes ->
+            let
+                _ =
+                    Debug.log "changes" changes
+
+                updateOne ( gid, msg ) =
+                    let
+                        updateGrainR3 fn =
+                            R3.map (mapList (List.updateIf (Grain.idEq gid) fn))
+                                >> cacheAndPersistR3
+                    in
+                    case msg of
+                        SetContent title ->
+                            updateGrainR3 (Grain.setContent title)
+
+                        FromFireStoreChange { doc, type_ } ->
+                            let
+                                _ =
+                                    Debug.log "doc,type_" ( type_, doc )
+                            in
+                            identity
+            in
+            List.foldr updateOne >> callWith changes
