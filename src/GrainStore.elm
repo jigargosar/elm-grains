@@ -107,7 +107,7 @@ cache =
 
 
 persist =
-    R3.effect (encoder >> Port.cacheGrains)
+    R3.effect (encoder >> Port.persistGrains)
 
 
 cacheAndPersistR3 =

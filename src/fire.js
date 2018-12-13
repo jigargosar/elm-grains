@@ -29,14 +29,19 @@ function init() {
     storageBucket: 'not-now-142808.appspot.com',
     messagingSenderId: '476064436883',
   }
-
   firebase.initializeApp(config)
+
+  const auth = firebase.auth()
+  const firestore = firebase.firestore()
+
+  firestore.settings({ timestampsInSnapshots: true })
+  return { auth, firestore }
 }
 
-init()
+const { auth, firestore } = init()
 
-const auth = firebase.auth()
-const firestore = firebase.firestore()
+const createCRef = cName =>
+  firestore.collection(`users/${auth.currentUser.uid}/${cName}`)
 
 function getFireSubscriptions(app) {
   const send = sendToElmApp(app, 'fire2Elm')
@@ -57,6 +62,11 @@ function getFireSubscriptions(app) {
       await auth.signInWithPopup(gp)
     },
     signOut: () => auth.signOut(),
+    persistGrains: ({ list }) => {
+      console.log(`list`, list)
+      const gcRef = createCRef('grains')
+      list.forEach(g => gcRef.doc(g.id).set(g))
+    },
   }
 }
 
