@@ -40,8 +40,8 @@ setElmAppPortSubscriptions(
     error: data => {
       console.error(data)
     },
-    cacheGrains: todos => {
-      jsonCacheSet('grains', todos)
+    cacheGrains: grains => {
+      jsonCacheSet('grains', grains)
     },
   },
   app,
