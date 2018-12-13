@@ -102,9 +102,16 @@ type Reply
     | NewGrainAddedReply Grain
 
 
-cache : GrainStore -> Cmd msg
 cache =
-    encoder >> Port.cacheGrains
+    R3.effect (encoder >> Port.cacheGrains)
+
+
+persist =
+    R3.effect (encoder >> Port.cacheGrains)
+
+
+cacheAndPersistR3 =
+    cache >> persist
 
 
 encoder : Encoder GrainStore
@@ -145,7 +152,7 @@ update message =
                             Random.step Grain.generator model.seed
                     in
                     R3.map (addGrainWithNewSeed newGrain newSeed)
-                        >> R3.effect cache
+                        >> cacheAndPersistR3
                         >> R3.reply (NewGrainAddedReply newGrain)
                 )
 
@@ -153,7 +160,7 @@ update message =
             let
                 updateGrainR3 fn =
                     R3.map (mapList (List.updateIf (Grain.idEq gid) fn))
-                        >> R3.effect cache
+                        >> cacheAndPersistR3
             in
             case msg of
                 SetContent title ->
@@ -161,4 +168,4 @@ update message =
 
         DeleteGrainId gid ->
             R3.map (mapList (List.filterNot (Grain.idEq gid)))
-                >> R3.effect cache
+                >> cacheAndPersistR3

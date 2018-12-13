@@ -2,6 +2,7 @@ port module Port exposing
     ( cacheGrains
     , error
     , fire2Elm
+    , persistGrains
     , pushUrl
     , signIn
     , signOut
@@ -12,6 +13,9 @@ import Json.Encode exposing (Value)
 
 
 port cacheGrains : Value -> Cmd msg
+
+
+port persistGrains : Value -> Cmd msg
 
 
 port error : String -> Cmd msg
