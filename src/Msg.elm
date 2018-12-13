@@ -28,8 +28,8 @@ type Msg
     | RouteTo Route
     | UrlChanged String
     | Firebase Value
-    | UserLoggedIn
-    | UserNotLoggedIn
+    | AuthUser
+    | AuthUserNone
 
 
 routeTo route =
