@@ -15,7 +15,7 @@ export function setElmAppPortSubscriptions(options, app) {
   }
 
   forEachObjIndexed((fn, sub) => {
-    if (!pathOr(null, ['ports', sub, 'subsctiption'])(app)) {
+    if (!pathOr(null, ['ports', sub, 'subscribe'])(app)) {
       console.error('sub port not found', sub)
       return
     }
