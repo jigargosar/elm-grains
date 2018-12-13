@@ -62,10 +62,12 @@ function getFireSubscriptions(app) {
       await auth.signInWithPopup(gp)
     },
     signOut: () => auth.signOut(),
-    persistGrains: ({ list }) => {
+    persistGrains: async ({ list }) => {
       console.log(`list`, list)
       const gcRef = createCRef('grains')
-      list.forEach(g => gcRef.doc(g.id).set(g))
+      const pList = list.map(g => gcRef.doc(g.id).set(g))
+      const rList = await Promise.all(pList)
+      console.log(`rList`, rList)
     },
   }
 }
