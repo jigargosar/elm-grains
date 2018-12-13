@@ -138,6 +138,10 @@ decoder seed =
         |> hardcoded seed
 
 
+removeByGidR3 gid =
+    R3.map (mapList (List.filterNot (Grain.idEq gid)))
+
+
 update : Msg -> Return3F Msg GrainStore Reply
 update message =
     case message of
@@ -171,7 +175,7 @@ update message =
             update <| UpdateAll [ ( gid, msg ) ]
 
         DeleteGrainId gid ->
-            R3.map (mapList (List.filterNot (Grain.idEq gid)))
+            removeByGidR3 gid
                 >> cacheAndPersistR3
 
         Firestore changes ->
@@ -199,7 +203,7 @@ update message =
                                     R3.andThen (upsert gid doc)
 
                                 GrainChange.Removed ->
-                                    identity
+                                    removeByGidR3 gid
             in
             List.foldr updateOne
                 >> callWith changes
