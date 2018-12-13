@@ -1,4 +1,9 @@
-module FireUser exposing (FireUser)
+module FireUser exposing (FireUser, decoder)
+
+import DecodeX
+import Json.Decode as D exposing (Decoder)
+import Json.Decode.Pipeline exposing (required)
+import Json.Encode as E
 
 
 type alias Model =
@@ -18,3 +23,20 @@ unwrap (FireUser model) =
 
 map fn =
     unwrap >> fn >> FireUser
+
+
+
+--encoder : Encoder FireUser
+--encoder (FireUser model) =
+--    E.object
+--        [
+--        ]
+
+
+decoder : Decoder FireUser
+decoder =
+    DecodeX.start Model
+        |> required "uid" D.string
+        |> required "displayName" D.string
+        |> required "email" D.string
+        |> D.map FireUser

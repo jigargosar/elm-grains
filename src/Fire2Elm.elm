@@ -1,6 +1,9 @@
 module Fire2Elm exposing (decoder)
 
+import DecodeX
+import FireUser
 import Json.Decode as D exposing (Decoder)
+import Json.Decode.Pipeline exposing (requiredAt)
 import Json.Encode as E
 import Msg exposing (Msg)
 
@@ -14,7 +17,8 @@ decoder =
 decoderWithMsg msg =
     case msg of
         "UserLoggedIn" ->
-            D.succeed Msg.AuthUser
+            DecodeX.start Msg.AuthUser
+                |> requiredAt [ "payload", "user" ] FireUser.decoder
 
         "UserNotLoggedIn" ->
             D.succeed Msg.AuthUserNone

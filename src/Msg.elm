@@ -7,6 +7,7 @@ module Msg exposing
     )
 
 import Browser.Dom
+import FireUser exposing (FireUser)
 import Grain exposing (Grain)
 import GrainId exposing (GrainId)
 import GrainStore
@@ -28,7 +29,7 @@ type Msg
     | RouteTo Route
     | UrlChanged String
     | Firebase Value
-    | AuthUser
+    | AuthUser FireUser
     | AuthUserNone
 
 

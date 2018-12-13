@@ -232,7 +232,11 @@ update message =
         Firebase val ->
             R3.andThen (handleFire2Elm val)
 
-        AuthUser ->
+        AuthUser user ->
+            let
+                _ =
+                    Debug.log "user" user
+            in
             logErrorString "UserLoggedIn"
 
         AuthUserNone ->
