@@ -4,8 +4,9 @@ import { Elm } from './Main.elm'
 import registerServiceWorker from './registerServiceWorker'
 import { partial, tap } from 'ramda'
 import createHistory from 'history/createBrowserHistory'
-import { sendToElmAppApp, setElmAppPortSubscriptions } from './elm-app'
+import { sendToElmApp, setElmAppPortSubscriptions } from './elm-app'
 import { jsonCacheGetOr, jsonCacheSet } from './json-cache'
+import getFireSubscriptions from './fire'
 
 const history = createHistory()
 
@@ -25,7 +26,7 @@ const app = Elm.Main.init({
 // noinspection JSUnresolvedFunction
 history.listen((location, action) => {
   console.debug(action, location.pathname, location.state)
-  sendToElmAppApp(app, 'urlChanged', document.URL)
+  sendToElmApp(app, 'urlChanged', document.URL)
 })
 
 setElmAppPortSubscriptions(
@@ -43,6 +44,7 @@ setElmAppPortSubscriptions(
     cacheGrains: data => {
       jsonCacheSet('grains', data)
     },
+    ...getFireSubscriptions(app),
   },
   app,
 )

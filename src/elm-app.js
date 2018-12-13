@@ -1,8 +1,8 @@
 import { curry, forEachObjIndexed, pathOr } from 'ramda'
 
-export const sendToElmAppApp = curry(function sendTo(app, port, data) {
+export const sendToElmApp = curry(function sendTo(app, port, data) {
   if (!pathOr(null, ['ports', port, 'send'])(app)) {
-    console.error('sendToElmAppApp port not found', port, 'data ignored', data)
+    console.error('sendToElmApp port not found', port, 'data ignored', data)
     return
   }
   app.ports[port].send(data)
@@ -20,6 +20,6 @@ export function setElmAppPortSubscriptions(options, app) {
       return
     }
     // noinspection JSIgnoredPromiseFromCall, JSCheckFunctionSignatures
-    app.ports[sub].subscribe(data => fn(data, sendToElmAppApp(app)))
+    app.ports[sub].subscribe(data => fn(data, sendToElmApp(app)))
   })(options)
 }
