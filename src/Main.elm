@@ -1,5 +1,6 @@
 module Main exposing (main)
 
+import AuthState exposing (AuthState)
 import BasicsX exposing (..)
 import Browser
 import Browser.Dom
@@ -78,6 +79,7 @@ type alias Model =
     , hasFocusIn : Bool
     , toast : Toast
     , route : Route
+    , authState : AuthState
     , seed : Seed
     }
 
@@ -94,6 +96,7 @@ init flags =
         |> Random.always initialHasFocusIn
         |> Random.always Toast.init
         |> Random.always (Route.fromString flags.url)
+        |> Random.always AuthState.init
         |> Random.finish
         |> elmUpdate (LoadGrainStore flags.grains)
 
@@ -112,6 +115,10 @@ mapToast fn model =
 
 mapToastR3 =
     R3.map << mapToast
+
+
+setAuthState authState model =
+    { model | authState = authState }
 
 
 getGrain gid =
@@ -233,17 +240,16 @@ update message =
             R3.andThen (handleFire2Elm val)
 
         AuthUser user ->
-            let
-                _ =
-                    Debug.log "user" user
-            in
-            logErrorString "UserLoggedIn"
+            R3.map (setAuthState <| AuthState.Authenticated user)
 
         AuthUserNone ->
-            logErrorString "UserNotLoggedIn"
+            R3.map (setAuthState <| AuthState.NoUser)
 
         SignIn ->
             R3.do (Port.signIn ())
+
+        SignOut ->
+            R3.do (Port.signOut ())
 
 
 handleFire2Elm val model =
@@ -264,20 +270,28 @@ view model =
     Skeleton.view
         { onKeyDownPD = keyBindings model
         , children =
-            [ viewAppBar ]
+            [ viewAppBar model.authState ]
                 ++ viewRouteChildren model
                 ++ [ viewToast model.toast
                    ]
         }
 
 
-viewAppBar =
+viewAppBar authState =
     let
         viewTitle =
             styled div [ CS.p2 space2 zero, CS.flex11Auto ] [] [ text "Grains" ]
 
         viewAuthState =
-            button [ class "btn", onClick SignIn ] [ text "SignIn" ]
+            case authState of
+                AuthState.Unknown ->
+                    button [ class "btn loading" ] [ text "SignIn" ]
+
+                AuthState.Authenticated user ->
+                    button [ class "btn", onClick SignOut ] [ text "SignOut" ]
+
+                AuthState.NoUser ->
+                    button [ class "btn", onClick SignIn ] [ text "SignIn" ]
     in
     flexRowIC
         [ CS.sticky

@@ -56,6 +56,7 @@ function getFireSubscriptions(app) {
       gp.setCustomParameters({ prompt: 'select_account' })
       await auth.signInWithPopup(gp)
     },
+    signOut: () => auth.signOut(),
   }
 }
 

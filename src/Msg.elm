@@ -32,6 +32,7 @@ type Msg
     | AuthUser FireUser
     | AuthUserNone
     | SignIn
+    | SignOut
 
 
 routeTo route =

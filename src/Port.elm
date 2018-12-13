@@ -4,6 +4,7 @@ port module Port exposing
     , fire2Elm
     , pushUrl
     , signIn
+    , signOut
     , urlChanged
     )
 
@@ -26,3 +27,6 @@ port fire2Elm : (Value -> msg) -> Sub msg
 
 
 port signIn : () -> Cmd msg
+
+
+port signOut : () -> Cmd msg
