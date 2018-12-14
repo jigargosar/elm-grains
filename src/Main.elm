@@ -211,7 +211,11 @@ updateF message =
             logErrorString errorString
 
         BrowserAnyKeyDown ->
-            Return.effect_ (ifElse (.hasFocusIn >> not) (always focusBaseLayer) (\_ -> Cmd.none))
+            Return.effect_
+                (ifElse (.hasFocusIn >> not)
+                    (always focusBaseLayer)
+                    (\_ -> Cmd.none)
+                )
 
         BaseLayerFocusInChanged hasFocusIn ->
             Return.map (\model -> { model | hasFocusIn = hasFocusIn })
