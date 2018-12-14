@@ -295,7 +295,11 @@ update message model =
                 |> Return.effect_ (.route >> autoFocusRoute)
 
         UrlChanged url ->
-            Return.singleton (setRoute (Route.fromString url) model)
+            let
+                newRoute =
+                    Route.fromString url
+            in
+            Return.singleton (setRoute newRoute model)
 
         LogErrorString errString ->
             Return.return (mapToast (Toast.show errString) model) (Port.error errString)
