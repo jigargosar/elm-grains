@@ -190,6 +190,10 @@ update message model =
         NoOp ->
             Return.singleton model
 
+        LogErrorString errString ->
+            Return.return (mapToast (Toast.show errString) model)
+                (Port.error errString)
+
         FocusResult (Ok ()) ->
             Return.singleton model
 
@@ -278,10 +282,6 @@ update message model =
                     Route.fromString url
             in
             Return.singleton (setRoute newRoute model)
-
-        LogErrorString errString ->
-            Return.return (mapToast (Toast.show errString) model)
-                (Port.error errString)
 
         Firebase val ->
             case D.decodeValue Firebase.decoder val of
