@@ -181,8 +181,13 @@ subscriptions model =
         ]
 
 
-cacheAndPersistEncodedGrainStore encoded =
-    Cmd.batch [ Port.cacheGrains encoded, Firebase.persistGrains encoded ]
+
+--cacheAndPersistEncodedGrainStore encoded =
+--    Cmd.batch [ Port.cacheGrains encoded, Firebase.persistGrains encoded ]
+
+
+cacheGrainStore =
+    .grainStore >> GrainStore.encoder >> Port.cacheGrains
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -211,11 +216,8 @@ update message model =
             in
             setGrainStore newGrainStore model
                 |> Return.singleton
-                |> Return.effect_
-                    (.grainStore
-                        >> GrainStore.encoder
-                        >> cacheAndPersistEncodedGrainStore
-                    )
+                |> Return.effect_ cacheGrainStore
+                |> Return.command (Firebase.updateGrain grain)
 
         DeleteGrain grain ->
             let
@@ -224,11 +226,7 @@ update message model =
             in
             Return.singleton model
                 |> Return.map (setGrainStore newGrainStore)
-                >> Return.effect_
-                    (.grainStore
-                        >> GrainStore.encoder
-                        >> cacheAndPersistEncodedGrainStore
-                    )
+                |> Return.effect_ cacheGrainStore
 
         NewGrain ->
             let
@@ -236,11 +234,7 @@ update message model =
                     createAndAddNewGrain model
             in
             Return.singleton newModel
-                |> Return.effect_
-                    (.grainStore
-                        >> GrainStore.encoder
-                        >> cacheAndPersistEncodedGrainStore
-                    )
+                |> Return.effect_ cacheGrainStore
                 |> Return.command (Firebase.persistNewGrain newGrain)
                 |> Return.andThen (update (Msg.routeToGrain newGrain))
 

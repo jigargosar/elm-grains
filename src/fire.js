@@ -82,6 +82,27 @@ function getFireSubscriptions(app) {
       await batch.commit()
       console.log(`fire: persistGrains completed`)
     },
+
+    persistNewGrain: async grain => {
+      console.log(`fire: persistNewGrain started`, grain)
+      const gcRef = createCRef('grains')
+      const batch = firestore.batch()
+
+      grain.map(g => batch.set(gcRef.doc(g.id), g))
+
+      await batch.commit()
+      console.log(`fire: persistNewGrain completed`)
+    },
+    persistUpdatedGrain: async grain => {
+      console.log(`fire: persistNewGrain started`, grain)
+      const gcRef = createCRef('grains')
+      const batch = firestore.batch()
+
+      grain.map(g => batch.update(gcRef.doc(g.id), g))
+
+      await batch.commit()
+      console.log(`fire: persistNewGrain completed`)
+    },
   }
 }
 

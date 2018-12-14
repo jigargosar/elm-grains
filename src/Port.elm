@@ -4,6 +4,7 @@ port module Port exposing
     , fire2Elm
     , persistGrain
     , persistGrains
+    , persistUpdateGrain
     , pushUrl
     , signIn
     , signOut
@@ -20,6 +21,9 @@ port persistGrains : Value -> Cmd msg
 
 
 port persistGrain : Value -> Cmd msg
+
+
+port persistUpdateGrain : Value -> Cmd msg
 
 
 port error : String -> Cmd msg
