@@ -29,6 +29,7 @@ type Msg
     | RouteTo Route
     | UrlChanged String
     | Firebase Value
+    | LogErrorString String
     | AuthUser FireUser
     | AuthUserNone
     | SignIn

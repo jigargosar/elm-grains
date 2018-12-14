@@ -184,11 +184,6 @@ cacheAndPersistEncodedGrainStore encoded =
     Cmd.batch [ Port.cacheGrains encoded, Port.persistGrains encoded ]
 
 
-logErrorString : String -> Model -> ( Model, Cmd Msg )
-logErrorString err model =
-    Return.return (mapToast (Toast.show err) model) (Port.error err)
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
@@ -199,7 +194,7 @@ update message model =
             Return.singleton model
 
         FocusResult (Err errorString) ->
-            logErrorString errorString model
+            update (LogErrorString errorString) model
 
         BrowserAnyKeyDown ->
             Return.return model
@@ -304,16 +299,25 @@ update message model =
             Return.singleton model
                 |> Return.map (setRoute <| Route.fromString url)
 
+        LogErrorString errString ->
+            Return.return (mapToast (Toast.show errString) model) (Port.error errString)
+
         Firebase val ->
             let
                 result : Result String Msg
                 result =
                     D.decodeValue Fire2Elm.decoder val
                         |> Result.mapError D.errorToString
+
+                msg =
+                    case result of
+                        Err errString ->
+                            LogErrorString errString
+
+                        Ok decodedMsg ->
+                            decodedMsg
             in
-            result
-                |> Result.unpack logErrorString update
-                |> callWith model
+            update msg model
 
         AuthUser user ->
             Return.singleton model
