@@ -224,7 +224,7 @@ update message model =
                         >> cacheAndPersistEncodedGrainStore
                     )
 
-        DeleteGrainClicked grain ->
+        DeleteGrain grain ->
             let
                 newGrainStore =
                     GrainStore.deleteGrain grain model.grainStore
@@ -237,7 +237,7 @@ update message model =
                         >> cacheAndPersistEncodedGrainStore
                     )
 
-        NewGrainClicked ->
+        NewGrain ->
             let
                 grainStore =
                     model.grainStore

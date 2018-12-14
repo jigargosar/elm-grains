@@ -58,7 +58,7 @@ viewFab =
             , Css.boxShadow4 (px 1) (px 1) (px 8) (blackAlpha 0.5)
             , CS.p space2
             ]
-            [ onClick Msg.NewGrainClicked ]
+            [ onClick Msg.NewGrain ]
             [ CssIcons.viewColorWhite CssIcons.add ]
         ]
 
@@ -81,7 +81,7 @@ viewGrainList list =
 
         viewDelete g =
             CssElements.iconBtnWithStyles [ CS.asc ]
-                [ onClick <| Msg.DeleteGrainClicked g
+                [ onClick <| Msg.DeleteGrain g
                 ]
                 [ CssIcons.view CssIcons.delete
                 ]
