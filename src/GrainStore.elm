@@ -1,17 +1,13 @@
 module GrainStore exposing
     ( GrainStore
-    , Msg
     , addGrainWithNewSeed
     , allAsList
-    , cacheAndPersistR3
     , decoder
     , deleteGrain
     , encoder
     , generator
     , get
-    , remove
     , setGrainTitle
-    , update
     , upsertGrain
     )
 
@@ -78,10 +74,6 @@ addGrainWithNewSeed grain seed =
     addGrain grain >> setSeed seed
 
 
-type Msg
-    = DeleteGrainId GrainId
-
-
 setGrainTitle grain title =
     let
         gid =
@@ -104,18 +96,6 @@ deleteGrain grain =
     updateByGid (Grain.setDeleted True)
 
 
-cache =
-    R3.effect (encoder >> Port.cacheGrains)
-
-
-persist =
-    R3.effect (encoder >> Port.persistGrains)
-
-
-cacheAndPersistR3 =
-    cache >> persist
-
-
 encoder : Encoder GrainStore
 encoder model =
     E.object
@@ -127,26 +107,6 @@ decoder seed =
     DecodeX.start GrainStore
         |> required "lookup" GrainLookup.decoder
         |> hardcoded seed
-
-
-remove gid =
-    mapLookup <| GrainLookup.remove gid
-
-
-removeByGidR3 gid =
-    R3.map (mapLookup <| GrainLookup.remove gid)
-
-
-type alias ReturnF =
-    Return3F Msg GrainStore ()
-
-
-update : Msg -> ReturnF
-update message =
-    case message of
-        DeleteGrainId gid ->
-            removeByGidR3 gid
-                >> cacheAndPersistR3
 
 
 upsertGrain : Grain -> GrainStore -> GrainStore

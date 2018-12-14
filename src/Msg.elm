@@ -24,7 +24,6 @@ type Msg
     | NewGrain
     | DeleteGrain Grain
     | GrainContentChanged Grain String
-    | GrainStoreSubMsg GrainStore.Msg
     | FirestoreGrainChanges (List GrainChange)
     | ToastDismiss
     | RouteTo Route

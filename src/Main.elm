@@ -178,16 +178,6 @@ subscriptions model =
         ]
 
 
-grainStoreSubConfig =
-    { subUpdate = GrainStore.update
-    , get = .grainStore
-    , set = setGrainStore
-    , toMsg = GrainStoreSubMsg
-    , replyToMsg = \_ -> NoOp
-    , update = update
-    }
-
-
 logErrorString : String -> Return3F Msg Model ()
 logErrorString err =
     R3.do (Port.error err)
@@ -263,7 +253,7 @@ update message =
                                     GrainStore.upsertGrain doc
 
                                 GrainChange.Removed ->
-                                    GrainStore.remove (Grain.id doc)
+                                    GrainStore.deleteGrain doc
                     in
                     R3.map (setGrainStore (List.foldr updateOne model.grainStore changes))
                         >> R3.effect
@@ -313,9 +303,6 @@ update message =
                     R3.map (setGrainStore grainStore)
                         >> R3.do cmd
                 )
-
-        GrainStoreSubMsg msg ->
-            R3.sub msg grainStoreSubConfig
 
         ToastDismiss ->
             mapToastR3 Toast.dismiss
