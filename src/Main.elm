@@ -304,15 +304,10 @@ update message model =
 
         Firebase val ->
             let
-                result : Result String Msg
-                result =
-                    D.decodeValue Fire2Elm.decoder val
-                        |> Result.mapError D.errorToString
-
                 msg =
-                    case result of
-                        Err errString ->
-                            LogErrorString errString
+                    case D.decodeValue Fire2Elm.decoder val of
+                        Err error ->
+                            LogErrorString (D.errorToString error)
 
                         Ok decodedMsg ->
                             decodedMsg
