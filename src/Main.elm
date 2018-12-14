@@ -198,6 +198,7 @@ update msg =
     updateF msg << Return.singleton
 
 
+updateF : Msg -> Return.ReturnF Msg Model
 updateF message =
     case message of
         NoOp ->
