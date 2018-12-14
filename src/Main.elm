@@ -241,12 +241,8 @@ update message model =
 
         LoadGrainStore val ->
             let
-                r2 : GrainStore -> ( GrainStore, Cmd msg )
-                r2 gs =
-                    DecodeX.decode gs GrainStore.decoder val
-
                 ( grainStore, cmd ) =
-                    r2 model.grainStore
+                    GrainStore.load val model.grainStore
             in
             Return.return (setGrainStore grainStore model) cmd
 
