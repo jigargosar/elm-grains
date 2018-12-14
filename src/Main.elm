@@ -186,8 +186,7 @@ cacheAndPersistEncodedGrainStore encoded =
 
 logErrorString : String -> Model -> ( Model, Cmd Msg )
 logErrorString err model =
-    Return.return model (Port.error err)
-        |> Return.map (mapToast <| Toast.show err)
+    Return.return (mapToast (Toast.show err) model) (Port.error err)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
