@@ -194,6 +194,9 @@ update message model =
             Return.return (mapToast (Toast.show errString) model)
                 (Port.error errString)
 
+        ToastDismiss ->
+            Return.singleton (mapToast Toast.dismiss model)
+
         FocusResult (Ok ()) ->
             Return.singleton model
 
@@ -267,9 +270,6 @@ update message model =
                     r2 model.grainStore
             in
             Return.return (setGrainStore grainStore model) cmd
-
-        ToastDismiss ->
-            Return.singleton (mapToast Toast.dismiss model)
 
         RouteTo route ->
             Return.singleton (setRoute route model)
