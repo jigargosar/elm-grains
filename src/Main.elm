@@ -140,10 +140,6 @@ focusMaybeDomId =
     unpackMaybe Cmd.none focusDomId
 
 
-focusBaseLayer =
-    focusDomId "base-layer"
-
-
 maybeAutoFocusRouteDomId route =
     case route of
         Route.Grain _ ->
@@ -314,18 +310,10 @@ handleFireMsg fireMsg model =
                     )
 
 
-keyBindings model =
-    K.bindEachToMsg <|
-        [ ( K.arrowUp, ( NoOp, True ) )
-        , ( K.arrowDown, ( NoOp, True ) )
-        ]
-
-
 view : Model -> Html Msg
 view model =
     Skeleton.view
-        { onKeyDownPD = keyBindings model
-        , children =
+        { children =
             [ viewAppBar model.authState ]
                 ++ viewRouteChildren model
                 ++ [ viewToast model.toast

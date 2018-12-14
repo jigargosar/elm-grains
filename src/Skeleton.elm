@@ -13,7 +13,7 @@ import Msg
 import StyledEvents as SE
 
 
-view { onKeyDownPD, children } =
+view { children } =
     flexCol
         [ CS.min_h_screen
         , CssTheme.pageWidth
@@ -21,10 +21,7 @@ view { onKeyDownPD, children } =
         , Css.margin Css.auto
         , Css.outline Css.none
         ]
-        [ SA.id "base-layer"
-        , SA.tabindex -1
-        , SE.onKeyDownPD onKeyDownPD
-        ]
+        []
         [ flexCol
             []
             [ SA.class "ba b--light-gray" ]
