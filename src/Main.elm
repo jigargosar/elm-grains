@@ -93,7 +93,7 @@ init : Flags -> Return Msg Model
 init flags =
     Model
         |> Random.from (initialSeed flags)
-        |> Random.with GrainStore.generator
+        |> Random.always GrainStore.init
         |> Random.always initialHasFocusIn
         |> Random.always Toast.init
         |> Random.always (Route.fromString flags.url)
@@ -128,6 +128,10 @@ getGrain gid =
 
 mapGrainStore fn model =
     { model | grainStore = fn model.grainStore }
+
+
+setNewSeed newSeed model =
+    { model | seed = newSeed }
 
 
 
@@ -271,16 +275,10 @@ update message =
                             model.grainStore
 
                         ( newGrain, newSeed ) =
-                            Random.step Grain.generator model.grainStore.seed
+                            Random.step Grain.generator model.seed
                     in
                     R3.map
-                        (setGrainStore
-                            (GrainStore.addGrainWithNewSeed
-                                newGrain
-                                newSeed
-                                model.grainStore
-                            )
-                        )
+                        (mapGrainStore (GrainStore.addGrain newGrain) >> setNewSeed newSeed)
                         >> R3.effect
                             (.grainStore
                                 >> GrainStore.encoder
@@ -295,7 +293,7 @@ update message =
                     let
                         r2 : GrainStore -> ( GrainStore, Cmd msg )
                         r2 gs =
-                            DecodeX.decode gs (GrainStore.decoder gs.seed) val
+                            DecodeX.decode gs GrainStore.decoder val
 
                         ( grainStore, cmd ) =
                             r2 model.grainStore

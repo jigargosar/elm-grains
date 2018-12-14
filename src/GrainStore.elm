@@ -1,12 +1,12 @@
 module GrainStore exposing
     ( GrainStore
-    , addGrainWithNewSeed
+    , addGrain
     , allAsList
     , decoder
     , deleteGrain
     , encoder
-    , generator
     , get
+    , init
     , setGrainTitle
     , upsertGrain
     )
@@ -29,49 +29,24 @@ import Return3 as R3 exposing (Return3F)
 
 
 type alias GrainStore =
-    { lookup : GrainLookup
-    , seed : Seed
-    }
+    GrainLookup
 
 
-initWithSeed : Seed -> GrainStore
-initWithSeed seed =
-    { lookup = GrainLookup.init, seed = seed }
-
-
-generator : Generator GrainStore
-generator =
-    Random.independentSeed |> Random.map initWithSeed
+init =
+    GrainLookup.init
 
 
 allAsList =
-    .lookup >> GrainLookup.asList
-
-
-lookup =
-    .lookup
+    GrainLookup.asList
 
 
 get : GrainId -> GrainStore -> Maybe Grain
 get gid =
-    lookup >> GrainLookup.get gid
-
-
-setSeed seed =
-    \model -> { model | seed = seed }
-
-
-mapLookup : (GrainLookup -> GrainLookup) -> GrainStore -> GrainStore
-mapLookup fn model =
-    { model | lookup = fn model.lookup }
+    GrainLookup.get gid
 
 
 addGrain grain =
-    mapLookup (GrainLookup.upsert grain)
-
-
-addGrainWithNewSeed grain seed =
-    addGrain grain >> setSeed seed
+    GrainLookup.upsert grain
 
 
 setGrainTitle grain title =
@@ -80,7 +55,7 @@ setGrainTitle grain title =
             Grain.id grain
 
         updateByGid fn =
-            mapLookup (GrainLookup.update gid fn)
+            GrainLookup.update gid fn
     in
     updateByGid (Grain.setContent title)
 
@@ -91,29 +66,21 @@ deleteGrain grain =
             Grain.id grain
 
         updateByGid fn =
-            mapLookup (GrainLookup.update gid fn)
+            GrainLookup.update gid fn
     in
     updateByGid (Grain.setDeleted True)
 
 
 encoder : Encoder GrainStore
-encoder model =
-    E.object
-        [ ( "lookup", GrainLookup.encoder model.lookup ) ]
+encoder =
+    GrainLookup.encoder
 
 
-decoder : Seed -> Decoder GrainStore
-decoder seed =
-    DecodeX.start GrainStore
-        |> required "lookup" GrainLookup.decoder
-        |> hardcoded seed
+decoder : Decoder GrainStore
+decoder =
+    GrainLookup.decoder
 
 
 upsertGrain : Grain -> GrainStore -> GrainStore
 upsertGrain grain =
-    let
-        mapper : GrainLookup -> GrainLookup
-        mapper =
-            GrainLookup.upsert grain
-    in
-    mapLookup mapper
+    GrainLookup.upsert grain

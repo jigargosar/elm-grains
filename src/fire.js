@@ -71,7 +71,7 @@ function getFireSubscriptions(app) {
       await auth.signInWithPopup(gp)
     },
     signOut: () => auth.signOut(),
-    persistGrains: async ({ lookup }) => {
+    persistGrains: async lookup => {
       const grains = R.values(lookup)
       console.log(`fire: persistGrains started`, grains)
       const gcRef = createCRef('grains')
