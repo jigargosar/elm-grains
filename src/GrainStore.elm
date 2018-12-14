@@ -49,26 +49,26 @@ addGrain grain lookup =
     GrainLookup.upsert grain lookup
 
 
-setGrainTitle grain title =
+setGrainTitle grain title lookup =
     let
         gid =
             Grain.id grain
 
-        updateByGid fn =
-            GrainLookup.update gid fn
+        newLookup =
+            GrainLookup.update gid (Grain.setContent title) lookup
     in
-    updateByGid (Grain.setContent title)
+    ( get gid newLookup |> Maybe.withDefault grain, newLookup )
 
 
-deleteGrain grain =
+deleteGrain grain lookup =
     let
         gid =
             Grain.id grain
 
-        updateByGid fn =
-            GrainLookup.update gid fn
+        newLookup =
+            GrainLookup.update gid (Grain.setDeleted True) lookup
     in
-    updateByGid (Grain.setDeleted True)
+    ( get gid newLookup |> Maybe.withDefault grain, newLookup )
 
 
 encoder : Encoder GrainStore

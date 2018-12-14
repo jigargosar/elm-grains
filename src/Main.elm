@@ -211,23 +211,23 @@ update message model =
 
         GrainContentChanged grain title ->
             let
-                newGrainStore =
+                ( newGrain, newGrainStore ) =
                     GrainStore.setGrainTitle grain title model.grainStore
             in
             setGrainStore newGrainStore model
                 |> Return.singleton
                 |> Return.effect_ cacheGrainStore
-                |> Return.command (Firebase.persistUpdatedGrain grain)
+                |> Return.command (Firebase.persistUpdatedGrain newGrain)
 
         DeleteGrain grain ->
             let
-                newGrainStore =
+                ( newGrain, newGrainStore ) =
                     GrainStore.deleteGrain grain model.grainStore
             in
             Return.singleton model
                 |> Return.map (setGrainStore newGrainStore)
                 |> Return.effect_ cacheGrainStore
-                |> Return.command (Firebase.persistUpdatedGrain grain)
+                |> Return.command (Firebase.persistUpdatedGrain newGrain)
 
         NewGrain ->
             let
@@ -299,7 +299,7 @@ handleFireMsg fireMsg model =
                             GrainStore.upsertGrain doc
 
                         GrainChange.Removed ->
-                            GrainStore.deleteGrain doc
+                            GrainStore.deleteGrain doc >> Tuple.second
             in
             Return.singleton model
                 |> Return.map
