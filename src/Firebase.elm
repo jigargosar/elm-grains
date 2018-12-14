@@ -3,9 +3,9 @@ module Firebase exposing
     , decoder
     , persistGrains
     , persistNewGrain
+    , persistUpdatedGrain
     , signIn
     , signOut
-    , updateGrain
     )
 
 import DecodeX
@@ -53,11 +53,11 @@ persistGrains =
 
 
 persistNewGrain grain =
-    Port.persistGrain (Grain.encoder grain)
+    Port.persistNewGrain (Grain.encoder grain)
 
 
-updateGrain grain =
-    Port.persistUpdateGrain (Grain.encoder grain)
+persistUpdatedGrain grain =
+    Port.persistUpdatedGrain (Grain.encoder grain)
 
 
 signIn =

@@ -2,9 +2,9 @@ port module Port exposing
     ( cacheGrains
     , error
     , fire2Elm
-    , persistGrain
     , persistGrains
-    , persistUpdateGrain
+    , persistNewGrain
+    , persistUpdatedGrain
     , pushUrl
     , signIn
     , signOut
@@ -20,10 +20,10 @@ port cacheGrains : Value -> Cmd msg
 port persistGrains : Value -> Cmd msg
 
 
-port persistGrain : Value -> Cmd msg
+port persistNewGrain : Value -> Cmd msg
 
 
-port persistUpdateGrain : Value -> Cmd msg
+port persistUpdatedGrain : Value -> Cmd msg
 
 
 port error : String -> Cmd msg

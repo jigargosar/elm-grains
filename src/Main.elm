@@ -217,7 +217,7 @@ update message model =
             setGrainStore newGrainStore model
                 |> Return.singleton
                 |> Return.effect_ cacheGrainStore
-                |> Return.command (Firebase.updateGrain grain)
+                |> Return.command (Firebase.persistUpdatedGrain grain)
 
         DeleteGrain grain ->
             let
