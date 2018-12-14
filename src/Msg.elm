@@ -21,6 +21,7 @@ type Msg
     | PermanentlyDeleteGrain Grain
     | NewGrain
     | DeleteGrain Grain
+    | BackPressed
     | GrainContentChanged Grain String
     | ToastDismiss
     | RouteTo Route

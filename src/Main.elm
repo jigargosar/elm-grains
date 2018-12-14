@@ -283,6 +283,9 @@ update message model =
         SignOut ->
             Return.return model (Firebase.signOut ())
 
+        BackPressed ->
+            Return.return model (Port.navigateBack ())
+
 
 handleFireMsg fireMsg model =
     case fireMsg of
@@ -362,7 +365,7 @@ viewAppBar { title, showBackBtn } authState =
                 [ text title ]
 
         viewBackBtn =
-            button [ class "btn" ] [ text "Back" ]
+            button [ class "btn", onClick BackPressed ] [ text "Back" ]
 
         viewAuthState =
             case authState of

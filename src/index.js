@@ -44,6 +44,7 @@ setElmAppPortSubscriptions(
     cacheGrains: data => {
       jsonCacheSet('grains', data)
     },
+    navigateBack: () => history.goBack(),
     ...getFireSubscriptions(app),
   },
   app,

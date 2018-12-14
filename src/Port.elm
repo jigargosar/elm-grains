@@ -2,6 +2,7 @@ port module Port exposing
     ( cacheGrains
     , error
     , fire2Elm
+    , navigateBack
     , persistGrains
     , persistNewGrain
     , persistRemovedGrain
@@ -28,6 +29,9 @@ port persistUpdatedGrain : Value -> Cmd msg
 
 
 port persistRemovedGrain : Value -> Cmd msg
+
+
+port navigateBack : () -> Cmd msg
 
 
 port error : String -> Cmd msg
