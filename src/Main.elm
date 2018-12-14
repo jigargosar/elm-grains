@@ -48,7 +48,7 @@ import Random exposing (Generator, Seed)
 import Random.Pipeline as Random
 import RandomId
 import Result.Extra as Result
-import Return as R2 exposing (Return)
+import Return exposing (Return)
 import Route exposing (Route)
 import Skeleton
 import Tagged
@@ -181,12 +181,12 @@ subscriptions model =
 
 
 logErrorString err =
-    R2.command (Port.error err)
-        >> R2.map (mapToast <| Toast.show err)
+    Return.command (Port.error err)
+        >> Return.map (mapToast <| Toast.show err)
 
 
 pushUrl =
-    R2.effect_ (.route >> Route.toString >> Port.pushUrl)
+    Return.effect_ (.route >> Route.toString >> Port.pushUrl)
 
 
 cacheAndPersistEncodedGrainStore encoded =
@@ -195,7 +195,7 @@ cacheAndPersistEncodedGrainStore encoded =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg =
-    updateF msg << R2.singleton
+    updateF msg << Return.singleton
 
 
 updateF message =
@@ -210,21 +210,21 @@ updateF message =
             logErrorString errorString
 
         BrowserAnyKeyDown ->
-            R2.effect_ (ifElse (.hasFocusIn >> not) (always focusBaseLayer) (\_ -> Cmd.none))
+            Return.effect_ (ifElse (.hasFocusIn >> not) (always focusBaseLayer) (\_ -> Cmd.none))
 
         BaseLayerFocusInChanged hasFocusIn ->
-            R2.map (\model -> { model | hasFocusIn = hasFocusIn })
+            Return.map (\model -> { model | hasFocusIn = hasFocusIn })
 
         GrainContentChanged grain title ->
-            R2.andThen
+            Return.andThen
                 (\model ->
                     let
                         newGrainStore =
                             GrainStore.setGrainTitle grain title model.grainStore
                     in
-                    R2.singleton model
-                        |> R2.map (setGrainStore newGrainStore)
-                        >> R2.effect_
+                    Return.singleton model
+                        |> Return.map (setGrainStore newGrainStore)
+                        >> Return.effect_
                             (.grainStore
                                 >> GrainStore.encoder
                                 >> cacheAndPersistEncodedGrainStore
@@ -232,15 +232,15 @@ updateF message =
                 )
 
         DeleteGrain grain ->
-            R2.andThen
+            Return.andThen
                 (\model ->
                     let
                         newGrainStore =
                             GrainStore.deleteGrain grain model.grainStore
                     in
-                    R2.singleton model
-                        |> R2.map (setGrainStore newGrainStore)
-                        >> R2.effect_
+                    Return.singleton model
+                        |> Return.map (setGrainStore newGrainStore)
+                        >> Return.effect_
                             (.grainStore
                                 >> GrainStore.encoder
                                 >> cacheAndPersistEncodedGrainStore
@@ -248,7 +248,7 @@ updateF message =
                 )
 
         FirestoreGrainChanges changes ->
-            R2.andThen
+            Return.andThen
                 (\model ->
                     let
                         updateOne { doc, type_ } =
@@ -262,10 +262,10 @@ updateF message =
                                 GrainChange.Removed ->
                                     GrainStore.deleteGrain doc
                     in
-                    R2.singleton model
-                        |> R2.map
+                    Return.singleton model
+                        |> Return.map
                             (setGrainStore (List.foldr updateOne model.grainStore changes))
-                        >> R2.effect_
+                        >> Return.effect_
                             (.grainStore
                                 >> GrainStore.encoder
                                 >> Port.cacheGrains
@@ -273,7 +273,7 @@ updateF message =
                 )
 
         NewGrain ->
-            R2.andThen
+            Return.andThen
                 (\model ->
                     let
                         grainStore =
@@ -282,12 +282,12 @@ updateF message =
                         ( newGrain, newSeed ) =
                             Random.step Grain.generator model.seed
                     in
-                    R2.singleton model
-                        |> R2.map
+                    Return.singleton model
+                        |> Return.map
                             (mapGrainStore (GrainStore.addGrain newGrain)
                                 >> setNewSeed newSeed
                             )
-                        >> R2.effect_
+                        >> Return.effect_
                             (.grainStore
                                 >> GrainStore.encoder
                                 >> cacheAndPersistEncodedGrainStore
@@ -296,7 +296,7 @@ updateF message =
                 )
 
         LoadGrainStore val ->
-            R2.andThen
+            Return.andThen
                 (\model ->
                     let
                         r2 : GrainStore -> ( GrainStore, Cmd msg )
@@ -306,34 +306,34 @@ updateF message =
                         ( grainStore, cmd ) =
                             r2 model.grainStore
                     in
-                    R2.return (setGrainStore grainStore model) cmd
+                    Return.return (setGrainStore grainStore model) cmd
                 )
 
         ToastDismiss ->
-            R2.map <| mapToast <| Toast.dismiss
+            Return.map <| mapToast <| Toast.dismiss
 
         RouteTo route ->
-            R2.map (setRoute route)
+            Return.map (setRoute route)
                 >> pushUrl
-                >> R2.effect_ (.route >> autoFocusRoute)
+                >> Return.effect_ (.route >> autoFocusRoute)
 
         UrlChanged url ->
-            R2.map (setRoute <| Route.fromString url)
+            Return.map (setRoute <| Route.fromString url)
 
         Firebase val ->
-            R2.andThen (handleFire2Elm val)
+            Return.andThen (handleFire2Elm val)
 
         AuthUser user ->
-            R2.map (setAuthState <| AuthState.Authenticated user)
+            Return.map (setAuthState <| AuthState.Authenticated user)
 
         AuthUserNone ->
-            R2.map (setAuthState <| AuthState.NoUser)
+            Return.map (setAuthState <| AuthState.NoUser)
 
         SignIn ->
-            R2.command (Port.signIn ())
+            Return.command (Port.signIn ())
 
         SignOut ->
-            R2.command (Port.signOut ())
+            Return.command (Port.signOut ())
 
 
 handleFire2Elm : Value -> Model -> ( Model, Cmd Msg )
@@ -346,7 +346,7 @@ handleFire2Elm val model =
     in
     result
         |> Result.unpack logErrorString updateF
-        |> callWith (R2.singleton model)
+        |> callWith (Return.singleton model)
 
 
 keyBindings model =
