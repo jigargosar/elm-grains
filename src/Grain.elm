@@ -15,7 +15,7 @@ import BasicsX exposing (eqs)
 import DecodeX exposing (Encoder)
 import GrainId exposing (GrainId(..))
 import Json.Decode as D exposing (Decoder)
-import Json.Decode.Pipeline exposing (custom, required)
+import Json.Decode.Pipeline exposing (custom, optional, required)
 import Json.Encode as E
 import Random exposing (Generator)
 
@@ -23,6 +23,7 @@ import Random exposing (Generator)
 type alias Model =
     { id : GrainId
     , content : String
+    , deleted : Bool
     }
 
 
@@ -32,13 +33,18 @@ type Grain
 
 init : GrainId -> Grain
 init initialId =
-    Grain { id = initialId, content = "" }
+    Grain
+        { id = initialId
+        , content = ""
+        , deleted = False
+        }
 
 
 encoder : Encoder Grain
 encoder (Grain model) =
     E.object
         [ ( "id", GrainId.encoder model.id )
+        , ( "deleted", E.bool model.deleted )
         , ( "content", E.string model.content )
         ]
 
@@ -48,6 +54,7 @@ decoder =
     DecodeX.start Model
         |> required "id" GrainId.decoder
         |> required "content" D.string
+        |> optional "deleted" D.bool False
         |> D.map Grain
 
 
