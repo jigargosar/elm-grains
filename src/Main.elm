@@ -185,141 +185,127 @@ cacheAndPersistEncodedGrainStore encoded =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg =
-    updateF msg << Return.singleton
-
-
-updateF : Msg -> Return.ReturnF Msg Model
-updateF message =
+update message model =
     let
         logErrorStringF err =
             Return.command (Port.error err)
                 >> Return.map (mapToast <| Toast.show err)
+
+        pure =
+            Return.singleton model
     in
     case message of
         NoOp ->
-            identity
+            pure
 
         FocusResult (Ok ()) ->
-            identity
+            pure
 
         FocusResult (Err errorString) ->
-            logErrorStringF errorString
+            pure |> logErrorStringF errorString
 
         BrowserAnyKeyDown ->
-            Return.effect_
+            Return.return model
                 (ifElse (.hasFocusIn >> not)
                     (always focusBaseLayer)
                     (\_ -> Cmd.none)
+                    model
                 )
 
         BaseLayerFocusInChanged hasFocusIn ->
-            Return.map (\model -> { model | hasFocusIn = hasFocusIn })
+            Return.singleton { model | hasFocusIn = hasFocusIn }
 
         GrainContentChanged grain title ->
-            Return.andThen
-                (\model ->
-                    let
-                        newGrainStore =
-                            GrainStore.setGrainTitle grain title model.grainStore
-                    in
-                    Return.singleton model
-                        |> Return.map (setGrainStore newGrainStore)
-                        >> Return.effect_
-                            (.grainStore
-                                >> GrainStore.encoder
-                                >> cacheAndPersistEncodedGrainStore
-                            )
-                )
+            let
+                newGrainStore =
+                    GrainStore.setGrainTitle grain title model.grainStore
+            in
+            setGrainStore newGrainStore model
+                |> Return.singleton
+                |> Return.effect_
+                    (.grainStore
+                        >> GrainStore.encoder
+                        >> cacheAndPersistEncodedGrainStore
+                    )
 
         DeleteGrain grain ->
-            Return.andThen
-                (\model ->
-                    let
-                        newGrainStore =
-                            GrainStore.deleteGrain grain model.grainStore
-                    in
-                    Return.singleton model
-                        |> Return.map (setGrainStore newGrainStore)
-                        >> Return.effect_
-                            (.grainStore
-                                >> GrainStore.encoder
-                                >> cacheAndPersistEncodedGrainStore
-                            )
-                )
+            let
+                newGrainStore =
+                    GrainStore.deleteGrain grain model.grainStore
+            in
+            Return.singleton model
+                |> Return.map (setGrainStore newGrainStore)
+                >> Return.effect_
+                    (.grainStore
+                        >> GrainStore.encoder
+                        >> cacheAndPersistEncodedGrainStore
+                    )
 
         FirestoreGrainChanges changes ->
-            Return.andThen
-                (\model ->
-                    let
-                        updateOne { doc, type_ } =
-                            case type_ of
-                                GrainChange.Added ->
-                                    GrainStore.upsertGrain doc
+            let
+                updateOne { doc, type_ } =
+                    case type_ of
+                        GrainChange.Added ->
+                            GrainStore.upsertGrain doc
 
-                                GrainChange.Modified ->
-                                    GrainStore.upsertGrain doc
+                        GrainChange.Modified ->
+                            GrainStore.upsertGrain doc
 
-                                GrainChange.Removed ->
-                                    GrainStore.deleteGrain doc
-                    in
-                    Return.singleton model
-                        |> Return.map
-                            (setGrainStore (List.foldr updateOne model.grainStore changes))
-                        >> Return.effect_
-                            (.grainStore
-                                >> GrainStore.encoder
-                                >> Port.cacheGrains
-                            )
-                )
+                        GrainChange.Removed ->
+                            GrainStore.deleteGrain doc
+            in
+            Return.singleton model
+                |> Return.map
+                    (setGrainStore (List.foldr updateOne model.grainStore changes))
+                |> Return.effect_
+                    (.grainStore
+                        >> GrainStore.encoder
+                        >> Port.cacheGrains
+                    )
 
         NewGrain ->
-            Return.andThen
-                (\model ->
-                    let
-                        grainStore =
-                            model.grainStore
+            let
+                grainStore =
+                    model.grainStore
 
-                        ( newGrain, newSeed ) =
-                            Random.step Grain.generator model.seed
-                    in
-                    Return.singleton model
-                        |> Return.map
-                            (mapGrainStore (GrainStore.addGrain newGrain)
-                                >> setNewSeed newSeed
-                            )
-                        >> Return.effect_
-                            (.grainStore
-                                >> GrainStore.encoder
-                                >> cacheAndPersistEncodedGrainStore
-                            )
-                        >> updateF (Msg.routeToGrain newGrain)
-                )
+                ( newGrain, newSeed ) =
+                    Random.step Grain.generator model.seed
+            in
+            Return.singleton model
+                |> Return.map
+                    (mapGrainStore (GrainStore.addGrain newGrain)
+                        >> setNewSeed newSeed
+                    )
+                >> Return.effect_
+                    (.grainStore
+                        >> GrainStore.encoder
+                        >> cacheAndPersistEncodedGrainStore
+                    )
+                >> Return.andThen (update (Msg.routeToGrain newGrain))
 
         LoadGrainStore val ->
-            Return.andThen
-                (\model ->
-                    let
-                        r2 : GrainStore -> ( GrainStore, Cmd msg )
-                        r2 gs =
-                            DecodeX.decode gs GrainStore.decoder val
+            let
+                r2 : GrainStore -> ( GrainStore, Cmd msg )
+                r2 gs =
+                    DecodeX.decode gs GrainStore.decoder val
 
-                        ( grainStore, cmd ) =
-                            r2 model.grainStore
-                    in
-                    Return.return (setGrainStore grainStore model) cmd
-                )
+                ( grainStore, cmd ) =
+                    r2 model.grainStore
+            in
+            Return.return (setGrainStore grainStore model) cmd
 
         ToastDismiss ->
-            Return.map <| mapToast <| Toast.dismiss
+            Return.singleton (mapToast Toast.dismiss model)
 
         RouteTo route ->
-            Return.map (setRoute route)
+            Return.singleton model
+                |> Return.map (setRoute route)
                 >> Return.effect_ (.route >> Route.toString >> Port.pushUrl)
                 >> Return.effect_ (.route >> autoFocusRoute)
 
         UrlChanged url ->
-            Return.map (setRoute <| Route.fromString url)
+            Return.singleton model
+                |> Return.map (setRoute <| Route.fromString url)
 
         Firebase val ->
             let
@@ -329,19 +315,23 @@ updateF message =
                         |> Result.mapError D.errorToString
             in
             result
-                |> Result.unpack logErrorStringF updateF
+                |> Result.unpack (logErrorStringF >> callWith (Return.singleton model)) (update >> callWith model)
 
         AuthUser user ->
-            Return.map (setAuthState <| AuthState.Authenticated user)
+            Return.singleton model
+                |> Return.map (setAuthState <| AuthState.Authenticated user)
 
         AuthUserNone ->
-            Return.map (setAuthState <| AuthState.NoUser)
+            Return.singleton model
+                |> Return.map (setAuthState <| AuthState.NoUser)
 
         SignIn ->
-            Return.command (Port.signIn ())
+            Return.singleton model
+                |> Return.command (Port.signIn ())
 
         SignOut ->
-            Return.command (Port.signOut ())
+            Return.singleton model
+                |> Return.command (Port.signOut ())
 
 
 keyBindings model =
