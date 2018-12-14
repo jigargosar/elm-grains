@@ -1,4 +1,11 @@
-module Firebase exposing (Msg(..), decoder, persistGrains, signIn, signOut)
+module Firebase exposing
+    ( Msg(..)
+    , decoder
+    , persistGrains
+    , persistNewGrain
+    , signIn
+    , signOut
+    )
 
 import DecodeX
 import FireUser exposing (FireUser)
@@ -42,6 +49,10 @@ decoderWithMsg msgString =
 
 persistGrains =
     Port.persistGrains
+
+
+persistNewGrain grain =
+    Port.persistGrain (Grain.encoder grain)
 
 
 signIn =

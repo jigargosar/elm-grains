@@ -241,6 +241,7 @@ update message model =
                         >> GrainStore.encoder
                         >> cacheAndPersistEncodedGrainStore
                     )
+                |> Return.command (Firebase.persistNewGrain newGrain)
                 |> Return.andThen (update (Msg.routeToGrain newGrain))
 
         LoadGrainStore val ->
