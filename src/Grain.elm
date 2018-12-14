@@ -7,6 +7,7 @@ module Grain exposing
     , id
     , idEq
     , setContent
+    , setDeleted
     , titleOrEmpty
     , toDomIdWithPrefix
     )
@@ -102,3 +103,7 @@ generator =
 setContent : String -> Grain -> Grain
 setContent newContent =
     map (\model -> { model | content = newContent })
+
+
+setDeleted newDeleted =
+    map (\model -> { model | deleted = newDeleted })

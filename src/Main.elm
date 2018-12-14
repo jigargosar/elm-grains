@@ -235,6 +235,21 @@ update message =
                             )
                 )
 
+        DeleteGrain grain ->
+            R3.andThen
+                (\model ->
+                    let
+                        newGrainStore =
+                            GrainStore.deleteGrain grain model.grainStore
+                    in
+                    R3.map (setGrainStore newGrainStore)
+                        >> R3.effect
+                            (.grainStore
+                                >> GrainStore.encoder
+                                >> cacheAndPersistEncodedGrainStore
+                            )
+                )
+
         FirestoreGrainChanges changes ->
             R3.andThen
                 (\model ->

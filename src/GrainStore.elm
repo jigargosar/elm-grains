@@ -94,7 +94,14 @@ setGrainTitle grain title =
 
 
 deleteGrain grain =
-    DeleteGrainId (Grain.id grain)
+    let
+        gid =
+            Grain.id grain
+
+        updateByGid fn =
+            mapLookup (GrainLookup.update gid fn)
+    in
+    updateByGid (Grain.setDeleted True)
 
 
 cache =
