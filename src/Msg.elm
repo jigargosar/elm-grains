@@ -18,6 +18,7 @@ type Msg
       NoOp
     | FocusResult (Result String ())
     | LoadGrainStore Value
+    | PermanentlyDeleteGrain Grain
     | NewGrain
     | DeleteGrain Grain
     | GrainContentChanged Grain String

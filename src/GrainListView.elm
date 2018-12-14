@@ -81,7 +81,7 @@ viewGrainList list =
 
         viewDelete g =
             CssElements.iconBtnWithStyles [ CS.asc ]
-                [ onClick <| Msg.DeleteGrain g
+                [ onClick <| Msg.PermanentlyDeleteGrain g
                 ]
                 [ CssIcons.view CssIcons.delete
                 ]

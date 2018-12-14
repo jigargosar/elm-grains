@@ -229,6 +229,16 @@ update message model =
                 |> Return.effect_ cacheGrainStore
                 |> Return.command (Firebase.persistUpdatedGrain newGrain)
 
+        PermanentlyDeleteGrain grain ->
+            let
+                newGrainStore =
+                    GrainStore.removeGrain grain model.grainStore
+            in
+            Return.singleton model
+                |> Return.map (setGrainStore newGrainStore)
+                |> Return.effect_ cacheGrainStore
+                |> Return.command (Firebase.persistRemovedGrain grain)
+
         NewGrain ->
             let
                 ( newGrain, newModel ) =

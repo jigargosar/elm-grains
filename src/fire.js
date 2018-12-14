@@ -86,34 +86,19 @@ function getFireSubscriptions(app) {
     persistNewGrain: async grain => {
       console.log(`fire: persistNewGrain started`, grain)
       const gcRef = createCRef('grains')
-      // const batch = firestore.batch()
-      //
-      // grain.map(g => batch.set(gcRef.doc(g.id), g))
-      //
-      // await batch.commit()
       gcRef.doc(grain.id).set(grain)
       console.log(`fire: persistNewGrain completed`)
     },
     persistUpdatedGrain: async grain => {
       console.log(`fire: persistUpdatedGrain started`, grain)
       const gcRef = createCRef('grains')
-      // const batch = firestore.batch()
-      //
-      // grain.map(g => batch.update(gcRef.doc(g.id), g))
-      //
-      // await batch.commit()
       gcRef.doc(grain.id).set(grain)
       console.log(`fire: persistUpdatedGrain completed`)
     },
     persistRemovedGrain: async grain => {
       console.log(`fire: persistRemovedGrain started`, grain)
       const gcRef = createCRef('grains')
-      // const batch = firestore.batch()
-      //
-      // grain.map(g => batch.update(gcRef.doc(g.id), g))
-      //
-      // await batch.commit()
-      gcRef.doc(grain.id).remove(grain)
+      gcRef.doc(grain.id).delete()
       console.log(`fire: persistRemovedGrain completed`)
     },
   }
