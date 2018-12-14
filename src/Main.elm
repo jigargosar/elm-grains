@@ -10,6 +10,7 @@ import Color
 import Css exposing (em, num, pct, px, rgb, zero)
 import CssElements exposing (..)
 import CssElevation exposing (elevation)
+import CssHtml
 import CssIcons exposing (view)
 import CssLayout exposing (flexCol, flexRow, flexRowIC)
 import CssShorthand as CS
@@ -325,7 +326,7 @@ view model =
     in
     Skeleton.view
         { children =
-            [ viewAppBar routeVM.title model.authState ]
+            [ viewAppBar routeVM model.authState ]
                 ++ viewRouteChildren model
                 ++ [ viewToast model.toast
                    ]
@@ -333,26 +334,29 @@ view model =
 
 
 type alias RouteViewModel =
-    { title : String, children : List (Html Msg) }
+    { title : String, showBackBtn : Bool, children : List (Html Msg) }
 
 
 routeViewModel : Route -> RouteViewModel
 routeViewModel route =
     case route of
         Route.GrainList ->
-            { title = "Grain List", children = [] }
+            { title = "Grain List", showBackBtn = False, children = [] }
 
         Route.Grain _ ->
-            { title = "Grain", children = [] }
+            { title = "Grain", showBackBtn = True, children = [] }
 
         Route.NotFound _ ->
-            { title = "Oops!", children = [] }
+            { title = "Oops!", showBackBtn = True, children = [] }
 
 
-viewAppBar title authState =
+viewAppBar { title, showBackBtn } authState =
     let
         viewTitle =
             styled div [ CS.p2 space2 zero, CS.flex11Auto ] [] [ text title ]
+
+        viewBackBtn =
+            button [ class "btn" ] [ text "Back" ]
 
         viewAuthState =
             case authState of
@@ -371,7 +375,8 @@ viewAppBar title authState =
         , CS.p2 zero space2
         ]
         [ class "bg-dark" ]
-        [ viewTitle
+        [ CssHtml.viewIf showBackBtn viewBackBtn
+        , viewTitle
         , viewAuthState
         ]
 
