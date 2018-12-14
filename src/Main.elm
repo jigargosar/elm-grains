@@ -302,7 +302,8 @@ update message model =
             Return.singleton (setRoute newRoute model)
 
         LogErrorString errString ->
-            Return.return (mapToast (Toast.show errString) model) (Port.error errString)
+            Return.return (mapToast (Toast.show errString) model)
+                (Port.error errString)
 
         Firebase val ->
             let
