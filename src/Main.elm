@@ -130,32 +130,21 @@ setNewSeed newSeed model =
 ---- UPDATE ----
 
 
-focusDomId domId =
-    Browser.Dom.focus domId
-        |> Task.mapError (\_ -> "FocusError: domId=" ++ domId)
-        |> Task.attempt FocusResult
-
-
-focusMaybeDomId =
-    unpackMaybe Cmd.none focusDomId
-
-
-maybeAutoFocusRouteDomId route =
-    case route of
-        Route.Grain _ ->
-            Just GrainView.autoFocusId
-
-        _ ->
-            Nothing
-
-
 autoFocusRoute route =
-    maybeAutoFocusRouteDomId route
-        |> focusMaybeDomId
+    let
+        maybeDomId =
+            case route of
+                Route.Grain _ ->
+                    Just GrainView.autoFocusId
+
+                _ ->
+                    Nothing
+    in
+    maybeDomId |> unwrapMaybeCmd (BrowserX.focus FocusResult)
 
 
-focusGrain =
-    GrainListView.grainDomId >> focusDomId
+unwrapMaybeCmd cmdFn =
+    Maybe.unwrap Cmd.none cmdFn
 
 
 globalKeyBinding model =
