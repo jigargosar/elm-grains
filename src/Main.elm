@@ -184,25 +184,23 @@ cacheAndPersistEncodedGrainStore encoded =
     Cmd.batch [ Port.cacheGrains encoded, Port.persistGrains encoded ]
 
 
+logErrorString : String -> Model -> ( Model, Cmd Msg )
+logErrorString err model =
+    Return.return model (Port.error err)
+        |> Return.map (mapToast <| Toast.show err)
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
-    let
-        logErrorStringF err =
-            Return.command (Port.error err)
-                >> Return.map (mapToast <| Toast.show err)
-
-        pure =
-            Return.singleton model
-    in
     case message of
         NoOp ->
-            pure
+            Return.singleton model
 
         FocusResult (Ok ()) ->
-            pure
+            Return.singleton model
 
         FocusResult (Err errorString) ->
-            pure |> logErrorStringF errorString
+            logErrorString errorString model
 
         BrowserAnyKeyDown ->
             Return.return model
@@ -315,7 +313,8 @@ update message model =
                         |> Result.mapError D.errorToString
             in
             result
-                |> Result.unpack (logErrorStringF >> callWith (Return.singleton model)) (update >> callWith model)
+                |> Result.unpack logErrorString update
+                |> callWith model
 
         AuthUser user ->
             Return.singleton model
