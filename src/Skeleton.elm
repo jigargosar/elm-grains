@@ -22,8 +22,6 @@ view { onKeyDownPD, children } =
         , Css.outline Css.none
         ]
         [ SA.id "base-layer"
-        , SE.onFocusIn <| Msg.BaseLayerFocusInChanged True
-        , SE.onFocusOut <| Msg.BaseLayerFocusInChanged False
         , SA.tabindex -1
         , SE.onKeyDownPD onKeyDownPD
         ]

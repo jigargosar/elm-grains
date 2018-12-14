@@ -76,16 +76,11 @@ initialSeed =
 
 type alias Model =
     { grainStore : GrainStore
-    , hasFocusIn : Bool
     , toast : Toast
     , route : Route
     , authState : AuthState
     , seed : Seed
     }
-
-
-initialHasFocusIn =
-    False
 
 
 init : Flags -> ( Model, Cmd Msg )
@@ -95,7 +90,6 @@ init flags =
             Model
                 |> Random.from (initialSeed flags)
                 |> Random.always GrainStore.init
-                |> Random.always initialHasFocusIn
                 |> Random.always Toast.init
                 |> Random.always (Route.fromString flags.url)
                 |> Random.always AuthState.init
@@ -174,8 +168,7 @@ globalKeyBinding model =
 
 subscriptions model =
     Sub.batch
-        [ Browser.Events.onKeyDown <| D.succeed BrowserAnyKeyDown
-        , Port.urlChanged UrlChanged
+        [ Port.urlChanged UrlChanged
         , Port.fire2Elm Firebase
         ]
 
@@ -202,17 +195,6 @@ update message model =
 
         FocusResult (Err errorString) ->
             update (LogErrorString errorString) model
-
-        BrowserAnyKeyDown ->
-            Return.return model
-                (ifElse (.hasFocusIn >> not)
-                    (always focusBaseLayer)
-                    (\_ -> Cmd.none)
-                    model
-                )
-
-        BaseLayerFocusInChanged hasFocusIn ->
-            Return.singleton { model | hasFocusIn = hasFocusIn }
 
         GrainContentChanged grain title ->
             let

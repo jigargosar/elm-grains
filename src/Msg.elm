@@ -17,8 +17,6 @@ type Msg
     = ---- INJECT MSG BELOW ----
       NoOp
     | FocusResult (Result String ())
-    | BrowserAnyKeyDown
-    | BaseLayerFocusInChanged Bool
     | LoadGrainStore Value
     | NewGrain
     | DeleteGrain Grain
