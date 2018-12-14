@@ -1,4 +1,4 @@
-module Firebase exposing (Msg(..), decoder)
+module Firebase exposing (Msg(..), decoder, persistGrains, signIn, signOut)
 
 import DecodeX
 import FireUser exposing (FireUser)
@@ -7,6 +7,7 @@ import GrainChange exposing (GrainChange)
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline exposing (required, requiredAt)
 import Json.Encode as E
+import Port
 
 
 type Msg
@@ -37,3 +38,15 @@ decoderWithMsg msgString =
 
         _ ->
             D.succeed <| UnknownMsg msgString
+
+
+persistGrains =
+    Port.persistGrains
+
+
+signIn =
+    Port.signIn
+
+
+signOut =
+    Port.signOut

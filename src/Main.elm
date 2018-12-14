@@ -159,7 +159,7 @@ subscriptions model =
 
 
 cacheAndPersistEncodedGrainStore encoded =
-    Cmd.batch [ Port.cacheGrains encoded, Port.persistGrains encoded ]
+    Cmd.batch [ Port.cacheGrains encoded, Firebase.persistGrains encoded ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -259,10 +259,10 @@ update message model =
                     handleFireMsg fireMsg model
 
         SignIn ->
-            Return.return model (Port.signIn ())
+            Return.return model (Firebase.signIn ())
 
         SignOut ->
-            Return.return model (Port.signOut ())
+            Return.return model (Firebase.signOut ())
 
 
 handleFireMsg fireMsg model =
