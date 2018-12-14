@@ -227,6 +227,7 @@ update message model =
             Return.singleton model
                 |> Return.map (setGrainStore newGrainStore)
                 |> Return.effect_ cacheGrainStore
+                |> Return.command (Firebase.persistUpdatedGrain grain)
 
         NewGrain ->
             let
