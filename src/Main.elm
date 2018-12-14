@@ -290,14 +290,12 @@ update message model =
             Return.singleton (mapToast Toast.dismiss model)
 
         RouteTo route ->
-            Return.singleton model
-                |> Return.map (setRoute route)
-                >> Return.effect_ (.route >> Route.toString >> Port.pushUrl)
-                >> Return.effect_ (.route >> autoFocusRoute)
+            Return.singleton (setRoute route model)
+                |> Return.effect_ (.route >> Route.toString >> Port.pushUrl)
+                |> Return.effect_ (.route >> autoFocusRoute)
 
         UrlChanged url ->
-            Return.singleton model
-                |> Return.map (setRoute <| Route.fromString url)
+            Return.singleton (setRoute (Route.fromString url) model)
 
         LogErrorString errString ->
             Return.return (mapToast (Toast.show errString) model) (Port.error errString)
