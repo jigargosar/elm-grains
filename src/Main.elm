@@ -180,11 +180,6 @@ subscriptions model =
         ]
 
 
-logErrorStringF err =
-    Return.command (Port.error err)
-        >> Return.map (mapToast <| Toast.show err)
-
-
 cacheAndPersistEncodedGrainStore encoded =
     Cmd.batch [ Port.cacheGrains encoded, Port.persistGrains encoded ]
 
@@ -196,6 +191,11 @@ update msg =
 
 updateF : Msg -> Return.ReturnF Msg Model
 updateF message =
+    let
+        logErrorStringF err =
+            Return.command (Port.error err)
+                >> Return.map (mapToast <| Toast.show err)
+    in
     case message of
         NoOp ->
             identity
