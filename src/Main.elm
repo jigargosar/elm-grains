@@ -180,13 +180,9 @@ subscriptions model =
         ]
 
 
-logErrorString err =
+logErrorStringF err =
     Return.command (Port.error err)
         >> Return.map (mapToast <| Toast.show err)
-
-
-pushUrl =
-    Return.effect_ (.route >> Route.toString >> Port.pushUrl)
 
 
 cacheAndPersistEncodedGrainStore encoded =
@@ -208,7 +204,7 @@ updateF message =
             identity
 
         FocusResult (Err errorString) ->
-            logErrorString errorString
+            logErrorStringF errorString
 
         BrowserAnyKeyDown ->
             Return.effect_
@@ -319,14 +315,21 @@ updateF message =
 
         RouteTo route ->
             Return.map (setRoute route)
-                >> pushUrl
+                >> Return.effect_ (.route >> Route.toString >> Port.pushUrl)
                 >> Return.effect_ (.route >> autoFocusRoute)
 
         UrlChanged url ->
             Return.map (setRoute <| Route.fromString url)
 
         Firebase val ->
-            Return.andThen (handleFire2Elm val)
+            let
+                result : Result String Msg
+                result =
+                    D.decodeValue Fire2Elm.decoder val
+                        |> Result.mapError D.errorToString
+            in
+            result
+                |> Result.unpack logErrorStringF updateF
 
         AuthUser user ->
             Return.map (setAuthState <| AuthState.Authenticated user)
@@ -339,19 +342,6 @@ updateF message =
 
         SignOut ->
             Return.command (Port.signOut ())
-
-
-handleFire2Elm : Value -> Model -> ( Model, Cmd Msg )
-handleFire2Elm val model =
-    let
-        result : Result String Msg
-        result =
-            D.decodeValue Fire2Elm.decoder val
-                |> Result.mapError D.errorToString
-    in
-    result
-        |> Result.unpack logErrorString updateF
-        |> callWith (Return.singleton model)
 
 
 keyBindings model =
