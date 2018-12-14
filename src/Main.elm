@@ -194,8 +194,12 @@ cacheAndPersistEncodedGrainStore encoded =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update message =
-    (case message of
+update msg =
+    updateF msg << R2.singleton
+
+
+updateF message =
+    case message of
         NoOp ->
             identity
 
@@ -288,7 +292,7 @@ update message =
                                 >> GrainStore.encoder
                                 >> cacheAndPersistEncodedGrainStore
                             )
-                        >> R2.andThen (update (Msg.routeToGrain newGrain))
+                        >> updateF (Msg.routeToGrain newGrain)
                 )
 
         LoadGrainStore val ->
@@ -330,8 +334,6 @@ update message =
 
         SignOut ->
             R2.command (Port.signOut ())
-    )
-        << R2.singleton
 
 
 handleFire2Elm : Value -> Model -> ( Model, Cmd Msg )
@@ -340,12 +342,11 @@ handleFire2Elm val model =
         result : Result String Msg
         result =
             D.decodeValue Fire2Elm.decoder val
-                |> Result.mapError (D.errorToString >> Debug.log "es")
+                |> Result.mapError D.errorToString
     in
     result
-        |> Result.unpack
-            (logErrorString >> callWith (R2.singleton model))
-            (update >> callWith model)
+        |> Result.unpack logErrorString updateF
+        |> callWith (R2.singleton model)
 
 
 keyBindings model =
