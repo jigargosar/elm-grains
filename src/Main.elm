@@ -328,6 +328,23 @@ view model =
         }
 
 
+type alias RouteViewModel =
+    { title : String, children : List (Html Msg) }
+
+
+routeViewModel : Route -> RouteViewModel
+routeViewModel route =
+    case route of
+        Route.GrainList ->
+            { title = "Grain List", children = [] }
+
+        Route.Grain _ ->
+            { title = "Grain", children = [] }
+
+        Route.NotFound _ ->
+            { title = "Oops!", children = [] }
+
+
 viewAppBar authState =
     let
         viewTitle =
