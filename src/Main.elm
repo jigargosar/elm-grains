@@ -353,7 +353,13 @@ routeViewModel route =
 viewAppBar { title, showBackBtn } authState =
     let
         viewTitle =
-            styled div [ CS.p2 space2 zero, CS.flex11Auto ] [] [ text title ]
+            styled div
+                [ CS.p2 space2 zero
+                , CS.flex11Auto
+                , Css.textAlign Css.center
+                ]
+                []
+                [ text title ]
 
         viewBackBtn =
             button [ class "btn" ] [ text "Back" ]
