@@ -295,7 +295,7 @@ handleFireMsg fireMsg model =
                             GrainStore.upsertGrain doc
 
                         GrainChange.Removed ->
-                            GrainStore.deleteGrain doc >> Tuple.second
+                            GrainStore.removeGrain doc
             in
             Return.singleton model
                 |> Return.map

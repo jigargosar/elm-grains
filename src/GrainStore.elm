@@ -8,6 +8,7 @@ module GrainStore exposing
     , get
     , init
     , load
+    , removeGrain
     , setGrainTitle
     , upsertGrain
     )
@@ -48,6 +49,10 @@ get gid =
 
 addGrain grain lookup =
     GrainLookup.upsert grain lookup
+
+
+removeGrain =
+    GrainLookup.remove << Grain.id
 
 
 setGrainTitle grain title lookup =
