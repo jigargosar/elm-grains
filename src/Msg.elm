@@ -20,8 +20,8 @@ type Msg
     | BrowserAnyKeyDown
     | BaseLayerFocusInChanged Bool
     | LoadGrainStore Value
-    | NewGrain
-    | DeleteGrain Grain
+    | NewGrainClicked
+    | DeleteGrainClicked Grain
     | GrainContentChanged Grain String
     | ToastDismiss
     | RouteTo Route
