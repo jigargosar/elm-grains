@@ -1,13 +1,19 @@
-module Fire2Elm exposing (decoder)
+module Firebase exposing (Msg(..), decoder)
 
 import DecodeX
-import FireUser
+import FireUser exposing (FireUser)
 import Grain exposing (Grain)
 import GrainChange exposing (GrainChange)
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline exposing (required, requiredAt)
 import Json.Encode as E
-import Msg exposing (Msg)
+
+
+type Msg
+    = AuthUser FireUser
+    | AuthUserNone
+    | GrainChanges (List GrainChange)
+    | UnknownMsg String
 
 
 decoder : Decoder Msg
@@ -16,18 +22,18 @@ decoder =
         |> D.andThen decoderWithMsg
 
 
-decoderWithMsg msg =
-    case msg of
+decoderWithMsg msgString =
+    case msgString of
         "UserLoggedIn" ->
-            DecodeX.start Msg.AuthUser
+            DecodeX.start AuthUser
                 |> requiredAt [ "payload", "user" ] FireUser.decoder
 
         "UserNotLoggedIn" ->
-            D.succeed Msg.AuthUserNone
+            D.succeed AuthUserNone
 
         "GrainChanges" ->
-            DecodeX.start Msg.FirestoreGrainChanges
+            DecodeX.start GrainChanges
                 |> requiredAt [ "payload", "changes" ] GrainChange.listDecoder
 
         _ ->
-            D.fail "Invalid fire2Elm msg"
+            D.succeed <| UnknownMsg msgString

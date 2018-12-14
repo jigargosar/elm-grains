@@ -4,7 +4,6 @@ module Msg exposing
     )
 
 import Browser.Dom
-import FireUser exposing (FireUser)
 import Grain exposing (Grain)
 import GrainChange exposing (GrainChange)
 import GrainId exposing (GrainId)
@@ -24,14 +23,11 @@ type Msg
     | NewGrain
     | DeleteGrain Grain
     | GrainContentChanged Grain String
-    | FirestoreGrainChanges (List GrainChange)
     | ToastDismiss
     | RouteTo Route
     | UrlChanged String
     | Firebase Value
     | LogErrorString String
-    | AuthUser FireUser
-    | AuthUserNone
     | SignIn
     | SignOut
 

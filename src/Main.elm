@@ -17,7 +17,7 @@ import CssTheme exposing (black80, blackAlpha, space2, space4, white)
 import DecodeX exposing (DecodeResult)
 import Either exposing (Either(..))
 import EventX exposing (onKeyDownPD)
-import Fire2Elm
+import Firebase
 import Grain exposing (Grain)
 import GrainChange
 import GrainId exposing (GrainId)
@@ -233,28 +233,6 @@ update message model =
                         >> cacheAndPersistEncodedGrainStore
                     )
 
-        FirestoreGrainChanges changes ->
-            let
-                updateOne { doc, type_ } =
-                    case type_ of
-                        GrainChange.Added ->
-                            GrainStore.upsertGrain doc
-
-                        GrainChange.Modified ->
-                            GrainStore.upsertGrain doc
-
-                        GrainChange.Removed ->
-                            GrainStore.deleteGrain doc
-            in
-            Return.singleton model
-                |> Return.map
-                    (setGrainStore (List.foldr updateOne model.grainStore changes))
-                |> Return.effect_
-                    (.grainStore
-                        >> GrainStore.encoder
-                        >> Port.cacheGrains
-                    )
-
         NewGrain ->
             let
                 grainStore =
@@ -306,28 +284,52 @@ update message model =
                 (Port.error errString)
 
         Firebase val ->
-            let
-                msg =
-                    case D.decodeValue Fire2Elm.decoder val of
-                        Err error ->
-                            LogErrorString (D.errorToString error)
+            case D.decodeValue Firebase.decoder val of
+                Err error ->
+                    update (LogErrorString (D.errorToString error)) model
 
-                        Ok decodedMsg ->
-                            decodedMsg
-            in
-            update msg model
-
-        AuthUser user ->
-            Return.singleton (setAuthState (AuthState.Authenticated user) model)
-
-        AuthUserNone ->
-            Return.singleton (setAuthState AuthState.NoUser model)
+                Ok fireMsg ->
+                    handleFireMsg fireMsg model
 
         SignIn ->
             Return.return model (Port.signIn ())
 
         SignOut ->
             Return.return model (Port.signOut ())
+
+
+handleFireMsg fireMsg model =
+    case fireMsg of
+        Firebase.UnknownMsg unknown ->
+            update (LogErrorString ("Invalid Firebase Msg Received: " ++ unknown)) model
+
+        Firebase.AuthUser user ->
+            Return.singleton (setAuthState (AuthState.Authenticated user) model)
+
+        Firebase.AuthUserNone ->
+            Return.singleton (setAuthState AuthState.NoUser model)
+
+        Firebase.GrainChanges changes ->
+            let
+                updateOne { doc, type_ } =
+                    case type_ of
+                        GrainChange.Added ->
+                            GrainStore.upsertGrain doc
+
+                        GrainChange.Modified ->
+                            GrainStore.upsertGrain doc
+
+                        GrainChange.Removed ->
+                            GrainStore.deleteGrain doc
+            in
+            Return.singleton model
+                |> Return.map
+                    (setGrainStore (List.foldr updateOne model.grainStore changes))
+                |> Return.effect_
+                    (.grainStore
+                        >> GrainStore.encoder
+                        >> Port.cacheGrains
+                    )
 
 
 keyBindings model =
