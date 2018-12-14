@@ -45,8 +45,8 @@ get gid =
     GrainLookup.get gid
 
 
-addGrain grain =
-    GrainLookup.upsert grain
+addGrain grain lookup =
+    GrainLookup.upsert grain lookup
 
 
 setGrainTitle grain title =

@@ -130,6 +130,25 @@ setNewSeed newSeed model =
 ---- UPDATE ----
 
 
+createNewGrain model =
+    let
+        ( newGrain, newSeed ) =
+            Random.step Grain.generator model.seed
+    in
+    ( newGrain, setNewSeed newSeed model )
+
+
+createAndAddNewGrain =
+    createNewGrain
+        >> (\( newGrain, model ) ->
+                let
+                    newGrainStore =
+                        GrainStore.addGrain newGrain model.grainStore
+                in
+                ( newGrain, setGrainStore newGrainStore model )
+           )
+
+
 autoFocusRoute route =
     let
         maybeDomId =
@@ -209,23 +228,16 @@ update message model =
 
         NewGrain ->
             let
-                grainStore =
-                    model.grainStore
-
-                ( newGrain, newSeed ) =
-                    Random.step Grain.generator model.seed
+                ( newGrain, newModel ) =
+                    createAndAddNewGrain model
             in
-            Return.singleton model
-                |> Return.map
-                    (mapGrainStore (GrainStore.addGrain newGrain)
-                        >> setNewSeed newSeed
-                    )
-                >> Return.effect_
+            Return.singleton newModel
+                |> Return.effect_
                     (.grainStore
                         >> GrainStore.encoder
                         >> cacheAndPersistEncodedGrainStore
                     )
-                >> Return.andThen (update (Msg.routeToGrain newGrain))
+                |> Return.andThen (update (Msg.routeToGrain newGrain))
 
         LoadGrainStore val ->
             let
