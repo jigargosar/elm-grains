@@ -311,7 +311,7 @@ handleFireMsg fireMsg model =
 
         Firebase.GrainChanges changes ->
             let
-                updateOne { doc, type_ } =
+                handleChange { doc, type_ } =
                     case type_ of
                         GrainChange.Added ->
                             GrainStore.upsertGrain doc
@@ -324,7 +324,7 @@ handleFireMsg fireMsg model =
             in
             Return.singleton model
                 |> Return.map
-                    (setGrainStore (List.foldr updateOne model.grainStore changes))
+                    (setGrainStore (List.foldr handleChange model.grainStore changes))
                 |> Return.effect_
                     (.grainStore
                         >> GrainStore.encoder
