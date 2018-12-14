@@ -48,8 +48,7 @@ import Random exposing (Generator, Seed)
 import Random.Pipeline as Random
 import RandomId
 import Result.Extra as Result
-import Return exposing (Return)
-import Return3 as R3 exposing (Return3F)
+import Return as R2 exposing (Return)
 import Route exposing (Route)
 import Skeleton
 import Tagged
@@ -89,17 +88,20 @@ initialHasFocusIn =
     False
 
 
-init : Flags -> Return Msg Model
+init : Flags -> ( Model, Cmd Msg )
 init flags =
-    Model
-        |> Random.from (initialSeed flags)
-        |> Random.always GrainStore.init
-        |> Random.always initialHasFocusIn
-        |> Random.always Toast.init
-        |> Random.always (Route.fromString flags.url)
-        |> Random.always AuthState.init
-        |> Random.finish
-        |> elmUpdate (LoadGrainStore flags.grains)
+    let
+        model =
+            Model
+                |> Random.from (initialSeed flags)
+                |> Random.always GrainStore.init
+                |> Random.always initialHasFocusIn
+                |> Random.always Toast.init
+                |> Random.always (Route.fromString flags.url)
+                |> Random.always AuthState.init
+                |> Random.finish
+    in
+    update (LoadGrainStore flags.grains) model
 
 
 setGrainStore grainStore model =
@@ -112,10 +114,6 @@ setRoute route model =
 
 mapToast fn model =
     { model | toast = fn model.toast }
-
-
-mapToastR3 =
-    R3.map << mapToast
 
 
 setAuthState authState model =
@@ -182,23 +180,22 @@ subscriptions model =
         ]
 
 
-logErrorString : String -> Return3F Msg Model ()
 logErrorString err =
-    R3.do (Port.error err)
-        >> mapToastR3 (Toast.show err)
+    R2.command (Port.error err)
+        >> R2.map (mapToast <| Toast.show err)
 
 
 pushUrl =
-    R3.doWith .route (Route.toString >> Port.pushUrl)
+    R2.effect_ (.route >> Route.toString >> Port.pushUrl)
 
 
 cacheAndPersistEncodedGrainStore encoded =
     Cmd.batch [ Port.cacheGrains encoded, Port.persistGrains encoded ]
 
 
-update : Msg -> Return3F Msg Model ()
+update : Msg -> Model -> ( Model, Cmd Msg )
 update message =
-    case message of
+    (case message of
         NoOp ->
             identity
 
@@ -209,20 +206,21 @@ update message =
             logErrorString errorString
 
         BrowserAnyKeyDown ->
-            R3.doWhen (.hasFocusIn >> not) focusBaseLayer
+            R2.effect_ (ifElse (.hasFocusIn >> not) (always focusBaseLayer) (\_ -> Cmd.none))
 
         BaseLayerFocusInChanged hasFocusIn ->
-            R3.map (\model -> { model | hasFocusIn = hasFocusIn })
+            R2.map (\model -> { model | hasFocusIn = hasFocusIn })
 
         GrainContentChanged grain title ->
-            R3.andThen
+            R2.andThen
                 (\model ->
                     let
                         newGrainStore =
                             GrainStore.setGrainTitle grain title model.grainStore
                     in
-                    R3.map (setGrainStore newGrainStore)
-                        >> R3.effect
+                    R2.singleton model
+                        |> R2.map (setGrainStore newGrainStore)
+                        >> R2.effect_
                             (.grainStore
                                 >> GrainStore.encoder
                                 >> cacheAndPersistEncodedGrainStore
@@ -230,14 +228,15 @@ update message =
                 )
 
         DeleteGrain grain ->
-            R3.andThen
+            R2.andThen
                 (\model ->
                     let
                         newGrainStore =
                             GrainStore.deleteGrain grain model.grainStore
                     in
-                    R3.map (setGrainStore newGrainStore)
-                        >> R3.effect
+                    R2.singleton model
+                        |> R2.map (setGrainStore newGrainStore)
+                        >> R2.effect_
                             (.grainStore
                                 >> GrainStore.encoder
                                 >> cacheAndPersistEncodedGrainStore
@@ -245,7 +244,7 @@ update message =
                 )
 
         FirestoreGrainChanges changes ->
-            R3.andThen
+            R2.andThen
                 (\model ->
                     let
                         updateOne { doc, type_ } =
@@ -259,8 +258,10 @@ update message =
                                 GrainChange.Removed ->
                                     GrainStore.deleteGrain doc
                     in
-                    R3.map (setGrainStore (List.foldr updateOne model.grainStore changes))
-                        >> R3.effect
+                    R2.singleton model
+                        |> R2.map
+                            (setGrainStore (List.foldr updateOne model.grainStore changes))
+                        >> R2.effect_
                             (.grainStore
                                 >> GrainStore.encoder
                                 >> Port.cacheGrains
@@ -268,7 +269,7 @@ update message =
                 )
 
         NewGrain ->
-            R3.andThen
+            R2.andThen
                 (\model ->
                     let
                         grainStore =
@@ -277,18 +278,21 @@ update message =
                         ( newGrain, newSeed ) =
                             Random.step Grain.generator model.seed
                     in
-                    R3.map
-                        (mapGrainStore (GrainStore.addGrain newGrain) >> setNewSeed newSeed)
-                        >> R3.effect
+                    R2.singleton model
+                        |> R2.map
+                            (mapGrainStore (GrainStore.addGrain newGrain)
+                                >> setNewSeed newSeed
+                            )
+                        >> R2.effect_
                             (.grainStore
                                 >> GrainStore.encoder
                                 >> cacheAndPersistEncodedGrainStore
                             )
-                        >> update (Msg.routeToGrain newGrain)
+                        >> R2.andThen (update (Msg.routeToGrain newGrain))
                 )
 
         LoadGrainStore val ->
-            R3.andThen
+            R2.andThen
                 (\model ->
                     let
                         r2 : GrainStore -> ( GrainStore, Cmd msg )
@@ -298,41 +302,50 @@ update message =
                         ( grainStore, cmd ) =
                             r2 model.grainStore
                     in
-                    R3.map (setGrainStore grainStore)
-                        >> R3.do cmd
+                    R2.return (setGrainStore grainStore model) cmd
                 )
 
         ToastDismiss ->
-            mapToastR3 Toast.dismiss
+            R2.map <| mapToast <| Toast.dismiss
 
         RouteTo route ->
-            R3.map (setRoute route)
+            R2.map (setRoute route)
                 >> pushUrl
-                >> R3.doWith .route autoFocusRoute
+                >> R2.effect_ (.route >> autoFocusRoute)
 
         UrlChanged url ->
-            R3.map (setRoute <| Route.fromString url)
+            R2.map (setRoute <| Route.fromString url)
 
         Firebase val ->
-            R3.andThen (handleFire2Elm val)
+            R2.andThen (handleFire2Elm val)
 
         AuthUser user ->
-            R3.map (setAuthState <| AuthState.Authenticated user)
+            R2.map (setAuthState <| AuthState.Authenticated user)
 
         AuthUserNone ->
-            R3.map (setAuthState <| AuthState.NoUser)
+            R2.map (setAuthState <| AuthState.NoUser)
 
         SignIn ->
-            R3.do (Port.signIn ())
+            R2.command (Port.signIn ())
 
         SignOut ->
-            R3.do (Port.signOut ())
+            R2.command (Port.signOut ())
+    )
+        << R2.singleton
 
 
+handleFire2Elm : Value -> Model -> ( Model, Cmd Msg )
 handleFire2Elm val model =
-    D.decodeValue Fire2Elm.decoder val
-        |> Result.mapError (D.errorToString >> Debug.log "es")
-        |> Result.unpack logErrorString update
+    let
+        result : Result String Msg
+        result =
+            D.decodeValue Fire2Elm.decoder val
+                |> Result.mapError (D.errorToString >> Debug.log "es")
+    in
+    result
+        |> Result.unpack
+            (logErrorString >> callWith (R2.singleton model))
+            (update >> callWith model)
 
 
 keyBindings model =
@@ -406,15 +419,11 @@ mapStateToGrainListView model =
 ---- PROGRAM ----
 
 
-elmUpdate =
-    R3.toElmUpdate update
-
-
 main : Program Flags Model Msg
 main =
     Browser.element
         { view = Html.toUnstyled << view
         , init = init
-        , update = elmUpdate
+        , update = update
         , subscriptions = subscriptions
         }
