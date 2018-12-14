@@ -130,7 +130,8 @@ setNewSeed newSeed model =
 ---- UPDATE ----
 
 
-createNewGrain model =
+generateNewGrain : Model -> ( Grain, Model )
+generateNewGrain model =
     let
         ( newGrain, newSeed ) =
             Random.step Grain.generator model.seed
@@ -138,15 +139,18 @@ createNewGrain model =
     ( newGrain, setNewSeed newSeed model )
 
 
+addNewGrainToStore : ( Grain, Model ) -> ( Grain, Model )
+addNewGrainToStore ( newGrain, model ) =
+    let
+        newGrainStore =
+            GrainStore.addGrain newGrain model.grainStore
+    in
+    ( newGrain, setGrainStore newGrainStore model )
+
+
+createAndAddNewGrain : Model -> ( Grain, Model )
 createAndAddNewGrain =
-    createNewGrain
-        >> (\( newGrain, model ) ->
-                let
-                    newGrainStore =
-                        GrainStore.addGrain newGrain model.grainStore
-                in
-                ( newGrain, setGrainStore newGrainStore model )
-           )
+    generateNewGrain >> addNewGrainToStore
 
 
 autoFocusRoute route =
