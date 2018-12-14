@@ -315,20 +315,16 @@ update message model =
             update msg model
 
         AuthUser user ->
-            Return.singleton model
-                |> Return.map (setAuthState <| AuthState.Authenticated user)
+            Return.singleton (setAuthState (AuthState.Authenticated user) model)
 
         AuthUserNone ->
-            Return.singleton model
-                |> Return.map (setAuthState <| AuthState.NoUser)
+            Return.singleton (setAuthState AuthState.NoUser model)
 
         SignIn ->
-            Return.singleton model
-                |> Return.command (Port.signIn ())
+            Return.return model (Port.signIn ())
 
         SignOut ->
-            Return.singleton model
-                |> Return.command (Port.signOut ())
+            Return.return model (Port.signOut ())
 
 
 keyBindings model =
