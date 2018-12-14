@@ -319,9 +319,13 @@ handleFireMsg fireMsg model =
 
 view : Model -> Html Msg
 view model =
+    let
+        routeVM =
+            routeViewModel model.route
+    in
     Skeleton.view
         { children =
-            [ viewAppBar model.authState ]
+            [ viewAppBar routeVM.title model.authState ]
                 ++ viewRouteChildren model
                 ++ [ viewToast model.toast
                    ]
@@ -345,10 +349,10 @@ routeViewModel route =
             { title = "Oops!", children = [] }
 
 
-viewAppBar authState =
+viewAppBar title authState =
     let
         viewTitle =
-            styled div [ CS.p2 space2 zero, CS.flex11Auto ] [] [ text "Grains" ]
+            styled div [ CS.p2 space2 zero, CS.flex11Auto ] [] [ text title ]
 
         viewAuthState =
             case authState of
