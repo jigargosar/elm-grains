@@ -71,18 +71,6 @@ function getFireSubscriptions(app) {
       await auth.signInWithPopup(gp)
     },
     signOut: () => auth.signOut(),
-    // persistGrains: async lookup => {
-    //   const grains = R.values(lookup)
-    //   console.log(`fire: persistGrains started`, grains)
-    //   const gcRef = createCRef('grains')
-    //   const batch = firestore.batch()
-    //
-    //   grains.map(g => batch.set(gcRef.doc(g.id), g))
-    //
-    //   await batch.commit()
-    //   console.log(`fire: persistGrains completed`)
-    // },
-
     persistNewGrain: async grain => {
       console.log(`fire: persistNewGrain started`, grain)
       const gcRef = createCRef('grains')
