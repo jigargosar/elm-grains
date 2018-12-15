@@ -3,7 +3,6 @@ module GrainStore exposing
     , UpdateGrain(..)
     , UserChangeRequest(..)
     , allAsList
-    , encoder
     , get
     , init
     , loadFromCache
@@ -47,21 +46,11 @@ get gid =
 
 
 loadFromCache val gs =
-    DecodeX.decode gs decoder val
-
-
-encoder : Encoder GrainStore
-encoder =
-    GrainLookup.encoder
-
-
-decoder : Decoder GrainStore
-decoder =
-    GrainLookup.decoder
+    DecodeX.decode gs GrainLookup.decoder val
 
 
 cache =
-    encoder >> Port.cacheGrains
+    GrainLookup.encoder >> Port.cacheGrains
 
 
 type UpdateGrain

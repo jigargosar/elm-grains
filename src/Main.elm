@@ -168,15 +168,6 @@ subscriptions model =
         ]
 
 
-
---cacheAndPersistEncodedGrainStore encoded =
---    Cmd.batch [ Port.cacheGrains encoded, Firebase.persistGrains encoded ]
-
-
-cacheGrainStore =
-    .grainStore >> GrainStore.encoder >> Port.cacheGrains
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
