@@ -188,55 +188,33 @@ update message model =
             update (LogErrorString errorString) model
 
         GrainContentChanged grain content ->
-            GrainStore.onUserChangeRequest
-                (GrainStore.Update <| GrainStore.SetContent content)
-                grain
-                model.grainStore
-                |> unpackMaybe
-                    (\_ ->
-                        update (LogErrorString "Update Grain:SetContent Failed") model
-                    )
-                    (\( newGrainStore, cmd ) ->
-                        Return.return (setGrainStore newGrainStore model) cmd
-                    )
+            updateGrainStoreResult
+                (GrainStore.setGrainContent content grain)
+                model
+                |> Result.merge
 
         DeleteGrain grain ->
-            GrainStore.onUserChangeRequest
-                (GrainStore.Update <| GrainStore.SetDeleted True)
-                grain
-                model.grainStore
-                |> unpackMaybe
-                    (\_ ->
-                        update (LogErrorString "Update Grain:DeleteGrain Failed") model
-                    )
-                    (\( newGrainStore, cmd ) ->
-                        Return.return (setGrainStore newGrainStore model) cmd
-                    )
+            updateGrainStoreResult
+                (GrainStore.setGrainDeleted True grain)
+                model
+                |> Result.merge
 
         PermanentlyDeleteGrain grain ->
-            GrainStore.onUserChangeRequest
-                GrainStore.DeletePermanent
-                grain
-                model.grainStore
-                |> unpackMaybe
-                    (\_ ->
-                        update (LogErrorString "PermanentlyDeleteGrain Failed") model
-                    )
-                    (\( newGrainStore, cmd ) ->
-                        Return.return (setGrainStore newGrainStore model) cmd
-                    )
+            updateGrainStoreResult
+                (GrainStore.permanentlyDeleteGrain grain)
+                model
+                |> Result.merge
 
         NewGrain ->
             let
                 ( newGrain, newModel ) =
                     generateNewGrain model
             in
-            grainStoreUserChangeRequest
-                GrainStore.Add
-                newGrain
+            updateGrainStoreResult
+                (GrainStore.addNewGrain newGrain)
                 newModel
-                |> unpackMaybe (\_ -> update (LogErrorString "Add Grain Failed") newModel)
-                    (Return.andThen (update (Msg.routeToGrain newGrain)))
+                |> Result.map (Return.andThen (update (Msg.routeToGrain newGrain)))
+                |> Result.merge
 
         LoadGrainStore val ->
             let
@@ -275,12 +253,30 @@ update message model =
             Return.return model (Port.navigateBack ())
 
 
-grainStoreUserChangeRequest change grain model =
-    GrainStore.onUserChangeRequest
-        change
-        grain
-        model.grainStore
-        |> Maybe.map
+
+--handleGrainStoreUserChange :
+--    GrainStore.UserChangeRequest
+--    -> Grain
+--    -> Model
+--    -> Result (Return Msg Model) (Return Msg Model)
+--handleGrainStoreUserChange change grain model =
+--    GrainStore.onUserChangeRequest
+--        change
+--        grain
+--        model.grainStore
+--        |> Result.mapBoth (\err -> update (LogErrorString err) model)
+--            (\( newGrainStore, cmd ) ->
+--                Return.return (setGrainStore newGrainStore model) cmd
+--            )
+
+
+updateGrainStoreResult :
+    (GrainStore -> Result String ( GrainStore, Cmd Msg ))
+    -> Model
+    -> Result (Return Msg Model) (Return Msg Model)
+updateGrainStoreResult fn model =
+    fn model.grainStore
+        |> Result.mapBoth (\err -> update (LogErrorString err) model)
             (\( newGrainStore, cmd ) ->
                 Return.return (setGrainStore newGrainStore model) cmd
             )

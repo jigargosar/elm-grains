@@ -2,12 +2,16 @@ module GrainStore exposing
     ( GrainStore
     , UpdateGrain(..)
     , UserChangeRequest(..)
+    , addNewGrain
     , allAsList
     , empty
     , get
     , loadFromCache
     , onFirebaseChanges
     , onUserChangeRequest
+    , permanentlyDeleteGrain
+    , setGrainContent
+    , setGrainDeleted
     )
 
 import BasicsX exposing (callWith, unwrapMaybe)
@@ -47,6 +51,22 @@ get gid =
 
 loadFromCache val gs =
     DecodeX.decode gs (D.dict Grain.decoder) val
+
+
+setGrainContent content =
+    onUserChangeRequest (Update (SetContent content))
+
+
+setGrainDeleted deleted =
+    onUserChangeRequest (Update (SetDeleted deleted))
+
+
+permanentlyDeleteGrain =
+    onUserChangeRequest DeletePermanent
+
+
+addNewGrain =
+    onUserChangeRequest Add
 
 
 cache =
@@ -89,8 +109,8 @@ hasIdOfGrain grain =
     Dict.member (grainToGidString grain)
 
 
-addNewGrain : Grain -> GrainStore -> Maybe ( Grain, GrainStore )
-addNewGrain grain model =
+addNewGrainInternal : Grain -> GrainStore -> Maybe ( Grain, GrainStore )
+addNewGrainInternal grain model =
     if hasIdOfGrain grain model then
         Nothing
 
@@ -131,7 +151,7 @@ onUserChangeRequest :
     UserChangeRequest
     -> Grain
     -> GrainStore
-    -> Maybe ( GrainStore, Cmd msg )
+    -> Result String ( GrainStore, Cmd msg )
 onUserChangeRequest request grain model =
     let
         gid =
@@ -142,13 +162,14 @@ onUserChangeRequest request grain model =
     in
     case request of
         Add ->
-            addNewGrain grain model
+            addNewGrainInternal grain model
                 |> Maybe.map
                     (\( addedGrain, newModel ) ->
                         ( newModel
                         , Cmd.batch [ cache newModel, Firebase.persistNewGrain addedGrain ]
                         )
                     )
+                |> Result.fromMaybe "Error: Add Grain. Id exists "
 
         Update updateRequest ->
             let
@@ -168,6 +189,7 @@ onUserChangeRequest request grain model =
                             [ cache newModel, Firebase.persistUpdatedGrain updatedGrain ]
                         )
                     )
+                |> Result.fromMaybe "Error: Update Grain. Not Found "
 
         DeletePermanent ->
             removeExistingGrainById gid model
@@ -177,6 +199,7 @@ onUserChangeRequest request grain model =
                         , Cmd.batch [ cache newModel, Firebase.persistRemovedGrain grain ]
                         )
                     )
+                |> Result.fromMaybe "Error: DeletePermanent Grain. Not Found "
 
 
 grainToGidString =
