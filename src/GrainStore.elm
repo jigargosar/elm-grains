@@ -112,7 +112,7 @@ type UpdateGrain
 type UserChangeRequest
     = Add
     | Update UpdateGrain
-    | Delete
+    | DeletePermanent
 
 
 type UserChangeResponse
@@ -166,12 +166,12 @@ onUserChangeRequest request grain model =
             , Cmd.batch [ cache newModel, Firebase.persistUpdatedGrain updatedGrain ]
             )
 
-        Delete ->
+        DeletePermanent ->
             let
                 newModel =
                     GrainLookup.remove gid model
             in
-            ( newModel, cache newModel )
+            ( newModel, Cmd.batch [ cache newModel, Firebase.persistRemovedGrain grain ] )
 
 
 onFirebaseChanges changes model =
