@@ -64,7 +64,7 @@ permanentlyDeleteGrain =
 
 
 addNewGrain =
-    onUserChangeRequest Add
+    onUserChangeRequest AddNew
 
 
 cache =
@@ -134,7 +134,7 @@ type UpdateGrain
 
 
 type UserChangeRequest
-    = Add
+    = AddNew
     | Update UpdateGrain
     | DeletePermanent
 
@@ -159,7 +159,7 @@ onUserChangeRequest request grain model =
             GrainId.toString gid
     in
     case request of
-        Add ->
+        AddNew ->
             addNewGrainInternal grain model
                 |> Maybe.map
                     (\( addedGrain, newModel ) ->
