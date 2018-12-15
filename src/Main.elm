@@ -194,17 +194,9 @@ update message model =
             let
                 ( ( newGrainStore, cmd ), outMsg ) =
                     GrainStore.userUpdate msg grain model.actorId model.grainStore
-
-                handleMaybeOutMsg =
-                    case outMsg of
-                        GrainStore.Error err ->
-                            update (LogErrorString err)
-
-                        _ ->
-                            Return.singleton
             in
             Return.return (setGrainStore newGrainStore model) cmd
-                |> Return.andThen handleMaybeOutMsg
+                |> Return.andThen (handleOutMsg outMsg)
 
         GrainContentChanged grain content ->
             update (GrainStoreUserMsg (GrainStore.setGrainContent content) grain) model
@@ -261,6 +253,15 @@ update message model =
 
         BackPressed ->
             Return.return model (Port.navigateBack ())
+
+
+handleOutMsg message model =
+    case message of
+        GrainStore.Added newGrain ->
+            update (Msg.routeToGrain newGrain) model
+
+        _ ->
+            Return.singleton model
 
 
 handleFireMsg fireMsg model =
