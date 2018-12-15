@@ -296,25 +296,10 @@ handleFireMsg fireMsg model =
 
         Firebase.GrainChanges changes ->
             let
-                handleChange { doc, type_ } =
-                    case type_ of
-                        GrainChange.Added ->
-                            GrainStore.upsertGrain doc
-
-                        GrainChange.Modified ->
-                            GrainStore.upsertGrain doc
-
-                        GrainChange.Removed ->
-                            GrainStore.removeGrain doc
+                ( newGrainStore, cmd ) =
+                    GrainStore.firebaseChanges changes model.grainStore
             in
-            Return.singleton model
-                |> Return.map
-                    (setGrainStore (List.foldr handleChange model.grainStore changes))
-                |> Return.effect_
-                    (.grainStore
-                        >> GrainStore.encoder
-                        >> Port.cacheGrains
-                    )
+            Return.return (setGrainStore newGrainStore model) cmd
 
 
 view : Model -> Html Msg

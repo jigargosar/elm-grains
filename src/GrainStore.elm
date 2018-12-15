@@ -5,6 +5,7 @@ module GrainStore exposing
     , decoder
     , deleteGrain
     , encoder
+    , firebaseChanges
     , get
     , init
     , loadCache
@@ -94,3 +95,26 @@ decoder =
 upsertGrain : Grain -> GrainStore -> GrainStore
 upsertGrain grain =
     GrainLookup.upsert grain
+
+
+cache =
+    encoder >> Port.cacheGrains
+
+
+firebaseChanges changes model =
+    let
+        handleChange { doc, type_ } =
+            case type_ of
+                GrainChange.Added ->
+                    upsertGrain doc
+
+                GrainChange.Modified ->
+                    upsertGrain doc
+
+                GrainChange.Removed ->
+                    removeGrain doc
+
+        newModel =
+            List.foldr handleChange model changes
+    in
+    ( newModel, cache newModel )
