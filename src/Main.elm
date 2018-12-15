@@ -231,16 +231,12 @@ update message model =
                 ( newGrain, newModel ) =
                     generateNewGrain model
             in
-            GrainStore.onUserChangeRequest
+            grainStoreUserChangeRequest
                 GrainStore.Add
                 newGrain
-                newModel.grainStore
+                newModel
                 |> unpackMaybe (\_ -> update (LogErrorString "Add Grain Failed") newModel)
-                    (\( newGrainStore, cmd ) ->
-                        Return.return (setGrainStore newGrainStore newModel) cmd
-                            |> Return.command cmd
-                            |> Return.andThen (update (Msg.routeToGrain newGrain))
-                    )
+                    (Return.andThen (update (Msg.routeToGrain newGrain)))
 
         LoadGrainStore val ->
             let
@@ -277,6 +273,17 @@ update message model =
 
         BackPressed ->
             Return.return model (Port.navigateBack ())
+
+
+grainStoreUserChangeRequest change grain model =
+    GrainStore.onUserChangeRequest
+        change
+        grain
+        model.grainStore
+        |> Maybe.map
+            (\( newGrainStore, cmd ) ->
+                Return.return (setGrainStore newGrainStore model) cmd
+            )
 
 
 handleFireMsg fireMsg model =
