@@ -1,5 +1,6 @@
 module GrainStore exposing
     ( GrainStore
+    , OutMsg(..)
     , UserMsg
     , addNewGrain
     , allAsList

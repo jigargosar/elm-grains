@@ -191,12 +191,20 @@ update message model =
             update (LogErrorString errorString) model
 
         GrainStoreUserMsg msg grain ->
-            GrainStore.userUpdate msg grain model.actorId model.grainStore
-                |> Result.mapBoth (\err -> update (LogErrorString err) model)
-                    (\( ( newGrainStore, cmd ), outMsg ) ->
-                        Return.return (setGrainStore newGrainStore model) cmd
-                    )
-                |> Result.merge
+            let
+                ( ( newGrainStore, cmd ), outMsg ) =
+                    GrainStore.userUpdate msg grain model.actorId model.grainStore
+
+                handleMaybeOutMsg =
+                    case outMsg of
+                        GrainStore.Error err ->
+                            update (LogErrorString err)
+
+                        _ ->
+                            Return.singleton
+            in
+            Return.return (setGrainStore newGrainStore model) cmd
+                |> Return.andThen handleMaybeOutMsg
 
         GrainContentChanged grain content ->
             update (GrainStoreUserMsg (GrainStore.setGrainContent content) grain) model
