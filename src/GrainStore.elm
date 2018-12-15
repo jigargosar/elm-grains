@@ -53,19 +53,19 @@ loadFromCache val gs =
 
 
 setGrainContent content =
-    onUserChangeRequest (Update (SetContent content))
+    Update (SetContent content)
 
 
 setGrainDeleted deleted =
-    onUserChangeRequest (Update (SetDeleted deleted))
+    Update (SetDeleted deleted)
 
 
 permanentlyDeleteGrain =
-    onUserChangeRequest DeletePermanent
+    DeletePermanent
 
 
 addNewGrain =
-    onUserChangeRequest AddNew
+    AddNew
 
 
 cache =

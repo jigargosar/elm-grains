@@ -191,7 +191,7 @@ update message model =
             update (LogErrorString errorString) model
 
         GrainContentChanged grain content ->
-            GrainStore.setGrainContent content grain model.actorId model.grainStore
+            GrainStore.onUserChangeRequest (GrainStore.setGrainContent content) grain model.actorId model.grainStore
                 |> Result.mapBoth (\err -> update (LogErrorString err) model)
                     (\( ( newGrainStore, cmd ), _ ) ->
                         Return.return (setGrainStore newGrainStore model) cmd
@@ -199,7 +199,7 @@ update message model =
                 |> Result.merge
 
         DeleteGrain grain ->
-            GrainStore.setGrainDeleted True
+            GrainStore.onUserChangeRequest (GrainStore.setGrainDeleted True)
                 grain
                 model.actorId
                 model.grainStore
@@ -210,7 +210,8 @@ update message model =
                 |> Result.merge
 
         PermanentlyDeleteGrain grain ->
-            GrainStore.permanentlyDeleteGrain grain
+            GrainStore.onUserChangeRequest GrainStore.permanentlyDeleteGrain
+                grain
                 model.actorId
                 model.grainStore
                 |> Result.mapBoth (\err -> update (LogErrorString err) model)
@@ -220,7 +221,8 @@ update message model =
                 |> Result.merge
 
         NewGrainGenerated grain ->
-            GrainStore.addNewGrain grain
+            GrainStore.onUserChangeRequest GrainStore.addNewGrain
+                grain
                 model.actorId
                 model.grainStore
                 |> Result.mapBoth (\err -> update (LogErrorString err) model)
