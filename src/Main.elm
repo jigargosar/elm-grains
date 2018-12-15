@@ -196,15 +196,17 @@ update message model =
         FocusResult (Err errorString) ->
             update (LogErrorString errorString) model
 
-        GrainContentChanged grain title ->
+        GrainContentChanged grain content ->
             let
-                ( newGrain, newGrainStore ) =
-                    GrainStore.setGrainContent grain title model.grainStore
+                ( updatedGrain, newGrainStore, cmd ) =
+                    GrainStore.onUserChangeRequest
+                        (GrainStore.Update <| GrainStore.SetContent content)
+                        grain
+                        model.grainStore
             in
-            setGrainStore newGrainStore model
-                |> Return.singleton
-                |> Return.effect_ cacheGrainStore
-                |> Return.command (Firebase.persistUpdatedGrain newGrain)
+            Return.return
+                (setGrainStore newGrainStore model)
+                cmd
 
         DeleteGrain grain ->
             let
@@ -232,7 +234,8 @@ update message model =
                         grain
                         newModel.grainStore
             in
-            Return.singleton (setGrainStore newGrainStore newModel)
+            setGrainStore newGrainStore newModel
+                |> Return.singleton
                 |> Return.command cmd
                 |> Return.andThen (update (Msg.routeToGrain addedGrain))
 

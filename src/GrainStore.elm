@@ -1,5 +1,6 @@
 module GrainStore exposing
     ( GrainStore
+    , UpdateGrain(..)
     , UserChangeRequest(..)
     , addGrain
     , allAsList
@@ -104,8 +105,8 @@ cache =
 
 
 type UpdateGrain
-    = SetDeleted
-    | SetContent
+    = SetDeleted Bool
+    | SetContent String
 
 
 type UserChangeRequest
@@ -146,10 +147,26 @@ onUserChangeRequest request grain model =
 
         Update updateRequest ->
             let
-                newModel =
-                    GrainLookup.upsert grain model
+                ( updatedGrain, newModel ) =
+                    case updateRequest of
+                        SetContent content ->
+                            let
+                                newLookup =
+                                    GrainLookup.update gid (Grain.setContent content) model
+                            in
+                            ( get gid newLookup |> Maybe.withDefault grain, newLookup )
+
+                        SetDeleted deleted ->
+                            let
+                                newLookup =
+                                    GrainLookup.update gid (Grain.setDeleted deleted) model
+                            in
+                            ( get gid newLookup |> Maybe.withDefault grain, newLookup )
             in
-            ( grain, newModel, cache newModel )
+            ( grain
+            , newModel
+            , Cmd.batch [ cache newModel, Firebase.persistUpdatedGrain updatedGrain ]
+            )
 
         Delete ->
             let
