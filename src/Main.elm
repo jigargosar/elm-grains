@@ -193,7 +193,7 @@ update message model =
         GrainStoreUserMsg msg grain ->
             GrainStore.userUpdate msg grain model.actorId model.grainStore
                 |> Result.mapBoth (\err -> update (LogErrorString err) model)
-                    (\( ( newGrainStore, cmd ), _ ) ->
+                    (\( ( newGrainStore, cmd ), outMsg ) ->
                         Return.return (setGrainStore newGrainStore model) cmd
                     )
                 |> Result.merge

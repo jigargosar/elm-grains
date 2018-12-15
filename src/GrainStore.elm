@@ -29,6 +29,7 @@ import Maybe.Extra as Maybe
 import Port
 import Random exposing (Generator, Seed)
 import Random.Pipeline as Random
+import Return
 import Return3 as R3 exposing (Return3F)
 
 
@@ -141,12 +142,23 @@ type UserMsg
     | DeletePermanent
 
 
+type OutMsg
+    = Error String
+    | Added Grain
+    | Modified Grain
+    | PermanentlyDeleted Grain
+
+
+withErrorOutMsg err r2 =
+    ( r2, Just <| Error err )
+
+
 userUpdate :
     UserMsg
     -> Grain
     -> ActorId
     -> GrainStore
-    -> Result String ( ( GrainStore, Cmd msg ), Grain )
+    -> ( ( GrainStore, Cmd msg ), Maybe OutMsg )
 userUpdate request grain actorId model =
     let
         gid =
@@ -158,15 +170,18 @@ userUpdate request grain actorId model =
     case request of
         AddNew ->
             addNewGrainInternal grain model
-                |> Maybe.map
+                |> Maybe.unpack
+                    (\_ ->
+                        Return.singleton model
+                            |> withErrorOutMsg "Error: Add Grain. Id exists "
+                    )
                     (\( addedGrain, newModel ) ->
                         ( ( newModel
                           , Cmd.batch [ cache newModel, Firebase.persistNewGrain addedGrain ]
                           )
-                        , addedGrain
+                        , Just <| Added addedGrain
                         )
                     )
-                |> Result.fromMaybe "Error: Add Grain. Id exists "
 
         Update updateRequest ->
             let
@@ -179,28 +194,34 @@ userUpdate request grain actorId model =
                             Grain.setDeleted deleted
             in
             updateExistingGrainById gid grainMapper model
-                |> Maybe.map
+                |> Maybe.unpack
+                    (\_ ->
+                        Return.singleton model
+                            |> withErrorOutMsg "Error: Update Grain. Not Found "
+                    )
                     (\( updatedGrain, newModel ) ->
                         ( ( newModel
                           , Cmd.batch
                                 [ cache newModel, Firebase.persistUpdatedGrain updatedGrain ]
                           )
-                        , updatedGrain
+                        , Just <| Modified updatedGrain
                         )
                     )
-                |> Result.fromMaybe "Error: Update Grain. Not Found "
 
         DeletePermanent ->
             removeExistingGrainById gid model
-                |> Maybe.map
+                |> Maybe.unpack
+                    (\_ ->
+                        Return.singleton model
+                            |> withErrorOutMsg "Error: DeletePermanent Grain. Not Found "
+                    )
                     (\( removedGrain, newModel ) ->
                         ( ( newModel
                           , Cmd.batch [ cache newModel, Firebase.persistRemovedGrain grain ]
                           )
-                        , removedGrain
+                        , Just <| PermanentlyDeleted removedGrain
                         )
                     )
-                |> Result.fromMaybe "Error: DeletePermanent Grain. Not Found "
 
 
 grainToGidString =
