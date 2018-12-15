@@ -68,6 +68,15 @@ updateExistingGrainById gid fn model =
             )
 
 
+updateExistingGrain :
+    Grain
+    -> (Grain -> Grain)
+    -> GrainStore
+    -> Maybe ( Grain, GrainStore )
+updateExistingGrain grain =
+    updateExistingGrainById (Grain.id grain)
+
+
 blindUpsertGrain grain model =
     Dict.insert (grainToGidString grain) grain model
 
