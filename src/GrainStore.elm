@@ -128,19 +128,28 @@ onUserChangeRequest request grain model =
     let
         gid =
             Grain.id grain
-
-        ( response, newModel ) =
-            case request of
-                Add ->
-                    ( grain, GrainLookup.upsert grain model )
-
-                Update updateRequest ->
-                    ( grain, GrainLookup.upsert grain model )
-
-                Delete ->
-                    ( grain, GrainLookup.remove gid model )
     in
-    ( response, newModel, cache newModel )
+    case request of
+        Add ->
+            let
+                newModel =
+                    GrainLookup.upsert grain model
+            in
+            ( grain, newModel, cache newModel )
+
+        Update updateRequest ->
+            let
+                newModel =
+                    GrainLookup.upsert grain model
+            in
+            ( grain, newModel, cache newModel )
+
+        Delete ->
+            let
+                newModel =
+                    GrainLookup.remove gid model
+            in
+            ( grain, newModel, cache newModel )
 
 
 onFirebaseChanges changes model =
