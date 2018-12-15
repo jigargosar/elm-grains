@@ -53,12 +53,12 @@ cache =
     E.dict identity Grain.encoder >> Port.cacheGrains
 
 
-updateGrainById :
+updateExistingGrainById :
     GrainId
     -> (Grain -> Grain)
     -> GrainStore
     -> Maybe ( Grain, GrainStore )
-updateGrainById gid fn model =
+updateExistingGrainById gid fn model =
     let
         gidAsString =
             GrainId.toString gid
@@ -76,6 +76,10 @@ blindUpsertGrain grain model =
     Dict.insert (grainToGidString grain) grain model
 
 
+blindRemoveGrain grain model =
+    Dict.remove (grainToGidString grain) model
+
+
 hasIdOfGrain grain =
     Dict.member (grainToGidString grain)
 
@@ -87,6 +91,14 @@ addNewGrain grain model =
 
     else
         Just <| ( grain, blindUpsertGrain grain model )
+
+
+removeExistingGrain grain model =
+    if hasIdOfGrain grain model then
+        Just <| ( grain, blindRemoveGrain grain model )
+
+    else
+        Nothing
 
 
 type UpdateGrain
@@ -140,7 +152,7 @@ onUserChangeRequest request grain model =
                         SetDeleted deleted ->
                             Grain.setDeleted deleted
             in
-            updateGrainById gid grainMapper model
+            updateExistingGrainById gid grainMapper model
                 |> Maybe.map
                     (\( updatedGrain, newModel ) ->
                         ( newModel
