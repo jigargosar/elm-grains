@@ -6,10 +6,10 @@ module GrainStore exposing
     , get
     , loadFromCache
     , onFirebaseChanges
-    , onUserChangeRequest
     , permanentlyDeleteGrain
     , setGrainContent
     , setGrainDeleted
+    , userUpdate
     )
 
 import ActorId exposing (ActorId)
@@ -134,25 +134,19 @@ type UpdateGrain
     | SetContent String
 
 
-type UserChangeRequest
+type UserMsg
     = AddNew
     | Update UpdateGrain
     | DeletePermanent
 
 
-type UserChangeResponse
-    = Added
-    | Updated
-    | Deleted
-
-
-onUserChangeRequest :
-    UserChangeRequest
+userUpdate :
+    UserMsg
     -> Grain
     -> ActorId
     -> GrainStore
     -> Result String ( ( GrainStore, Cmd msg ), Grain )
-onUserChangeRequest request grain actorId model =
+userUpdate request grain actorId model =
     let
         gid =
             Grain.id grain
