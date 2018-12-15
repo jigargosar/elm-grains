@@ -7,7 +7,7 @@ module GrainStore exposing
     , encoder
     , get
     , init
-    , load
+    , loadCache
     , removeGrain
     , setGrainTitle
     , upsertGrain
@@ -66,7 +66,7 @@ setGrainTitle grain title lookup =
     ( get gid newLookup |> Maybe.withDefault grain, newLookup )
 
 
-load val gs =
+loadCache val gs =
     DecodeX.decode gs decoder val
 
 
