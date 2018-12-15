@@ -1,18 +1,18 @@
 module GrainStore exposing
     ( GrainStore
-    , UserChange(..)
+    , UserChangeRequest(..)
     , addGrain
     , allAsList
     , decoder
     , deleteGrain
     , encoder
-    , firebaseChanges
     , get
     , init
     , loadCache
+    , onFirebaseChanges
+    , onUserChangeRequest
     , removeGrain
-    , setGrainTitle
-    , userChange
+    , setGrainContent
     )
 
 import BasicsX exposing (callWith, unwrapMaybe)
@@ -57,13 +57,13 @@ removeGrain =
     GrainLookup.remove << Grain.id
 
 
-setGrainTitle grain title lookup =
+setGrainContent grain content lookup =
     let
         gid =
             Grain.id grain
 
         newLookup =
-            GrainLookup.update gid (Grain.setContent title) lookup
+            GrainLookup.update gid (Grain.setContent content) lookup
     in
     ( get gid newLookup |> Maybe.withDefault grain, newLookup )
 
@@ -102,21 +102,26 @@ cache =
     encoder >> Port.cacheGrains
 
 
-type UserChange
+type UpdateGrain
+    = SetDeleted
+    | SetContent
+
+
+type UserChangeRequest
     = Add
-    | Update
+    | Update UpdateGrain
     | Delete
 
 
-userChange : UserChange -> Grain -> GrainStore -> ( GrainStore, Cmd msg )
-userChange type_ grain model =
+onUserChangeRequest : UserChangeRequest -> Grain -> GrainStore -> ( GrainStore, Cmd msg )
+onUserChangeRequest request grain model =
     let
         handleChange =
-            case type_ of
+            case request of
                 Add ->
                     upsertGrain grain
 
-                Update ->
+                Update updateRequest ->
                     upsertGrain grain
 
                 Delete ->
@@ -128,7 +133,7 @@ userChange type_ grain model =
     ( newModel, cache newModel )
 
 
-firebaseChanges changes model =
+onFirebaseChanges changes model =
     let
         handleChange { doc, type_ } =
             case type_ of

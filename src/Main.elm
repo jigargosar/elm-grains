@@ -208,7 +208,7 @@ update message model =
         GrainContentChanged grain title ->
             let
                 ( newGrain, newGrainStore ) =
-                    GrainStore.setGrainTitle grain title model.grainStore
+                    GrainStore.setGrainContent grain title model.grainStore
             in
             setGrainStore newGrainStore model
                 |> Return.singleton
@@ -237,7 +237,7 @@ update message model =
                     generateNewGrain model
 
                 ( newGrainStore, cmd ) =
-                    GrainStore.userChange GrainStore.Add
+                    GrainStore.onUserChangeRequest GrainStore.Add
                         newGrain
                         newModel.grainStore
             in
@@ -297,7 +297,7 @@ handleFireMsg fireMsg model =
         Firebase.GrainChanges changes ->
             let
                 ( newGrainStore, cmd ) =
-                    GrainStore.firebaseChanges changes model.grainStore
+                    GrainStore.onFirebaseChanges changes model.grainStore
             in
             Return.return (setGrainStore newGrainStore model) cmd
 
