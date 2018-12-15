@@ -11,7 +11,6 @@ module GrainStore exposing
     , loadCache
     , removeGrain
     , setGrainTitle
-    , upsertGrain
     )
 
 import BasicsX exposing (callWith, unwrapMaybe)
