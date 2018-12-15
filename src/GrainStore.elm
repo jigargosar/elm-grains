@@ -59,11 +59,7 @@ updateExistingGrainById :
     -> GrainStore
     -> Maybe ( Grain, GrainStore )
 updateExistingGrainById gid fn model =
-    let
-        gidAsString =
-            GrainId.toString gid
-    in
-    Dict.get gidAsString model
+    get gid model
         |> Maybe.map
             (fn
                 >> (\updatedGrain ->
