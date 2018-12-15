@@ -110,6 +110,10 @@ setRoute route model =
     { model | route = route }
 
 
+setRouteFromString =
+    Route.fromString >> setRoute
+
+
 mapToast fn model =
     { model | toast = fn model.toast }
 
@@ -213,7 +217,6 @@ update message model =
                     generateNewGrain model
             in
             update (GrainStoreUserMsg GrainStore.addNewGrain grain) newModel
-                |> Return.andThen (update (Msg.routeToGrain grain))
 
         LoadGrainStore val ->
             let
@@ -228,11 +231,7 @@ update message model =
                 |> Return.effect_ (.route >> autoFocusRoute)
 
         UrlChanged url ->
-            let
-                newRoute =
-                    Route.fromString url
-            in
-            Return.singleton (setRoute newRoute model)
+            Return.singleton (setRouteFromString url model)
 
         Firebase val ->
             case D.decodeValue Firebase.decoder val of
