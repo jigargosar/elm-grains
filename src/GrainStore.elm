@@ -113,24 +113,34 @@ type UserChangeRequest
     | Delete
 
 
-onUserChangeRequest : UserChangeRequest -> Grain -> GrainStore -> ( GrainStore, Cmd msg )
+type UserChangeResponse
+    = Added
+    | Updated
+    | Deleted
+
+
+onUserChangeRequest :
+    UserChangeRequest
+    -> Grain
+    -> GrainStore
+    -> ( Grain, GrainStore, Cmd msg )
 onUserChangeRequest request grain model =
     let
-        handleChange =
+        gid =
+            Grain.id grain
+
+        ( response, newModel ) =
             case request of
                 Add ->
-                    upsertGrain grain
+                    ( grain, GrainLookup.upsert grain model )
 
                 Update updateRequest ->
-                    upsertGrain grain
+                    ( grain, GrainLookup.upsert grain model )
 
                 Delete ->
-                    removeGrain grain
-
-        newModel =
-            handleChange model
+                    ( grain, GrainLookup.remove gid model )
     in
-    ( newModel, cache newModel )
+    ( response, newModel, cache newModel )
 
 
 onFirebaseChanges changes model =

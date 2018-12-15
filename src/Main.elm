@@ -140,15 +140,6 @@ generateNewGrain model =
     ( newGrain, setNewSeed newSeed model )
 
 
-addNewGrainToStore : ( Grain, Model ) -> ( Grain, Model )
-addNewGrainToStore ( newGrain, model ) =
-    let
-        newGrainStore =
-            GrainStore.addGrain newGrain model.grainStore
-    in
-    ( newGrain, setGrainStore newGrainStore model )
-
-
 autoFocusRoute route =
     let
         maybeDomId =
@@ -233,18 +224,18 @@ update message model =
 
         NewGrain ->
             let
-                ( newGrain, newModel ) =
+                ( grain, newModel ) =
                     generateNewGrain model
 
-                ( newGrainStore, cmd ) =
+                ( addedGrain, newGrainStore, cmd ) =
                     GrainStore.onUserChangeRequest GrainStore.Add
-                        newGrain
+                        grain
                         newModel.grainStore
             in
             Return.singleton (setGrainStore newGrainStore newModel)
                 |> Return.command cmd
-                |> Return.command (Firebase.persistNewGrain newGrain)
-                |> Return.andThen (update (Msg.routeToGrain newGrain))
+                |> Return.command (Firebase.persistNewGrain addedGrain)
+                |> Return.andThen (update (Msg.routeToGrain addedGrain))
 
         LoadGrainStore val ->
             let
