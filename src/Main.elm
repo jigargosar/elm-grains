@@ -271,23 +271,6 @@ update message model =
             Return.return model (Port.navigateBack ())
 
 
-
---handleGrainStoreUserChange :
---    GrainStore.UserChangeRequest
---    -> Grain
---    -> Model
---    -> Result (Return Msg Model) (Return Msg Model)
---handleGrainStoreUserChange change grain model =
---    GrainStore.onUserChangeRequest
---        change
---        grain
---        model.grainStore
---        |> Result.mapBoth (\err -> update (LogErrorString err) model)
---            (\( newGrainStore, cmd ) ->
---                Return.return (setGrainStore newGrainStore model) cmd
---            )
-
-
 handleFireMsg fireMsg model =
     case fireMsg of
         Firebase.UnknownMsg unknown ->
