@@ -17,6 +17,7 @@ module GrainStore exposing
 
 import BasicsX exposing (callWith, unwrapMaybe)
 import DecodeX exposing (Encoder)
+import Firebase
 import Grain exposing (Grain)
 import GrainChange exposing (GrainChange)
 import GrainId exposing (GrainId)
@@ -134,8 +135,14 @@ onUserChangeRequest request grain model =
             let
                 newModel =
                     GrainLookup.upsert grain model
+
+                addedGrain =
+                    grain
             in
-            ( grain, newModel, cache newModel )
+            ( addedGrain
+            , newModel
+            , Cmd.batch [ cache newModel, Firebase.persistNewGrain addedGrain ]
+            )
 
         Update updateRequest ->
             let

@@ -234,7 +234,6 @@ update message model =
             in
             Return.singleton (setGrainStore newGrainStore newModel)
                 |> Return.command cmd
-                |> Return.command (Firebase.persistNewGrain addedGrain)
                 |> Return.andThen (update (Msg.routeToGrain addedGrain))
 
         LoadGrainStore val ->
