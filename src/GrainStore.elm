@@ -98,12 +98,16 @@ addNewGrain grain model =
         Just <| ( grain, blindUpsertGrain grain model )
 
 
-removeExistingGrain grain model =
-    if hasIdOfGrain grain model then
-        Just <| ( grain, blindRemoveGrain grain model )
-
-    else
-        Nothing
+removeExistingGrainById :
+    GrainId
+    -> GrainStore
+    -> Maybe ( Grain, GrainStore )
+removeExistingGrainById gid model =
+    get gid model
+        |> Maybe.map
+            (\removedGrain ->
+                ( removedGrain, blindRemoveGrain removedGrain model )
+            )
 
 
 type UpdateGrain
@@ -127,7 +131,7 @@ onUserChangeRequest :
     UserChangeRequest
     -> Grain
     -> GrainStore
-    -> ( GrainStore, Cmd msg )
+    -> Maybe ( GrainStore, Cmd msg )
 onUserChangeRequest request grain model =
     let
         gid =
@@ -145,7 +149,6 @@ onUserChangeRequest request grain model =
                         , Cmd.batch [ cache newModel, Firebase.persistNewGrain addedGrain ]
                         )
                     )
-                |> Maybe.withDefault ( model, Cmd.none )
 
         Update updateRequest ->
             let
@@ -165,14 +168,15 @@ onUserChangeRequest request grain model =
                             [ cache newModel, Firebase.persistUpdatedGrain updatedGrain ]
                         )
                     )
-                |> Maybe.withDefault ( model, Cmd.none )
 
         DeletePermanent ->
-            let
-                newModel =
-                    Dict.remove gidAsString model
-            in
-            ( newModel, Cmd.batch [ cache newModel, Firebase.persistRemovedGrain grain ] )
+            removeExistingGrainById gid model
+                |> Maybe.map
+                    (\( removedGrain, newModel ) ->
+                        ( newModel
+                        , Cmd.batch [ cache newModel, Firebase.persistRemovedGrain grain ]
+                        )
+                    )
 
 
 grainToGidString =
