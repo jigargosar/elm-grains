@@ -95,11 +95,6 @@ decoder =
     GrainLookup.decoder
 
 
-upsertGrain : Grain -> GrainStore -> GrainStore
-upsertGrain grain =
-    GrainLookup.upsert grain
-
-
 cache =
     encoder >> Port.cacheGrains
 
@@ -179,10 +174,10 @@ onFirebaseChanges changes model =
         handleChange { doc, type_ } =
             case type_ of
                 GrainChange.Added ->
-                    upsertGrain doc
+                    GrainLookup.upsert doc
 
                 GrainChange.Modified ->
-                    upsertGrain doc
+                    GrainLookup.upsert doc
 
                 GrainChange.Removed ->
                     removeGrain doc
