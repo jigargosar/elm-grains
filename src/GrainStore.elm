@@ -12,6 +12,7 @@ module GrainStore exposing
     , setGrainDeleted
     )
 
+import ActorId exposing (ActorId)
 import BasicsX exposing (callWith, unwrapMaybe)
 import DecodeX exposing (Encoder)
 import Dict exposing (Dict)
@@ -148,9 +149,10 @@ type UserChangeResponse
 onUserChangeRequest :
     UserChangeRequest
     -> Grain
+    -> ActorId
     -> GrainStore
-    -> Result String ( GrainStore, Cmd msg )
-onUserChangeRequest request grain model =
+    -> Result String ( ( GrainStore, Cmd msg ), Grain )
+onUserChangeRequest request grain actorId model =
     let
         gid =
             Grain.id grain
@@ -163,8 +165,10 @@ onUserChangeRequest request grain model =
             addNewGrainInternal grain model
                 |> Maybe.map
                     (\( addedGrain, newModel ) ->
-                        ( newModel
-                        , Cmd.batch [ cache newModel, Firebase.persistNewGrain addedGrain ]
+                        ( ( newModel
+                          , Cmd.batch [ cache newModel, Firebase.persistNewGrain addedGrain ]
+                          )
+                        , addedGrain
                         )
                     )
                 |> Result.fromMaybe "Error: Add Grain. Id exists "
@@ -182,9 +186,11 @@ onUserChangeRequest request grain model =
             updateExistingGrainById gid grainMapper model
                 |> Maybe.map
                     (\( updatedGrain, newModel ) ->
-                        ( newModel
-                        , Cmd.batch
-                            [ cache newModel, Firebase.persistUpdatedGrain updatedGrain ]
+                        ( ( newModel
+                          , Cmd.batch
+                                [ cache newModel, Firebase.persistUpdatedGrain updatedGrain ]
+                          )
+                        , updatedGrain
                         )
                     )
                 |> Result.fromMaybe "Error: Update Grain. Not Found "
@@ -193,8 +199,10 @@ onUserChangeRequest request grain model =
             removeExistingGrainById gid model
                 |> Maybe.map
                     (\( removedGrain, newModel ) ->
-                        ( newModel
-                        , Cmd.batch [ cache newModel, Firebase.persistRemovedGrain grain ]
+                        ( ( newModel
+                          , Cmd.batch [ cache newModel, Firebase.persistRemovedGrain grain ]
+                          )
+                        , removedGrain
                         )
                     )
                 |> Result.fromMaybe "Error: DeletePermanent Grain. Not Found "

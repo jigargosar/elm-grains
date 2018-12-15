@@ -1,5 +1,6 @@
 module Main exposing (main)
 
+import ActorId exposing (ActorId)
 import AuthState exposing (AuthState)
 import BasicsX exposing (..)
 import Browser
@@ -80,6 +81,7 @@ type alias Model =
     , toast : Toast
     , route : Route
     , authState : AuthState
+    , actorId : ActorId
     , seed : Seed
     }
 
@@ -94,6 +96,7 @@ init flags =
                 |> Random.always Toast.init
                 |> Random.always (Route.fromString flags.url)
                 |> Random.always AuthState.init
+                |> Random.with ActorId.generator
                 |> Random.finish
     in
     update (LoadGrainStore flags.grains) model
@@ -188,32 +191,47 @@ update message model =
             update (LogErrorString errorString) model
 
         GrainContentChanged grain content ->
-            updateGrainStoreResult
-                (GrainStore.setGrainContent content grain)
-                model
+            GrainStore.setGrainContent content grain model.actorId model.grainStore
+                |> Result.mapBoth (\err -> update (LogErrorString err) model)
+                    (\( ( newGrainStore, cmd ), _ ) ->
+                        Return.return (setGrainStore newGrainStore model) cmd
+                    )
                 |> Result.merge
 
         DeleteGrain grain ->
-            updateGrainStoreResult
-                (GrainStore.setGrainDeleted True grain)
-                model
+            GrainStore.setGrainDeleted True
+                grain
+                model.actorId
+                model.grainStore
+                |> Result.mapBoth (\err -> update (LogErrorString err) model)
+                    (\( ( newGrainStore, cmd ), _ ) ->
+                        Return.return (setGrainStore newGrainStore model) cmd
+                    )
                 |> Result.merge
 
         PermanentlyDeleteGrain grain ->
-            updateGrainStoreResult
-                (GrainStore.permanentlyDeleteGrain grain)
-                model
+            GrainStore.permanentlyDeleteGrain grain
+                model.actorId
+                model.grainStore
+                |> Result.mapBoth (\err -> update (LogErrorString err) model)
+                    (\( ( newGrainStore, cmd ), _ ) ->
+                        Return.return (setGrainStore newGrainStore model) cmd
+                    )
                 |> Result.merge
 
         NewGrain ->
             let
-                ( newGrain, newModel ) =
+                ( grain, newModel ) =
                     generateNewGrain model
             in
-            updateGrainStoreResult
-                (GrainStore.addNewGrain newGrain)
-                newModel
-                |> Result.map (Return.andThen (update (Msg.routeToGrain newGrain)))
+            GrainStore.addNewGrain grain
+                model.actorId
+                model.grainStore
+                |> Result.mapBoth (\err -> update (LogErrorString err) model)
+                    (\( ( newGrainStore, cmd ), newGrain ) ->
+                        Return.return (setGrainStore newGrainStore model) cmd
+                            |> Return.andThen (update (Msg.routeToGrain newGrain))
+                    )
                 |> Result.merge
 
         LoadGrainStore val ->
@@ -268,18 +286,6 @@ update message model =
 --            (\( newGrainStore, cmd ) ->
 --                Return.return (setGrainStore newGrainStore model) cmd
 --            )
-
-
-updateGrainStoreResult :
-    (GrainStore -> Result String ( GrainStore, Cmd Msg ))
-    -> Model
-    -> Result (Return Msg Model) (Return Msg Model)
-updateGrainStoreResult fn model =
-    fn model.grainStore
-        |> Result.mapBoth (\err -> update (LogErrorString err) model)
-            (\( newGrainStore, cmd ) ->
-                Return.return (setGrainStore newGrainStore model) cmd
-            )
 
 
 handleFireMsg fireMsg model =
