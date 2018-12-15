@@ -112,29 +112,23 @@ onUserChangeRequest request grain model =
 
         Update updateRequest ->
             let
-                ( updatedGrain, newModel ) =
+                grainMapper =
                     case updateRequest of
                         SetContent content ->
-                            let
-                                newLookup =
-                                    Dict.update gidAsString
-                                        (Maybe.map <| Grain.setContent content)
-                                        model
-                            in
-                            ( get gid newLookup |> Maybe.withDefault grain, newLookup )
+                            Grain.setContent content
 
                         SetDeleted deleted ->
-                            let
-                                newLookup =
-                                    Dict.update gidAsString
-                                        (Maybe.map <| Grain.setDeleted deleted)
-                                        model
-                            in
-                            ( get gid newLookup |> Maybe.withDefault grain, newLookup )
+                            Grain.setDeleted deleted
             in
-            ( newModel
-            , Cmd.batch [ cache newModel, Firebase.persistUpdatedGrain updatedGrain ]
-            )
+            maybeUpdateGrainById gid grainMapper model
+                |> Maybe.map
+                    (\( updatedGrain, newModel ) ->
+                        ( newModel
+                        , Cmd.batch
+                            [ cache newModel, Firebase.persistUpdatedGrain updatedGrain ]
+                        )
+                    )
+                |> Maybe.withDefault ( model, Cmd.none )
 
         DeletePermanent ->
             let
