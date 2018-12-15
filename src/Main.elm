@@ -90,7 +90,7 @@ init flags =
         model =
             Model
                 |> Random.from (initialSeed flags)
-                |> Random.always GrainStore.init
+                |> Random.always GrainStore.empty
                 |> Random.always Toast.init
                 |> Random.always (Route.fromString flags.url)
                 |> Random.always AuthState.init

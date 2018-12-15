@@ -3,8 +3,8 @@ module GrainStore exposing
     , UpdateGrain(..)
     , UserChangeRequest(..)
     , allAsList
+    , empty
     , get
-    , init
     , loadFromCache
     , onFirebaseChanges
     , onUserChangeRequest
@@ -12,11 +12,11 @@ module GrainStore exposing
 
 import BasicsX exposing (callWith, unwrapMaybe)
 import DecodeX exposing (Encoder)
+import Dict exposing (Dict)
 import Firebase
 import Grain exposing (Grain)
 import GrainChange exposing (GrainChange)
 import GrainId exposing (GrainId)
-import GrainLookup exposing (GrainLookup)
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline exposing (hardcoded, required)
 import Json.Encode as E exposing (Value)
@@ -29,28 +29,28 @@ import Return3 as R3 exposing (Return3F)
 
 
 type alias GrainStore =
-    GrainLookup
+    Dict String Grain
 
 
-init =
-    GrainLookup.init
+empty =
+    Dict.empty
 
 
 allAsList =
-    GrainLookup.asList
+    Dict.values
 
 
 get : GrainId -> GrainStore -> Maybe Grain
 get gid =
-    GrainLookup.get gid
+    Dict.get (GrainId.toString gid)
 
 
 loadFromCache val gs =
-    DecodeX.decode gs GrainLookup.decoder val
+    DecodeX.decode gs (D.dict Grain.decoder) val
 
 
 cache =
-    GrainLookup.encoder >> Port.cacheGrains
+    E.dict identity Grain.encoder >> Port.cacheGrains
 
 
 type UpdateGrain
@@ -79,12 +79,15 @@ onUserChangeRequest request grain model =
     let
         gid =
             Grain.id grain
+
+        gidAsString =
+            GrainId.toString gid
     in
     case request of
         Add ->
             let
                 newModel =
-                    GrainLookup.upsert grain model
+                    Dict.insert gidAsString grain model
 
                 addedGrain =
                     grain
@@ -100,14 +103,18 @@ onUserChangeRequest request grain model =
                         SetContent content ->
                             let
                                 newLookup =
-                                    GrainLookup.update gid (Grain.setContent content) model
+                                    Dict.update gidAsString
+                                        (Maybe.map <| Grain.setContent content)
+                                        model
                             in
                             ( get gid newLookup |> Maybe.withDefault grain, newLookup )
 
                         SetDeleted deleted ->
                             let
                                 newLookup =
-                                    GrainLookup.update gid (Grain.setDeleted deleted) model
+                                    Dict.update gidAsString
+                                        (Maybe.map <| Grain.setDeleted deleted)
+                                        model
                             in
                             ( get gid newLookup |> Maybe.withDefault grain, newLookup )
             in
@@ -118,23 +125,31 @@ onUserChangeRequest request grain model =
         DeletePermanent ->
             let
                 newModel =
-                    GrainLookup.remove gid model
+                    Dict.remove gidAsString model
             in
             ( newModel, Cmd.batch [ cache newModel, Firebase.persistRemovedGrain grain ] )
+
+
+grainToGidString =
+    Grain.id >> GrainId.toString
 
 
 onFirebaseChanges changes model =
     let
         handleChange { doc, type_ } =
+            let
+                gidAsString =
+                    grainToGidString doc
+            in
             case type_ of
                 GrainChange.Added ->
-                    GrainLookup.upsert doc
+                    Dict.insert gidAsString doc
 
                 GrainChange.Modified ->
-                    GrainLookup.upsert doc
+                    Dict.insert gidAsString doc
 
                 GrainChange.Removed ->
-                    GrainLookup.remove (Grain.id doc)
+                    Dict.remove gidAsString
 
         newModel =
             List.foldr handleChange model changes
