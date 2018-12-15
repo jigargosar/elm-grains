@@ -198,7 +198,7 @@ update message model =
 
         GrainContentChanged grain content ->
             let
-                ( updatedGrain, newGrainStore, cmd ) =
+                ( newGrainStore, cmd ) =
                     GrainStore.onUserChangeRequest
                         (GrainStore.Update <| GrainStore.SetContent content)
                         grain
@@ -226,18 +226,19 @@ update message model =
 
         NewGrain ->
             let
-                ( grain, newModel ) =
+                ( newGrain, newModel ) =
                     generateNewGrain model
 
-                ( addedGrain, newGrainStore, cmd ) =
-                    GrainStore.onUserChangeRequest GrainStore.Add
-                        grain
+                ( newGrainStore, cmd ) =
+                    GrainStore.onUserChangeRequest
+                        GrainStore.Add
+                        newGrain
                         newModel.grainStore
             in
             setGrainStore newGrainStore newModel
                 |> Return.singleton
                 |> Return.command cmd
-                |> Return.andThen (update (Msg.routeToGrain addedGrain))
+                |> Return.andThen (update (Msg.routeToGrain newGrain))
 
         LoadGrainStore val ->
             let

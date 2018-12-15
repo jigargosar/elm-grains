@@ -125,7 +125,7 @@ onUserChangeRequest :
     UserChangeRequest
     -> Grain
     -> GrainStore
-    -> ( Grain, GrainStore, Cmd msg )
+    -> ( GrainStore, Cmd msg )
 onUserChangeRequest request grain model =
     let
         gid =
@@ -140,8 +140,7 @@ onUserChangeRequest request grain model =
                 addedGrain =
                     grain
             in
-            ( addedGrain
-            , newModel
+            ( newModel
             , Cmd.batch [ cache newModel, Firebase.persistNewGrain addedGrain ]
             )
 
@@ -163,8 +162,7 @@ onUserChangeRequest request grain model =
                             in
                             ( get gid newLookup |> Maybe.withDefault grain, newLookup )
             in
-            ( grain
-            , newModel
+            ( newModel
             , Cmd.batch [ cache newModel, Firebase.persistUpdatedGrain updatedGrain ]
             )
 
@@ -173,7 +171,7 @@ onUserChangeRequest request grain model =
                 newModel =
                     GrainLookup.remove gid model
             in
-            ( grain, newModel, cache newModel )
+            ( newModel, cache newModel )
 
 
 onFirebaseChanges changes model =
