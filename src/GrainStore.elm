@@ -151,7 +151,7 @@ type OutMsg
 
 
 withErrorOutMsg err r2 =
-    ( r2, Just <| Error err )
+    ( r2, Error err )
 
 
 userUpdate :
@@ -159,7 +159,7 @@ userUpdate :
     -> Grain
     -> ActorId
     -> GrainStore
-    -> ( ( GrainStore, Cmd msg ), Maybe OutMsg )
+    -> ( ( GrainStore, Cmd msg ), OutMsg )
 userUpdate request grain actorId model =
     let
         gid =
@@ -180,7 +180,7 @@ userUpdate request grain actorId model =
                         ( ( newModel
                           , Cmd.batch [ cache newModel, Firebase.persistNewGrain addedGrain ]
                           )
-                        , Just <| Added addedGrain
+                        , Added addedGrain
                         )
                     )
 
@@ -205,7 +205,7 @@ userUpdate request grain actorId model =
                           , Cmd.batch
                                 [ cache newModel, Firebase.persistUpdatedGrain updatedGrain ]
                           )
-                        , Just <| Modified updatedGrain
+                        , Modified updatedGrain
                         )
                     )
 
@@ -220,7 +220,7 @@ userUpdate request grain actorId model =
                         ( ( newModel
                           , Cmd.batch [ cache newModel, Firebase.persistRemovedGrain grain ]
                           )
-                        , Just <| PermanentlyDeleted removedGrain
+                        , PermanentlyDeleted removedGrain
                         )
                     )
 

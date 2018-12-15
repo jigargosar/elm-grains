@@ -20,7 +20,6 @@ type Msg
     | LoadGrainStore Value
     | PermanentlyDeleteGrain Grain
     | NewGrain
-    | NewGrainGenerated Grain
     | DeleteGrain Grain
     | BackPressed
     | GrainContentChanged Grain String

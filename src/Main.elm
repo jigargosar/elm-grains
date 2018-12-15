@@ -207,15 +207,12 @@ update message model =
         PermanentlyDeleteGrain grain ->
             update (GrainStoreUserMsg GrainStore.permanentlyDeleteGrain grain) model
 
-        NewGrainGenerated grain ->
-            update (GrainStoreUserMsg GrainStore.addNewGrain grain) model
-
         NewGrain ->
             let
                 ( grain, newModel ) =
                     generateNewGrain model
             in
-            update (NewGrainGenerated grain) newModel
+            update (GrainStoreUserMsg GrainStore.addNewGrain grain) newModel
                 |> Return.andThen (update (Msg.routeToGrain grain))
 
         LoadGrainStore val ->
