@@ -1,7 +1,5 @@
 module GrainStore exposing
     ( GrainStore
-    , UpdateGrain(..)
-    , UserChangeRequest(..)
     , addNewGrain
     , allAsList
     , empty
