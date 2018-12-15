@@ -53,6 +53,20 @@ cache =
     E.dict identity Grain.encoder >> Port.cacheGrains
 
 
+maybeUpdateGrainById :
+    GrainId
+    -> (Grain -> Grain)
+    -> GrainStore
+    -> Maybe ( Grain, GrainStore )
+maybeUpdateGrainById gid fn model =
+    let
+        gidAsString =
+            GrainId.toString gid
+    in
+    Dict.get gidAsString model
+        |> Maybe.map (fn >> (\g -> ( g, Dict.insert gidAsString g model )))
+
+
 type UpdateGrain
     = SetDeleted Bool
     | SetContent String
