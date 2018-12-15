@@ -1,13 +1,13 @@
-module GrainLookup exposing
-    ( GrainLookup
-    , asList
+module GrainDict exposing
+    ( GrainDict
     , decoder
+    , empty
     , encoder
     , get
-    , init
+    , insert
     , remove
     , update
-    , upsert
+    , values
     )
 
 import Dict exposing (Dict)
@@ -23,23 +23,23 @@ type alias Model =
     Dict String Grain
 
 
-type GrainLookup
-    = GrainLookup Model
+type GrainDict
+    = GrainDict Model
 
 
-unwrap (GrainLookup model) =
+unwrap (GrainDict model) =
     model
 
 
 map fn =
-    unwrap >> fn >> GrainLookup
+    unwrap >> fn >> GrainDict
 
 
-init =
-    Dict.empty |> GrainLookup
+empty =
+    Dict.empty |> GrainDict
 
 
-asList =
+values =
     unwrap >> Dict.values
 
 
@@ -47,7 +47,7 @@ get gid =
     unwrap >> Dict.get (GrainId.toString gid)
 
 
-upsert grain =
+insert grain =
     map <| Dict.insert (Grain.id grain |> GrainId.toString) grain
 
 
@@ -57,7 +57,7 @@ encoder =
 
 decoder =
     D.dict Grain.decoder
-        |> D.map GrainLookup
+        |> D.map GrainDict
 
 
 remove gid =
