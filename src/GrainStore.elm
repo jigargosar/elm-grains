@@ -4,16 +4,12 @@ module GrainStore exposing
     , UserChangeRequest(..)
     , addGrain
     , allAsList
-    , decoder
-    , deleteGrain
     , encoder
     , get
     , init
-    , loadCache
+    , loadFromCache
     , onFirebaseChanges
     , onUserChangeRequest
-    , removeGrain
-    , setGrainContent
     )
 
 import BasicsX exposing (callWith, unwrapMaybe)
@@ -59,30 +55,8 @@ removeGrain =
     GrainLookup.remove << Grain.id
 
 
-setGrainContent grain content lookup =
-    let
-        gid =
-            Grain.id grain
-
-        newLookup =
-            GrainLookup.update gid (Grain.setContent content) lookup
-    in
-    ( get gid newLookup |> Maybe.withDefault grain, newLookup )
-
-
-loadCache val gs =
+loadFromCache val gs =
     DecodeX.decode gs decoder val
-
-
-deleteGrain grain lookup =
-    let
-        gid =
-            Grain.id grain
-
-        newLookup =
-            GrainLookup.update gid (Grain.setDeleted True) lookup
-    in
-    ( get gid newLookup |> Maybe.withDefault grain, newLookup )
 
 
 encoder : Encoder GrainStore
