@@ -214,13 +214,14 @@ unwrapMaybe dv fn =
     Maybe.map fn >> Maybe.withDefault dv
 
 
-unpackMaybe dvFn fn mb =
-    case mb of
+unpackMaybe : (() -> b) -> (a -> b) -> Maybe a -> b
+unpackMaybe d f m =
+    case m of
         Nothing ->
-            dvFn
+            d ()
 
-        Just val ->
-            fn val
+        Just a ->
+            f a
 
 
 unpackResult errFn okFn result =

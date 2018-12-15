@@ -188,50 +188,59 @@ update message model =
             update (LogErrorString errorString) model
 
         GrainContentChanged grain content ->
-            let
-                ( newGrainStore, cmd ) =
-                    GrainStore.onUserChangeRequest
-                        (GrainStore.Update <| GrainStore.SetContent content)
-                        grain
-                        model.grainStore
-            in
-            Return.return (setGrainStore newGrainStore model) cmd
+            GrainStore.onUserChangeRequest
+                (GrainStore.Update <| GrainStore.SetContent content)
+                grain
+                model.grainStore
+                |> unpackMaybe
+                    (\_ ->
+                        update (LogErrorString "Update Grain:SetContent Failed") model
+                    )
+                    (\( newGrainStore, cmd ) ->
+                        Return.return (setGrainStore newGrainStore model) cmd
+                    )
 
         DeleteGrain grain ->
-            let
-                ( newGrainStore, cmd ) =
-                    GrainStore.onUserChangeRequest
-                        (GrainStore.Update <| GrainStore.SetDeleted True)
-                        grain
-                        model.grainStore
-            in
-            Return.return (setGrainStore newGrainStore model) cmd
+            GrainStore.onUserChangeRequest
+                (GrainStore.Update <| GrainStore.SetDeleted True)
+                grain
+                model.grainStore
+                |> unpackMaybe
+                    (\_ ->
+                        update (LogErrorString "Update Grain:DeleteGrain Failed") model
+                    )
+                    (\( newGrainStore, cmd ) ->
+                        Return.return (setGrainStore newGrainStore model) cmd
+                    )
 
         PermanentlyDeleteGrain grain ->
-            let
-                ( newGrainStore, cmd ) =
-                    GrainStore.onUserChangeRequest
-                        GrainStore.DeletePermanent
-                        grain
-                        model.grainStore
-            in
-            Return.return (setGrainStore newGrainStore model) cmd
+            GrainStore.onUserChangeRequest
+                GrainStore.DeletePermanent
+                grain
+                model.grainStore
+                |> unpackMaybe
+                    (\_ ->
+                        update (LogErrorString "PermanentlyDeleteGrain Failed") model
+                    )
+                    (\( newGrainStore, cmd ) ->
+                        Return.return (setGrainStore newGrainStore model) cmd
+                    )
 
         NewGrain ->
             let
                 ( newGrain, newModel ) =
                     generateNewGrain model
-
-                ( newGrainStore, cmd ) =
-                    GrainStore.onUserChangeRequest
-                        GrainStore.Add
-                        newGrain
-                        newModel.grainStore
             in
-            setGrainStore newGrainStore newModel
-                |> Return.singleton
-                |> Return.command cmd
-                |> Return.andThen (update (Msg.routeToGrain newGrain))
+            GrainStore.onUserChangeRequest
+                GrainStore.Add
+                newGrain
+                newModel.grainStore
+                |> unpackMaybe (\_ -> update (LogErrorString "Add Grain Failed") newModel)
+                    (\( newGrainStore, cmd ) ->
+                        Return.return (setGrainStore newGrainStore newModel) cmd
+                            |> Return.command cmd
+                            |> Return.andThen (update (Msg.routeToGrain newGrain))
+                    )
 
         LoadGrainStore val ->
             let
