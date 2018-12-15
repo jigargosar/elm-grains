@@ -149,11 +149,6 @@ addNewGrainToStore ( newGrain, model ) =
     ( newGrain, setGrainStore newGrainStore model )
 
 
-createAndAddNewGrain : Model -> ( Grain, Model )
-createAndAddNewGrain =
-    generateNewGrain >> addNewGrainToStore
-
-
 autoFocusRoute route =
     let
         maybeDomId =
@@ -239,9 +234,15 @@ update message model =
         NewGrain ->
             let
                 ( newGrain, newModel ) =
-                    createAndAddNewGrain model
+                    generateNewGrain model
+
+                ( newGrainStore, cmd ) =
+                    GrainStore.userChange GrainStore.Add
+                        newGrain
+                        newModel.grainStore
             in
             Return.singleton newModel
+                |> Return.map (setGrainStore newGrainStore)
                 |> Return.effect_ cacheGrainStore
                 |> Return.command (Firebase.persistNewGrain newGrain)
                 |> Return.andThen (update (Msg.routeToGrain newGrain))

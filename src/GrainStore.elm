@@ -1,5 +1,6 @@
 module GrainStore exposing
     ( GrainStore
+    , UserChange(..)
     , addGrain
     , allAsList
     , decoder
@@ -11,6 +12,7 @@ module GrainStore exposing
     , loadCache
     , removeGrain
     , setGrainTitle
+    , userChange
     )
 
 import BasicsX exposing (callWith, unwrapMaybe)
@@ -98,6 +100,32 @@ upsertGrain grain =
 
 cache =
     encoder >> Port.cacheGrains
+
+
+type UserChange
+    = Add
+    | Update
+    | Delete
+
+
+userChange : UserChange -> Grain -> GrainStore -> ( GrainStore, Cmd msg )
+userChange type_ grain model =
+    let
+        handleChange =
+            case type_ of
+                Add ->
+                    upsertGrain grain
+
+                Update ->
+                    upsertGrain grain
+
+                Delete ->
+                    removeGrain grain
+
+        newModel =
+            handleChange model
+    in
+    ( newModel, cache newModel )
 
 
 firebaseChanges changes model =
