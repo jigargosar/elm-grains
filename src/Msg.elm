@@ -24,6 +24,7 @@ type Msg
     | DeleteGrain Grain
     | BackPressed
     | GrainContentChanged Grain String
+    | GrainStoreUserMsg GrainStore.UserMsg Grain
     | ToastDismiss
     | RouteTo Route
     | UrlChanged String

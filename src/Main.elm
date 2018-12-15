@@ -190,13 +190,16 @@ update message model =
         FocusResult (Err errorString) ->
             update (LogErrorString errorString) model
 
-        GrainContentChanged grain content ->
-            GrainStore.userUpdate (GrainStore.setGrainContent content) grain model.actorId model.grainStore
+        GrainStoreUserMsg msg grain ->
+            GrainStore.userUpdate msg grain model.actorId model.grainStore
                 |> Result.mapBoth (\err -> update (LogErrorString err) model)
                     (\( ( newGrainStore, cmd ), _ ) ->
                         Return.return (setGrainStore newGrainStore model) cmd
                     )
                 |> Result.merge
+
+        GrainContentChanged grain content ->
+            update (GrainStoreUserMsg (GrainStore.setGrainContent content) grain) model
 
         DeleteGrain grain ->
             GrainStore.userUpdate (GrainStore.setGrainDeleted True)
