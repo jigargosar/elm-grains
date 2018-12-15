@@ -2,7 +2,6 @@ module GrainStore exposing
     ( GrainStore
     , UpdateGrain(..)
     , UserChangeRequest(..)
-    , addGrain
     , allAsList
     , encoder
     , get
@@ -45,14 +44,6 @@ allAsList =
 get : GrainId -> GrainStore -> Maybe Grain
 get gid =
     GrainLookup.get gid
-
-
-addGrain grain lookup =
-    GrainLookup.upsert grain lookup
-
-
-removeGrain =
-    GrainLookup.remove << Grain.id
 
 
 loadFromCache val gs =
@@ -154,7 +145,7 @@ onFirebaseChanges changes model =
                     GrainLookup.upsert doc
 
                 GrainChange.Removed ->
-                    removeGrain doc
+                    GrainLookup.remove (Grain.id doc)
 
         newModel =
             List.foldr handleChange model changes
