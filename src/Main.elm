@@ -219,13 +219,6 @@ update message model =
                     )
                 |> Result.merge
 
-        NewGrain ->
-            let
-                ( grain, newModel ) =
-                    generateNewGrain model
-            in
-            update (NewGrainGenerated grain) newModel
-
         NewGrainGenerated grain ->
             GrainStore.addNewGrain grain
                 model.actorId
@@ -236,6 +229,13 @@ update message model =
                             |> Return.andThen (update (Msg.routeToGrain newGrain))
                     )
                 |> Result.merge
+
+        NewGrain ->
+            let
+                ( grain, newModel ) =
+                    generateNewGrain model
+            in
+            update (NewGrainGenerated grain) newModel
 
         LoadGrainStore val ->
             let
