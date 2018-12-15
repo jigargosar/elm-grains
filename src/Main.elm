@@ -224,6 +224,9 @@ update message model =
                 ( grain, newModel ) =
                     generateNewGrain model
             in
+            update (NewGrainGenerated grain) newModel
+
+        NewGrainGenerated grain ->
             GrainStore.addNewGrain grain
                 model.actorId
                 model.grainStore
