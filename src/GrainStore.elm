@@ -64,7 +64,28 @@ maybeUpdateGrainById gid fn model =
             GrainId.toString gid
     in
     Dict.get gidAsString model
-        |> Maybe.map (fn >> (\g -> ( g, Dict.insert gidAsString g model )))
+        |> Maybe.map
+            (fn
+                >> (\updatedGrain ->
+                        ( updatedGrain, insertGrain updatedGrain model )
+                   )
+            )
+
+
+insertGrain grain model =
+    Dict.insert (grainToGidString grain) grain model
+
+
+maybeInsertGrain grain model =
+    let
+        gidAsString =
+            grainToGidString grain
+    in
+    if Dict.member gidAsString model then
+        Nothing
+
+    else
+        Just <| Dict.insert gidAsString grain model
 
 
 type UpdateGrain
