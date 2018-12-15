@@ -202,38 +202,13 @@ update message model =
             update (GrainStoreUserMsg (GrainStore.setGrainContent content) grain) model
 
         DeleteGrain grain ->
-            GrainStore.userUpdate (GrainStore.setGrainDeleted True)
-                grain
-                model.actorId
-                model.grainStore
-                |> Result.mapBoth (\err -> update (LogErrorString err) model)
-                    (\( ( newGrainStore, cmd ), _ ) ->
-                        Return.return (setGrainStore newGrainStore model) cmd
-                    )
-                |> Result.merge
+            update (GrainStoreUserMsg (GrainStore.setGrainDeleted True) grain) model
 
         PermanentlyDeleteGrain grain ->
-            GrainStore.userUpdate GrainStore.permanentlyDeleteGrain
-                grain
-                model.actorId
-                model.grainStore
-                |> Result.mapBoth (\err -> update (LogErrorString err) model)
-                    (\( ( newGrainStore, cmd ), _ ) ->
-                        Return.return (setGrainStore newGrainStore model) cmd
-                    )
-                |> Result.merge
+            update (GrainStoreUserMsg GrainStore.permanentlyDeleteGrain grain) model
 
         NewGrainGenerated grain ->
-            GrainStore.userUpdate GrainStore.addNewGrain
-                grain
-                model.actorId
-                model.grainStore
-                |> Result.mapBoth (\err -> update (LogErrorString err) model)
-                    (\( ( newGrainStore, cmd ), newGrain ) ->
-                        Return.return (setGrainStore newGrainStore model) cmd
-                            |> Return.andThen (update (Msg.routeToGrain newGrain))
-                    )
-                |> Result.merge
+            update (GrainStoreUserMsg GrainStore.addNewGrain grain) model
 
         NewGrain ->
             let
@@ -241,6 +216,7 @@ update message model =
                     generateNewGrain model
             in
             update (NewGrainGenerated grain) newModel
+                |> Return.andThen (update (Msg.routeToGrain grain))
 
         LoadGrainStore val ->
             let
