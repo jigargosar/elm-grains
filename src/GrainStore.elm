@@ -53,12 +53,12 @@ cache =
     E.dict identity Grain.encoder >> Port.cacheGrains
 
 
-maybeUpdateGrainById :
+updateGrainById :
     GrainId
     -> (Grain -> Grain)
     -> GrainStore
     -> Maybe ( Grain, GrainStore )
-maybeUpdateGrainById gid fn model =
+updateGrainById gid fn model =
     let
         gidAsString =
             GrainId.toString gid
@@ -67,25 +67,26 @@ maybeUpdateGrainById gid fn model =
         |> Maybe.map
             (fn
                 >> (\updatedGrain ->
-                        ( updatedGrain, insertGrain updatedGrain model )
+                        ( updatedGrain, blindUpsertGrain updatedGrain model )
                    )
             )
 
 
-insertGrain grain model =
+blindUpsertGrain grain model =
     Dict.insert (grainToGidString grain) grain model
 
 
-maybeInsertGrain grain model =
-    let
-        gidAsString =
-            grainToGidString grain
-    in
-    if Dict.member gidAsString model then
+hasIdOfGrain grain =
+    Dict.member (grainToGidString grain)
+
+
+addNewGrain : Grain -> GrainStore -> Maybe ( Grain, GrainStore )
+addNewGrain grain model =
+    if hasIdOfGrain grain model then
         Nothing
 
     else
-        Just <| Dict.insert gidAsString grain model
+        Just <| ( grain, blindUpsertGrain grain model )
 
 
 type UpdateGrain
@@ -120,16 +121,14 @@ onUserChangeRequest request grain model =
     in
     case request of
         Add ->
-            let
-                newModel =
-                    Dict.insert gidAsString grain model
-
-                addedGrain =
-                    grain
-            in
-            ( newModel
-            , Cmd.batch [ cache newModel, Firebase.persistNewGrain addedGrain ]
-            )
+            addNewGrain grain model
+                |> Maybe.map
+                    (\( addedGrain, newModel ) ->
+                        ( newModel
+                        , Cmd.batch [ cache newModel, Firebase.persistNewGrain addedGrain ]
+                        )
+                    )
+                |> Maybe.withDefault ( model, Cmd.none )
 
         Update updateRequest ->
             let
@@ -141,7 +140,7 @@ onUserChangeRequest request grain model =
                         SetDeleted deleted ->
                             Grain.setDeleted deleted
             in
-            maybeUpdateGrainById gid grainMapper model
+            updateGrainById gid grainMapper model
                 |> Maybe.map
                     (\( updatedGrain, newModel ) ->
                         ( newModel
