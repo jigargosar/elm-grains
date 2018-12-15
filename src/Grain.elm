@@ -25,6 +25,7 @@ type alias Model =
     { id : GrainId
     , content : String
     , deleted : Bool
+    , revision : Int
     }
 
 
@@ -32,12 +33,13 @@ type Grain
     = Grain Model
 
 
-init : GrainId -> Grain
-init initialId =
+new : GrainId -> Grain
+new newId =
     Grain
-        { id = initialId
+        { id = newId
         , content = ""
         , deleted = False
+        , revision = 0
         }
 
 
@@ -47,6 +49,7 @@ encoder (Grain model) =
         [ ( "id", GrainId.encoder model.id )
         , ( "deleted", E.bool model.deleted )
         , ( "content", E.string model.content )
+        , ( "revision", E.int model.revision )
         ]
 
 
@@ -56,6 +59,7 @@ decoder =
         |> required "id" GrainId.decoder
         |> required "content" D.string
         |> optional "deleted" D.bool False
+        |> optional "revision" D.int 0
         |> D.map Grain
 
 
@@ -97,7 +101,7 @@ toDomIdWithPrefix prefix =
 
 generator : Generator Grain
 generator =
-    GrainId.generator |> Random.map init
+    GrainId.generator |> Random.map new
 
 
 setContent : String -> Grain -> Grain
