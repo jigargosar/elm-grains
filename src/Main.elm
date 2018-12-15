@@ -241,9 +241,8 @@ update message model =
                         newGrain
                         newModel.grainStore
             in
-            Return.singleton newModel
-                |> Return.map (setGrainStore newGrainStore)
-                |> Return.effect_ cacheGrainStore
+            Return.singleton (setGrainStore newGrainStore newModel)
+                |> Return.command cmd
                 |> Return.command (Firebase.persistNewGrain newGrain)
                 |> Return.andThen (update (Msg.routeToGrain newGrain))
 
