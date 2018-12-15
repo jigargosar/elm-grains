@@ -204,19 +204,17 @@ update message model =
                         grain
                         model.grainStore
             in
-            Return.return
-                (setGrainStore newGrainStore model)
-                cmd
+            Return.return (setGrainStore newGrainStore model) cmd
 
         DeleteGrain grain ->
             let
-                ( newGrain, newGrainStore ) =
-                    GrainStore.deleteGrain grain model.grainStore
+                ( newGrainStore, cmd ) =
+                    GrainStore.onUserChangeRequest
+                        (GrainStore.Update <| GrainStore.SetDeleted True)
+                        grain
+                        model.grainStore
             in
-            Return.singleton model
-                |> Return.map (setGrainStore newGrainStore)
-                |> Return.effect_ cacheGrainStore
-                |> Return.command (Firebase.persistUpdatedGrain newGrain)
+            Return.return (setGrainStore newGrainStore model) cmd
 
         PermanentlyDeleteGrain grain ->
             Return.singleton model
