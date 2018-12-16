@@ -1,9 +1,13 @@
 module RandomId exposing
-    ( generator
+    ( decoder
+    , encoder
+    , generator
     , isValidWithPrefix
     )
 
-import BasicsX exposing (eqs)
+import BasicsX exposing (eqs, ifElse)
+import Json.Decode as D
+import Json.Encode as E
 import Random
 
 
@@ -52,3 +56,18 @@ stringIdGenerator =
 
 generator prefix =
     stringIdGenerator |> Random.map ((++) prefix)
+
+
+encoder =
+    E.string
+
+
+decoder prefix =
+    D.string
+        |> D.andThen
+            (ifElse (isValidWithPrefix prefix)
+                D.succeed
+                (\idString ->
+                    D.fail ("Invalid Id: prefix= " ++ prefix ++ ". idString= " ++ idString)
+                )
+            )

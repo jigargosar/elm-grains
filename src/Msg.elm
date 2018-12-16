@@ -7,7 +7,7 @@ import Browser.Dom
 import Grain exposing (Grain)
 import GrainChange exposing (GrainChange)
 import GrainId exposing (GrainId)
-import GrainStore
+import GrainStore exposing (GrainStore)
 import Json.Encode exposing (Value)
 import Random exposing (Generator)
 import Route exposing (Route)
@@ -18,9 +18,11 @@ type Msg
       NoOp
     | FocusResult (Result String ())
     | LoadGrainStore Value
+    | SetGrainStore GrainStore
     | PermanentlyDeleteGrain Grain
     | NewGrain
     | DeleteGrain Grain
+    | FirebaseGrainChanges (List GrainChange)
     | BackPressed
     | GrainContentChanged Grain String
     | GrainStoreUserMsg GrainStore.UserMsg Grain

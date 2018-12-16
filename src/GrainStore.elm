@@ -30,6 +30,7 @@ import Maybe.Extra as Maybe
 import Port
 import Random exposing (Generator, Seed)
 import Random.Pipeline as Random
+import RandomX
 import Return
 import Return3 as R3 exposing (Return3F)
 
@@ -51,8 +52,23 @@ get gid =
     Dict.get (GrainId.toString gid)
 
 
+grainList2GrainStore : List Grain -> GrainStore
+grainList2GrainStore =
+    List.map (\grain -> ( grainToGidString grain, grain )) >> Dict.fromList
+
+
+loadFromCache : Value -> GrainStore -> Result D.Error (Generator GrainStore)
 loadFromCache val gs =
-    DecodeX.decode gs (D.dict Grain.decoder) val
+    D.decodeValue
+        (D.dict D.value
+            |> D.map
+                (Dict.values
+                    >> List.filterMap (D.decodeValue Grain.decoderGenerator >> Result.toMaybe)
+                    >> RandomX.listOfGeneratorToGeneratorOfList
+                    >> Random.map grainList2GrainStore
+                )
+        )
+        val
 
 
 setGrainContent content =

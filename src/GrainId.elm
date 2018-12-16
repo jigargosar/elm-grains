@@ -30,7 +30,7 @@ prefix =
 
 generator : Generator GrainId
 generator =
-    RandomId.generator "GrainId_"
+    RandomId.generator prefix
         |> Random.map GrainId
 
 

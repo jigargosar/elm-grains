@@ -17,12 +17,13 @@ import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline exposing (required, requiredAt)
 import Json.Encode as E
 import Port
+import Random exposing (Generator)
 
 
 type Msg
     = AuthUser FireUser
     | AuthUserNone
-    | GrainChanges (List GrainChange)
+    | GrainChangesGenerator (Generator (List GrainChange))
     | UnknownMsg String
 
 
@@ -42,7 +43,7 @@ decoderWithMsg msgString =
             D.succeed AuthUserNone
 
         "GrainChanges" ->
-            DecodeX.start GrainChanges
+            DecodeX.start GrainChangesGenerator
                 |> requiredAt [ "payload", "changes" ] GrainChange.listDecoder
 
         _ ->

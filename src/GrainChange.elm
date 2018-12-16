@@ -2,9 +2,12 @@ module GrainChange exposing (Change(..), GrainChange, changeDecoder, grainChange
 
 import DecodeX
 import Grain exposing (Grain)
-import Json.Decode as D
-import Json.Decode.Pipeline exposing (required)
+import Json.Decode as D exposing (Decoder)
+import Json.Decode.Pipeline exposing (hardcoded, required)
 import Json.Encode as E
+import List.Extra as List
+import Random exposing (Generator)
+import RandomX
 
 
 type Change
@@ -36,11 +39,14 @@ type alias GrainChange =
     { type_ : Change, doc : Grain }
 
 
+grainChangeDecoder : Decoder (Generator GrainChange)
 grainChangeDecoder =
-    DecodeX.start GrainChange
+    DecodeX.start (\type_ -> Random.map (GrainChange type_))
         |> required "type" changeDecoder
-        |> required "doc" Grain.decoder
+        |> required "doc" Grain.decoderGenerator
 
 
+listDecoder : Decoder (Generator (List GrainChange))
 listDecoder =
     D.list grainChangeDecoder
+        |> D.map RandomX.listOfGeneratorToGeneratorOfList

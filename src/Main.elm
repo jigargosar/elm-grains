@@ -218,12 +218,14 @@ update message model =
             in
             update (GrainStoreUserMsg GrainStore.addNewGrain grain) newModel
 
+        SetGrainStore gs ->
+            Return.singleton (setGrainStore gs model)
+
         LoadGrainStore val ->
-            let
-                ( grainStore, cmd ) =
-                    GrainStore.loadFromCache val model.grainStore
-            in
-            Return.return (setGrainStore grainStore model) cmd
+            Return.return model
+                (GrainStore.loadFromCache val model.grainStore
+                    |> Result.unwrap Cmd.none (Random.generate SetGrainStore)
+                )
 
         RouteTo route ->
             Return.singleton (setRoute route model)
@@ -250,6 +252,13 @@ update message model =
         BackPressed ->
             Return.return model (Port.navigateBack ())
 
+        FirebaseGrainChanges changes ->
+            let
+                ( newGrainStore, cmd ) =
+                    GrainStore.onFirebaseChanges changes model.grainStore
+            in
+            Return.return (setGrainStore newGrainStore model) cmd
+
 
 handleOutMsg message model =
     case message of
@@ -271,12 +280,8 @@ handleFireMsg fireMsg model =
         Firebase.AuthUserNone ->
             Return.singleton (setAuthState AuthState.NoUser model)
 
-        Firebase.GrainChanges changes ->
-            let
-                ( newGrainStore, cmd ) =
-                    GrainStore.onFirebaseChanges changes model.grainStore
-            in
-            Return.return (setGrainStore newGrainStore model) cmd
+        Firebase.GrainChangesGenerator changes ->
+            ( model, Random.generate FirebaseGrainChanges changes )
 
 
 view : Model -> Html Msg

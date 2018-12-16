@@ -1,7 +1,7 @@
 module Grain exposing
     ( Grain
     , content
-    , decoder
+    , decoderGenerator
     , encoder
     , generator
     , id
@@ -16,16 +16,17 @@ import BasicsX exposing (eqs)
 import DecodeX exposing (Encoder)
 import GrainId exposing (GrainId(..))
 import Json.Decode as D exposing (Decoder)
-import Json.Decode.Pipeline exposing (custom, optional, required)
+import Json.Decode.Pipeline exposing (custom, hardcoded, optional, required)
 import Json.Encode as E
 import Random exposing (Generator)
+import RevisionId exposing (RevisionId)
 
 
 type alias Model =
     { id : GrainId
     , content : String
     , deleted : Bool
-    , revision : Int
+    , revisionId : RevisionId
     }
 
 
@@ -33,13 +34,13 @@ type Grain
     = Grain Model
 
 
-new : GrainId -> Grain
-new newId =
+new : GrainId -> RevisionId -> Grain
+new newId newRevisionId =
     Grain
         { id = newId
         , content = ""
         , deleted = False
-        , revision = 0
+        , revisionId = newRevisionId
         }
 
 
@@ -49,18 +50,30 @@ encoder (Grain model) =
         [ ( "id", GrainId.encoder model.id )
         , ( "deleted", E.bool model.deleted )
         , ( "content", E.string model.content )
-        , ( "revision", E.int model.revision )
+        , ( "revisionId", RevisionId.encoder model.revisionId )
         ]
 
 
-decoder : Decoder Grain
-decoder =
-    DecodeX.start Model
+decoderGenerator : Decoder (Generator Grain)
+decoderGenerator =
+    DecodeX.start
+        (\id_ content_ deleted revisionIdValue ->
+            RevisionId.generator
+                |> Random.map
+                    (\newRevisionId ->
+                        let
+                            revisionId =
+                                D.decodeValue RevisionId.decoder revisionIdValue
+                                    |> Result.withDefault newRevisionId
+                        in
+                        Model id_ content_ deleted revisionId
+                            |> Grain
+                    )
+        )
         |> required "id" GrainId.decoder
         |> required "content" D.string
         |> optional "deleted" D.bool False
-        |> optional "revision" D.int 0
-        |> D.map Grain
+        |> optional "revisionId" D.value E.null
 
 
 unwrap (Grain model) =
@@ -101,7 +114,7 @@ toDomIdWithPrefix prefix =
 
 generator : Generator Grain
 generator =
-    GrainId.generator |> Random.map new
+    Random.map2 new GrainId.generator RevisionId.generator
 
 
 setContent : String -> Grain -> Grain
