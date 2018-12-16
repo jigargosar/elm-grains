@@ -280,7 +280,7 @@ handleFireMsg fireMsg model =
         Firebase.AuthUserNone ->
             Return.singleton (setAuthState AuthState.NoUser model)
 
-        Firebase.GrainChangesGenerator changes ->
+        Firebase.GrainChanges changes ->
             ( model, Random.generate FirebaseGrainChanges changes )
 
 

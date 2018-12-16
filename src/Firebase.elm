@@ -23,7 +23,7 @@ import Random exposing (Generator)
 type Msg
     = AuthUser FireUser
     | AuthUserNone
-    | GrainChangesGenerator (Generator (List GrainChange))
+    | GrainChanges (Generator (List GrainChange))
     | InvalidMsg String
 
 
@@ -43,7 +43,7 @@ decoderWithMsg msgString =
             D.succeed AuthUserNone
 
         "GrainChanges" ->
-            DecodeX.start GrainChangesGenerator
+            DecodeX.start GrainChanges
                 |> requiredAt [ "payload", "changes" ] GrainChange.listDecoder
 
         _ ->
