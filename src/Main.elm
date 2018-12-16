@@ -271,7 +271,7 @@ handleOutMsg message model =
 
 handleFireMsg fireMsg model =
     case fireMsg of
-        Firebase.UnknownMsg unknown ->
+        Firebase.InvalidMsg unknown ->
             update (LogErrorString ("Invalid Firebase Msg Received: " ++ unknown)) model
 
         Firebase.AuthUser user ->

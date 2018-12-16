@@ -24,7 +24,7 @@ type Msg
     = AuthUser FireUser
     | AuthUserNone
     | GrainChangesGenerator (Generator (List GrainChange))
-    | UnknownMsg String
+    | InvalidMsg String
 
 
 decoder : Decoder Msg
@@ -47,7 +47,7 @@ decoderWithMsg msgString =
                 |> requiredAt [ "payload", "changes" ] GrainChange.listDecoder
 
         _ ->
-            D.succeed <| UnknownMsg msgString
+            D.succeed <| InvalidMsg msgString
 
 
 persistGrains =
