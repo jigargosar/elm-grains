@@ -89,26 +89,18 @@ permanentlyDeleteGrain grain model =
 addNewGrain : Grain -> GrainStore -> Result String ( ( GrainStore, Cmd msg ), Grain )
 addNewGrain grain model =
     let
-        r =
-            if hasIdOfGrain grain model then
-                Nothing
-
-            else
-                Just <| ( grain, blindUpsertGrain grain model )
+        r2 addedGrain newModel =
+            ( ( newModel
+              , Cmd.batch [ cache newModel, Firebase.persistNewGrain addedGrain ]
+              )
+            , addedGrain
+            )
     in
-    r
-        |> Maybe.unpack
-            (\_ ->
-                Result.Err "Error: Add Grain. Id exists "
-            )
-            (\( addedGrain, newModel ) ->
-                Result.Ok
-                    ( ( newModel
-                      , Cmd.batch [ cache newModel, Firebase.persistNewGrain addedGrain ]
-                      )
-                    , addedGrain
-                    )
-            )
+    if hasIdOfGrain grain model then
+        Result.Err "Error: Add Grain. Id exists "
+
+    else
+        Result.Ok <| r2 grain (blindUpsertGrain grain model)
 
 
 cache =
