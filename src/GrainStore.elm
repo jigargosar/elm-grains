@@ -186,12 +186,6 @@ userUpdate :
     -> ( ( GrainStore, Cmd msg ), OutMsg )
 userUpdate request grain model =
     let
-        gid =
-            Grain.id grain
-
-        gidAsString =
-            GrainId.toString gid
-
         grainMapper =
             case request of
                 SetContent content ->
@@ -200,7 +194,7 @@ userUpdate request grain model =
                 SetDeleted deleted ->
                     Grain.setDeleted deleted
     in
-    updateExistingGrainById gid grainMapper model
+    updateExistingGrainById (Grain.id grain) grainMapper model
         |> Maybe.unpack
             (\_ ->
                 Return.singleton model
