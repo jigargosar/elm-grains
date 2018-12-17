@@ -1,7 +1,5 @@
 module GrainStore exposing
     ( GrainStore
-    , OutMsg(..)
-    , UpdateGrain
     , addNewGrain
     , allAsList
     , empty
@@ -10,7 +8,6 @@ module GrainStore exposing
     , onFirebaseChanges
     , permanentlyDeleteGrain
     , setGrainContent
-    , userUpdate
     )
 
 import ActorId exposing (ActorId)
@@ -51,13 +48,8 @@ getById gid =
     Dict.get (GrainId.toString gid)
 
 
-get =
+getGrainHavingSameId =
     Grain.id >> getById
-
-
-grainList2GrainStore : List Grain -> GrainStore
-grainList2GrainStore =
-    List.map (\grain -> ( grainToGidString grain, grain )) >> Dict.fromList
 
 
 loadFromCache : Value -> GrainStore -> Return msg GrainStore
@@ -65,24 +57,47 @@ loadFromCache val gs =
     DecodeX.decodeWithDefault gs (D.dict Grain.decoder) val
 
 
-setGrainContent content =
-    SetContent content
+hasGrainWithSameId grain =
+    Dict.member (Grain.idString grain)
+
+
+setGrainContent content grain model =
+    getGrainHavingSameId grain model
+        |> Result.fromMaybe "Error: SetContent Grain Not Found in Cache"
+        |> Result.map (Grain.setContent content >> updateGrain >> callWith model)
+
+
+updateGrain grain =
+    blindUpsertGrain grain
+        >> withUpdateGrainCmd grain
+
+
+withUpdateGrainCmd grain model =
+    ( model, Cmd.batch [ cache model, Firebase.persistUpdatedGrain grain ] )
+
+
+mapGrain fn grain model =
+    if hasGrainWithSameId grain model then
+        blindUpsertGrain grain model
+            |> withRemoveGrainCmd grain
+            |> Result.Ok
+
+    else
+        Result.Err "Error: PermanentDeleteGrain: Grain Not Found in cache"
 
 
 permanentlyDeleteGrain grain model =
-    removeExistingGrainById (Grain.id grain) model
-        |> Maybe.unpack
-            (\_ ->
-                Return.singleton model
-                    |> withErrorOutMsg "Error: DeletePermanent Grain. Not Found "
-            )
-            (\( removedGrain, newModel ) ->
-                ( ( newModel
-                  , Cmd.batch [ cache newModel, Firebase.persistRemovedGrain grain ]
-                  )
-                , PermanentlyDeleted removedGrain
-                )
-            )
+    if hasGrainWithSameId grain model then
+        blindRemoveGrain grain model
+            |> withRemoveGrainCmd grain
+            |> Result.Ok
+
+    else
+        Result.Err "Error: PermanentDeleteGrain: Grain Not Found in cache"
+
+
+withRemoveGrainCmd grain model =
+    ( model, Cmd.batch [ cache model, Firebase.persistRemovedGrain grain ] )
 
 
 addNewGrain : Grain -> GrainStore -> Result String ( GrainStore, Cmd msg )
@@ -101,10 +116,6 @@ addNewGrain grain model =
         Result.Err "Error: Add Grain. Id exists "
 
 
-hasGrainWithSameId grain =
-    Dict.member (Grain.idString grain)
-
-
 withAddNewGrainCmd grain model =
     ( model, Cmd.batch [ cache model, Firebase.persistNewGrain grain ] )
 
@@ -119,7 +130,7 @@ updateExistingGrain :
     -> GrainStore
     -> Maybe ( Grain, GrainStore )
 updateExistingGrain grain fn model =
-    get grain model
+    getGrainHavingSameId grain model
         |> Maybe.map
             (fn
                 >> (\updatedGrain ->
@@ -128,16 +139,16 @@ updateExistingGrain grain fn model =
             )
 
 
-blindUpsertGrain grain model =
-    Dict.insert (grainToGidString grain) grain model
+blindUpsertGrain grain =
+    Dict.insert (Grain.idString grain) grain
 
 
-blindRemoveGrain grain model =
-    Dict.remove (grainToGidString grain) model
+blindRemoveGrain grain =
+    Dict.remove (Grain.idString grain)
 
 
 hasIdOfGrain grain =
-    Dict.member (grainToGidString grain)
+    Dict.member (Grain.idString grain)
 
 
 removeExistingGrainById :
@@ -152,59 +163,12 @@ removeExistingGrainById gid model =
             )
 
 
-type UpdateGrain
-    = SetContent String
-
-
-type OutMsg
-    = Error String
-    | Added Grain
-    | Modified Grain
-    | PermanentlyDeleted Grain
-
-
-withErrorOutMsg err r2 =
-    ( r2, Error err )
-
-
-userUpdate :
-    UpdateGrain
-    -> Grain
-    -> GrainStore
-    -> ( ( GrainStore, Cmd msg ), OutMsg )
-userUpdate request grain model =
-    let
-        grainMapper =
-            case request of
-                SetContent content ->
-                    Grain.setContent content
-    in
-    updateExistingGrain grain grainMapper model
-        |> Maybe.unpack
-            (\_ ->
-                Return.singleton model
-                    |> withErrorOutMsg "Error: Update Grain. Not Found "
-            )
-            (\( updatedGrain, newModel ) ->
-                ( ( newModel
-                  , Cmd.batch
-                        [ cache newModel, Firebase.persistUpdatedGrain updatedGrain ]
-                  )
-                , Modified updatedGrain
-                )
-            )
-
-
-grainToGidString =
-    Grain.id >> GrainId.toString
-
-
 onFirebaseChanges changes model =
     let
         handleChange { doc, type_ } =
             let
                 gidAsString =
-                    grainToGidString doc
+                    Grain.idString doc
             in
             case type_ of
                 GrainChange.Added ->

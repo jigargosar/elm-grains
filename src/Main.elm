@@ -198,22 +198,21 @@ update message model =
         FocusResult (Err errorString) ->
             handleErrorString errorString model
 
-        GrainStoreMsg msg grain ->
-            let
-                ( ( newGrainStore, cmd ), outMsg ) =
-                    GrainStore.userUpdate msg grain model.grainStore
-            in
-            Return.return (setGrainStore newGrainStore model) cmd
-
         GrainContentChanged grain content ->
-            update (GrainStoreMsg (GrainStore.setGrainContent content) grain) model
+            case GrainStore.setGrainContent content grain model.grainStore of
+                Err errString ->
+                    handleErrorString errString model
+
+                Ok ( newGrainStore, cmd ) ->
+                    Return.return (setGrainStore newGrainStore model) cmd
 
         PermanentlyDeleteGrain grain ->
-            let
-                ( ( newGrainStore, cmd ), outMsg ) =
-                    GrainStore.permanentlyDeleteGrain grain model.grainStore
-            in
-            Return.return (setGrainStore newGrainStore model) cmd
+            case GrainStore.permanentlyDeleteGrain grain model.grainStore of
+                Err errString ->
+                    handleErrorString errString model
+
+                Ok ( newGrainStore, cmd ) ->
+                    Return.return (setGrainStore newGrainStore model) cmd
 
         AddNewGrain grain ->
             case GrainStore.addNewGrain grain model.grainStore of

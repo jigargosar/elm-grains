@@ -23,7 +23,6 @@ type Msg
     | AddNewGrain Grain
     | BackPressed
     | GrainContentChanged Grain String
-    | GrainStoreMsg GrainStore.UpdateGrain Grain
     | ToastDismiss
     | RouteTo Route
     | UrlChanged String
