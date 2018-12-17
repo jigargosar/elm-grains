@@ -22,13 +22,13 @@ import Random exposing (Generator)
 
 
 type AuthState
-    = AuthStatePending
+    = AuthStateLoading
     | AuthStateUser FireUser
     | AuthStateNoUser
 
 
 initialAuthState =
-    AuthStatePending
+    AuthStateLoading
 
 
 type Msg

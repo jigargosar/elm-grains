@@ -323,7 +323,7 @@ viewAppBar { title, showBackBtn } authState =
 
         viewAuthState =
             case authState of
-                Firebase.AuthStatePending ->
+                Firebase.AuthStateLoading ->
                     button [ class "btn loading" ] [ text "SignIn" ]
 
                 Firebase.AuthStateUser user ->
