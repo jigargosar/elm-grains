@@ -86,19 +86,28 @@ permanentlyDeleteGrain grain model =
             )
 
 
+addNewGrain : Grain -> GrainStore -> Result String ( ( GrainStore, Cmd msg ), Grain )
 addNewGrain grain model =
-    addNewGrainInternal grain model
+    let
+        r =
+            if hasIdOfGrain grain model then
+                Nothing
+
+            else
+                Just <| ( grain, blindUpsertGrain grain model )
+    in
+    r
         |> Maybe.unpack
             (\_ ->
-                Return.singleton model
-                    |> withErrorOutMsg "Error: Add Grain. Id exists "
+                Result.Err "Error: Add Grain. Id exists "
             )
             (\( addedGrain, newModel ) ->
-                ( ( newModel
-                  , Cmd.batch [ cache newModel, Firebase.persistNewGrain addedGrain ]
-                  )
-                , Added addedGrain
-                )
+                Result.Ok
+                    ( ( newModel
+                      , Cmd.batch [ cache newModel, Firebase.persistNewGrain addedGrain ]
+                      )
+                    , addedGrain
+                    )
             )
 
 
@@ -140,15 +149,6 @@ blindRemoveGrain grain model =
 
 hasIdOfGrain grain =
     Dict.member (grainToGidString grain)
-
-
-addNewGrainInternal : Grain -> GrainStore -> Maybe ( Grain, GrainStore )
-addNewGrainInternal grain model =
-    if hasIdOfGrain grain model then
-        Nothing
-
-    else
-        Just <| ( grain, blindUpsertGrain grain model )
 
 
 removeExistingGrainById :

@@ -221,11 +221,16 @@ update message model =
                 ( grain, newModel ) =
                     generateNewGrain model
 
-                ( ( newGrainStore, cmd ), outMsg ) =
+                res =
                     GrainStore.addNewGrain grain model.grainStore
             in
-            Return.return (setGrainStore newGrainStore model) cmd
-                |> Return.andThen (handleOutMsg outMsg)
+            case res of
+                Err errString ->
+                    update (LogErrorString errString) model
+
+                Ok ( ( gs, cmd ), addedGrain ) ->
+                    Return.return (setGrainStore gs newModel) cmd
+                        |> Return.andThen (update (Msg.routeToGrain addedGrain))
 
         LoadGrainStore val ->
             let
