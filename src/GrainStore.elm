@@ -70,12 +70,36 @@ setGrainDeleted deleted =
     Update (SetDeleted deleted)
 
 
-permanentlyDeleteGrain =
-    DeletePermanent
+permanentlyDeleteGrain grain model =
+    removeExistingGrainById (Grain.id grain) model
+        |> Maybe.unpack
+            (\_ ->
+                Return.singleton model
+                    |> withErrorOutMsg "Error: DeletePermanent Grain. Not Found "
+            )
+            (\( removedGrain, newModel ) ->
+                ( ( newModel
+                  , Cmd.batch [ cache newModel, Firebase.persistRemovedGrain grain ]
+                  )
+                , PermanentlyDeleted removedGrain
+                )
+            )
 
 
-addNewGrain =
-    AddNew
+addNewGrain grain model =
+    addNewGrainInternal grain model
+        |> Maybe.unpack
+            (\_ ->
+                Return.singleton model
+                    |> withErrorOutMsg "Error: Add Grain. Id exists "
+            )
+            (\( addedGrain, newModel ) ->
+                ( ( newModel
+                  , Cmd.batch [ cache newModel, Firebase.persistNewGrain addedGrain ]
+                  )
+                , Added addedGrain
+                )
+            )
 
 
 cache =
@@ -145,9 +169,7 @@ type UpdateGrain
 
 
 type UserMsg
-    = AddNew
-    | Update UpdateGrain
-    | DeletePermanent
+    = Update UpdateGrain
 
 
 type OutMsg
@@ -164,10 +186,9 @@ withErrorOutMsg err r2 =
 userUpdate :
     UserMsg
     -> Grain
-    -> ActorId
     -> GrainStore
     -> ( ( GrainStore, Cmd msg ), OutMsg )
-userUpdate request grain actorId model =
+userUpdate request grain model =
     let
         gid =
             Grain.id grain
@@ -176,21 +197,6 @@ userUpdate request grain actorId model =
             GrainId.toString gid
     in
     case request of
-        AddNew ->
-            addNewGrainInternal grain model
-                |> Maybe.unpack
-                    (\_ ->
-                        Return.singleton model
-                            |> withErrorOutMsg "Error: Add Grain. Id exists "
-                    )
-                    (\( addedGrain, newModel ) ->
-                        ( ( newModel
-                          , Cmd.batch [ cache newModel, Firebase.persistNewGrain addedGrain ]
-                          )
-                        , Added addedGrain
-                        )
-                    )
-
         Update updateRequest ->
             let
                 grainMapper =
@@ -213,21 +219,6 @@ userUpdate request grain actorId model =
                                 [ cache newModel, Firebase.persistUpdatedGrain updatedGrain ]
                           )
                         , Modified updatedGrain
-                        )
-                    )
-
-        DeletePermanent ->
-            removeExistingGrainById gid model
-                |> Maybe.unpack
-                    (\_ ->
-                        Return.singleton model
-                            |> withErrorOutMsg "Error: DeletePermanent Grain. Not Found "
-                    )
-                    (\( removedGrain, newModel ) ->
-                        ( ( newModel
-                          , Cmd.batch [ cache newModel, Firebase.persistRemovedGrain grain ]
-                          )
-                        , PermanentlyDeleted removedGrain
                         )
                     )
 

@@ -197,7 +197,7 @@ update message model =
         GrainStoreUserMsg msg grain ->
             let
                 ( ( newGrainStore, cmd ), outMsg ) =
-                    GrainStore.userUpdate msg grain model.actorId model.grainStore
+                    GrainStore.userUpdate msg grain model.grainStore
             in
             Return.return (setGrainStore newGrainStore model) cmd
                 |> Return.andThen (handleOutMsg outMsg)
@@ -209,18 +209,20 @@ update message model =
             update (GrainStoreUserMsg (GrainStore.setGrainDeleted True) grain) model
 
         PermanentlyDeleteGrain grain ->
-            update (GrainStoreUserMsg GrainStore.permanentlyDeleteGrain grain) model
+            let
+                ( ( newGrainStore, cmd ), outMsg ) =
+                    GrainStore.permanentlyDeleteGrain grain model.grainStore
+            in
+            Return.return (setGrainStore newGrainStore model) cmd
+                |> Return.andThen (handleOutMsg outMsg)
 
         NewGrain ->
             let
                 ( grain, newModel ) =
                     generateNewGrain model
 
-                msg =
-                    GrainStore.addNewGrain
-
                 ( ( newGrainStore, cmd ), outMsg ) =
-                    GrainStore.userUpdate msg grain model.actorId model.grainStore
+                    GrainStore.addNewGrain grain model.grainStore
             in
             Return.return (setGrainStore newGrainStore model) cmd
                 |> Return.andThen (handleOutMsg outMsg)
