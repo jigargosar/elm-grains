@@ -123,7 +123,7 @@ setAuthState authState model =
 
 
 getGrain gid =
-    .grainStore >> GrainStore.get gid
+    .grainStore >> GrainStore.getById gid
 
 
 mapGrainStore fn model =

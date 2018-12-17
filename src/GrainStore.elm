@@ -5,7 +5,7 @@ module GrainStore exposing
     , addNewGrain
     , allAsList
     , empty
-    , get
+    , getById
     , loadFromCache
     , onFirebaseChanges
     , permanentlyDeleteGrain
@@ -46,9 +46,13 @@ allAsList =
     Dict.values
 
 
-get : GrainId -> GrainStore -> Maybe Grain
-get gid =
+getById : GrainId -> GrainStore -> Maybe Grain
+getById gid =
     Dict.get (GrainId.toString gid)
+
+
+get =
+    Grain.id >> getById
 
 
 grainList2GrainStore : List Grain -> GrainStore
@@ -109,28 +113,19 @@ cache =
     E.dict identity Grain.encoder >> Port.cacheGrains
 
 
-updateExistingGrainById :
-    GrainId
+updateExistingGrain :
+    Grain
     -> (Grain -> Grain)
     -> GrainStore
     -> Maybe ( Grain, GrainStore )
-updateExistingGrainById gid fn model =
-    get gid model
+updateExistingGrain grain fn model =
+    get grain model
         |> Maybe.map
             (fn
                 >> (\updatedGrain ->
                         ( updatedGrain, blindUpsertGrain updatedGrain model )
                    )
             )
-
-
-updateExistingGrain :
-    Grain
-    -> (Grain -> Grain)
-    -> GrainStore
-    -> Maybe ( Grain, GrainStore )
-updateExistingGrain grain =
-    updateExistingGrainById (Grain.id grain)
 
 
 blindUpsertGrain grain model =
@@ -150,7 +145,7 @@ removeExistingGrainById :
     -> GrainStore
     -> Maybe ( Grain, GrainStore )
 removeExistingGrainById gid model =
-    get gid model
+    getById gid model
         |> Maybe.map
             (\removedGrain ->
                 ( removedGrain, blindRemoveGrain removedGrain model )
@@ -184,7 +179,7 @@ userUpdate request grain model =
                 SetContent content ->
                     Grain.setContent content
     in
-    updateExistingGrainById (Grain.id grain) grainMapper model
+    updateExistingGrain grain grainMapper model
         |> Maybe.unpack
             (\_ ->
                 Return.singleton model
