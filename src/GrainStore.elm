@@ -10,7 +10,6 @@ module GrainStore exposing
     , onFirebaseChanges
     , permanentlyDeleteGrain
     , setGrainContent
-    , setGrainDeleted
     , userUpdate
     )
 
@@ -64,10 +63,6 @@ loadFromCache val gs =
 
 setGrainContent content =
     SetContent content
-
-
-setGrainDeleted deleted =
-    SetDeleted deleted
 
 
 permanentlyDeleteGrain grain model =
@@ -163,8 +158,7 @@ removeExistingGrainById gid model =
 
 
 type UpdateGrain
-    = SetDeleted Bool
-    | SetContent String
+    = SetContent String
 
 
 type OutMsg
@@ -189,9 +183,6 @@ userUpdate request grain model =
             case request of
                 SetContent content ->
                     Grain.setContent content
-
-                SetDeleted deleted ->
-                    Grain.setDeleted deleted
     in
     updateExistingGrainById (Grain.id grain) grainMapper model
         |> Maybe.unpack

@@ -8,7 +8,6 @@ module Grain exposing
     , idEq
     , idString
     , setContent
-    , setDeleted
     , titleOrEmpty
     , toDomIdWithPrefix
     )
@@ -25,7 +24,6 @@ import Random exposing (Generator)
 type alias Model =
     { id : GrainId
     , content : String
-    , deleted : Bool
     , rev : Int
     }
 
@@ -39,7 +37,6 @@ new newId =
     Grain
         { id = newId
         , content = ""
-        , deleted = False
         , rev = 0
         }
 
@@ -48,7 +45,6 @@ encoder : Encoder Grain
 encoder (Grain model) =
     E.object
         [ ( "id", GrainId.encoder model.id )
-        , ( "deleted", E.bool model.deleted )
         , ( "content", E.string model.content )
         , ( "rev", E.int model.rev )
         ]
@@ -59,7 +55,6 @@ decoder =
     DecodeX.start Model
         |> required "id" GrainId.decoder
         |> required "content" D.string
-        |> optional "deleted" D.bool False
         |> optional "rev" D.int 0
         |> D.map Grain
 
@@ -112,7 +107,3 @@ generator =
 setContent : String -> Grain -> Grain
 setContent newContent =
     map (\model -> { model | content = newContent })
-
-
-setDeleted newDeleted =
-    map (\model -> { model | deleted = newDeleted })

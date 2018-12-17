@@ -208,9 +208,6 @@ update message model =
         GrainContentChanged grain content ->
             update (GrainStoreMsg (GrainStore.setGrainContent content) grain) model
 
-        DeleteGrain grain ->
-            update (GrainStoreMsg (GrainStore.setGrainDeleted True) grain) model
-
         PermanentlyDeleteGrain grain ->
             let
                 ( ( newGrainStore, cmd ), outMsg ) =

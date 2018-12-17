@@ -21,7 +21,6 @@ type Msg
     | PermanentlyDeleteGrain Grain
     | GenerateAndAddNewGrain
     | AddNewGrain Grain
-    | DeleteGrain Grain
     | BackPressed
     | GrainContentChanged Grain String
     | GrainStoreMsg GrainStore.UpdateGrain Grain
