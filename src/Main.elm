@@ -235,7 +235,7 @@ update message model =
         UrlChanged url ->
             Return.singleton (setRouteFromString url model)
 
-        Firebase val ->
+        Firebase encodedMsg ->
             let
                 handleFireMsg fireMsg =
                     case fireMsg of
@@ -251,8 +251,7 @@ update message model =
                         Firebase.GrainChanges changes ->
                             ( model, Random.generate FirebaseGrainChanges changes )
             in
-            Firebase.decode val
-                |> handleFireMsg
+            handleFireMsg (Firebase.decodeInbound encodedMsg)
 
         SignIn ->
             Return.return model (Firebase.signIn ())

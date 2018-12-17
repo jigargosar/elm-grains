@@ -1,6 +1,6 @@
 module Firebase exposing
     ( Msg(..)
-    , decode
+    , decodeInbound
     , persistNewGrain
     , persistRemovedGrain
     , persistUpdatedGrain
@@ -26,8 +26,8 @@ type Msg
     | Error String
 
 
-decode : Value -> Msg
-decode val =
+decodeInbound : Value -> Msg
+decodeInbound val =
     case D.decodeValue decoder val of
         Err error ->
             Error ("Decoding Error : " ++ D.errorToString error)
