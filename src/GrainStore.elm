@@ -88,26 +88,23 @@ permanentlyDeleteGrain grain model =
 
 addNewGrain : Grain -> GrainStore -> Result String ( Grain, GrainStore, Cmd msg )
 addNewGrain grain model =
-    let
-        gidString =
-            Grain.idString grain
-
-        canAdd =
-            Dict.member gidString model
-    in
-    if canAdd then
-        let
-            modelWithGrain =
-                Dict.insert gidString grain model
-        in
-        Result.Ok
-            ( grain
-            , modelWithGrain
-            , Cmd.batch [ cache modelWithGrain, Firebase.persistNewGrain grain ]
-            )
+    if canAddNewGrain grain model then
+        Result.Ok <| addNewGrainHelp grain (blindUpsertGrain grain model)
 
     else
         Result.Err "Error: Add Grain. Id exists "
+
+
+canAddNewGrain grain model =
+    Dict.member (Grain.idString grain) model
+        |> not
+
+
+addNewGrainHelp grain model =
+    ( grain
+    , model
+    , Cmd.batch [ cache model, Firebase.persistNewGrain grain ]
+    )
 
 
 cache =
