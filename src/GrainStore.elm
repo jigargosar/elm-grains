@@ -100,12 +100,12 @@ addNewGrain grain =
             )
     in
     ifElse (canAddGrain grain)
-        (Result.Ok << r2 grain)
+        (Result.Ok << r2 grain << blindUpsertGrain grain)
         (\_ -> Result.Err "Error: Add Grain. Id exists ")
 
 
 canAddGrain grain =
-    Dict.member (Grain.idString grain)
+    Dict.member (Grain.idString grain) >> not
 
 
 cache =
