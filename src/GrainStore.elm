@@ -99,13 +99,16 @@ addNewGrain grain =
             , addedGrain
             )
     in
-    ifElse (canAddGrain grain)
-        (Result.Ok << r2 grain << blindUpsertGrain grain)
-        (\_ -> Result.Err "Error: Add Grain. Id exists ")
+    validateAddOp grain
+        >> Result.map (\model -> r2 grain (blindUpsertGrain grain model))
 
 
-canAddGrain grain =
-    Dict.member (Grain.idString grain) >> not
+validateAddOp grain model =
+    if Dict.member (Grain.idString grain) model then
+        Result.Ok model
+
+    else
+        Result.Err "Error: Add Grain. Id exists "
 
 
 cache =
