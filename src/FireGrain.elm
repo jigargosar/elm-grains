@@ -1,4 +1,4 @@
-module FireGrain exposing (FireGrain(..))
+module FireGrain exposing (FireGrain, decoder, encoder, idString, latest, new)
 
 import DecodeX
 import Grain exposing (Grain)
@@ -12,6 +12,29 @@ type FireGrain
     | Dirty { base : Grain, dirty : Grain }
     | SaveRequestSent { base : Grain, dirty : Grain }
     | DirtyAfterSaveRequestSent { base : Grain, saveRequestSentFor : Grain, dirty : Grain }
+
+
+new grain =
+    Clean { base = grain }
+
+
+idString =
+    latest >> Grain.idString
+
+
+latest model =
+    case model of
+        Clean { base } ->
+            base
+
+        Dirty { dirty } ->
+            dirty
+
+        SaveRequestSent { dirty } ->
+            dirty
+
+        DirtyAfterSaveRequestSent { dirty } ->
+            dirty
 
 
 encoder : FireGrain -> Value

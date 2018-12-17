@@ -14,6 +14,7 @@ import ActorId exposing (ActorId)
 import BasicsX exposing (callWith, ifElse, unwrapMaybe)
 import DecodeX exposing (Encoder)
 import Dict exposing (Dict)
+import FireGrain exposing (FireGrain)
 import Firebase
 import Grain exposing (Grain)
 import GrainChange exposing (GrainChange)
@@ -32,7 +33,7 @@ import Return3 as R3 exposing (Return3F)
 
 
 type alias GrainStore =
-    Dict String Grain
+    Dict String FireGrain
 
 
 empty =
@@ -40,12 +41,13 @@ empty =
 
 
 allAsList =
-    Dict.values
+    Dict.values >> List.map FireGrain.latest
 
 
 getById : GrainId -> GrainStore -> Maybe Grain
 getById gid =
     Dict.get (GrainId.toString gid)
+        >> Maybe.map FireGrain.latest
 
 
 getGrainHavingSameId =
@@ -54,7 +56,7 @@ getGrainHavingSameId =
 
 loadFromCache : Value -> GrainStore -> Return msg GrainStore
 loadFromCache val gs =
-    DecodeX.decodeWithDefault gs (D.dict Grain.decoder) val
+    DecodeX.decodeWithDefault gs (D.dict FireGrain.decoder) val
 
 
 hasGrainWithSameId grain =
@@ -64,7 +66,12 @@ hasGrainWithSameId grain =
 setGrainContent content grain model =
     getGrainHavingSameId grain model
         |> Result.fromMaybe "Error: SetContent Grain Not Found in Cache"
-        |> Result.map (Grain.setContent content >> updateGrain >> callWith model)
+        |> Result.map
+            (Grain.setContent content
+                >> FireGrain.new
+                >> updateGrain
+                >> callWith model
+            )
 
 
 updateGrain grain =
@@ -73,22 +80,12 @@ updateGrain grain =
 
 
 withUpdateGrainCmd grain model =
-    ( model, Cmd.batch [ cache model, Firebase.persistUpdatedGrain grain ] )
-
-
-mapGrain fn grain model =
-    if hasGrainWithSameId grain model then
-        blindUpsertGrain grain model
-            |> withRemoveGrainCmd grain
-            |> Result.Ok
-
-    else
-        Result.Err "Error: PermanentDeleteGrain: Grain Not Found in cache"
+    ( model, Cmd.batch [ cache model, Firebase.persistUpdatedGrain (FireGrain.latest grain) ] )
 
 
 permanentlyDeleteGrain grain model =
     if hasGrainWithSameId grain model then
-        blindRemoveGrain grain model
+        blindRemoveGrain (FireGrain.new grain) model
             |> withRemoveGrainCmd grain
             |> Result.Ok
 
@@ -108,7 +105,7 @@ addNewGrain grain model =
                 |> not
     in
     if canAdd then
-        blindUpsertGrain grain model
+        blindUpsertGrain (FireGrain.new grain) model
             |> withAddNewGrainCmd grain
             |> Result.Ok
 
@@ -121,61 +118,38 @@ withAddNewGrainCmd grain model =
 
 
 cache =
-    E.dict identity Grain.encoder >> Port.cacheGrains
-
-
-updateExistingGrain :
-    Grain
-    -> (Grain -> Grain)
-    -> GrainStore
-    -> Maybe ( Grain, GrainStore )
-updateExistingGrain grain fn model =
-    getGrainHavingSameId grain model
-        |> Maybe.map
-            (fn
-                >> (\updatedGrain ->
-                        ( updatedGrain, blindUpsertGrain updatedGrain model )
-                   )
-            )
+    --    E.dict identity Grain.encoder >> Port.cacheGrains
+    E.dict identity FireGrain.encoder >> Port.cacheGrains
 
 
 blindUpsertGrain grain =
-    Dict.insert (Grain.idString grain) grain
+    Dict.insert (FireGrain.idString grain) grain
 
 
 blindRemoveGrain grain =
-    Dict.remove (Grain.idString grain)
+    Dict.remove (FireGrain.idString grain)
 
 
 hasIdOfGrain grain =
-    Dict.member (Grain.idString grain)
-
-
-removeExistingGrainById :
-    GrainId
-    -> GrainStore
-    -> Maybe ( Grain, GrainStore )
-removeExistingGrainById gid model =
-    getById gid model
-        |> Maybe.map
-            (\removedGrain ->
-                ( removedGrain, blindRemoveGrain removedGrain model )
-            )
+    Dict.member (FireGrain.idString grain)
 
 
 onFirebaseChanges changes model =
     let
         handleChange { doc, type_ } =
             let
+                fireGrain =
+                    FireGrain.new doc
+
                 gidAsString =
-                    Grain.idString doc
+                    FireGrain.idString fireGrain
             in
             case type_ of
                 GrainChange.Added ->
-                    Dict.insert gidAsString doc
+                    Dict.insert gidAsString fireGrain
 
                 GrainChange.Modified ->
-                    Dict.insert gidAsString doc
+                    Dict.insert gidAsString fireGrain
 
                 GrainChange.Removed ->
                     Dict.remove gidAsString
