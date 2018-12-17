@@ -175,15 +175,19 @@ subscriptions model =
         ]
 
 
+onErrorString errString model =
+    Return.return (mapToast (Toast.show errString) model)
+        (Port.error errString)
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
         NoOp ->
             Return.singleton model
 
-        LogErrorString errString ->
-            Return.return (mapToast (Toast.show errString) model)
-                (Port.error errString)
+        OnErrorString errString ->
+            onErrorString errString model
 
         ToastDismiss ->
             Return.singleton (mapToast Toast.dismiss model)
@@ -192,7 +196,7 @@ update message model =
             Return.singleton model
 
         FocusResult (Err errorString) ->
-            update (LogErrorString errorString) model
+            onErrorString errorString model
 
         GrainStoreMsg msg grain ->
             let
@@ -219,7 +223,7 @@ update message model =
         AddNewGrain grain ->
             case GrainStore.addNewGrain grain model.grainStore of
                 Err errString ->
-                    update (LogErrorString errString) model
+                    onErrorString errString model
 
                 Ok ( newGrainStore, cmd ) ->
                     Return.return (setGrainStore newGrainStore model) cmd
@@ -249,7 +253,7 @@ update message model =
                 handleFireMsg fireMsg =
                     case fireMsg of
                         Firebase.Error errString ->
-                            update (LogErrorString errString) model
+                            update (OnErrorString errString) model
 
                         Firebase.AuthStateChanged authState ->
                             Return.singleton (setAuthState authState model)
