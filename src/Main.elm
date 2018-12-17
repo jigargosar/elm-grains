@@ -236,19 +236,23 @@ update message model =
             Return.singleton (setRouteFromString url model)
 
         Firebase val ->
-            Firebase.decode
-                { error = \errString -> update (LogErrorString errString) model
-                , authUser =
-                    \user ->
-                        Return.singleton (setAuthState (AuthState.Authenticated user) model)
-                , authUserNone =
-                    \_ ->
-                        Return.singleton (setAuthState AuthState.NoUser model)
-                , grainChanges =
-                    \changes ->
-                        ( model, Random.generate FirebaseGrainChanges changes )
-                }
-                val
+            let
+                handleFireMsg fireMsg =
+                    case fireMsg of
+                        Firebase.Error errString ->
+                            update (LogErrorString errString) model
+
+                        Firebase.AuthUser user ->
+                            Return.singleton (setAuthState (AuthState.Authenticated user) model)
+
+                        Firebase.AuthUserNone ->
+                            Return.singleton (setAuthState AuthState.NoUser model)
+
+                        Firebase.GrainChanges changes ->
+                            ( model, Random.generate FirebaseGrainChanges changes )
+            in
+            Firebase.decode val
+                |> handleFireMsg
 
         SignIn ->
             Return.return model (Firebase.signIn ())

@@ -1,5 +1,6 @@
 module Firebase exposing
-    ( decode
+    ( Msg(..)
+    , decode
     , persistNewGrain
     , persistRemovedGrain
     , persistUpdatedGrain
@@ -22,36 +23,17 @@ type Msg
     = AuthUser FireUser
     | AuthUserNone
     | GrainChanges (Generator (List GrainChange))
-    | InvalidMsg String
+    | Error String
 
 
-type alias Config msg =
-    { error : String -> msg
-    , authUser : FireUser -> msg
-    , authUserNone : () -> msg
-    , grainChanges : Generator (List GrainChange) -> msg
-    }
-
-
-decode : Config msg -> Value -> msg
-decode config val =
+decode : Value -> Msg
+decode val =
     case D.decodeValue decoder val of
         Err error ->
-            config.error (D.errorToString error)
+            Error ("Decoding Error : " ++ D.errorToString error)
 
         Ok fireMsg ->
-            case fireMsg of
-                InvalidMsg unknown ->
-                    config.error ("Firebase : Invalid Msg Received: " ++ unknown)
-
-                AuthUser user ->
-                    config.authUser user
-
-                AuthUserNone ->
-                    config.authUserNone ()
-
-                GrainChanges changes ->
-                    config.grainChanges changes
+            fireMsg
 
 
 decoder : Decoder Msg
@@ -74,7 +56,7 @@ decoderWithMsg msgString =
                 |> requiredAt [ "payload", "changes" ] GrainChange.listDecoder
 
         _ ->
-            D.succeed <| InvalidMsg msgString
+            D.succeed <| Error ("UnknownMsg: " ++ msgString)
 
 
 persistGrains =
