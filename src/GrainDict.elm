@@ -56,7 +56,7 @@ encoder =
 
 
 decoder =
-    D.dict Grain.decoderGenerator
+    D.dict Grain.decoder
         |> D.map GrainDict
 
 

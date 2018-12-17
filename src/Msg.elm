@@ -18,11 +18,9 @@ type Msg
       NoOp
     | FocusResult (Result String ())
     | LoadGrainStore Value
-    | SetGrainStore GrainStore
     | PermanentlyDeleteGrain Grain
     | NewGrain
     | DeleteGrain Grain
-    | FirebaseGrainChanges (List GrainChange)
     | BackPressed
     | GrainContentChanged Grain String
     | GrainStoreUserMsg GrainStore.UserMsg Grain

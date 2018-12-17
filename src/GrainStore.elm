@@ -31,7 +31,7 @@ import Port
 import Random exposing (Generator, Seed)
 import Random.Pipeline as Random
 import RandomX
-import Return
+import Return exposing (Return)
 import Return3 as R3 exposing (Return3F)
 
 
@@ -57,18 +57,9 @@ grainList2GrainStore =
     List.map (\grain -> ( grainToGidString grain, grain )) >> Dict.fromList
 
 
-loadFromCache : Value -> GrainStore -> Result D.Error (Generator GrainStore)
+loadFromCache : Value -> GrainStore -> Return msg GrainStore
 loadFromCache val gs =
-    D.decodeValue
-        (D.dict D.value
-            |> D.map
-                (Dict.values
-                    >> List.filterMap (D.decodeValue Grain.decoderGenerator >> Result.toMaybe)
-                    >> RandomX.listOfGeneratorToGeneratorOfList
-                    >> Random.map grainList2GrainStore
-                )
-        )
-        val
+    DecodeX.decodeWithDefault gs (D.dict Grain.decoder) val
 
 
 setGrainContent content =

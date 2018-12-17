@@ -18,6 +18,7 @@ import CssTheme exposing (black80, blackAlpha, space2, space4, white)
 import DecodeX exposing (DecodeResult)
 import Either exposing (Either(..))
 import EventX exposing (onKeyDownPD)
+import FireUser exposing (FireUser)
 import Firebase
 import Grain exposing (Grain)
 import GrainChange
@@ -217,14 +218,12 @@ update message model =
             in
             update (GrainStoreUserMsg GrainStore.addNewGrain grain) newModel
 
-        SetGrainStore gs ->
-            Return.singleton (setGrainStore gs model)
-
         LoadGrainStore val ->
-            Return.return model
-                (GrainStore.loadFromCache val model.grainStore
-                    |> Result.unwrap Cmd.none (Random.generate SetGrainStore)
-                )
+            let
+                ( newGrainStore, cmd ) =
+                    GrainStore.loadFromCache val model.grainStore
+            in
+            Return.return (setGrainStore newGrainStore model) cmd
 
         RouteTo route ->
             Return.singleton (setRoute route model)
@@ -245,7 +244,11 @@ update message model =
                             Return.singleton (setAuthState authState model)
 
                         Firebase.GrainChanges changes ->
-                            ( model, Random.generate FirebaseGrainChanges changes )
+                            let
+                                ( newGrainStore, cmd ) =
+                                    GrainStore.onFirebaseChanges changes model.grainStore
+                            in
+                            Return.return (setGrainStore newGrainStore model) cmd
             in
             handleFireMsg (Firebase.decodeInbound encodedMsg)
 
@@ -257,13 +260,6 @@ update message model =
 
         BackPressed ->
             Return.return model (Port.navigateBack ())
-
-        FirebaseGrainChanges changes ->
-            let
-                ( newGrainStore, cmd ) =
-                    GrainStore.onFirebaseChanges changes model.grainStore
-            in
-            Return.return (setGrainStore newGrainStore model) cmd
 
 
 handleOutMsg message model =

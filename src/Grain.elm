@@ -1,7 +1,7 @@
 module Grain exposing
     ( Grain
     , content
-    , decoderGenerator
+    , decoder
     , encoder
     , generator
     , id
@@ -54,26 +54,14 @@ encoder (Grain model) =
         ]
 
 
-decoderGenerator : Decoder (Generator Grain)
-decoderGenerator =
-    DecodeX.start
-        (\id_ content_ deleted revisionIdValue ->
-            RevisionId.generator
-                |> Random.map
-                    (\newRevisionId ->
-                        let
-                            revisionId =
-                                D.decodeValue RevisionId.decoder revisionIdValue
-                                    |> Result.withDefault newRevisionId
-                        in
-                        Model id_ content_ deleted revisionId
-                            |> Grain
-                    )
-        )
+decoder : Decoder Grain
+decoder =
+    DecodeX.start Model
         |> required "id" GrainId.decoder
         |> required "content" D.string
         |> optional "deleted" D.bool False
-        |> optional "revisionId" D.value E.null
+        |> required "revisionId" RevisionId.decoder
+        |> D.map Grain
 
 
 unwrap (Grain model) =

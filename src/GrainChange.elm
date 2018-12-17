@@ -39,14 +39,13 @@ type alias GrainChange =
     { type_ : Change, doc : Grain }
 
 
-grainChangeDecoder : Decoder (Generator GrainChange)
+grainChangeDecoder : Decoder GrainChange
 grainChangeDecoder =
-    DecodeX.start (\type_ -> Random.map (GrainChange type_))
+    DecodeX.start GrainChange
         |> required "type" changeDecoder
-        |> required "doc" Grain.decoderGenerator
+        |> required "doc" Grain.decoder
 
 
-listDecoder : Decoder (Generator (List GrainChange))
+listDecoder : Decoder (List GrainChange)
 listDecoder =
     D.list grainChangeDecoder
-        |> D.map RandomX.listOfGeneratorToGeneratorOfList
