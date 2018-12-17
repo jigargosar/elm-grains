@@ -86,10 +86,12 @@ permanentlyDeleteGrain grain model =
             )
 
 
-addNewGrain : Grain -> GrainStore -> Result String ( Grain, GrainStore, Cmd msg )
+addNewGrain : Grain -> GrainStore -> Result String ( ( Grain, GrainStore ), Cmd msg )
 addNewGrain grain model =
     if canAddNewGrain grain model then
-        Result.Ok <| addNewGrainHelp grain (blindUpsertGrain grain model)
+        Return.singleton (insertGrainT2 grain model)
+            |> Return.effect_ addNewGrainEffect
+            |> Result.Ok
 
     else
         Result.Err "Error: Add Grain. Id exists "
@@ -100,11 +102,12 @@ canAddNewGrain grain model =
         |> not
 
 
-addNewGrainHelp grain model =
-    ( grain
-    , model
-    , Cmd.batch [ cache model, Firebase.persistNewGrain grain ]
-    )
+insertGrainT2 grain model =
+    ( grain, blindUpsertGrain grain model )
+
+
+addNewGrainEffect ( grain, model ) =
+    Cmd.batch [ cache model, Firebase.persistNewGrain grain ]
 
 
 cache =

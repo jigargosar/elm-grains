@@ -228,8 +228,8 @@ update message model =
                 Err errString ->
                     update (LogErrorString errString) model
 
-                Ok ( addedGrain, gs, cmd ) ->
-                    Return.return (setGrainStore gs newModel) cmd
+                Ok ( ( addedGrain, newGrainStore ), cmd ) ->
+                    Return.return (setGrainStore newGrainStore newModel) cmd
                         |> Return.andThen (update (Msg.routeToGrain addedGrain))
 
         LoadGrainStore val ->
