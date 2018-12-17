@@ -20,14 +20,13 @@ import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline exposing (custom, hardcoded, optional, required)
 import Json.Encode as E
 import Random exposing (Generator)
-import RevisionId exposing (RevisionId)
 
 
 type alias Model =
     { id : GrainId
     , content : String
     , deleted : Bool
-    , revisionId : RevisionId
+    , rev : Int
     }
 
 
@@ -35,13 +34,13 @@ type Grain
     = Grain Model
 
 
-new : GrainId -> RevisionId -> Grain
-new newId newRevisionId =
+new : GrainId -> Grain
+new newId =
     Grain
         { id = newId
         , content = ""
         , deleted = False
-        , revisionId = newRevisionId
+        , rev = 0
         }
 
 
@@ -51,7 +50,7 @@ encoder (Grain model) =
         [ ( "id", GrainId.encoder model.id )
         , ( "deleted", E.bool model.deleted )
         , ( "content", E.string model.content )
-        , ( "revisionId", RevisionId.encoder model.revisionId )
+        , ( "rev", E.int model.rev )
         ]
 
 
@@ -61,7 +60,7 @@ decoder =
         |> required "id" GrainId.decoder
         |> required "content" D.string
         |> optional "deleted" D.bool False
-        |> required "revisionId" RevisionId.decoder
+        |> optional "rev" D.int 0
         |> D.map Grain
 
 
@@ -107,7 +106,7 @@ idString =
 
 generator : Generator Grain
 generator =
-    Random.map2 new GrainId.generator RevisionId.generator
+    Random.map new GrainId.generator
 
 
 setContent : String -> Grain -> Grain
