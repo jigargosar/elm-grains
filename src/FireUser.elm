@@ -25,14 +25,6 @@ map fn =
     unwrap >> fn >> FireUser
 
 
-
---encoder : Encoder FireUser
---encoder (FireUser model) =
---    E.object
---        [
---        ]
-
-
 decoder : Decoder FireUser
 decoder =
     DecodeX.start Model
