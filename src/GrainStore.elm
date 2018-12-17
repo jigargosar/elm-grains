@@ -96,7 +96,7 @@ addNewGrain grain model =
             , addedGrain
             )
     in
-    if hasIdOfGrain grain model then
+    if Dict.member (grainToGidString grain) model then
         Result.Err "Error: Add Grain. Id exists "
 
     else
