@@ -15,7 +15,7 @@ module GrainStore exposing
     )
 
 import ActorId exposing (ActorId)
-import BasicsX exposing (callWith, unwrapMaybe)
+import BasicsX exposing (callWith, ifElse, unwrapMaybe)
 import DecodeX exposing (Encoder)
 import Dict exposing (Dict)
 import Firebase
@@ -87,7 +87,7 @@ permanentlyDeleteGrain grain model =
 
 
 addNewGrain : Grain -> GrainStore -> Result String ( ( GrainStore, Cmd msg ), Grain )
-addNewGrain grain model =
+addNewGrain grain =
     let
         addNewGrainCmd addedGrain newModel =
             Cmd.batch [ cache newModel, Firebase.persistNewGrain addedGrain ]
@@ -99,11 +99,13 @@ addNewGrain grain model =
             , addedGrain
             )
     in
-    if Dict.member (Grain.idString grain) model then
-        Result.Err "Error: Add Grain. Id exists "
+    ifElse (canAddGrain grain)
+        (Result.Ok << r2 grain)
+        (\_ -> Result.Err "Error: Add Grain. Id exists ")
 
-    else
-        Result.Ok <| r2 grain (blindUpsertGrain grain model)
+
+canAddGrain grain =
+    Dict.member (Grain.idString grain)
 
 
 cache =
