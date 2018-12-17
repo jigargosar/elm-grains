@@ -19,8 +19,8 @@ type Msg
     | FocusResult (Result String ())
     | LoadGrainStore Value
     | PermanentlyDeleteGrain Grain
-    | CreateAndAddNewGrain
-    | AddCreatedGrain Grain
+    | GenerateAndAddNewGrain
+    | AddNewGrain Grain
     | DeleteGrain Grain
     | BackPressed
     | GrainContentChanged Grain String

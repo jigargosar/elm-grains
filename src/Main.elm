@@ -216,7 +216,7 @@ update message model =
             Return.return (setGrainStore newGrainStore model) cmd
                 |> Return.andThen (handleOutMsg outMsg)
 
-        AddCreatedGrain grain ->
+        AddNewGrain grain ->
             case GrainStore.addNewGrain grain model.grainStore of
                 Err errString ->
                     update (LogErrorString errString) model
@@ -225,8 +225,9 @@ update message model =
                     Return.return (setGrainStore newGrainStore model) cmd
                         |> Return.andThen (update (Msg.routeToGrain addedGrain))
 
-        CreateAndAddNewGrain ->
-            Return.return model (Random.generate AddCreatedGrain Grain.generator)
+        GenerateAndAddNewGrain ->
+            Return.return model
+                (Random.generate AddNewGrain Grain.generator)
 
         LoadGrainStore val ->
             let
