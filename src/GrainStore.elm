@@ -88,7 +88,12 @@ permanentlyDeleteGrain grain model =
 
 addNewGrain : Grain -> GrainStore -> Result String ( GrainStore, Cmd msg )
 addNewGrain grain model =
-    if canAddNewGrain grain model then
+    let
+        canAdd =
+            hasGrainWithSameId grain model
+                |> not
+    in
+    if canAdd then
         blindUpsertGrain grain model
             |> withAddNewGrainCmd grain
             |> Result.Ok
@@ -97,9 +102,8 @@ addNewGrain grain model =
         Result.Err "Error: Add Grain. Id exists "
 
 
-canAddNewGrain grain model =
-    Dict.member (Grain.idString grain) model
-        |> not
+hasGrainWithSameId grain =
+    Dict.member (Grain.idString grain)
 
 
 withAddNewGrainCmd grain model =
