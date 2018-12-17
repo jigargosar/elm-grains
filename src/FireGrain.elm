@@ -1,4 +1,4 @@
-module FireGrain exposing (FireGrain, decoder, encoder, idString, latest, new)
+module FireGrain exposing (FireGrain, decoder, encoder, idString, latest, new, update)
 
 import DecodeX
 import Grain exposing (Grain)
@@ -35,6 +35,29 @@ latest model =
 
         DirtyAfterSaveRequestSent { dirty } ->
             dirty
+
+
+update fn model =
+    case model of
+        Clean { base } ->
+            Dirty { base = base, dirty = fn base }
+
+        Dirty rec ->
+            Dirty <| setDirty (fn rec.dirty) rec
+
+        SaveRequestSent { base, dirty } ->
+            DirtyAfterSaveRequestSent
+                { base = base
+                , saveRequestSentFor = dirty
+                , dirty = fn dirty
+                }
+
+        DirtyAfterSaveRequestSent rec ->
+            DirtyAfterSaveRequestSent <| setDirty (fn rec.dirty) rec
+
+
+setDirty newDirty partialRecord =
+    { partialRecord | dirty = newDirty }
 
 
 encoder : FireGrain -> Value

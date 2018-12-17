@@ -50,8 +50,8 @@ getById gid =
         >> Maybe.map FireGrain.latest
 
 
-getGrainHavingSameId =
-    Grain.id >> getById
+getFireGrainById gid =
+    Dict.get (GrainId.toString gid)
 
 
 loadFromCache : Value -> GrainStore -> Return msg GrainStore
@@ -64,11 +64,10 @@ hasGrainWithSameId grain =
 
 
 setGrainContent content grain model =
-    getGrainHavingSameId grain model
+    getFireGrainById (Grain.id grain) model
         |> Result.fromMaybe "Error: SetContent Grain Not Found in Cache"
         |> Result.map
-            (Grain.setContent content
-                >> FireGrain.new
+            (FireGrain.update (Grain.setContent content)
                 >> updateGrain
                 >> callWith model
             )
