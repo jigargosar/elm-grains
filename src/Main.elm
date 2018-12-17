@@ -204,7 +204,6 @@ update message model =
                     GrainStore.userUpdate msg grain model.grainStore
             in
             Return.return (setGrainStore newGrainStore model) cmd
-                |> Return.andThen (handleOutMsg outMsg)
 
         GrainContentChanged grain content ->
             update (GrainStoreMsg (GrainStore.setGrainContent content) grain) model
@@ -218,7 +217,6 @@ update message model =
                     GrainStore.permanentlyDeleteGrain grain model.grainStore
             in
             Return.return (setGrainStore newGrainStore model) cmd
-                |> Return.andThen (handleOutMsg outMsg)
 
         AddNewGrain grain ->
             case GrainStore.addNewGrain grain model.grainStore of
@@ -275,15 +273,6 @@ update message model =
 
         BackPressed ->
             Return.return model (Port.navigateBack ())
-
-
-handleOutMsg message model =
-    case message of
-        GrainStore.Added newGrain ->
-            update (Msg.routeToGrain newGrain) model
-
-        _ ->
-            Return.singleton model
 
 
 view : Model -> Html Msg
