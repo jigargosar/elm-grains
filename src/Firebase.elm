@@ -1,6 +1,5 @@
 module Firebase exposing
     ( decode
-    , persistGrains
     , persistNewGrain
     , persistRemovedGrain
     , persistUpdatedGrain
