@@ -1,6 +1,5 @@
 module Firebase exposing
-    ( Msg(..)
-    , decoder
+    ( decode
     , persistGrains
     , persistNewGrain
     , persistRemovedGrain
@@ -15,7 +14,7 @@ import Grain exposing (Grain)
 import GrainChange exposing (GrainChange)
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline exposing (required, requiredAt)
-import Json.Encode as E
+import Json.Encode as E exposing (Value)
 import Port
 import Random exposing (Generator)
 
@@ -25,6 +24,35 @@ type Msg
     | AuthUserNone
     | GrainChanges (Generator (List GrainChange))
     | InvalidMsg String
+
+
+type alias Config msg =
+    { error : String -> msg
+    , authUser : FireUser -> msg
+    , authUserNone : () -> msg
+    , grainChanges : Generator (List GrainChange) -> msg
+    }
+
+
+decode : Config msg -> Value -> msg
+decode config val =
+    case D.decodeValue decoder val of
+        Err error ->
+            config.error (D.errorToString error)
+
+        Ok fireMsg ->
+            case fireMsg of
+                InvalidMsg unknown ->
+                    config.error ("Firebase : Invalid Msg Received: " ++ unknown)
+
+                AuthUser user ->
+                    config.authUser user
+
+                AuthUserNone ->
+                    config.authUserNone ()
+
+                GrainChanges changes ->
+                    config.grainChanges changes
 
 
 decoder : Decoder Msg

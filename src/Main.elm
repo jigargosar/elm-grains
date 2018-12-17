@@ -236,12 +236,19 @@ update message model =
             Return.singleton (setRouteFromString url model)
 
         Firebase val ->
-            case D.decodeValue Firebase.decoder val of
-                Err error ->
-                    update (LogErrorString (D.errorToString error)) model
-
-                Ok fireMsg ->
-                    handleFireMsg fireMsg model
+            Firebase.decode
+                { error = \errString -> update (LogErrorString errString) model
+                , authUser =
+                    \user ->
+                        Return.singleton (setAuthState (AuthState.Authenticated user) model)
+                , authUserNone =
+                    \_ ->
+                        Return.singleton (setAuthState AuthState.NoUser model)
+                , grainChanges =
+                    \changes ->
+                        ( model, Random.generate FirebaseGrainChanges changes )
+                }
+                val
 
         SignIn ->
             Return.return model (Firebase.signIn ())
@@ -267,21 +274,6 @@ handleOutMsg message model =
 
         _ ->
             Return.singleton model
-
-
-handleFireMsg fireMsg model =
-    case fireMsg of
-        Firebase.InvalidMsg unknown ->
-            update (LogErrorString ("Invalid Firebase Msg Received: " ++ unknown)) model
-
-        Firebase.AuthUser user ->
-            Return.singleton (setAuthState (AuthState.Authenticated user) model)
-
-        Firebase.AuthUserNone ->
-            Return.singleton (setAuthState AuthState.NoUser model)
-
-        Firebase.GrainChanges changes ->
-            ( model, Random.generate FirebaseGrainChanges changes )
 
 
 view : Model -> Html Msg
