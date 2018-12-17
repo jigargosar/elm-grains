@@ -89,14 +89,17 @@ permanentlyDeleteGrain grain model =
 addNewGrain : Grain -> GrainStore -> Result String ( ( GrainStore, Cmd msg ), Grain )
 addNewGrain grain model =
     let
+        addNewGrainCmd addedGrain newModel =
+            Cmd.batch [ cache newModel, Firebase.persistNewGrain addedGrain ]
+
         r2 addedGrain newModel =
             ( ( newModel
-              , Cmd.batch [ cache newModel, Firebase.persistNewGrain addedGrain ]
+              , addNewGrainCmd addedGrain newModel
               )
             , addedGrain
             )
     in
-    if Dict.member (grainToGidString grain) model then
+    if Dict.member (Grain.idString grain) model then
         Result.Err "Error: Add Grain. Id exists "
 
     else

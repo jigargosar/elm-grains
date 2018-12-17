@@ -6,6 +6,7 @@ module Grain exposing
     , generator
     , id
     , idEq
+    , idString
     , setContent
     , setDeleted
     , titleOrEmpty
@@ -98,6 +99,10 @@ idEq gid =
 
 toDomIdWithPrefix prefix =
     id >> GrainId.toDomIdWithPrefix prefix
+
+
+idString =
+    id >> GrainId.toString
 
 
 generator : Generator Grain
