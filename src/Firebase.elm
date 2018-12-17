@@ -1,6 +1,8 @@
 module Firebase exposing
-    ( Msg(..)
+    ( AuthState(..)
+    , Msg(..)
     , decodeInbound
+    , initialAuthState
     , persistNewGrain
     , persistRemovedGrain
     , persistUpdatedGrain
@@ -19,9 +21,18 @@ import Port
 import Random exposing (Generator)
 
 
+type AuthState
+    = AuthStatePending
+    | AuthStateUser FireUser
+    | AuthStateNoUser
+
+
+initialAuthState =
+    AuthStatePending
+
+
 type Msg
-    = AuthUser FireUser
-    | AuthUserNone
+    = AuthStateChanged AuthState
     | GrainChanges (Generator (List GrainChange))
     | Error String
 
@@ -45,11 +56,11 @@ decoder =
 decoderWithMsg msgString =
     case msgString of
         "UserLoggedIn" ->
-            DecodeX.start AuthUser
+            DecodeX.start (AuthStateChanged << AuthStateUser)
                 |> requiredAt [ "payload", "user" ] FireUser.decoder
 
         "UserNotLoggedIn" ->
-            D.succeed AuthUserNone
+            D.succeed (AuthStateChanged AuthStateNoUser)
 
         "GrainChanges" ->
             DecodeX.start GrainChanges

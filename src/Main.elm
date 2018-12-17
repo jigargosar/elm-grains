@@ -1,7 +1,6 @@
 module Main exposing (main)
 
 import ActorId exposing (ActorId)
-import AuthState exposing (AuthState)
 import BasicsX exposing (..)
 import Browser
 import Browser.Dom
@@ -80,7 +79,7 @@ type alias Model =
     { grainStore : GrainStore
     , toast : Toast
     , route : Route
-    , authState : AuthState
+    , authState : Firebase.AuthState
     , actorId : ActorId
     , seed : Seed
     }
@@ -95,7 +94,7 @@ init flags =
                 |> Random.always GrainStore.empty
                 |> Random.always Toast.init
                 |> Random.always (Route.fromString flags.url)
-                |> Random.always AuthState.init
+                |> Random.always Firebase.initialAuthState
                 |> Random.with ActorId.generator
                 |> Random.finish
     in
@@ -242,11 +241,8 @@ update message model =
                         Firebase.Error errString ->
                             update (LogErrorString errString) model
 
-                        Firebase.AuthUser user ->
-                            Return.singleton (setAuthState (AuthState.Authenticated user) model)
-
-                        Firebase.AuthUserNone ->
-                            Return.singleton (setAuthState AuthState.NoUser model)
+                        Firebase.AuthStateChanged authState ->
+                            Return.singleton (setAuthState authState model)
 
                         Firebase.GrainChanges changes ->
                             ( model, Random.generate FirebaseGrainChanges changes )
@@ -327,13 +323,13 @@ viewAppBar { title, showBackBtn } authState =
 
         viewAuthState =
             case authState of
-                AuthState.Loading ->
+                Firebase.AuthStatePending ->
                     button [ class "btn loading" ] [ text "SignIn" ]
 
-                AuthState.Authenticated user ->
+                Firebase.AuthStateUser user ->
                     button [ class "btn", onClick SignOut ] [ text "SignOut" ]
 
-                AuthState.NoUser ->
+                Firebase.AuthStateNoUser ->
                     button [ class "btn", onClick SignIn ] [ text "SignIn" ]
     in
     flexRowIC
