@@ -1,7 +1,7 @@
 module GrainStore exposing
     ( GrainStore
     , OutMsg(..)
-    , UserMsg
+    , UpdateGrain
     , addNewGrain
     , allAsList
     , empty
@@ -63,11 +63,11 @@ loadFromCache val gs =
 
 
 setGrainContent content =
-    Update (SetContent content)
+    SetContent content
 
 
 setGrainDeleted deleted =
-    Update (SetDeleted deleted)
+    SetDeleted deleted
 
 
 permanentlyDeleteGrain grain model =
@@ -168,10 +168,6 @@ type UpdateGrain
     | SetContent String
 
 
-type UserMsg
-    = Update UpdateGrain
-
-
 type OutMsg
     = Error String
     | Added Grain
@@ -184,7 +180,7 @@ withErrorOutMsg err r2 =
 
 
 userUpdate :
-    UserMsg
+    UpdateGrain
     -> Grain
     -> GrainStore
     -> ( ( GrainStore, Cmd msg ), OutMsg )
@@ -195,32 +191,29 @@ userUpdate request grain model =
 
         gidAsString =
             GrainId.toString gid
-    in
-    case request of
-        Update updateRequest ->
-            let
-                grainMapper =
-                    case updateRequest of
-                        SetContent content ->
-                            Grain.setContent content
 
-                        SetDeleted deleted ->
-                            Grain.setDeleted deleted
-            in
-            updateExistingGrainById gid grainMapper model
-                |> Maybe.unpack
-                    (\_ ->
-                        Return.singleton model
-                            |> withErrorOutMsg "Error: Update Grain. Not Found "
-                    )
-                    (\( updatedGrain, newModel ) ->
-                        ( ( newModel
-                          , Cmd.batch
-                                [ cache newModel, Firebase.persistUpdatedGrain updatedGrain ]
-                          )
-                        , Modified updatedGrain
-                        )
-                    )
+        grainMapper =
+            case request of
+                SetContent content ->
+                    Grain.setContent content
+
+                SetDeleted deleted ->
+                    Grain.setDeleted deleted
+    in
+    updateExistingGrainById gid grainMapper model
+        |> Maybe.unpack
+            (\_ ->
+                Return.singleton model
+                    |> withErrorOutMsg "Error: Update Grain. Not Found "
+            )
+            (\( updatedGrain, newModel ) ->
+                ( ( newModel
+                  , Cmd.batch
+                        [ cache newModel, Firebase.persistUpdatedGrain updatedGrain ]
+                  )
+                , Modified updatedGrain
+                )
+            )
 
 
 grainToGidString =

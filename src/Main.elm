@@ -194,7 +194,7 @@ update message model =
         FocusResult (Err errorString) ->
             update (LogErrorString errorString) model
 
-        GrainStoreUserMsg msg grain ->
+        GrainStoreMsg msg grain ->
             let
                 ( ( newGrainStore, cmd ), outMsg ) =
                     GrainStore.userUpdate msg grain model.grainStore
@@ -203,10 +203,10 @@ update message model =
                 |> Return.andThen (handleOutMsg outMsg)
 
         GrainContentChanged grain content ->
-            update (GrainStoreUserMsg (GrainStore.setGrainContent content) grain) model
+            update (GrainStoreMsg (GrainStore.setGrainContent content) grain) model
 
         DeleteGrain grain ->
-            update (GrainStoreUserMsg (GrainStore.setGrainDeleted True) grain) model
+            update (GrainStoreMsg (GrainStore.setGrainDeleted True) grain) model
 
         PermanentlyDeleteGrain grain ->
             let
