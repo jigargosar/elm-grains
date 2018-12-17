@@ -175,7 +175,7 @@ subscriptions model =
         ]
 
 
-handleErrorString errString model =
+onErrorString errString model =
     Return.return (mapToast (Toast.show errString) model)
         (Port.error errString)
 
@@ -187,7 +187,7 @@ update message model =
             Return.singleton model
 
         OnErrorString errString ->
-            handleErrorString errString model
+            onErrorString errString model
 
         ToastDismiss ->
             Return.singleton (mapToast Toast.dismiss model)
@@ -196,7 +196,7 @@ update message model =
             Return.singleton model
 
         FocusResult (Err errorString) ->
-            handleErrorString errorString model
+            onErrorString errorString model
 
         GrainStoreMsg msg grain ->
             let
@@ -223,7 +223,7 @@ update message model =
         AddNewGrain grain ->
             case GrainStore.addNewGrain grain model.grainStore of
                 Err errString ->
-                    handleErrorString errString model
+                    onErrorString errString model
 
                 Ok ( newGrainStore, cmd ) ->
                     Return.return (setGrainStore newGrainStore model) cmd
