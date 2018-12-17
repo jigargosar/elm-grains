@@ -221,9 +221,9 @@ update message model =
                 Err errString ->
                     update (LogErrorString errString) model
 
-                Ok ( ( addedGrain, newGrainStore ), cmd ) ->
+                Ok ( newGrainStore, cmd ) ->
                     Return.return (setGrainStore newGrainStore model) cmd
-                        |> Return.andThen (update (Msg.routeToGrain addedGrain))
+                        |> Return.andThen (update (Msg.routeToGrain grain))
 
         GenerateAndAddNewGrain ->
             Return.return model
