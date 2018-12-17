@@ -113,14 +113,6 @@ addNewGrain grain model =
         Result.Err "Error: Add Grain. Id exists "
 
 
-validateAddOp grain model =
-    if Dict.member (Grain.idString grain) model then
-        Result.Ok model
-
-    else
-        Result.Err "Error: Add Grain. Id exists "
-
-
 cache =
     E.dict identity Grain.encoder >> Port.cacheGrains
 
