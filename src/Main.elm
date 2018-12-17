@@ -215,8 +215,15 @@ update message model =
             let
                 ( grain, newModel ) =
                     generateNewGrain model
+
+                msg =
+                    GrainStore.addNewGrain
+
+                ( ( newGrainStore, cmd ), outMsg ) =
+                    GrainStore.userUpdate msg grain model.actorId model.grainStore
             in
-            update (GrainStoreUserMsg GrainStore.addNewGrain grain) newModel
+            Return.return (setGrainStore newGrainStore model) cmd
+                |> Return.andThen (handleOutMsg outMsg)
 
         LoadGrainStore val ->
             let
