@@ -97,9 +97,6 @@ addNewGrain grain model =
     in
     if canAdd then
         let
-            addedGrain =
-                grain
-
             modelWithGrain =
                 Dict.insert gidString grain model
         in
