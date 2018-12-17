@@ -29,7 +29,7 @@ type Msg
     | RouteTo Route
     | UrlChanged String
     | Firebase Value
-    | OnErrorString String
+    | ErrorString String
     | SignIn
     | SignOut
 

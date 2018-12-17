@@ -186,7 +186,7 @@ update message model =
         NoOp ->
             Return.singleton model
 
-        OnErrorString errString ->
+        ErrorString errString ->
             onErrorString errString model
 
         ToastDismiss ->
@@ -253,7 +253,7 @@ update message model =
                 handleFireMsg fireMsg =
                     case fireMsg of
                         Firebase.Error errString ->
-                            update (OnErrorString errString) model
+                            update (ErrorString errString) model
 
                         Firebase.AuthStateChanged authState ->
                             Return.singleton (setAuthState authState model)
