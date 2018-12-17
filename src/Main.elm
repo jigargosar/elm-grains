@@ -253,7 +253,7 @@ update message model =
                 handleFireMsg fireMsg =
                     case fireMsg of
                         Firebase.Error errString ->
-                            update (ErrorString errString) model
+                            handleErrorString errString model
 
                         Firebase.AuthStateChanged authState ->
                             Return.singleton (setAuthState authState model)
