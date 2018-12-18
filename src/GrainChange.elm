@@ -1,4 +1,10 @@
-module GrainChange exposing (Change(..), GrainChange, changeDecoder, grainChangeDecoder, listDecoder)
+module GrainChange exposing
+    ( Change(..)
+    , GrainChange
+    , changeDecoder
+    , grainChangeDecoder
+    , listDecoder
+    )
 
 import DecodeX
 import Grain exposing (Grain)
