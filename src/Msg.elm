@@ -19,13 +19,15 @@ type Msg
       NoOp
     | FocusResult (Result String ())
     | LoadGrainStore Value
-    | DeleteGrain Grain
     | RestoreGrain Grain
     | CreateAndAddNewGrain
     | CreateAndAddNewGrainWithNow Posix
     | AddNewGrain Grain
     | BackPressed
     | GrainContentChanged Grain String
+    | UpdateGrainContentWithNow Grain String Posix
+    | DeleteGrain Grain
+    | UpdateGrainDeletedWithNow Grain Bool Posix
     | ToastDismiss
     | RouteTo Route
     | UrlChanged String

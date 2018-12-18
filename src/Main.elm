@@ -192,6 +192,11 @@ update message model =
             handleErrorString errorString model
 
         GrainContentChanged grain content ->
+            ( model
+            , Task.perform (UpdateGrainContentWithNow grain content) Time.now
+            )
+
+        UpdateGrainContentWithNow grain content now ->
             case GrainStore.setContent content grain model.grainStore of
                 Err errString ->
                     handleErrorString errString model
@@ -200,15 +205,17 @@ update message model =
                     Return.return (setGrainStore newGrainStore model) cmd
 
         DeleteGrain grain ->
-            case GrainStore.setDeleted True grain model.grainStore of
-                Err errString ->
-                    handleErrorString errString model
-
-                Ok ( newGrainStore, cmd ) ->
-                    Return.return (setGrainStore newGrainStore model) cmd
+            ( model
+            , Task.perform (UpdateGrainDeletedWithNow grain True) Time.now
+            )
 
         RestoreGrain grain ->
-            case GrainStore.setDeleted False grain model.grainStore of
+            ( model
+            , Task.perform (UpdateGrainDeletedWithNow grain False) Time.now
+            )
+
+        UpdateGrainDeletedWithNow grain bool now ->
+            case GrainStore.setDeleted bool grain model.grainStore of
                 Err errString ->
                     handleErrorString errString model
 
