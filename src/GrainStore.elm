@@ -76,16 +76,6 @@ withUpdateGrainCmd grain model =
     ( model, Cmd.batch [ cache model, Firebase.persistUpdatedGrain grain ] )
 
 
-mapGrain fn grain model =
-    if hasGrainWithSameId grain model then
-        blindUpsertGrain grain model
-            |> withRemoveGrainCmd grain
-            |> Result.Ok
-
-    else
-        Result.Err "Error: PermanentDeleteGrain: Grain Not Found in cache"
-
-
 permanentlyDeleteGrain grain model =
     if hasGrainWithSameId grain model then
         blindRemoveGrain grain model
