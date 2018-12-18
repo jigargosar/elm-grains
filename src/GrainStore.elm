@@ -136,8 +136,7 @@ setDeleted deleted grain model =
 
 
 updateGrain grain =
-    blindInsert grain
-        >> withUpdateGrainCmd grain
+    blindInsert grain >> withUpdateGrainCmd grain
 
 
 withUpdateGrainCmd grain model =
