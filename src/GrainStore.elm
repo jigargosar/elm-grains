@@ -114,21 +114,6 @@ cache =
     GrainDict.encoder >> Port.cacheGrains
 
 
-updateExistingGrain :
-    Grain
-    -> (Grain -> Grain)
-    -> GrainStore
-    -> Maybe ( Grain, GrainStore )
-updateExistingGrain grain fn model =
-    getGrainHavingSameId grain model
-        |> Maybe.map
-            (fn
-                >> (\updatedGrain ->
-                        ( updatedGrain, blindInsertGrain updatedGrain model )
-                   )
-            )
-
-
 blindInsertGrain grain =
     GrainDict.insert (Grain.id grain) grain
 
