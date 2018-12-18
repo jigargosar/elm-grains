@@ -1,5 +1,6 @@
 module Grain exposing
     ( Grain
+    , Update(..)
     , content
     , createdAt
     , decoder
@@ -10,11 +11,9 @@ module Grain exposing
     , idEq
     , idString
     , modifiedAt
-    , setContent
-    , setDeleted
-    , setModifiedAt
     , titleOrEmpty
     , toDomIdWithPrefix
+    , update
     )
 
 import BasicsX exposing (eqs)
@@ -144,3 +143,21 @@ setDeleted newDeleted =
 setModifiedAt : Posix -> Grain -> Grain
 setModifiedAt newModifiedAt =
     map (\model -> { model | modifiedAt = newModifiedAt })
+
+
+type Update
+    = SetContent String
+    | SetDeleted Bool
+
+
+update now msg =
+    let
+        innerUpdate =
+            case msg of
+                SetContent content_ ->
+                    setContent content_
+
+                SetDeleted deleted_ ->
+                    setDeleted deleted_
+    in
+    innerUpdate >> setModifiedAt now

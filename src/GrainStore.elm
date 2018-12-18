@@ -123,7 +123,7 @@ setContent now content grain model =
     getGrainHavingSameId grain model
         |> Result.fromMaybe "Error: SetContent Grain Not Found in Cache"
         |> Result.map
-            (Grain.setContent content >> updateGrain now model)
+            (updateGrain now (Grain.SetContent content) model)
 
 
 
@@ -134,21 +134,22 @@ setDeleted now deleted grain model =
     getGrainHavingSameId grain model
         |> Result.fromMaybe "Error: setDeleted: Grain Not Found in Cache"
         |> Result.map
-            (Grain.setDeleted deleted >> updateGrain now model)
+            (updateGrain now (Grain.SetDeleted deleted) model)
+
+
+updateGrain now msg model grain =
+    let
+        updatedGrain =
+            Grain.update now msg grain
+
+        newModel =
+            blindInsert updatedGrain model
+    in
+    withUpdateGrainCmd updatedGrain newModel
 
 
 
 -- UPDATE EXISTING HELPERS
-
-
-updateGrain now model =
-    Grain.setModifiedAt now
-        >> insertGrainAndReturnWithUpdateGrainCmd
-        >> callWith model
-
-
-insertGrainAndReturnWithUpdateGrainCmd grain =
-    blindInsert grain >> withUpdateGrainCmd grain
 
 
 withUpdateGrainCmd grain model =
