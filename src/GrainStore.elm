@@ -119,20 +119,30 @@ withAddNewGrainCmd grain model =
 --  SET CONTENT
 
 
-setContent content grain model =
+setContent now content grain model =
     getGrainHavingSameId grain model
         |> Result.fromMaybe "Error: SetContent Grain Not Found in Cache"
-        |> Result.map (Grain.setContent content >> updateGrain >> callWith model)
+        |> Result.map
+            (Grain.setContent content
+                >> Grain.setModifiedAt now
+                >> updateGrain
+                >> callWith model
+            )
 
 
 
 -- SET DELETED
 
 
-setDeleted deleted grain model =
+setDeleted now deleted grain model =
     getGrainHavingSameId grain model
         |> Result.fromMaybe "Error: setDeleted: Grain Not Found in Cache"
-        |> Result.map (Grain.setDeleted deleted >> updateGrain >> callWith model)
+        |> Result.map
+            (Grain.setDeleted deleted
+                >> Grain.setModifiedAt now
+                >> updateGrain
+                >> callWith model
+            )
 
 
 updateGrain grain =

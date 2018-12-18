@@ -197,7 +197,7 @@ update message model =
             )
 
         UpdateGrainContentWithNow grain content now ->
-            case GrainStore.setContent content grain model.grainStore of
+            case GrainStore.setContent now content grain model.grainStore of
                 Err errString ->
                     handleErrorString errString model
 
@@ -215,7 +215,7 @@ update message model =
             )
 
         UpdateGrainDeletedWithNow grain bool now ->
-            case GrainStore.setDeleted bool grain model.grainStore of
+            case GrainStore.setDeleted now bool grain model.grainStore of
                 Err errString ->
                     handleErrorString errString model
 
