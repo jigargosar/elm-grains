@@ -192,15 +192,15 @@ update message model =
             handleErrorString errorString model
 
         GrainContentChanged grain content ->
-            case GrainStore.setGrainContent content grain model.grainStore of
+            case GrainStore.setContent content grain model.grainStore of
                 Err errString ->
                     handleErrorString errString model
 
                 Ok ( newGrainStore, cmd ) ->
                     Return.return (setGrainStore newGrainStore model) cmd
 
-        PermanentlyDeleteGrain grain ->
-            case GrainStore.permanentlyDeleteGrain grain model.grainStore of
+        DeleteGrain grain ->
+            case GrainStore.setDeleted True grain model.grainStore of
                 Err errString ->
                     handleErrorString errString model
 

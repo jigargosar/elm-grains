@@ -8,6 +8,7 @@ module Grain exposing
     , idEq
     , idString
     , setContent
+    , setDeleted
     , titleOrEmpty
     , toDomIdWithPrefix
     )
@@ -26,6 +27,7 @@ import TimeX
 type alias Model =
     { id : GrainId
     , content : String
+    , deleted : Bool
     , createdAt : Posix
     , modifiedAt : Posix
     }
@@ -40,6 +42,7 @@ new now newId =
     Grain
         { id = newId
         , content = ""
+        , deleted = False
         , createdAt = now
         , modifiedAt = now
         }
@@ -50,6 +53,7 @@ encoder (Grain model) =
     E.object
         [ ( "id", GrainId.encoder model.id )
         , ( "content", E.string model.content )
+        , ( "deleted", E.bool model.deleted )
         , ( "createdAt", TimeX.posixEncoder model.createdAt )
         , ( "modifiedAt", TimeX.posixEncoder model.modifiedAt )
         ]
@@ -60,6 +64,7 @@ decoder =
     DecodeX.start Model
         |> required "id" GrainId.decoder
         |> required "content" D.string
+        |> optional "deleted" D.bool False
         |> required "createdAt" TimeX.posixDecoder
         |> required "modifiedAt" TimeX.posixDecoder
         |> D.map Grain
@@ -113,3 +118,8 @@ generator now =
 setContent : String -> Grain -> Grain
 setContent newContent =
     map (\model -> { model | content = newContent })
+
+
+setDeleted : Bool -> Grain -> Grain
+setDeleted newDeleted =
+    map (\model -> { model | deleted = newDeleted })

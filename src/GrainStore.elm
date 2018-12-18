@@ -7,7 +7,8 @@ module GrainStore exposing
     , loadCache
     , onFirebaseChanges
     , permanentlyDeleteGrain
-    , setGrainContent
+    , setContent
+    , setDeleted
     )
 
 import ActorId exposing (ActorId)
@@ -114,13 +115,24 @@ withAddNewGrainCmd grain model =
 
 
 
--- UPDATE EXISTING : SET CONTENT
+-- UPDATE EXISTING
+--  SET CONTENT
 
 
-setGrainContent content grain model =
+setContent content grain model =
     getGrainHavingSameId grain model
         |> Result.fromMaybe "Error: SetContent Grain Not Found in Cache"
         |> Result.map (Grain.setContent content >> updateGrain >> callWith model)
+
+
+
+-- SET DELETED
+
+
+setDeleted deleted grain model =
+    getGrainHavingSameId grain model
+        |> Result.fromMaybe "Error: setDeleted: Grain Not Found in Cache"
+        |> Result.map (Grain.setDeleted deleted >> updateGrain >> callWith model)
 
 
 updateGrain grain =
