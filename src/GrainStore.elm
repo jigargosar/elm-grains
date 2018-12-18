@@ -125,7 +125,7 @@ setContent now content grain model =
         |> Result.map
             (Grain.setContent content
                 >> Grain.setModifiedAt now
-                >> updateGrain
+                >> insertGrainAndReturnWithUpdateGrainCmd
                 >> callWith model
             )
 
@@ -140,12 +140,12 @@ setDeleted now deleted grain model =
         |> Result.map
             (Grain.setDeleted deleted
                 >> Grain.setModifiedAt now
-                >> updateGrain
+                >> insertGrainAndReturnWithUpdateGrainCmd
                 >> callWith model
             )
 
 
-updateGrain grain =
+insertGrainAndReturnWithUpdateGrainCmd grain =
     blindInsert grain >> withUpdateGrainCmd grain
 
 
