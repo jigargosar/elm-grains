@@ -359,7 +359,11 @@ viewToast toast =
 
 mapStateToGrainListView : Model -> GrainListView
 mapStateToGrainListView model =
-    { grainList = model.grainStore |> GrainStore.allAsList }
+    { grainList =
+        model.grainStore
+            |> GrainStore.allAsList
+            |> List.filterNot Grain.deleted
+    }
 
 
 
