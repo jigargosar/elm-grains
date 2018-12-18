@@ -123,9 +123,7 @@ setContent now content grain model =
     getGrainHavingSameId grain model
         |> Result.fromMaybe "Error: SetContent Grain Not Found in Cache"
         |> Result.map
-            (Grain.setContent content
-                >> updateGrain now model
-            )
+            (Grain.setContent content >> updateGrain now model)
 
 
 
@@ -136,9 +134,7 @@ setDeleted now deleted grain model =
     getGrainHavingSameId grain model
         |> Result.fromMaybe "Error: setDeleted: Grain Not Found in Cache"
         |> Result.map
-            (Grain.setDeleted deleted
-                >> updateGrain now model
-            )
+            (Grain.setDeleted deleted >> updateGrain now model)
 
 
 
