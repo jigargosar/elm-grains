@@ -24,7 +24,6 @@ import Random exposing (Generator)
 type alias Model =
     { id : GrainId
     , content : String
-    , rev : Int
     }
 
 
@@ -37,7 +36,6 @@ new newId =
     Grain
         { id = newId
         , content = ""
-        , rev = 0
         }
 
 
@@ -46,7 +44,6 @@ encoder (Grain model) =
     E.object
         [ ( "id", GrainId.encoder model.id )
         , ( "content", E.string model.content )
-        , ( "rev", E.int model.rev )
         ]
 
 
@@ -55,7 +52,6 @@ decoder =
     DecodeX.start Model
         |> required "id" GrainId.decoder
         |> required "content" D.string
-        |> optional "rev" D.int 0
         |> D.map Grain
 
 
