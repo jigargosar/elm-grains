@@ -139,9 +139,8 @@ withUpdateGrainCmd grain model =
 
 setContent now content grain model =
     getGrainHavingSameId grain model
+        |> Maybe.map (updateGrain now (Grain.SetContent content) model)
         |> Result.fromMaybe "Error: SetContent Grain Not Found in Cache"
-        |> Result.map
-            (updateGrain now (Grain.SetContent content) model)
 
 
 
@@ -150,9 +149,8 @@ setContent now content grain model =
 
 setDeleted now deleted grain model =
     getGrainHavingSameId grain model
+        |> Maybe.map (updateGrain now (Grain.SetDeleted deleted) model)
         |> Result.fromMaybe "Error: setDeleted: Grain Not Found in Cache"
-        |> Result.map
-            (updateGrain now (Grain.SetDeleted deleted) model)
 
 
 
