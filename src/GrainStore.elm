@@ -124,9 +124,7 @@ setContent now content grain model =
         |> Result.fromMaybe "Error: SetContent Grain Not Found in Cache"
         |> Result.map
             (Grain.setContent content
-                >> Grain.setModifiedAt now
-                >> insertGrainAndReturnWithUpdateGrainCmd
-                >> callWith model
+                >> updateGrain now model
             )
 
 
@@ -139,10 +137,18 @@ setDeleted now deleted grain model =
         |> Result.fromMaybe "Error: setDeleted: Grain Not Found in Cache"
         |> Result.map
             (Grain.setDeleted deleted
-                >> Grain.setModifiedAt now
-                >> insertGrainAndReturnWithUpdateGrainCmd
-                >> callWith model
+                >> updateGrain now model
             )
+
+
+
+-- UPDATE EXISTING HELPERS
+
+
+updateGrain now model =
+    Grain.setModifiedAt now
+        >> insertGrainAndReturnWithUpdateGrainCmd
+        >> callWith model
 
 
 insertGrainAndReturnWithUpdateGrainCmd grain =
