@@ -369,8 +369,7 @@ mapStateToGrainListView : Model -> GrainListView
 mapStateToGrainListView model =
     let
         allGrains =
-            model.grainStore
-                |> GrainStore.allAsList
+            model.grainStore |> GrainStore.allAsList
 
         ( deletedGrainList, grainList ) =
             allGrains |> List.partition Grain.deleted
