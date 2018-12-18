@@ -150,6 +150,10 @@ withAddNewGrainCmd grain model =
     ( model, Cmd.batch [ cache model, Firebase.persistNewGrain grain ] )
 
 
+
+-- HANDLE FIREBASE GRAIN CHANGES
+
+
 onFirebaseChanges changeList model =
     let
         handleChange change =
