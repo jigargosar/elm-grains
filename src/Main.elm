@@ -207,6 +207,14 @@ update message model =
                 Ok ( newGrainStore, cmd ) ->
                     Return.return (setGrainStore newGrainStore model) cmd
 
+        RestoreGrain grain ->
+            case GrainStore.setDeleted False grain model.grainStore of
+                Err errString ->
+                    handleErrorString errString model
+
+                Ok ( newGrainStore, cmd ) ->
+                    Return.return (setGrainStore newGrainStore model) cmd
+
         CreateAndAddNewGrain ->
             ( model
             , Task.perform
@@ -359,10 +367,16 @@ viewToast toast =
 
 mapStateToGrainListView : Model -> GrainListView
 mapStateToGrainListView model =
-    { grainList =
-        model.grainStore
-            |> GrainStore.allAsList
-            |> List.filterNot Grain.deleted
+    let
+        allGrains =
+            model.grainStore
+                |> GrainStore.allAsList
+
+        ( deletedGrainList, grainList ) =
+            allGrains |> List.partition Grain.deleted
+    in
+    { grains = grainList
+    , deleted = deletedGrainList
     }
 
 

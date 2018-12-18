@@ -8,6 +8,7 @@ module CssShorthand exposing
     , ellipsis
     , fixed
     , flex11Auto
+    , flexGrow0
     , flexGrow1
     , fs0
     , jcc
@@ -134,6 +135,10 @@ jcc =
 
 flexGrow1 =
     Css.flexGrow <| num 1
+
+
+flexGrow0 =
+    Css.flexGrow <| num 0
 
 
 wpx pVal =

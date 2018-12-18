@@ -1,4 +1,10 @@
-module CssIcons exposing (add, delete, view, viewColorWhite)
+module CssIcons exposing
+    ( add
+    , delete
+    , restore
+    , view
+    , viewColorWhite
+    )
 
 import Color
 import Html.Styled
@@ -20,3 +26,7 @@ add =
 
 delete =
     MI.delete
+
+
+restore =
+    MI.restore

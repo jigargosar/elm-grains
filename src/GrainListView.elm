@@ -4,7 +4,7 @@ module GrainListView exposing
     , view
     )
 
-import BasicsX exposing (defaultEmptyStringTo)
+import BasicsX exposing (defaultEmptyStringTo, ter)
 import Browser.Dom
 import Css exposing (num, pct, px, rem, vh, vw, zero)
 import CssElements
@@ -28,12 +28,26 @@ grainDomId =
 
 
 type alias GrainListView =
-    { grainList : List Grain }
+    { grains : List Grain, deleted : List Grain }
 
 
 view : GrainListView -> List (Html Msg)
-view { grainList } =
-    [ viewGrainList grainList
+view { grains, deleted } =
+    [ flexCol [ Css.marginBottom <| rem 3 ]
+        []
+        [ flexCol
+            [ CS.p space2
+            , CS.flexGrow0
+            ]
+            []
+            (viewGrainItems grains)
+        , flexCol
+            [ CS.p space2
+            , CS.flexGrow0
+            ]
+            []
+            (viewGrainItems deleted)
+        ]
     , viewFab
     ]
 
@@ -67,7 +81,7 @@ grainDisplayTitle =
     Grain.titleOrEmpty >> defaultEmptyStringTo "<empty>"
 
 
-viewGrainList list =
+viewGrainItems list =
     let
         viewTitle title g =
             styled div
@@ -80,31 +94,43 @@ viewGrainList list =
                 [ text title ]
 
         viewDelete g =
+            let
+                deleted =
+                    Grain.deleted g
+
+                action =
+                    ter deleted Msg.RestoreGrain Msg.DeleteGrain <|
+                        g
+
+                icon =
+                    ter deleted CssIcons.restore CssIcons.delete
+            in
             CssElements.iconBtnWithStyles [ CS.asc ]
-                [ onClick <| Msg.DeleteGrain g
+                [ onClick action
                 ]
-                [ CssIcons.view CssIcons.delete
+                [ CssIcons.view icon
                 ]
 
         viewItem g =
             let
                 title =
                     grainDisplayTitle g
+
+                deleted =
+                    Grain.deleted g
+
+                opacityValue =
+                    ter deleted 0.7 1
             in
             styled div
                 [ Css.displayFlex
                 , Css.flexDirection Css.row
                 , Css.maxWidth <| pct 100
+                , Css.opacity <| num opacityValue
                 ]
                 []
                 [ viewTitle title g
                 , viewDelete g
                 ]
     in
-    flexCol
-        [ CS.p space2
-        , CS.flexGrow1
-        , Css.marginBottom <| rem 3
-        ]
-        []
-        (List.map viewItem list)
+    List.map viewItem list
