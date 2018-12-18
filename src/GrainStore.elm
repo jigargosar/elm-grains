@@ -90,44 +90,7 @@ cache =
 
 
 
--- SET CONTENT
-
-
-setGrainContent content grain model =
-    getGrainHavingSameId grain model
-        |> Result.fromMaybe "Error: SetContent Grain Not Found in Cache"
-        |> Result.map (Grain.setContent content >> updateGrain >> callWith model)
-
-
-updateGrain grain =
-    blindInsertGrain grain
-        >> withUpdateGrainCmd grain
-
-
-withUpdateGrainCmd grain model =
-    ( model, Cmd.batch [ cache model, Firebase.persistUpdatedGrain grain ] )
-
-
-
--- PERMA DELETE
-
-
-permanentlyDeleteGrain grain model =
-    if hasGrainWithSameId grain model then
-        blindRemoveGrain grain model
-            |> withRemoveGrainCmd grain
-            |> Result.Ok
-
-    else
-        Result.Err "Error: PermanentDeleteGrain: Grain Not Found in cache"
-
-
-withRemoveGrainCmd grain model =
-    ( model, Cmd.batch [ cache model, Firebase.persistRemovedGrain grain ] )
-
-
-
--- ADD NEW
+-- INSERT NEW
 
 
 addNewGrain : Grain -> GrainStore -> Result String ( GrainStore, Cmd msg )
@@ -148,6 +111,43 @@ addNewGrain grain model =
 
 withAddNewGrainCmd grain model =
     ( model, Cmd.batch [ cache model, Firebase.persistNewGrain grain ] )
+
+
+
+-- UPDATE EXISTING : SET CONTENT
+
+
+setGrainContent content grain model =
+    getGrainHavingSameId grain model
+        |> Result.fromMaybe "Error: SetContent Grain Not Found in Cache"
+        |> Result.map (Grain.setContent content >> updateGrain >> callWith model)
+
+
+updateGrain grain =
+    blindInsertGrain grain
+        >> withUpdateGrainCmd grain
+
+
+withUpdateGrainCmd grain model =
+    ( model, Cmd.batch [ cache model, Firebase.persistUpdatedGrain grain ] )
+
+
+
+-- PERMANENT DELETE EXISTING
+
+
+permanentlyDeleteGrain grain model =
+    if hasGrainWithSameId grain model then
+        blindRemoveGrain grain model
+            |> withRemoveGrainCmd grain
+            |> Result.Ok
+
+    else
+        Result.Err "Error: PermanentDeleteGrain: Grain Not Found in cache"
+
+
+withRemoveGrainCmd grain model =
+    ( model, Cmd.batch [ cache model, Firebase.persistRemovedGrain grain ] )
 
 
 
