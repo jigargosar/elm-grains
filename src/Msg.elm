@@ -25,9 +25,9 @@ type Msg
     | AddNewGrain Grain
     | BackPressed
     | GrainContentChanged Grain String
-    | UpdateGrainContentWithNow Grain String Posix
+    | SetGrainContentWithNow Grain String Posix
     | DeleteGrain Grain
-    | UpdateGrainDeletedWithNow Grain Bool Posix
+    | SetGrainDeletedWithNow Grain Bool Posix
     | ToastDismiss
     | RouteTo Route
     | UrlChanged String
