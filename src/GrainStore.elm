@@ -122,20 +122,24 @@ blindRemoveGrain grain =
     GrainDict.remove (Grain.id grain)
 
 
-onFirebaseChanges changes model =
+onFirebaseChanges changeList model =
     let
-        handleChange { doc, type_ } =
-            case type_ of
+        handleChange change =
+            let
+                grain =
+                    GrainChange.grain change
+            in
+            case GrainChange.type_ change of
                 GrainChange.Added ->
-                    blindInsertGrain doc
+                    blindInsertGrain grain
 
                 GrainChange.Modified ->
-                    blindInsertGrain doc
+                    blindInsertGrain grain
 
                 GrainChange.Removed ->
-                    blindRemoveGrain doc
+                    blindRemoveGrain grain
 
         newModel =
-            List.foldr handleChange model changes
+            List.foldr handleChange model changeList
     in
     ( newModel, cache newModel )

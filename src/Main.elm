@@ -255,7 +255,8 @@ update message model =
                         Firebase.GrainChanges changes ->
                             let
                                 ( newGrainStore, cmd ) =
-                                    GrainStore.onFirebaseChanges changes model.grainStore
+                                    GrainStore.onFirebaseChanges changes
+                                        model.grainStore
                             in
                             Return.return (setGrainStore newGrainStore model) cmd
             in

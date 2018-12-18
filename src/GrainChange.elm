@@ -1,9 +1,9 @@
 module GrainChange exposing
-    ( Change(..)
+    ( ChangeType(..)
     , GrainChange
-    , changeDecoder
-    , grainChangeDecoder
+    , grain
     , listDecoder
+    , type_
     )
 
 import DecodeX
@@ -16,13 +16,13 @@ import Random exposing (Generator)
 import RandomX
 
 
-type Change
+type ChangeType
     = Added
     | Modified
     | Removed
 
 
-changeDecoder =
+changeTypeDecoder =
     D.string
         |> D.andThen
             (\str ->
@@ -41,17 +41,40 @@ changeDecoder =
             )
 
 
-type alias GrainChange =
-    { type_ : Change, doc : Grain }
+type alias Model =
+    { type_ : ChangeType
+    , grain : Grain
+    }
 
 
-grainChangeDecoder : Decoder GrainChange
-grainChangeDecoder =
-    DecodeX.start GrainChange
-        |> required "type" changeDecoder
+type GrainChange
+    = GrainChange Model
+
+
+unwrap (GrainChange model) =
+    model
+
+
+map fn =
+    unwrap >> fn >> GrainChange
+
+
+decoder : Decoder GrainChange
+decoder =
+    DecodeX.start Model
+        |> required "type" changeTypeDecoder
         |> required "doc" Grain.decoder
+        |> D.map GrainChange
 
 
 listDecoder : Decoder (List GrainChange)
 listDecoder =
-    D.list grainChangeDecoder
+    D.list decoder
+
+
+grain =
+    unwrap >> .grain
+
+
+type_ =
+    unwrap >> .type_
