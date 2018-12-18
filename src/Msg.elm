@@ -11,6 +11,7 @@ import GrainStore exposing (GrainStore)
 import Json.Encode exposing (Value)
 import Random exposing (Generator)
 import Route exposing (Route)
+import Time exposing (Posix)
 
 
 type Msg
@@ -19,7 +20,8 @@ type Msg
     | FocusResult (Result String ())
     | LoadGrainStore Value
     | PermanentlyDeleteGrain Grain
-    | GenerateAndAddNewGrain
+    | CreateAndAddNewGrain
+    | CreateAndAddNewGrainWithNow Posix
     | AddNewGrain Grain
     | BackPressed
     | GrainContentChanged Grain String

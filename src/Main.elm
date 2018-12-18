@@ -55,6 +55,8 @@ import Route exposing (Route)
 import Skeleton
 import Tagged
 import Task
+import Time
+import TimeX
 import Toast exposing (Toast)
 import Tuple exposing (mapFirst)
 
@@ -214,6 +216,17 @@ update message model =
                 Ok ( newGrainStore, cmd ) ->
                     Return.return (setGrainStore newGrainStore model) cmd
 
+        CreateAndAddNewGrain ->
+            ( model
+            , Task.perform
+                CreateAndAddNewGrainWithNow
+                Time.now
+            )
+
+        CreateAndAddNewGrainWithNow posix ->
+            Return.return model
+                (Random.generate AddNewGrain Grain.generator)
+
         AddNewGrain grain ->
             case GrainStore.addNewGrain grain model.grainStore of
                 Err errString ->
@@ -222,10 +235,6 @@ update message model =
                 Ok ( newGrainStore, cmd ) ->
                     Return.return (setGrainStore newGrainStore model) cmd
                         |> Return.andThen (update (Msg.routeToGrain grain))
-
-        GenerateAndAddNewGrain ->
-            Return.return model
-                (Random.generate AddNewGrain Grain.generator)
 
         LoadGrainStore val ->
             let

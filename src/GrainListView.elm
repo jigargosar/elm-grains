@@ -58,7 +58,7 @@ viewFab =
             , Css.boxShadow4 (px 1) (px 1) (px 8) (blackAlpha 0.5)
             , CS.p space2
             ]
-            [ onClick Msg.GenerateAndAddNewGrain ]
+            [ onClick Msg.CreateAndAddNewGrain ]
             [ CssIcons.viewColorWhite CssIcons.add ]
         ]
 
