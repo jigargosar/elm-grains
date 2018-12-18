@@ -12,6 +12,7 @@ module Grain exposing
     , modifiedAt
     , setContent
     , setDeleted
+    , setModifiedAt
     , titleOrEmpty
     , toDomIdWithPrefix
     )
@@ -138,3 +139,8 @@ setContent newContent =
 setDeleted : Bool -> Grain -> Grain
 setDeleted newDeleted =
     map (\model -> { model | deleted = newDeleted })
+
+
+setModifiedAt : Posix -> Grain -> Grain
+setModifiedAt newModifiedAt =
+    map (\model -> { model | modifiedAt = newModifiedAt })
