@@ -13,10 +13,10 @@ module GrainStore exposing
 import ActorId exposing (ActorId)
 import BasicsX exposing (callWith, ifElse, unwrapMaybe)
 import DecodeX exposing (Encoder)
-import Dict exposing (Dict)
 import Firebase
 import Grain exposing (Grain)
 import GrainChange exposing (GrainChange)
+import GrainDict exposing (GrainDict)
 import GrainId exposing (GrainId)
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline exposing (hardcoded, required)
@@ -32,20 +32,20 @@ import Return3 as R3 exposing (Return3F)
 
 
 type alias GrainStore =
-    Dict String Grain
+    GrainDict
 
 
 empty =
-    Dict.empty
+    GrainDict.empty
 
 
 allAsList =
-    Dict.values
+    GrainDict.values
 
 
 getById : GrainId -> GrainStore -> Maybe Grain
 getById gid =
-    Dict.get (GrainId.toString gid)
+    GrainDict.get gid
 
 
 getGrainHavingSameId =
@@ -54,11 +54,11 @@ getGrainHavingSameId =
 
 loadFromCache : Value -> GrainStore -> Return msg GrainStore
 loadFromCache val gs =
-    DecodeX.decodeWithDefault gs (D.dict Grain.decoder) val
+    DecodeX.decodeWithDefault gs GrainDict.decoder val
 
 
 hasGrainWithSameId grain =
-    Dict.member (Grain.idString grain)
+    GrainDict.member (Grain.id grain)
 
 
 setGrainContent content grain model =
@@ -68,7 +68,7 @@ setGrainContent content grain model =
 
 
 updateGrain grain =
-    blindUpsertGrain grain
+    blindInsertGrain grain
         >> withUpdateGrainCmd grain
 
 
@@ -98,7 +98,7 @@ addNewGrain grain model =
                 |> not
     in
     if canAdd then
-        blindUpsertGrain grain model
+        blindInsertGrain grain model
             |> withAddNewGrainCmd grain
             |> Result.Ok
 
@@ -111,7 +111,7 @@ withAddNewGrainCmd grain model =
 
 
 cache =
-    E.dict identity Grain.encoder >> Port.cacheGrains
+    GrainDict.encoder >> Port.cacheGrains
 
 
 updateExistingGrain :
@@ -124,51 +124,31 @@ updateExistingGrain grain fn model =
         |> Maybe.map
             (fn
                 >> (\updatedGrain ->
-                        ( updatedGrain, blindUpsertGrain updatedGrain model )
+                        ( updatedGrain, blindInsertGrain updatedGrain model )
                    )
             )
 
 
-blindUpsertGrain grain =
-    Dict.insert (Grain.idString grain) grain
+blindInsertGrain grain =
+    GrainDict.insert (Grain.id grain) grain
 
 
 blindRemoveGrain grain =
-    Dict.remove (Grain.idString grain)
-
-
-hasIdOfGrain grain =
-    Dict.member (Grain.idString grain)
-
-
-removeExistingGrainById :
-    GrainId
-    -> GrainStore
-    -> Maybe ( Grain, GrainStore )
-removeExistingGrainById gid model =
-    getById gid model
-        |> Maybe.map
-            (\removedGrain ->
-                ( removedGrain, blindRemoveGrain removedGrain model )
-            )
+    GrainDict.remove (Grain.id grain)
 
 
 onFirebaseChanges changes model =
     let
         handleChange { doc, type_ } =
-            let
-                gidAsString =
-                    Grain.idString doc
-            in
             case type_ of
                 GrainChange.Added ->
-                    Dict.insert gidAsString doc
+                    blindInsertGrain doc
 
                 GrainChange.Modified ->
-                    Dict.insert gidAsString doc
+                    blindInsertGrain doc
 
                 GrainChange.Removed ->
-                    Dict.remove gidAsString
+                    blindRemoveGrain doc
 
         newModel =
             List.foldr handleChange model changes

@@ -5,6 +5,7 @@ module GrainDict exposing
     , encoder
     , get
     , insert
+    , member
     , remove
     , update
     , values
@@ -47,8 +48,8 @@ get gid =
     unwrap >> Dict.get (GrainId.toString gid)
 
 
-insert grain =
-    map <| Dict.insert (Grain.id grain |> GrainId.toString) grain
+insert gid grain =
+    map <| Dict.insert (GrainId.toString gid) grain
 
 
 encoder =
@@ -66,3 +67,7 @@ remove gid =
 
 update gid fn =
     map <| Dict.update (GrainId.toString gid) (Maybe.map fn)
+
+
+member gid =
+    unwrap >> Dict.member (GrainId.toString gid)
