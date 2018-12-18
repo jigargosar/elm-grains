@@ -2,6 +2,7 @@ module Grain exposing
     ( Grain
     , content
     , decoder
+    , deleted
     , encoder
     , generator
     , id
@@ -108,6 +109,10 @@ toDomIdWithPrefix prefix =
 
 idString =
     id >> GrainId.toString
+
+
+deleted =
+    unwrap >> .deleted
 
 
 generator : Posix -> Generator Grain
