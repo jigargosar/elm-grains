@@ -60,11 +60,11 @@ hasGrainWithSameId grain =
     GrainDict.member (Grain.id grain)
 
 
-blindInsertGrain grain =
+blindInsert grain =
     GrainDict.insert (Grain.id grain) grain
 
 
-blindRemoveGrain grain =
+blindRemove grain =
     GrainDict.remove (Grain.id grain)
 
 
@@ -101,7 +101,7 @@ addNewGrain grain model =
                 |> not
     in
     if canAdd then
-        blindInsertGrain grain model
+        blindInsert grain model
             |> withAddNewGrainCmd grain
             |> Result.Ok
 
@@ -124,7 +124,7 @@ setGrainContent content grain model =
 
 
 updateGrain grain =
-    blindInsertGrain grain
+    blindInsert grain
         >> withUpdateGrainCmd grain
 
 
@@ -138,7 +138,7 @@ withUpdateGrainCmd grain model =
 
 permanentlyDeleteGrain grain model =
     if hasGrainWithSameId grain model then
-        blindRemoveGrain grain model
+        blindRemove grain model
             |> withRemoveGrainCmd grain
             |> Result.Ok
 
@@ -163,13 +163,13 @@ onFirebaseChanges changeList model =
             in
             case GrainChange.type_ change of
                 GrainChange.Added ->
-                    blindInsertGrain grain
+                    blindInsert grain
 
                 GrainChange.Modified ->
-                    blindInsertGrain grain
+                    blindInsert grain
 
                 GrainChange.Removed ->
-                    blindRemoveGrain grain
+                    blindRemove grain
 
         newModel =
             List.foldr handleChange model changeList
