@@ -1,6 +1,7 @@
 module Grain exposing
     ( Grain
     , content
+    , createdAt
     , decoder
     , deleted
     , encoder
@@ -8,6 +9,7 @@ module Grain exposing
     , id
     , idEq
     , idString
+    , modifiedAt
     , setContent
     , setDeleted
     , titleOrEmpty
@@ -113,6 +115,14 @@ idString =
 
 deleted =
     unwrap >> .deleted
+
+
+modifiedAt =
+    unwrap >> .modifiedAt
+
+
+createdAt =
+    unwrap >> .createdAt
 
 
 generator : Posix -> Generator Grain

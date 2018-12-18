@@ -374,9 +374,12 @@ mapStateToGrainListView model =
 
         ( deletedGrainList, grainList ) =
             allGrains |> List.partition Grain.deleted
+
+        modifiedAtDesc =
+            Grain.modifiedAt >> Time.posixToMillis >> negate
     in
-    { grains = grainList
-    , deleted = deletedGrainList
+    { grains = grainList |> List.sortBy modifiedAtDesc
+    , deleted = deletedGrainList |> List.sortBy modifiedAtDesc
     }
 
 
