@@ -33,21 +33,12 @@ type alias GrainListView =
 
 view : GrainListView -> List (Html Msg)
 view { grains, deleted } =
-    [ flexCol [ Css.marginBottom <| rem 3 ]
-        []
-        [ flexCol
-            [ CS.p space2
-            , CS.flexGrow0
-            ]
-            []
-            (viewGrainItems grains)
-        , flexCol
-            [ CS.p space2
-            , CS.flexGrow0
-            ]
-            []
-            (viewGrainItems deleted)
+    [ flexCol
+        [ CS.p space2
+        , Css.marginBottom <| rem 3
         ]
+        []
+        (viewGrainItems grains ++ viewGrainItems deleted)
     , viewFab
     ]
 
