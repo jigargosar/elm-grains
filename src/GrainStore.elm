@@ -116,6 +116,24 @@ withAddNewGrainCmd grain model =
 
 
 -- UPDATE EXISTING
+
+
+updateGrain now msg model grain =
+    let
+        updatedGrain =
+            Grain.update now msg grain
+
+        newModel =
+            blindInsert updatedGrain model
+    in
+    withUpdateGrainCmd updatedGrain newModel
+
+
+withUpdateGrainCmd grain model =
+    ( model, Cmd.batch [ cache model, Firebase.persistUpdatedGrain grain ] )
+
+
+
 --  SET CONTENT
 
 
@@ -135,25 +153,6 @@ setDeleted now deleted grain model =
         |> Result.fromMaybe "Error: setDeleted: Grain Not Found in Cache"
         |> Result.map
             (updateGrain now (Grain.SetDeleted deleted) model)
-
-
-updateGrain now msg model grain =
-    let
-        updatedGrain =
-            Grain.update now msg grain
-
-        newModel =
-            blindInsert updatedGrain model
-    in
-    withUpdateGrainCmd updatedGrain newModel
-
-
-
--- UPDATE EXISTING HELPERS
-
-
-withUpdateGrainCmd grain model =
-    ( model, Cmd.batch [ cache model, Firebase.persistUpdatedGrain grain ] )
 
 
 
