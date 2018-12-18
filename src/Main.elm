@@ -230,7 +230,7 @@ update message model =
         LoadGrainStore val ->
             let
                 ( newGrainStore, cmd ) =
-                    GrainStore.loadFromCache val model.grainStore
+                    GrainStore.loadCache val model.grainStore
             in
             Return.return (setGrainStore newGrainStore model) cmd
 

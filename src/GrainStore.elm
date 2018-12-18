@@ -4,7 +4,7 @@ module GrainStore exposing
     , allAsList
     , empty
     , getById
-    , loadFromCache
+    , loadCache
     , onFirebaseChanges
     , permanentlyDeleteGrain
     , setGrainContent
@@ -48,17 +48,49 @@ getById gid =
     GrainDict.get gid
 
 
+
+-- INTERNAL HELPERS
+
+
 getGrainHavingSameId =
     Grain.id >> getById
 
 
-loadFromCache : Value -> GrainStore -> Return msg GrainStore
-loadFromCache val gs =
-    DecodeX.decodeWithDefault gs GrainDict.decoder val
-
-
 hasGrainWithSameId grain =
     GrainDict.member (Grain.id grain)
+
+
+blindInsertGrain grain =
+    GrainDict.insert (Grain.id grain) grain
+
+
+blindRemoveGrain grain =
+    GrainDict.remove (Grain.id grain)
+
+
+encoder =
+    GrainDict.encoder
+
+
+decoder =
+    GrainDict.decoder
+
+
+
+--- CACHE
+
+
+loadCache : Value -> GrainStore -> Return msg GrainStore
+loadCache val gs =
+    DecodeX.decodeWithDefault gs decoder val
+
+
+cache =
+    encoder >> Port.cacheGrains
+
+
+
+-- SET CONTENT
 
 
 setGrainContent content grain model =
@@ -76,6 +108,10 @@ withUpdateGrainCmd grain model =
     ( model, Cmd.batch [ cache model, Firebase.persistUpdatedGrain grain ] )
 
 
+
+-- PERMA DELETE
+
+
 permanentlyDeleteGrain grain model =
     if hasGrainWithSameId grain model then
         blindRemoveGrain grain model
@@ -88,6 +124,10 @@ permanentlyDeleteGrain grain model =
 
 withRemoveGrainCmd grain model =
     ( model, Cmd.batch [ cache model, Firebase.persistRemovedGrain grain ] )
+
+
+
+-- ADD NEW
 
 
 addNewGrain : Grain -> GrainStore -> Result String ( GrainStore, Cmd msg )
@@ -108,18 +148,6 @@ addNewGrain grain model =
 
 withAddNewGrainCmd grain model =
     ( model, Cmd.batch [ cache model, Firebase.persistNewGrain grain ] )
-
-
-cache =
-    GrainDict.encoder >> Port.cacheGrains
-
-
-blindInsertGrain grain =
-    GrainDict.insert (Grain.id grain) grain
-
-
-blindRemoveGrain grain =
-    GrainDict.remove (Grain.id grain)
 
 
 onFirebaseChanges changeList model =
