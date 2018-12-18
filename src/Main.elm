@@ -140,15 +140,6 @@ setNewSeed newSeed model =
 ---- UPDATE ----
 
 
-generateNewGrain : Model -> ( Grain, Model )
-generateNewGrain model =
-    let
-        ( newGrain, newSeed ) =
-            Random.step Grain.generator model.seed
-    in
-    ( newGrain, setNewSeed newSeed model )
-
-
 autoFocusRoute route =
     let
         maybeDomId =
@@ -223,9 +214,9 @@ update message model =
                 Time.now
             )
 
-        CreateAndAddNewGrainWithNow posix ->
+        CreateAndAddNewGrainWithNow now ->
             Return.return model
-                (Random.generate AddNewGrain Grain.generator)
+                (Random.generate AddNewGrain (Grain.generator now))
 
         AddNewGrain grain ->
             case GrainStore.addNewGrain grain model.grainStore of

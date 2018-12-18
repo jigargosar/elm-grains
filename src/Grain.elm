@@ -19,11 +19,15 @@ import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline exposing (custom, hardcoded, optional, required)
 import Json.Encode as E
 import Random exposing (Generator)
+import Time exposing (Posix)
+import TimeX
 
 
 type alias Model =
     { id : GrainId
     , content : String
+    , createdAt : Posix
+    , modifiedAt : Posix
     }
 
 
@@ -31,11 +35,13 @@ type Grain
     = Grain Model
 
 
-new : GrainId -> Grain
-new newId =
+new : Posix -> GrainId -> Grain
+new now newId =
     Grain
         { id = newId
         , content = ""
+        , createdAt = now
+        , modifiedAt = now
         }
 
 
@@ -44,6 +50,8 @@ encoder (Grain model) =
     E.object
         [ ( "id", GrainId.encoder model.id )
         , ( "content", E.string model.content )
+        , ( "createdAt", TimeX.posixEncoder model.createdAt )
+        , ( "modifiedAt", TimeX.posixEncoder model.modifiedAt )
         ]
 
 
@@ -52,6 +60,8 @@ decoder =
     DecodeX.start Model
         |> required "id" GrainId.decoder
         |> required "content" D.string
+        |> required "createdAt" TimeX.posixDecoder
+        |> required "modifiedAt" TimeX.posixDecoder
         |> D.map Grain
 
 
@@ -95,9 +105,9 @@ idString =
     id >> GrainId.toString
 
 
-generator : Generator Grain
-generator =
-    Random.map new GrainId.generator
+generator : Posix -> Generator Grain
+generator now =
+    Random.map (new now) GrainId.generator
 
 
 setContent : String -> Grain -> Grain
