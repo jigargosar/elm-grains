@@ -10,6 +10,7 @@ import Browser.Dom
 import Css exposing (num, pct, px, rem, vh, vw, zero)
 import CssElements
 import CssEventX
+import CssHtml
 import CssIcons
 import CssLayout exposing (flexCol, flexRow)
 import CssShorthand as CS
@@ -44,11 +45,12 @@ type alias GrainListView =
 
 view : GrainListView -> List (Html Msg)
 view { grains, deleted, isEditing } =
-    [ flexCol
-        [ CS.pa space2
-        , Css.marginBottom <| rem 3
+    [ CssHtml.keyedDiv
+        [ css
+            [ CS.pa space2
+            , Css.marginBottom <| rem 3
+            ]
         ]
-        []
         (viewGrainItems isEditing grains
             ++ viewGrainItems isEditing deleted
         )
@@ -176,5 +178,8 @@ viewGrainItems isEditing list =
 
         viewItem =
             ifElse isEditing viewEditingItem viewDisplayItem
+
+        viewKeyedItem g =
+            ( grainDomId g, viewItem g )
     in
-    List.map viewItem list
+    List.map viewKeyedItem list

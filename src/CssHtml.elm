@@ -1,6 +1,7 @@
-module CssHtml exposing (noView, viewIf, viewIfLazy)
+module CssHtml exposing (keyedDiv, noView, viewIf, viewIfLazy)
 
 import Html.Styled exposing (text)
+import Html.Styled.Keyed as HK
 
 
 noView =
@@ -21,3 +22,7 @@ viewIfLazy bool vFn =
 
     else
         noView
+
+
+keyedDiv =
+    HK.node "div"
