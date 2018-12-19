@@ -24,7 +24,7 @@ modelBackdropEl =
 
 
 modelContentEl =
-    withClass "pa3 bg-white "
+    withClass "absolute pa3 bg-white "
 
 
 iconBtnEl =
