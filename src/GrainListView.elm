@@ -18,7 +18,7 @@ import CssShorthand as CS
 import CssTheme exposing (black80, blackAlpha, space1, space2, space4, white)
 import Grain exposing (Grain)
 import HotKey
-import Html.Styled exposing (Html, button, div, input, styled, text)
+import Html.Styled exposing (Html, button, div, input, styled, text, textarea)
 import Html.Styled.Attributes exposing (autocomplete, class, css, id, value)
 import Html.Styled.Events exposing (onClick, onInput)
 import Maybe.Extra as Maybe
@@ -142,13 +142,13 @@ viewGrainItems isEditing list =
                 , CS.pv space2
                 ]
                 []
-                [ input
+                [ textarea
                     [ id <| inlineGrainEditInputDomId g
                     , value <| Grain.content g
                     , onInput <| Msg.GrainContentChanged g
-                    , CssEventX.onKeyDown <|
+                    , CssEventX.onKeyDownPD <|
                         HotKey.bindEachToMsg
-                            [ ( HotKey.enter, Msg.InlineEditGrainSubmit ) ]
+                            [ ( HotKey.enter, ( Msg.InlineEditGrainSubmit, True ) ) ]
                     , autocomplete False
                     , css
                         [ CS.w_full
