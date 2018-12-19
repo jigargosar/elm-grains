@@ -217,6 +217,10 @@ update message model =
 
         InlineEditGrain grain ->
             Return.singleton { model | inlineEditGrainId = Just <| Grain.id grain }
+                |> Return.command
+                    (BrowserX.focus FocusResult <|
+                        GrainListView.inlineGrainEditInputDomId grain
+                    )
 
         SetGrainContentWithNow grain content now ->
             case GrainStore.setContent now content grain model.grainStore of

@@ -1,6 +1,7 @@
 module GrainListView exposing
     ( GrainListView
     , grainDomId
+    , inlineGrainEditInputDomId
     , view
     )
 
@@ -14,7 +15,7 @@ import CssShorthand as CS
 import CssTheme exposing (black80, blackAlpha, space1, space2, space4, white)
 import Grain exposing (Grain)
 import Html.Styled exposing (Html, button, div, input, styled, text)
-import Html.Styled.Attributes exposing (class, css, value)
+import Html.Styled.Attributes exposing (class, css, id, value)
 import Html.Styled.Events exposing (onClick, onInput)
 import Maybe.Extra as Maybe
 import Msg exposing (Msg)
@@ -26,6 +27,10 @@ import Task exposing (Task)
 grainDomId : Grain -> String
 grainDomId =
     Grain.toDomIdWithPrefix "grain-list-item--"
+
+
+inlineGrainEditInputDomId =
+    Grain.toDomIdWithPrefix "grain-list-item-edit-input--"
 
 
 type alias GrainListView =
@@ -147,7 +152,8 @@ viewGrainItems isEditing list =
                 ]
                 []
                 [ input
-                    [ value <| Grain.content g
+                    [ id <| inlineGrainEditInputDomId g
+                    , value <| Grain.content g
                     , onInput <| Msg.GrainContentChanged g
                     , css
                         [ CS.w_full
