@@ -10,6 +10,7 @@ module HotKey exposing
     , delete
     , enter
     , esc
+    , shiftEnter
     , space
     )
 
@@ -98,6 +99,11 @@ bindEach mappings =
 enter : HotKey
 enter =
     ( [], "Enter" )
+
+
+shiftEnter : HotKey
+shiftEnter =
+    ( [ Shift ], "Enter" )
 
 
 delete : HotKey

@@ -135,6 +135,12 @@ viewGrainItems isEditing list =
                 ]
 
         viewEditingItem g =
+            let
+                bindings =
+                    [ ( HotKey.enter, ( Msg.InlineEditGrainSubmit, True ) )
+                    , ( HotKey.shiftEnter, ( Msg.NoOp, True ) )
+                    ]
+            in
             styled div
                 [ Css.displayFlex
                 , Css.flexDirection Css.row
@@ -147,8 +153,7 @@ viewGrainItems isEditing list =
                     , value <| Grain.content g
                     , onInput <| Msg.GrainContentChanged g
                     , CssEventX.onKeyDownPD <|
-                        HotKey.bindEachToMsg
-                            [ ( HotKey.enter, ( Msg.InlineEditGrainSubmit, True ) ) ]
+                        HotKey.bindEachToMsg bindings
                     , autocomplete False
                     , css
                         [ CS.w_full
