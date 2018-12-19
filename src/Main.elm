@@ -490,11 +490,8 @@ mapStateToGrainListView model =
         createdAtAtDesc =
             Grain.createdAt >> Time.posixToMillis >> negate
 
-        maybeEditGrain =
-            inlineEditGrain model
-
         isEditingAny =
-            Maybe.isJust maybeEditGrain
+            Maybe.isJust (inlineEditGrain model)
 
         sort =
             unless (\_ -> isEditingAny) (List.sortBy modifiedAtDesc)
