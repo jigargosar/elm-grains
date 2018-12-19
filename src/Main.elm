@@ -208,9 +208,8 @@ update message model =
 
         GrainContentChanged grain content ->
             ( model
-            , Task.perform
+            , performWithNow
                 (SetGrainContentWithNow (Grain.id grain) content)
-                Time.now
             )
 
         InlineEditGrainContentChanged grain content ->
@@ -244,9 +243,8 @@ update message model =
                         { model
                             | inlineEditGrain = inlineEditGrain
                         }
-                        (Task.perform
+                        (performWithNow
                             (SetGrainContentWithNow gid content)
-                            Time.now
                         )
 
         SetGrainContentWithNow gid content now ->
