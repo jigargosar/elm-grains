@@ -222,7 +222,7 @@ update message model =
             )
 
         GrainMoreClicked grain ->
-            Return.singleton model
+            Return.singleton { model | popup = GrainMoreMenu grain }
 
         SetGrainDeletedWithNow grain bool now ->
             case GrainStore.setDeleted now bool grain model.grainStore of
