@@ -8,6 +8,7 @@ module GrainListView exposing
 import BasicsX exposing (defaultEmptyStringTo, ifElse, ter)
 import Browser.Dom
 import Css exposing (num, pct, px, rem, vh, vw, zero)
+import CssAttrX exposing (attrIf)
 import CssElements
 import CssEventX
 import CssHtml
@@ -89,34 +90,23 @@ grainDisplayTitle =
 
 viewGrainItems isEditing list =
     let
-        viewTitle title g =
+        viewTitle g =
+            let
+                title =
+                    grainDisplayTitle g
+
+                canEdit =
+                    Grain.deleted g |> not
+            in
             styled div
                 [ CS.p2 space2 zero
-                , CS.pointer
+                , CS.styleIf canEdit CS.pointer
                 , CS.flex11Auto
                 , CS.ellipsis
                 ]
                 --                [ onClick <| Msg.routeToGrain g ]
-                [ onClick <| Msg.InlineEditGrain g ]
+                [ attrIf canEdit (onClick <| Msg.InlineEditGrain g) ]
                 [ text title ]
-
-        viewDelete g =
-            let
-                deleted =
-                    Grain.deleted g
-
-                action =
-                    ter deleted Msg.RestoreGrain Msg.DeleteGrain <|
-                        g
-
-                icon =
-                    ter deleted CssIcons.restore CssIcons.delete
-            in
-            CssElements.iconBtnWithStyles [ CS.selfCenter ]
-                [ onClick action
-                ]
-                [ CssIcons.view icon
-                ]
 
         viewRightMenu g =
             CssElements.iconBtnWithStyles [ CS.selfCenter ]
@@ -127,9 +117,6 @@ viewGrainItems isEditing list =
 
         viewDisplayItem g =
             let
-                title =
-                    grainDisplayTitle g
-
                 deleted =
                     Grain.deleted g
 
@@ -143,7 +130,7 @@ viewGrainItems isEditing list =
                 , Css.opacity <| num opacityValue
                 ]
                 []
-                [ viewTitle title g
+                [ viewTitle g
                 , viewRightMenu g
                 ]
 
@@ -184,3 +171,23 @@ viewGrainItems isEditing list =
             ( grainDomId g, viewItem g )
     in
     List.map viewKeyedItem list
+
+
+
+--viewDelete g =
+--            let
+--                deleted =
+--                    Grain.deleted g
+--
+--                action =
+--                    ter deleted Msg.RestoreGrain Msg.DeleteGrain <|
+--                        g
+--
+--                icon =
+--                    ter deleted CssIcons.restore CssIcons.delete
+--            in
+--            CssElements.iconBtnWithStyles [ CS.selfCenter ]
+--                [ onClick action
+--                ]
+--                [ CssIcons.view icon
+--                ]

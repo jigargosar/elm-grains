@@ -33,6 +33,7 @@ module CssShorthand exposing
     , rowCC
     , selfCenter
     , sticky
+    , styleIf
     , w_full
     , w_sm
     , w_xs
@@ -41,6 +42,18 @@ module CssShorthand exposing
 
 import BasicsX exposing (callWith)
 import Css exposing (num, pct, px, rem, vh, vw, zero)
+
+
+noStyle =
+    Css.batch []
+
+
+styleIf bool style =
+    if bool then
+        style
+
+    else
+        noStyle
 
 
 flex11Auto =
