@@ -139,7 +139,6 @@ viewGrainItems inlineEditGrain list =
             let
                 bindings =
                     [ ( HotKey.enter, ( Msg.InlineEditGrainSubmit, True ) )
---                    , ( HotKey.shiftEnter, ( Msg.NoOp, True ) )
                     ]
             in
             styled div

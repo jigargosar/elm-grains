@@ -1,10 +1,10 @@
 module InlineEditGrain exposing
     ( InlineEditGrain
-    , init
     , initFor
+    , initialValue
     , maybeContentFor
     , maybeGid
-    , none
+    , onContentChange
     )
 
 import BasicsX exposing (callWith)
@@ -24,22 +24,28 @@ type InlineEditGrain
     | NotEditing
 
 
-none =
-    NotEditing
-
-
-initFor grain =
-    Editing
-        { gid = Grain.id grain
-        , content = Grain.content grain
-        }
-
-
 init gid content =
     Editing
         { gid = gid
         , content = content
         }
+
+
+initialValue =
+    NotEditing
+
+
+initFor grain =
+    init (Grain.id grain) (Grain.content grain)
+
+
+onContentChange content model =
+    case model of
+        NotEditing ->
+            Result.Err "Error: onContentChange. Not Editing"
+
+        Editing editModel ->
+            Result.Ok <| Editing { editModel | content = content }
 
 
 maybeGid model =

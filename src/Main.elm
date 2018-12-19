@@ -109,7 +109,7 @@ init flags =
                 |> Random.always Firebase.initialAuthState
                 |> Random.with ActorId.generator
                 |> Random.always NoPopup
-                |> Random.always InlineEditGrain.none
+                |> Random.always InlineEditGrain.initialValue
                 |> Random.finish
     in
     update (LoadGrainStore flags.grains) model
@@ -212,11 +212,15 @@ update message model =
             )
 
         InlineEditGrainContentChanged grain content ->
-            Return.singleton
-                { model
-                    | inlineEditGrain =
-                        InlineEditGrain.init (Grain.id grain) content
-                }
+            case InlineEditGrain.onContentChange content model.inlineEditGrain of
+                Err errString ->
+                    handleErrorString errString model
+
+                Ok inlineEditGrain ->
+                    Return.singleton
+                        { model
+                            | inlineEditGrain = inlineEditGrain
+                        }
 
         InlineEditGrain grain ->
             Return.singleton
@@ -229,7 +233,7 @@ update message model =
                     )
 
         InlineEditGrainSubmit ->
-            Return.singleton { model | inlineEditGrain = InlineEditGrain.none }
+            Return.singleton { model | inlineEditGrain = InlineEditGrain.initialValue }
 
         SetGrainContentWithNow grain content now ->
             case GrainStore.setContent now content grain model.grainStore of
