@@ -1,6 +1,5 @@
 module CssShorthand exposing
-    ( absFill
-    , absolute
+    ( absolute
     , bgBlack20
     , bgWhite
     , br_pill
@@ -24,6 +23,7 @@ module CssShorthand exposing
     , p2
     , pa
     , pointer
+    , posFill
     , pv
     , relative
     , row
@@ -202,7 +202,7 @@ absolute =
     Css.position Css.absolute
 
 
-absFill =
+posFill =
     [ Css.left, Css.right, Css.top, Css.bottom ]
         |> List.map (callWith <| px 0)
         |> Css.batch

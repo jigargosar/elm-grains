@@ -18,10 +18,10 @@ type alias ModalView msg =
 
 modal { content, onDismiss } =
     div
-        [ css [ CS.fixed, CS.absFill, CS.rowCC, CS.bgBlack20 ]
+        [ css [ CS.fixed, CS.posFill, CS.rowCC, CS.bgBlack20 ]
         ]
         [ div
-            [ css [ CS.absolute, CS.absFill ]
+            [ css [ CS.absolute, CS.posFill ]
             , SE.onClick onDismiss
             ]
             []
