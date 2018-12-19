@@ -91,6 +91,7 @@ type alias Model =
     , authState : Firebase.AuthState
     , actorId : ActorId
     , popup : Popup
+    , inlineEditGrain : Maybe GrainId
     , seed : Seed
     }
 
@@ -107,6 +108,7 @@ init flags =
                 |> Random.always Firebase.initialAuthState
                 |> Random.with ActorId.generator
                 |> Random.always NoPopup
+                |> Random.always Nothing
                 |> Random.finish
     in
     update (LoadGrainStore flags.grains) model
