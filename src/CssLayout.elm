@@ -9,7 +9,7 @@ flexCol styles =
     styled div
         (Css.displayFlex
             :: Css.flexDirection Css.column
-            :: CS.fs0
+            :: CS.flexShrink0
             :: CS.flexGrow1
             :: styles
         )
@@ -18,15 +18,15 @@ flexCol styles =
 flexRow styles =
     styled div
         (Css.displayFlex
-            :: CS.fs0
+            :: CS.flexShrink0
             :: Css.flexDirection Css.row
             :: styles
         )
 
 
 flexRowIC styles =
-    flexRow (CS.aic :: styles)
+    flexRow (CS.itemsCenter :: styles)
 
 
 flexColIC styles =
-    flexCol (CS.aic :: styles)
+    flexCol (CS.itemsCenter :: styles)

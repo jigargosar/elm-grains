@@ -2,16 +2,15 @@ module CssShorthand exposing
     ( absFill
     , abs__fill
     , absolute
-    , aic
-    , asc
     , br_pill
     , ellipsis
     , fixed
     , flex11Auto
     , flexGrow0
     , flexGrow1
-    , fs0
-    , jcc
+    , flexShrink0
+    , itemsCenter
+    , justifyCenter
     , maxHeight100VH
     , max_w_full
     , max_w_screen
@@ -25,6 +24,7 @@ module CssShorthand exposing
     , p2
     , pointer
     , relative
+    , selfCenter
     , sticky
     , w_full
     , w_sm
@@ -117,19 +117,19 @@ min_h_screen =
     Css.minHeight <| vh 100
 
 
-fs0 =
+flexShrink0 =
     Css.flexShrink <| num 0
 
 
-aic =
+itemsCenter =
     Css.alignItems Css.center
 
 
-asc =
+selfCenter =
     Css.alignSelf Css.center
 
 
-jcc =
+justifyCenter =
     Css.justifyContent Css.center
 
 

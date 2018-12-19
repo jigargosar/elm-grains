@@ -96,11 +96,14 @@ viewGrainItems list =
                 icon =
                     ter deleted CssIcons.restore CssIcons.delete
             in
-            CssElements.iconBtnWithStyles [ CS.asc ]
+            CssElements.iconBtnWithStyles [ CS.selfCenter ]
                 [ onClick action
                 ]
                 [ CssIcons.view icon
                 ]
+
+        viewRightMenu g =
+            viewDelete g
 
         viewItem g =
             let
@@ -121,7 +124,7 @@ viewGrainItems list =
                 ]
                 []
                 [ viewTitle title g
-                , viewDelete g
+                , viewRightMenu g
                 ]
     in
     List.map viewItem list
