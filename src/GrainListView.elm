@@ -103,7 +103,11 @@ viewGrainItems list =
                 ]
 
         viewRightMenu g =
-            viewDelete g
+            CssElements.iconBtnWithStyles [ CS.selfCenter ]
+                [ onClick (Msg.GrainMoreClicked g)
+                ]
+                [ CssIcons.view CssIcons.moreHoriz
+                ]
 
         viewItem g =
             let

@@ -214,6 +214,9 @@ update message model =
             , Task.perform (SetGrainDeletedWithNow grain False) Time.now
             )
 
+        GrainMoreClicked grain ->
+            Return.singleton model
+
         SetGrainDeletedWithNow grain bool now ->
             case GrainStore.setDeleted now bool grain model.grainStore of
                 Err errString ->

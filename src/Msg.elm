@@ -20,6 +20,7 @@ type Msg
     | FocusResult (Result String ())
     | LoadGrainStore Value
     | RestoreGrain Grain
+    | GrainMoreClicked Grain
     | CreateAndAddNewGrain
     | CreateAndAddNewGrainWithNow Posix
     | AddNewGrain Grain
