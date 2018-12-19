@@ -11,7 +11,7 @@ import CssElements
 import CssIcons
 import CssLayout exposing (flexCol, flexRow)
 import CssShorthand as CS
-import CssTheme exposing (black80, blackAlpha, space2, space4, white)
+import CssTheme exposing (black80, blackAlpha, space1, space2, space4, white)
 import Grain exposing (Grain)
 import Html.Styled exposing (Html, button, div, input, styled, text)
 import Html.Styled.Attributes exposing (class, css, value)
@@ -153,7 +153,7 @@ viewGrainItems isEditing list =
                         [ CS.w_full
                         , Css.borderWidth zero
                         , Css.borderBottom3 (px 1.5) Css.solid (CS.blackAlpha 0.5)
-                        , CS.pa space2
+                        , CS.p2 space1 space2
                         ]
                     ]
                     []

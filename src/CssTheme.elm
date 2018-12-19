@@ -2,6 +2,7 @@ module CssTheme exposing
     ( black80
     , blackAlpha
     , pageWidth
+    , space1
     , space2
     , space4
     , space8
@@ -22,6 +23,10 @@ black20 =
 
 blackAlpha alpha =
     Css.rgba 0 0 0 alpha
+
+
+space1 =
+    px 4
 
 
 space2 =
