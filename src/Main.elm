@@ -222,6 +222,9 @@ update message model =
                         GrainListView.inlineGrainEditInputDomId grain
                     )
 
+        InlineEditGrainSubmit ->
+            Return.singleton { model | inlineEditGrainId = Nothing }
+
         SetGrainContentWithNow grain content now ->
             case GrainStore.setContent now content grain model.grainStore of
                 Err errString ->

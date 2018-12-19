@@ -9,11 +9,13 @@ import BasicsX exposing (defaultEmptyStringTo, ifElse, ter)
 import Browser.Dom
 import Css exposing (num, pct, px, rem, vh, vw, zero)
 import CssElements
+import CssEventX
 import CssIcons
 import CssLayout exposing (flexCol, flexRow)
 import CssShorthand as CS
 import CssTheme exposing (black80, blackAlpha, space1, space2, space4, white)
 import Grain exposing (Grain)
+import HotKey
 import Html.Styled exposing (Html, button, div, input, styled, text)
 import Html.Styled.Attributes exposing (class, css, id, value)
 import Html.Styled.Events exposing (onClick, onInput)
@@ -155,6 +157,9 @@ viewGrainItems isEditing list =
                     [ id <| inlineGrainEditInputDomId g
                     , value <| Grain.content g
                     , onInput <| Msg.GrainContentChanged g
+                    , CssEventX.onKeyDown <|
+                        HotKey.bindEachToMsg
+                            [ ( HotKey.enter, Msg.InlineEditGrainSubmit ) ]
                     , css
                         [ CS.w_full
                         , Css.borderWidth zero
