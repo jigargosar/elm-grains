@@ -18,7 +18,7 @@ import CssTheme exposing (black80, blackAlpha, space1, space2, space4, white)
 import Grain exposing (Grain)
 import HotKey
 import Html.Styled exposing (Html, button, div, input, styled, text)
-import Html.Styled.Attributes exposing (class, css, id, value)
+import Html.Styled.Attributes exposing (autocomplete, class, css, id, value)
 import Html.Styled.Events exposing (onClick, onInput)
 import Maybe.Extra as Maybe
 import Msg exposing (Msg)
@@ -162,6 +162,7 @@ viewGrainItems isEditing list =
                     , CssEventX.onKeyDown <|
                         HotKey.bindEachToMsg
                             [ ( HotKey.enter, Msg.InlineEditGrainSubmit ) ]
+                    , autocomplete False
                     , css
                         [ CS.w_full
                         , Css.borderWidth zero
