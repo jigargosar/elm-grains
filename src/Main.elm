@@ -494,7 +494,8 @@ mapStateToGrainListView model =
             Maybe.isJust (inlineEditGrain model)
 
         sort =
-            unless (\_ -> isEditingAny) (List.sortBy modifiedAtDesc)
+            --            unless (\_ -> isEditingAny) (List.sortBy modifiedAtDesc)
+            identity
     in
     { grains = grainList |> sort
     , deleted = deletedGrainList |> sort
