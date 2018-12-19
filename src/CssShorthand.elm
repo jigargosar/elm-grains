@@ -2,6 +2,9 @@ module CssShorthand exposing
     ( absolute
     , bgBlack20
     , bgWhite
+    , black20
+    , black80
+    , blackAlpha
     , br_pill
     , ellipsis
     , fixed

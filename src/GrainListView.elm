@@ -4,7 +4,7 @@ module GrainListView exposing
     , view
     )
 
-import BasicsX exposing (defaultEmptyStringTo, ter)
+import BasicsX exposing (defaultEmptyStringTo, ifElse, ter)
 import Browser.Dom
 import Css exposing (num, pct, px, rem, vh, vw, zero)
 import CssElements
@@ -13,9 +13,9 @@ import CssLayout exposing (flexCol, flexRow)
 import CssShorthand as CS
 import CssTheme exposing (black80, blackAlpha, space2, space4, white)
 import Grain exposing (Grain)
-import Html.Styled exposing (Html, button, div, styled, text)
-import Html.Styled.Attributes exposing (class)
-import Html.Styled.Events exposing (onClick)
+import Html.Styled exposing (Html, button, div, input, styled, text)
+import Html.Styled.Attributes exposing (class, css, value)
+import Html.Styled.Events exposing (onClick, onInput)
 import Maybe.Extra as Maybe
 import Msg exposing (Msg)
 import Route
@@ -75,10 +75,10 @@ viewFab =
 
 
 grainDisplayTitle =
-    Grain.titleOrEmpty >> defaultEmptyStringTo "<empty>"
+    Grain.contentOrEmpty >> defaultEmptyStringTo "<empty>"
 
 
-viewGrainItems inlineEditGrain list =
+viewGrainItems isEditing list =
     let
         viewTitle title g =
             styled div
@@ -87,7 +87,8 @@ viewGrainItems inlineEditGrain list =
                 , CS.flex11Auto
                 , CS.ellipsis
                 ]
-                [ onClick <| Msg.routeToGrain g ]
+                --                [ onClick <| Msg.routeToGrain g ]
+                [ onClick <| Msg.InlineEditGrain g ]
                 [ text title ]
 
         viewDelete g =
@@ -115,7 +116,7 @@ viewGrainItems inlineEditGrain list =
                 [ CssIcons.view CssIcons.moreHoriz
                 ]
 
-        viewItem g =
+        viewDisplayItem g =
             let
                 title =
                     grainDisplayTitle g
@@ -136,5 +137,29 @@ viewGrainItems inlineEditGrain list =
                 [ viewTitle title g
                 , viewRightMenu g
                 ]
+
+        viewEditingItem g =
+            styled div
+                [ Css.displayFlex
+                , Css.flexDirection Css.row
+                , Css.maxWidth <| pct 100
+                , CS.pv space2
+                ]
+                []
+                [ input
+                    [ value <| Grain.content g
+                    , onInput <| Msg.GrainContentChanged g
+                    , css
+                        [ CS.w_full
+                        , Css.borderWidth zero
+                        , Css.borderBottom3 (px 1.5) Css.solid (CS.blackAlpha 0.5)
+                        , CS.pa space2
+                        ]
+                    ]
+                    []
+                ]
+
+        viewItem =
+            ifElse isEditing viewEditingItem viewDisplayItem
     in
     List.map viewItem list

@@ -28,6 +28,7 @@ type Msg
     | CreateAndAddNewGrainWithNow Posix
     | AddNewGrain Grain
     | BackPressed
+    | InlineEditGrain Grain
     | GrainContentChanged Grain String
     | SetGrainContentWithNow Grain String Posix
     | SetGrainDeletedWithNow Grain Bool Posix

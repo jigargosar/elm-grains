@@ -215,6 +215,9 @@ update message model =
             , Task.perform (SetGrainContentWithNow grain content) Time.now
             )
 
+        InlineEditGrain grain ->
+            Return.singleton { model | inlineEditGrainId = Just <| Grain.id grain }
+
         SetGrainContentWithNow grain content now ->
             case GrainStore.setContent now content grain model.grainStore of
                 Err errString ->
