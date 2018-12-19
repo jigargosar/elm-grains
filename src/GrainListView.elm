@@ -16,6 +16,7 @@ import Grain exposing (Grain)
 import Html.Styled exposing (Html, button, div, styled, text)
 import Html.Styled.Attributes exposing (class)
 import Html.Styled.Events exposing (onClick)
+import Maybe.Extra as Maybe
 import Msg exposing (Msg)
 import Route
 import Skeleton
@@ -30,18 +31,20 @@ grainDomId =
 type alias GrainListView =
     { grains : List Grain
     , deleted : List Grain
-    , inlineEditGrain : Maybe Grain
+    , isEditing : Grain -> Bool
     }
 
 
 view : GrainListView -> List (Html Msg)
-view { grains, deleted } =
+view { grains, deleted, isEditing } =
     [ flexCol
         [ CS.pa space2
         , Css.marginBottom <| rem 3
         ]
         []
-        (viewGrainItems grains ++ viewGrainItems deleted)
+        (viewGrainItems isEditing grains
+            ++ viewGrainItems isEditing deleted
+        )
     , viewFab
     ]
 
@@ -75,7 +78,7 @@ grainDisplayTitle =
     Grain.titleOrEmpty >> defaultEmptyStringTo "<empty>"
 
 
-viewGrainItems list =
+viewGrainItems inlineEditGrain list =
     let
         viewTitle title g =
             styled div

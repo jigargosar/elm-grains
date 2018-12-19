@@ -6,6 +6,7 @@ module Grain exposing
     , decoder
     , deleted
     , encoder
+    , eqById
     , generator
     , id
     , idEq
@@ -103,6 +104,10 @@ id =
 
 idEq gid =
     id >> eqs gid
+
+
+eqById g2 =
+    idEq (id g2)
 
 
 toDomIdWithPrefix prefix =

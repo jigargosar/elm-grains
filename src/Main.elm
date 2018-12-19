@@ -479,7 +479,7 @@ mapStateToGrainListView model =
     in
     { grains = grainList |> List.sortBy modifiedAtDesc
     , deleted = deletedGrainList |> List.sortBy modifiedAtDesc
-    , inlineEditGrain = inlineEditGrain model
+    , isEditing = \g -> Maybe.unwrap False (Grain.eqById g) (inlineEditGrain model)
     }
 
 
