@@ -18,7 +18,6 @@ type alias ModalView msg =
 modal { content, onDismiss } =
     div
         [ css [ CS.fixed, CS.absFill, CS.rowCC, CS.bgBlack20 ]
-        , class "bg-black-20"
         ]
         [ CssElements.modelBackdropEl [ SE.onClick onDismiss ] []
         , CssElements.modelContentEl [ SA.css [ Css.minWidth <| Css.rem 20 ] ]
