@@ -152,7 +152,7 @@ viewGrainItems isEditing list =
                     , css
                         [ CS.w_full
                         , Css.borderWidth zero
-                        , Css.borderBottom3 (px 1.5) Css.solid (CS.blackAlpha 0.5)
+                        , Css.borderBottom3 (px 1.5) Css.solid CS.black20
                         , CS.p2 space1 space2
                         , Css.focus
                             [ Css.outline Css.none
