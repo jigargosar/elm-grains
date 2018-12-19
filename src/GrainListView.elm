@@ -154,6 +154,10 @@ viewGrainItems isEditing list =
                         , Css.borderWidth zero
                         , Css.borderBottom3 (px 1.5) Css.solid (CS.blackAlpha 0.5)
                         , CS.p2 space1 space2
+                        , Css.focus
+                            [ Css.outline Css.none
+                            , Css.borderBottomColor CS.black80
+                            ]
                         ]
                     ]
                     []
