@@ -31,6 +31,7 @@ type Msg
     | InlineEditGrain Grain
     | InlineEditGrainSubmit
     | GrainContentChanged Grain String
+    | InlineEditGrainContentChanged Grain String
     | SetGrainContentWithNow Grain String Posix
     | SetGrainDeletedWithNow Grain Bool Posix
     | ToastDismiss

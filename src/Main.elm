@@ -32,6 +32,7 @@ import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes as SA exposing (..)
 import Html.Styled.Events as SE exposing (onBlur, onClick, onFocus, onInput, onSubmit)
 import Html.Styled.Keyed
+import InlineEditGrain exposing (InlineEditGrain)
 import Json.Decode as D
 import Json.Decode.Pipeline exposing (optional)
 import Json.Encode as E exposing (Value)
@@ -91,7 +92,7 @@ type alias Model =
     , authState : Firebase.AuthState
     , actorId : ActorId
     , popup : Popup
-    , inlineEditGrainId : Maybe GrainId
+    , inlineEditGrain : InlineEditGrain
     , seed : Seed
     }
 
@@ -108,7 +109,7 @@ init flags =
                 |> Random.always Firebase.initialAuthState
                 |> Random.with ActorId.generator
                 |> Random.always NoPopup
-                |> Random.always Nothing
+                |> Random.always InlineEditGrain.none
                 |> Random.finish
     in
     update (LoadGrainStore flags.grains) model
@@ -148,11 +149,6 @@ setNewSeed newSeed model =
 
 dismissPopup model =
     { model | popup = NoPopup }
-
-
-inlineEditGrain model =
-    model.inlineEditGrainId
-        |> Maybe.andThen (grainById >> callWith model)
 
 
 
@@ -215,15 +211,21 @@ update message model =
             , Task.perform (SetGrainContentWithNow grain content) Time.now
             )
 
+        InlineEditGrainContentChanged grain content ->
+            Return.singleton { model | inlineEditGrain = InlineEditGrain.none }
+
         InlineEditGrain grain ->
-            Return.singleton { model | inlineEditGrainId = Just <| Grain.id grain }
+            Return.singleton
+                { model
+                    | inlineEditGrain = InlineEditGrain.edit grain
+                }
                 |> Return.command
                     (BrowserX.focus FocusResult <|
                         GrainListView.inlineGrainEditInputDomId grain
                     )
 
         InlineEditGrainSubmit ->
-            Return.singleton { model | inlineEditGrainId = Nothing }
+            Return.singleton { model | inlineEditGrain = InlineEditGrain.none }
 
         SetGrainContentWithNow grain content now ->
             case GrainStore.setContent now content grain model.grainStore of
@@ -489,17 +491,10 @@ mapStateToGrainListView model =
 
         createdAtAtDesc =
             Grain.createdAt >> Time.posixToMillis >> negate
-
-        isEditingAny =
-            Maybe.isJust (inlineEditGrain model)
-
-        sort =
-            --            unless (\_ -> isEditingAny) (List.sortBy modifiedAtDesc)
-            identity
     in
-    { grains = grainList |> sort
-    , deleted = deletedGrainList |> sort
-    , isEditing = \g -> Maybe.unwrap False (Grain.eqById g) (inlineEditGrain model)
+    { grains = grainList
+    , deleted = deletedGrainList
+    , inlineEditGrain = model.inlineEditGrain
     }
 
 

@@ -5,7 +5,7 @@ module GrainListView exposing
     , view
     )
 
-import BasicsX exposing (defaultEmptyStringTo, ifElse, ter)
+import BasicsX exposing (callWith, defaultEmptyStringTo, ifElse, ter)
 import Browser.Dom
 import Css exposing (num, pct, px, rem, vh, vw, zero)
 import CssAttrX exposing (attrIf)
@@ -21,6 +21,7 @@ import HotKey
 import Html.Styled exposing (Html, button, div, input, styled, text, textarea)
 import Html.Styled.Attributes exposing (autocomplete, class, css, id, value)
 import Html.Styled.Events exposing (onClick, onInput)
+import InlineEditGrain exposing (InlineEditGrain)
 import Maybe.Extra as Maybe
 import Msg exposing (Msg)
 import Route
@@ -40,20 +41,20 @@ inlineGrainEditInputDomId =
 type alias GrainListView =
     { grains : List Grain
     , deleted : List Grain
-    , isEditing : Grain -> Bool
+    , inlineEditGrain : InlineEditGrain
     }
 
 
 view : GrainListView -> List (Html Msg)
-view { grains, deleted, isEditing } =
+view { grains, deleted, inlineEditGrain } =
     [ CssHtml.keyedDiv
         [ css
             [ CS.pa space2
             , Css.marginBottom <| rem 3
             ]
         ]
-        (viewGrainItems isEditing grains
-            ++ viewGrainItems isEditing deleted
+        (viewGrainItems inlineEditGrain grains
+            ++ viewGrainItems inlineEditGrain deleted
         )
     , viewFab
     ]
@@ -88,7 +89,7 @@ grainDisplayTitle =
     Grain.contentOrEmpty >> defaultEmptyStringTo "<empty>"
 
 
-viewGrainItems isEditing list =
+viewGrainItems inlineEditGrain list =
     let
         viewTitle g =
             let
@@ -134,7 +135,7 @@ viewGrainItems isEditing list =
                 , viewRightMenu g
                 ]
 
-        viewEditingItem g =
+        viewEditingItem content g =
             let
                 bindings =
                     [ ( HotKey.enter, ( Msg.InlineEditGrainSubmit, True ) )
@@ -150,8 +151,8 @@ viewGrainItems isEditing list =
                 []
                 [ textarea
                     [ id <| inlineGrainEditInputDomId g
-                    , value <| Grain.content g
-                    , onInput <| Msg.GrainContentChanged g
+                    , value <| content
+                    , onInput <| Msg.InlineEditGrainContentChanged g
                     , CssEventX.onKeyDownPD <|
                         HotKey.bindEachToMsg bindings
                     , autocomplete False
@@ -169,8 +170,10 @@ viewGrainItems isEditing list =
                     []
                 ]
 
-        viewItem =
-            ifElse isEditing viewEditingItem viewDisplayItem
+        viewItem g =
+            InlineEditGrain.maybeContentFor g inlineEditGrain
+                |> Maybe.unwrap viewDisplayItem viewEditingItem
+                |> callWith g
 
         viewKeyedItem g =
             ( grainDomId g, viewItem g )
