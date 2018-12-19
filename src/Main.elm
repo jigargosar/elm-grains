@@ -288,9 +288,7 @@ update message model =
 
         CreateAndAddNewGrain ->
             ( model
-            , Task.perform
-                CreateAndAddNewGrainWithNow
-                Time.now
+            , performWithNow CreateAndAddNewGrainWithNow
             )
 
         CreateAndAddNewGrainWithNow now ->
@@ -349,6 +347,10 @@ update message model =
 
         BackPressed ->
             Return.return model (Port.navigateBack ())
+
+
+performWithNow nowToMsg =
+    Task.perform nowToMsg Time.now
 
 
 view : Model -> Html Msg
