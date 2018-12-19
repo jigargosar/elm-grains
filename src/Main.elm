@@ -208,7 +208,9 @@ update message model =
 
         GrainContentChanged grain content ->
             ( model
-            , Task.perform (SetGrainContentWithNow grain content) Time.now
+            , Task.perform
+                (SetGrainContentWithNow (Grain.id grain) content)
+                Time.now
             )
 
         InlineEditGrainContentChanged grain content ->
@@ -225,7 +227,7 @@ update message model =
         InlineEditGrain grain ->
             Return.singleton
                 { model
-                    | inlineEditGrain = InlineEditGrain.initFor grain
+                    | inlineEditGrain = InlineEditGrain.startEditing grain
                 }
                 |> Return.command
                     (BrowserX.focus FocusResult <|
@@ -233,10 +235,18 @@ update message model =
                     )
 
         InlineEditGrainSubmit ->
-            Return.singleton { model | inlineEditGrain = InlineEditGrain.initialValue }
+            case InlineEditGrain.endEditing model.inlineEditGrain of
+                Err errString ->
+                    handleErrorString errString model
 
-        SetGrainContentWithNow grain content now ->
-            case GrainStore.setContent now content grain model.grainStore of
+                Ok ( grain, content, inlineEditGrain ) ->
+                    Return.singleton
+                        { model
+                            | inlineEditGrain = inlineEditGrain
+                        }
+
+        SetGrainContentWithNow gid content now ->
+            case GrainStore.setContent now content gid model.grainStore of
                 Err errString ->
                     handleErrorString errString model
 
@@ -245,12 +255,12 @@ update message model =
 
         DeleteGrain grain ->
             ( model
-            , Task.perform (SetGrainDeletedWithNow grain True) Time.now
+            , Task.perform (SetGrainDeletedWithNow (Grain.id grain) True) Time.now
             )
 
         RestoreGrain grain ->
             ( model
-            , Task.perform (SetGrainDeletedWithNow grain False) Time.now
+            , Task.perform (SetGrainDeletedWithNow (Grain.id grain) False) Time.now
             )
 
         GrainMoreAction msg ->
@@ -264,8 +274,8 @@ update message model =
         GrainMoreClicked grain ->
             Return.singleton { model | popup = GrainMorePopup (Grain.id grain) }
 
-        SetGrainDeletedWithNow grain bool now ->
-            case GrainStore.setDeleted now bool grain model.grainStore of
+        SetGrainDeletedWithNow gid bool now ->
+            case GrainStore.setDeleted now bool gid model.grainStore of
                 Err errString ->
                     handleErrorString errString model
 

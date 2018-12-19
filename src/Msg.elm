@@ -32,8 +32,8 @@ type Msg
     | InlineEditGrainSubmit
     | GrainContentChanged Grain String
     | InlineEditGrainContentChanged Grain String
-    | SetGrainContentWithNow Grain String Posix
-    | SetGrainDeletedWithNow Grain Bool Posix
+    | SetGrainContentWithNow GrainId String Posix
+    | SetGrainDeletedWithNow GrainId Bool Posix
     | ToastDismiss
     | RouteTo Route
     | UrlChanged String
