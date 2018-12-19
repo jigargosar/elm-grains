@@ -26,7 +26,7 @@ modal { content, onDismiss } =
             ]
             []
         , div
-            [ SA.css
+            [ css
                 [ Css.minWidth <| Css.rem 15
                 , CS.absolute
                 , CS.bgWhite
