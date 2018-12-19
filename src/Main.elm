@@ -239,11 +239,15 @@ update message model =
                 Err errString ->
                     handleErrorString errString model
 
-                Ok ( grain, content, inlineEditGrain ) ->
-                    Return.singleton
+                Ok ( gid, content, inlineEditGrain ) ->
+                    Return.return
                         { model
                             | inlineEditGrain = inlineEditGrain
                         }
+                        (Task.perform
+                            (SetGrainContentWithNow gid content)
+                            Time.now
+                        )
 
         SetGrainContentWithNow gid content now ->
             case GrainStore.setContent now content gid model.grainStore of
