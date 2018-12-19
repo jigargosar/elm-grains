@@ -83,12 +83,12 @@ function getFireSubscriptions(app) {
       gcRef.doc(grain.id).set(grain)
       console.log(`fire: persistUpdatedGrain completed`)
     },
-    persistRemovedGrain: async grain => {
-      console.log(`fire: persistRemovedGrain started`, grain)
-      const gcRef = createCRef('grains')
-      gcRef.doc(grain.id).delete()
-      console.log(`fire: persistRemovedGrain completed`)
-    },
+    // persistRemovedGrain: async grain => {
+    //   console.log(`fire: persistRemovedGrain started`, grain)
+    //   const gcRef = createCRef('grains')
+    //   gcRef.doc(grain.id).delete()
+    //   console.log(`fire: persistRemovedGrain completed`)
+    // },
   }
 }
 
