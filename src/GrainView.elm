@@ -3,7 +3,7 @@ module GrainView exposing (autoFocusId, view)
 import BasicsX exposing (defaultEmptyStringTo, unwrapMaybe)
 import Browser.Dom
 import Css exposing (num, pct, px, zero)
-import CssLayout exposing (flexCol, flexColIC)
+import CssLayout exposing (flexCol)
 import CssShorthand as CS
 import CssTheme exposing (space2)
 import Grain exposing (Grain)

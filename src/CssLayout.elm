@@ -1,4 +1,4 @@
-module CssLayout exposing (flexCol, flexColIC, flexRow, flexRowIC)
+module CssLayout exposing (flexCol, flexRow)
 
 import Css
 import CssShorthand as CS
@@ -22,11 +22,3 @@ flexRow styles =
             :: Css.flexDirection Css.row
             :: styles
         )
-
-
-flexRowIC styles =
-    flexRow (CS.itemsCenter :: styles)
-
-
-flexColIC styles =
-    flexCol (CS.itemsCenter :: styles)

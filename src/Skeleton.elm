@@ -2,7 +2,7 @@ module Skeleton exposing (view)
 
 import BasicsX exposing (defaultEmptyStringTo)
 import Css exposing (num, pct, px, vh, vw)
-import CssLayout exposing (flexCol, flexColIC)
+import CssLayout exposing (flexCol)
 import CssShorthand as CS
 import CssTheme exposing (space2)
 import EventX

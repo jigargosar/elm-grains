@@ -12,7 +12,7 @@ import CssElements exposing (..)
 import CssElevation exposing (elevation)
 import CssHtml
 import CssIcons exposing (view)
-import CssLayout exposing (flexCol, flexRow, flexRowIC)
+import CssLayout exposing (flexCol, flexRow)
 import CssProto
 import CssShorthand as CS
 import CssTheme exposing (black80, blackAlpha, space2, space4, white)
@@ -419,7 +419,7 @@ viewAppBar { title, showBackBtn } authState =
                 Firebase.AuthStateNoUser ->
                     button [ class "btn", onClick SignIn ] [ text "SignIn" ]
     in
-    flexRowIC
+    CssLayout.flexRow
         [ CS.sticky
         , Css.top <| px 0
         , CS.p2 zero space2

@@ -9,7 +9,7 @@ import Browser.Dom
 import Css exposing (num, pct, px, rem, vh, vw, zero)
 import CssElements
 import CssIcons
-import CssLayout exposing (flexCol, flexColIC, flexRow, flexRowIC)
+import CssLayout exposing (flexCol, flexRow)
 import CssShorthand as CS
 import CssTheme exposing (black80, blackAlpha, space2, space4, white)
 import Grain exposing (Grain)
