@@ -4,7 +4,6 @@ module CssElements exposing
     , modelBackdropEl
     , modelContentEl
     , modelWrapperEl
-    , withClass
     )
 
 import Css exposing (num)

@@ -20,6 +20,8 @@ type Msg
     | FocusResult (Result String ())
     | LoadGrainStore Value
     | RestoreGrain Grain
+    | DeleteGrain Grain
+    | GrainMoreAction Msg
     | GrainMoreClicked Grain
     | CreateAndAddNewGrain
     | CreateAndAddNewGrainWithNow Posix
@@ -27,7 +29,6 @@ type Msg
     | BackPressed
     | GrainContentChanged Grain String
     | SetGrainContentWithNow Grain String Posix
-    | DeleteGrain Grain
     | SetGrainDeletedWithNow Grain Bool Posix
     | ToastDismiss
     | RouteTo Route

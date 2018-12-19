@@ -143,6 +143,10 @@ setNewSeed newSeed model =
     { model | seed = newSeed }
 
 
+closeCurrentPopup model =
+    { model | popup = NoPopup }
+
+
 
 ---- UPDATE ----
 
@@ -220,6 +224,10 @@ update message model =
             ( model
             , Task.perform (SetGrainDeletedWithNow grain False) Time.now
             )
+
+        GrainMoreAction msg ->
+            update msg model
+                |> Return.map closeCurrentPopup
 
         GrainMoreClicked grain ->
             Return.singleton { model | popup = GrainMoreMenu grain }
@@ -308,8 +316,55 @@ view model =
             [ viewAppBar routeVM model.authState ]
                 ++ viewRouteChildren model
                 ++ [ viewToast model.toast
+                   , viewPopup model.popup
                    ]
         }
+
+
+viewPopup popup =
+    case popup of
+        GrainMoreMenu grain ->
+            let
+                viewDelete g =
+                    let
+                        deleted =
+                            Grain.deleted g
+
+                        action =
+                            (ter deleted Msg.RestoreGrain Msg.DeleteGrain <|
+                                g
+                            )
+                                |> Msg.GrainMoreAction
+
+                        actionTitle =
+                            ter deleted "Restore" "Trash"
+
+                        icon =
+                            ter deleted CssIcons.restore CssIcons.delete
+                    in
+                    CssElements.iconBtnWithStyles [ CS.selfCenter ]
+                        [ onClick action
+                        ]
+                        [ CssIcons.view icon
+                        ]
+            in
+            CssElements.modelWrapperEl []
+                [ CssElements.modelBackdropEl [] []
+                , CssElements.modelContentEl []
+                    [ flexCol []
+                        []
+                        [ text "Grain Popup"
+                        , flexRow []
+                            []
+                            [ flexCol [] [] [ text "Delete" ]
+                            , viewDelete grain
+                            ]
+                        ]
+                    ]
+                ]
+
+        NoPopup ->
+            CssHtml.noView
 
 
 type alias RouteViewModel =
