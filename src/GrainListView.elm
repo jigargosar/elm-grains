@@ -34,7 +34,7 @@ type alias GrainListView =
 view : GrainListView -> List (Html Msg)
 view { grains, deleted } =
     [ flexCol
-        [ CS.p space2
+        [ CS.pa space2
         , Css.marginBottom <| rem 3
         ]
         []
@@ -61,7 +61,7 @@ viewFab =
             , Css.color white
             , CS.br_pill
             , Css.boxShadow4 (px 1) (px 1) (px 8) (blackAlpha 0.5)
-            , CS.p space2
+            , CS.pa space2
             ]
             [ onClick Msg.CreateAndAddNewGrain ]
             [ CssIcons.viewColorWhite CssIcons.add ]

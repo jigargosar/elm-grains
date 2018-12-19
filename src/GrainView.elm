@@ -33,7 +33,7 @@ viewGrain grain =
         [ Css.displayFlex
         , CS.flexGrow1
         , Css.resize Css.none
-        , CS.p space2
+        , CS.pa space2
         , Css.borderWidth zero
         ]
         [ id autoFocusId

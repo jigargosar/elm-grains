@@ -2,6 +2,7 @@ module CssShorthand exposing
     ( absFill
     , absolute
     , bgBlack20
+    , bgWhite
     , br_pill
     , ellipsis
     , fixed
@@ -20,9 +21,10 @@ module CssShorthand exposing
     , minWidth100VW
     , min_h_screen
     , overflowScroll
-    , p
     , p2
+    , pa
     , pointer
+    , pv
     , relative
     , row
     , rowCC
@@ -74,6 +76,10 @@ blackAlpha alpha =
 
 bgBlack20 =
     Css.backgroundColor black20
+
+
+bgWhite =
+    Css.backgroundColor <| Css.hex "fff"
 
 
 overflowScroll =
@@ -176,12 +182,16 @@ wpx pVal =
     Css.width <| px pVal
 
 
-p =
+pa =
     Css.padding
 
 
 p2 =
     Css.padding2
+
+
+pv unit =
+    Css.batch [ Css.paddingTop unit, Css.paddingBottom unit ]
 
 
 pointer =

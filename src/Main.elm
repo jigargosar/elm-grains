@@ -355,12 +355,11 @@ viewGrainMorePopup grain =
                 icon =
                     ter deleted CssIcons.restore CssIcons.delete
             in
-            flexRow []
-                []
+            flexRow [ CS.pointer, CS.p2 space2 zero ]
+                [ onClick action ]
                 [ flexCol [] [] [ text actionTitle ]
                 , CssElements.iconBtnWithStyles [ CS.selfCenter ]
-                    [ onClick action
-                    ]
+                    []
                     [ CssIcons.view icon
                     ]
                 ]

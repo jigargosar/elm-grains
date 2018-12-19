@@ -92,9 +92,9 @@ viewContent title =
         [ flexRow
             [ Css.flexGrow <| num 1
             , Css.justifyContent Css.center
-            , CS.p space2
+            , CS.pa space2
             ]
             []
             [ text title ]
-        , flexRow [ CS.p space2 ] [ class "pointer", onClick ToastDismiss ] [ text "X" ]
+        , flexRow [ CS.pa space2 ] [ class "pointer", onClick ToastDismiss ] [ text "X" ]
         ]
