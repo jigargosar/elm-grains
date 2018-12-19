@@ -91,7 +91,7 @@ type alias Model =
     , authState : Firebase.AuthState
     , actorId : ActorId
     , popup : Popup
-    , inlineEditGrain : Maybe GrainId
+    , inlineEditGrainId : Maybe GrainId
     , seed : Seed
     }
 
@@ -474,6 +474,9 @@ mapStateToGrainListView model =
     in
     { grains = grainList |> List.sortBy modifiedAtDesc
     , deleted = deletedGrainList |> List.sortBy modifiedAtDesc
+    , inlineEditGrain =
+        model.inlineEditGrainId
+            |> Maybe.andThen (grainById >> callWith model)
     }
 
 

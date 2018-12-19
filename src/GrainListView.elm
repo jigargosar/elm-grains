@@ -28,7 +28,10 @@ grainDomId =
 
 
 type alias GrainListView =
-    { grains : List Grain, deleted : List Grain }
+    { grains : List Grain
+    , deleted : List Grain
+    , inlineEditGrain : Maybe Grain
+    }
 
 
 view : GrainListView -> List (Html Msg)
