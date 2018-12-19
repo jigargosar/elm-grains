@@ -66,7 +66,7 @@ import Tuple exposing (mapFirst)
 
 
 type Popup
-    = GrainMoreMenu Grain
+    = GrainMorePopup GrainId
     | NoPopup
 
 
@@ -131,7 +131,7 @@ setAuthState authState model =
     { model | authState = authState }
 
 
-getGrain gid =
+grainById gid =
     .grainStore >> GrainStore.getById gid
 
 
@@ -230,7 +230,7 @@ update message model =
                 |> Return.map closeCurrentPopup
 
         GrainMoreClicked grain ->
-            Return.singleton { model | popup = GrainMoreMenu grain }
+            Return.singleton { model | popup = GrainMorePopup (Grain.id grain) }
 
         SetGrainDeletedWithNow grain bool now ->
             case GrainStore.setDeleted now bool grain model.grainStore of
@@ -316,55 +316,60 @@ view model =
             [ viewAppBar routeVM model.authState ]
                 ++ viewRouteChildren model
                 ++ [ viewToast model.toast
-                   , viewPopup model.popup
+                   , viewPopup model
                    ]
         }
 
 
-viewPopup popup =
-    case popup of
-        GrainMoreMenu grain ->
-            let
-                viewDelete g =
-                    let
-                        deleted =
-                            Grain.deleted g
-
-                        action =
-                            (ter deleted Msg.RestoreGrain Msg.DeleteGrain <|
-                                g
-                            )
-                                |> Msg.GrainMoreAction
-
-                        actionTitle =
-                            ter deleted "Restore" "Trash"
-
-                        icon =
-                            ter deleted CssIcons.restore CssIcons.delete
-                    in
-                    CssElements.iconBtnWithStyles [ CS.selfCenter ]
-                        [ onClick action
-                        ]
-                        [ CssIcons.view icon
-                        ]
-            in
-            CssElements.modelWrapperEl []
-                [ CssElements.modelBackdropEl [] []
-                , CssElements.modelContentEl []
-                    [ flexCol []
-                        []
-                        [ text "Grain Popup"
-                        , flexRow []
-                            []
-                            [ flexCol [] [] [ text "Delete" ]
-                            , viewDelete grain
-                            ]
-                        ]
-                    ]
-                ]
+viewPopup model =
+    case model.popup of
+        GrainMorePopup gid ->
+            grainById gid model
+                |> Maybe.unwrap CssHtml.noView viewGrainMorePopup
 
         NoPopup ->
             CssHtml.noView
+
+
+viewGrainMorePopup grain =
+    let
+        viewDelete g =
+            let
+                deleted =
+                    Grain.deleted g
+
+                action =
+                    (ter deleted Msg.RestoreGrain Msg.DeleteGrain <|
+                        g
+                    )
+                        |> Msg.GrainMoreAction
+
+                actionTitle =
+                    ter deleted "Restore" "Trash"
+
+                icon =
+                    ter deleted CssIcons.restore CssIcons.delete
+            in
+            flexRow []
+                []
+                [ flexCol [] [] [ text actionTitle ]
+                , CssElements.iconBtnWithStyles [ CS.selfCenter ]
+                    [ onClick action
+                    ]
+                    [ CssIcons.view icon
+                    ]
+                ]
+    in
+    CssElements.modelWrapperEl []
+        [ CssElements.modelBackdropEl [] []
+        , CssElements.modelContentEl []
+            [ flexCol []
+                []
+                [ text "Grain Popup"
+                , viewDelete grain
+                ]
+            ]
+        ]
 
 
 type alias RouteViewModel =
@@ -427,7 +432,7 @@ viewRouteChildren model =
             mapStateToGrainListView model |> GrainListView.view
 
         Route.Grain gid ->
-            getGrain gid model |> GrainView.view
+            grainById gid model |> GrainView.view
 
         Route.NotFound string ->
             NotFoundView.view
