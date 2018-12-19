@@ -363,12 +363,24 @@ viewGrainMorePopup grain =
                     [ CssIcons.view icon
                     ]
                 ]
+
+        viewEdit : Grain -> Html Msg
+        viewEdit g =
+            flexRow [ CS.pointer, CS.p2 space2 zero ]
+                [ onClick (Msg.GrainMoreAction <| Msg.routeToGrain g) ]
+                [ flexCol [] [] [ text "Edit" ]
+                , CssElements.iconBtnWithStyles [ CS.selfCenter ]
+                    []
+                    [ CssIcons.view CssIcons.modeEdit
+                    ]
+                ]
     in
     CssProto.modal
         { content =
             [ flexCol []
                 []
                 [ flexRow [ CS.justifyCenter ] [] [ text "Grain Menu" ]
+                , viewEdit grain
                 , viewDelete grain
                 ]
             ]

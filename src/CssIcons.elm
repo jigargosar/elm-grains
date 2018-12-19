@@ -1,6 +1,7 @@
 module CssIcons exposing
     ( add
     , delete
+    , modeEdit
     , moreHoriz
     , moreVert
     , restore
@@ -12,6 +13,7 @@ import Color
 import Html.Styled
 import Material.Icons.Action as MI
 import Material.Icons.Content as MI
+import Material.Icons.Editor as MI
 import Material.Icons.Navigation as MI
 
 
@@ -41,3 +43,7 @@ moreVert =
 
 moreHoriz =
     MI.more_horiz
+
+
+modeEdit =
+    MI.mode_edit

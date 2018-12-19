@@ -37,6 +37,7 @@
     ]
   },
   "dependencies": {
+    "clientjs": "^0.1.11",
     "firebase": "^5.7.0",
     "history": "^4.7.2",
     "ramda": "^0.25.0",
