@@ -13,6 +13,7 @@ import CssElevation exposing (elevation)
 import CssHtml
 import CssIcons exposing (view)
 import CssLayout exposing (flexCol, flexRow, flexRowIC)
+import CssProto
 import CssShorthand as CS
 import CssTheme exposing (black80, blackAlpha, space2, space4, white)
 import DecodeX exposing (DecodeResult)
@@ -143,7 +144,7 @@ setNewSeed newSeed model =
     { model | seed = newSeed }
 
 
-closeCurrentPopup model =
+dismissPopup model =
     { model | popup = NoPopup }
 
 
@@ -227,7 +228,11 @@ update message model =
 
         GrainMoreAction msg ->
             update msg model
-                |> Return.map closeCurrentPopup
+                |> Return.map dismissPopup
+
+        DismissPopup ->
+            dismissPopup model
+                |> Return.singleton
 
         GrainMoreClicked grain ->
             Return.singleton { model | popup = GrainMorePopup (Grain.id grain) }
@@ -360,16 +365,16 @@ viewGrainMorePopup grain =
                     ]
                 ]
     in
-    CssElements.modelWrapperEl []
-        [ CssElements.modelBackdropEl [] []
-        , CssElements.modelContentEl []
+    CssProto.modal
+        { content =
             [ flexCol []
                 []
-                [ text "Grain Popup"
+                [ flexRow [ CS.justifyCenter ] [] [ text "Grain Menu" ]
                 , viewDelete grain
                 ]
             ]
-        ]
+        , onDismiss = Msg.DismissPopup
+        }
 
 
 type alias RouteViewModel =

@@ -20,7 +20,7 @@ modelWrapperEl =
 
 
 modelBackdropEl =
-    withClass "absolute--fill"
+    withClass "absolute absolute--fill"
 
 
 modelContentEl =
