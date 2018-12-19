@@ -65,6 +65,11 @@ import Tuple exposing (mapFirst)
 ---- MODEL ----
 
 
+type Popup
+    = GrainMoreMenu Grain
+    | NoPopup
+
+
 type alias Flags =
     { now : Millis
     , windowSize : WindowSize
@@ -84,6 +89,7 @@ type alias Model =
     , route : Route
     , authState : Firebase.AuthState
     , actorId : ActorId
+    , popup : Popup
     , seed : Seed
     }
 
@@ -99,6 +105,7 @@ init flags =
                 |> Random.always (Route.fromString flags.url)
                 |> Random.always Firebase.initialAuthState
                 |> Random.with ActorId.generator
+                |> Random.always NoPopup
                 |> Random.finish
     in
     update (LoadGrainStore flags.grains) model
