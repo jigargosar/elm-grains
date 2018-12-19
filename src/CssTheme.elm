@@ -16,6 +16,10 @@ black80 =
     Css.rgba 0 0 0 0.8
 
 
+black20 =
+    Css.rgba 0 0 0 0.8
+
+
 blackAlpha alpha =
     Css.rgba 0 0 0 alpha
 

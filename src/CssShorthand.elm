@@ -1,7 +1,7 @@
 module CssShorthand exposing
     ( absFill
-    , abs__fill
     , absolute
+    , bgBlack20
     , br_pill
     , ellipsis
     , fixed
@@ -24,6 +24,8 @@ module CssShorthand exposing
     , p2
     , pointer
     , relative
+    , row
+    , rowCC
     , selfCenter
     , sticky
     , w_full
@@ -51,6 +53,27 @@ ellipsis =
         , Css.textOverflow Css.ellipsis
         , Css.whiteSpace Css.noWrap
         ]
+
+
+black80 =
+    Css.rgba 0 0 0 0.8
+
+
+black20 =
+    Css.rgba 0 0 0 0.8
+
+
+blackAlpha alpha =
+    Css.rgba 0 0 0 alpha
+
+
+
+--bgBlack80 =
+--    Css.backgroundColor black80
+
+
+bgBlack20 =
+    Css.backgroundColor black20
 
 
 overflowScroll =
@@ -141,6 +164,14 @@ flexGrow0 =
     Css.flexGrow <| num 0
 
 
+rowCC =
+    Css.batch [ row, itemsCenter, justifyCenter ]
+
+
+row =
+    Css.batch [ Css.displayFlex, Css.flexDirection Css.row ]
+
+
 wpx pVal =
     Css.width <| px pVal
 
@@ -161,14 +192,10 @@ absolute =
     Css.position Css.absolute
 
 
-abs__fill =
+absFill =
     [ Css.left, Css.right, Css.top, Css.bottom ]
         |> List.map (callWith <| px 0)
         |> Css.batch
-
-
-absFill =
-    Css.batch [ Css.position Css.absolute, abs__fill ]
 
 
 relative =
