@@ -486,8 +486,11 @@ mapStateToGrainListView model =
 
         modifiedAtDesc =
             Grain.modifiedAt >> Time.posixToMillis >> negate
+
+        createdAtAtDesc =
+            Grain.createdAt >> Time.posixToMillis >> negate
     in
-    { grains = grainList |> List.sortBy modifiedAtDesc
+    { grains = grainList |> List.sortBy createdAtAtDesc
     , deleted = deletedGrainList |> List.sortBy modifiedAtDesc
     , isEditing = \g -> Maybe.unwrap False (Grain.eqById g) (inlineEditGrain model)
     }
