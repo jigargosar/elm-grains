@@ -150,6 +150,11 @@ dismissPopup model =
     { model | popup = NoPopup }
 
 
+inlineEditGrain model =
+    model.inlineEditGrainId
+        |> Maybe.andThen (grainById >> callWith model)
+
+
 
 ---- UPDATE ----
 
@@ -474,9 +479,7 @@ mapStateToGrainListView model =
     in
     { grains = grainList |> List.sortBy modifiedAtDesc
     , deleted = deletedGrainList |> List.sortBy modifiedAtDesc
-    , inlineEditGrain =
-        model.inlineEditGrainId
-            |> Maybe.andThen (grainById >> callWith model)
+    , inlineEditGrain = inlineEditGrain model
     }
 
 
