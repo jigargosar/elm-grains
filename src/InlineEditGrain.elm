@@ -1,6 +1,7 @@
 module InlineEditGrain exposing
     ( InlineEditGrain
-    , edit
+    , init
+    , initFor
     , maybeContentFor
     , maybeGid
     , none
@@ -27,10 +28,17 @@ none =
     NotEditing
 
 
-edit grain =
+initFor grain =
     Editing
         { gid = Grain.id grain
         , content = Grain.content grain
+        }
+
+
+init gid content =
+    Editing
+        { gid = gid
+        , content = content
         }
 
 

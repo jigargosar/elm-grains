@@ -212,12 +212,16 @@ update message model =
             )
 
         InlineEditGrainContentChanged grain content ->
-            Return.singleton { model | inlineEditGrain = InlineEditGrain.none }
+            Return.singleton
+                { model
+                    | inlineEditGrain =
+                        InlineEditGrain.init (Grain.id grain) content
+                }
 
         InlineEditGrain grain ->
             Return.singleton
                 { model
-                    | inlineEditGrain = InlineEditGrain.edit grain
+                    | inlineEditGrain = InlineEditGrain.initFor grain
                 }
                 |> Return.command
                     (BrowserX.focus FocusResult <|
