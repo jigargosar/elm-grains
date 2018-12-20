@@ -96,6 +96,14 @@ canEditNodeContent =
     nodeDeleted >> not
 
 
+nodeTitle =
+    nodeGrain >> Grain.titleOrEmpty
+
+
+nodeInlineEditInputId =
+    nodeGrain >> inlineGrainEditInputDomId
+
+
 nodeDragMsg =
     nodeGrain >> Msg.DragGrain
 
@@ -106,14 +114,6 @@ nodeInlineEditMsg =
 
 nodeMoreClicked =
     nodeGrain >> Msg.GrainMoreClicked
-
-
-nodeTitle =
-    nodeGrain >> Grain.titleOrEmpty
-
-
-nodeInlineEditInputId =
-    nodeGrain >> inlineGrainEditInputDomId
 
 
 nodeInlineEditInputContentChanged =
@@ -214,7 +214,6 @@ viewTitle node =
         , CS.flex11Auto
         , CS.ellipsis
         ]
-        --                [ onClick <| Msg.routeToGrain g ]
         [ attrIf canEdit (onClick <| nodeInlineEditMsg node) ]
         [ text title ]
 
@@ -268,9 +267,6 @@ viewEditingItem content node =
 
         level =
             nodeLevel node |> toFloat
-
-        deleted =
-            nodeDeleted node
     in
     styled div
         [ Css.displayFlex
