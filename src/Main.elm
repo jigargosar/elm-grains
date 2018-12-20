@@ -301,6 +301,9 @@ update message model =
         GrainMoreClicked grain ->
             Return.singleton { model | popup = GrainMorePopup (Grain.id grain) }
 
+        DragGrain grain ->
+            Return.singleton model
+
         SetGrainDeletedWithNow gid bool now ->
             case GrainStore.setDeleted now bool gid model.grainStore of
                 Err errString ->

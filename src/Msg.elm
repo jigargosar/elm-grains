@@ -28,6 +28,7 @@ type Msg
     | PopupActionMoveGrainUp Grain
     | PopupActionMoveGrainDown Grain
     | GrainMoreClicked Grain
+    | DragGrain Grain
     | CreateAndAddNewGrain
     | CreateAndAddNewGrainWithNow Posix
     | AddNewGrain Grain

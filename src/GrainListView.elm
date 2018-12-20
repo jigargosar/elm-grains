@@ -98,7 +98,7 @@ viewGrainItems getChildren inlineEditGrain level list =
                     Grain.deleted g |> not
             in
             styled div
-                [ CS.p2 space2 zero
+                [ CS.pa space2
                 , CS.styleIf canEdit CS.pointer
                 , CS.flex11Auto
                 , CS.ellipsis
@@ -112,6 +112,13 @@ viewGrainItems getChildren inlineEditGrain level list =
                 [ onClick (Msg.GrainMoreClicked g)
                 ]
                 [ CssIcons.view CssIcons.moreHoriz
+                ]
+
+        viewDragHandle g =
+            CssElements.iconBtnWithStyles [ CS.selfCenter ]
+                [ onClick (Msg.DragGrain g)
+                ]
+                [ CssIcons.view CssIcons.dragHandle
                 ]
 
         viewDisplayItem currentLevel g =
@@ -130,7 +137,8 @@ viewGrainItems getChildren inlineEditGrain level list =
                 , Css.paddingLeft <| px (currentLevel * 16)
                 ]
                 []
-                [ viewTitle g
+                [ viewDragHandle g
+                , viewTitle g
                 , viewRightMenu g
                 ]
 
