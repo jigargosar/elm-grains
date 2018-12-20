@@ -69,6 +69,7 @@ import Tuple exposing (mapFirst)
 
 type Popup
     = GrainMorePopup GrainId
+    | GrainMovePopup GrainId
     | NoPopup
 
 
@@ -270,7 +271,7 @@ update message model =
                 |> Return.map dismissPopup
 
         ShowMoveToPopup grain ->
-            Return.singleton model
+            Return.singleton { model | popup = GrainMovePopup (Grain.id grain) }
 
         DismissPopup ->
             dismissPopup model
@@ -380,8 +381,24 @@ viewPopup model =
             grainById gid model
                 |> Maybe.unwrap CssHtml.noView viewGrainMorePopup
 
+        GrainMovePopup gid ->
+            grainById gid model
+                |> Maybe.unwrap CssHtml.noView viewGrainMovePopup
+
         NoPopup ->
             CssHtml.noView
+
+
+viewGrainMovePopup grain =
+    CssProto.modal
+        { content =
+            [ flexCol []
+                []
+                [ flexRow [ CS.justifyCenter ] [] [ text "Move Grain" ]
+                ]
+            ]
+        , onDismiss = Msg.DismissPopup
+        }
 
 
 viewGrainMorePopup grain =
@@ -399,7 +416,7 @@ viewGrainMorePopup grain =
 
         viewMoveTo g =
             flexRow [ CS.pointer, CS.p2 space2 zero ]
-                [ onClick (Msg.GrainMoreAction <| Msg.ShowMoveToPopup g) ]
+                [ onClick (Msg.ShowMoveToPopup g) ]
                 [ flexCol [] [] [ text "Move To..." ]
                 , CssElements.iconBtnWithStyles [ CS.selfCenter ]
                     []
