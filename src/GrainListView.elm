@@ -45,15 +45,100 @@ type alias GrainListView =
     }
 
 
+type alias NodeModel =
+    { grain : Grain
+    , domId : String
+    , level : Int
+    , maybeEditContent : Maybe String
+    , children : List Node
+    }
+
+
+type Node
+    = Node NodeModel
+
+
+nodeDomId (Node model) =
+    model.domId
+
+
+nodeLevel (Node model) =
+    model.level
+
+
+nodeDeleted (Node model) =
+    model.grain |> Grain.deleted
+
+
+type alias Forest =
+    List Node
+
+
+getChildNodes (Node model) =
+    model.children
+
+
+maybeNodeEditContent (Node model) =
+    model.maybeEditContent
+
+
+canEditNodeContent =
+    nodeDeleted >> not
+
+
+nodeDragMsg (Node model) =
+    Msg.DragGrain model.grain
+
+
+nodeInlineEditMsg (Node model) =
+    Msg.InlineEditGrain model.grain
+
+
+nodeMoreClicked (Node model) =
+    Msg.GrainMoreClicked model.grain
+
+
+nodeTitle (Node model) =
+    Grain.titleOrEmpty model.grain
+
+
+nodeInlineEditInputId (Node model) =
+    inlineGrainEditInputDomId model.grain
+
+
+nodeInlineEditInputContentChanged (Node model) =
+    Msg.InlineEditGrainContentChanged model.grain
+
+
 view : GrainListView -> List (Html Msg)
 view { grains, inlineEditGrain, getChildren } =
+    let
+        createNode : Int -> Grain -> Node
+        createNode level g =
+            let
+                nodeModel : NodeModel
+                nodeModel =
+                    { grain = g
+                    , domId = grainDomId g
+                    , level = level
+                    , maybeEditContent =
+                        InlineEditGrain.maybeContentFor g inlineEditGrain
+                    , children = getChildren g |> List.map (createNode (level + 1))
+                    }
+            in
+            Node nodeModel
+
+        forest : Forest
+        forest =
+            List.map (createNode 0) grains
+    in
     [ CssHtml.keyedDiv
         [ css
             [ CS.pa space2
             , Css.marginBottom <| rem 3
             ]
         ]
-        (viewGrainItems getChildren inlineEditGrain 0 grains)
+        (viewGrainItems forest)
     , viewFab
     ]
 
@@ -87,28 +172,29 @@ grainDisplayTitle =
     Grain.titleOrEmpty >> defaultEmptyStringTo "<empty>"
 
 
-viewGrainItems getChildren inlineEditGrain level list =
+viewGrainItems : Forest -> List ( String, Html Msg )
+viewGrainItems forest =
     let
-        viewItem currentLevel g =
-            InlineEditGrain.maybeContentFor g inlineEditGrain
+        viewItem node =
+            maybeNodeEditContent node
                 |> Maybe.unwrap viewDisplayItem viewEditingItem
-                |> callWith2 currentLevel g
+                |> callWith node
 
-        viewKeyedItem currentLevel g =
-            ( grainDomId g, viewItem currentLevel g )
-                :: List.concatMap (viewKeyedItem (currentLevel + 1))
-                    (getChildren g)
+        viewKeyedItem node =
+            ( nodeDomId node, viewItem node )
+                :: List.concatMap viewKeyedItem
+                    (getChildNodes node)
     in
-    List.concatMap (viewKeyedItem level) list
+    List.concatMap viewKeyedItem forest
 
 
-viewTitle g =
+viewTitle node =
     let
         title =
-            grainDisplayTitle g
+            nodeTitle node
 
         canEdit =
-            Grain.deleted g |> not
+            canEditNodeContent node
     in
     styled div
         [ CS.pa space2
@@ -117,30 +203,33 @@ viewTitle g =
         , CS.ellipsis
         ]
         --                [ onClick <| Msg.routeToGrain g ]
-        [ attrIf canEdit (onClick <| Msg.InlineEditGrain g) ]
+        [ attrIf canEdit (onClick <| nodeInlineEditMsg node) ]
         [ text title ]
 
 
-viewRightMenu g =
+viewRightMenu node =
     CssElements.iconBtnWithStyles [ CS.selfCenter ]
-        [ onClick (Msg.GrainMoreClicked g)
+        [ onClick (nodeMoreClicked node)
         ]
         [ CssIcons.view CssIcons.moreHoriz
         ]
 
 
-viewDragHandle g =
+viewDragHandle node =
     CssElements.iconBtnWithStyles [ CS.selfCenter, CS.move ]
-        [ onClick (Msg.DragGrain g)
+        [ onClick (nodeDragMsg node)
         ]
         [ CssIcons.view CssIcons.dragHandle
         ]
 
 
-viewDisplayItem currentLevel g =
+viewDisplayItem node =
     let
+        level =
+            nodeLevel node |> toFloat
+
         deleted =
-            Grain.deleted g
+            nodeDeleted node
 
         opacityValue =
             ter deleted 0.7 1
@@ -150,33 +239,39 @@ viewDisplayItem currentLevel g =
         , Css.flexDirection Css.row
         , Css.maxWidth <| pct 100
         , Css.opacity <| num opacityValue
-        , Css.paddingLeft <| px (currentLevel * 16)
+        , Css.paddingLeft <| px (level * 16)
         ]
         []
-        [ viewDragHandle g
-        , viewTitle g
-        , viewRightMenu g
+        [ viewDragHandle node
+        , viewTitle node
+        , viewRightMenu node
         ]
 
 
-viewEditingItem content currentLevel g =
+viewEditingItem content node =
     let
         bindings =
             [ ( HotKey.enter, ( Msg.InlineEditGrainSubmit, True ) )
             ]
+
+        level =
+            nodeLevel node |> toFloat
+
+        deleted =
+            nodeDeleted node
     in
     styled div
         [ Css.displayFlex
         , Css.flexDirection Css.row
         , Css.maxWidth <| pct 100
         , CS.pv space2
-        , Css.paddingLeft <| px (currentLevel * 16)
+        , Css.paddingLeft <| px (level * 16)
         ]
         []
         [ textarea
-            [ id <| inlineGrainEditInputDomId g
+            [ id <| nodeInlineEditInputId node
             , value <| content
-            , onInput <| Msg.InlineEditGrainContentChanged g
+            , onInput <| nodeInlineEditInputContentChanged node
             , CssEventX.onKeyDownPD <|
                 HotKey.bindEachToMsg bindings
             , autocomplete False
