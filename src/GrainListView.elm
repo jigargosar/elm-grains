@@ -127,6 +127,7 @@ viewGrainItems getChildren inlineEditGrain level list =
                 , Css.flexDirection Css.row
                 , Css.maxWidth <| pct 100
                 , Css.opacity <| num opacityValue
+                , Css.paddingLeft <| px (currentLevel * 16)
                 ]
                 []
                 [ viewTitle g
@@ -144,6 +145,7 @@ viewGrainItems getChildren inlineEditGrain level list =
                 , Css.flexDirection Css.row
                 , Css.maxWidth <| pct 100
                 , CS.pv space2
+                , Css.paddingLeft <| px (currentLevel * 16)
                 ]
                 []
                 [ textarea
