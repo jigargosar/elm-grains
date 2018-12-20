@@ -57,16 +57,24 @@ type Node
     = Node NodeModel
 
 
-nodeDomId (Node model) =
-    model.grain |> grainDomId
+nodeModel (Node model) =
+    model
 
 
-nodeLevel (Node model) =
-    model.level
+nodeGrain =
+    nodeModel >> .grain
 
 
-nodeDeleted (Node model) =
-    model.grain |> Grain.deleted
+nodeDomId =
+    nodeGrain >> grainDomId
+
+
+nodeLevel =
+    nodeModel >> .level
+
+
+nodeDeleted =
+    nodeGrain >> Grain.deleted
 
 
 type alias Forest =
@@ -83,10 +91,6 @@ maybeNodeEditContent (Node model) =
 
 canEditNodeContent =
     nodeDeleted >> not
-
-
-nodeGrain (Node model) =
-    model.grain
 
 
 nodeGid =
@@ -123,8 +127,8 @@ view { grains, inlineEditGrain, getChildren } =
         createNode : Int -> Grain -> Node
         createNode level g =
             let
-                nodeModel : NodeModel
-                nodeModel =
+                newNodeModel : NodeModel
+                newNodeModel =
                     { grain = g
                     , level = level
                     , maybeEditContent =
@@ -132,7 +136,7 @@ view { grains, inlineEditGrain, getChildren } =
                     , children = getChildren g |> List.map (createNode (level + 1))
                     }
             in
-            Node nodeModel
+            Node newNodeModel
 
         forest : Forest
         forest =
