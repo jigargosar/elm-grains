@@ -405,9 +405,17 @@ grainMovePopupViewModel model grain =
 viewGrainMovePopup { grain, otherGrains } =
     let
         viewGrainItem g =
-            flexRow [ CS.ellipsis ]
+            flexCol
+                [ CS.pointer
+                , Css.hover
+                    [ Css.property "background-color" "lightgray"
+                    ]
+                ]
                 []
-                [ text <| Grain.titleOrEmpty g
+                [ flexRow [ CS.ellipsis ]
+                    []
+                    [ text <| Grain.titleOrEmpty g
+                    ]
                 ]
     in
     CssProto.modal
