@@ -593,13 +593,16 @@ toGrainListView model =
         allGrains =
             model.grainStore |> GrainStore.allAsList
 
+        rootGrains =
+            allGrains |> List.filter (Grain.parentIdEq Grain.rootParentId)
+
         modifiedAtDesc =
             Grain.modifiedAt >> Time.posixToMillis >> negate
 
         createdAtAtDesc =
             Grain.createdAt >> Time.posixToMillis >> negate
     in
-    { grains = allGrains
+    { grains = rootGrains
     , inlineEditGrain = model.inlineEditGrain
     }
 

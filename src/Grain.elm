@@ -15,6 +15,8 @@ module Grain exposing
     , idEq
     , isParentOf
     , modifiedAt
+    , parentIdEq
+    , rootParentId
     , titleOrEmpty
     , toDomIdWithPrefix
     , update
@@ -35,6 +37,11 @@ import TimeX
 type ParentId
     = ParentId GrainId
     | RootId
+
+
+rootParentId : ParentId
+rootParentId =
+    RootId
 
 
 defaultParentId : ParentId
@@ -137,6 +144,10 @@ id =
 
 idEq gid =
     id >> eqs gid
+
+
+parentIdEq pid =
+    parentId >> eqs pid
 
 
 eqById g2 =
