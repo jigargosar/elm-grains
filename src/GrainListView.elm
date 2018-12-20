@@ -57,6 +57,10 @@ type Node
     = Node NodeModel
 
 
+type alias Forest =
+    List Node
+
+
 nodeModel (Node model) =
     model
 
@@ -77,16 +81,12 @@ nodeDeleted =
     nodeGrain >> Grain.deleted
 
 
-type alias Forest =
-    List Node
+nodeChildren =
+    nodeModel >> .children
 
 
-getChildNodes (Node model) =
-    model.children
-
-
-maybeNodeEditContent (Node model) =
-    model.maybeEditContent
+maybeNodeEditContent =
+    nodeModel >> .maybeEditContent
 
 
 canEditNodeContent =
@@ -193,7 +193,7 @@ viewGrainItems forest =
         viewKeyedItem node =
             ( nodeDomId node, viewItem node )
                 :: List.concatMap viewKeyedItem
-                    (getChildNodes node)
+                    (nodeChildren node)
     in
     List.concatMap viewKeyedItem forest
 
