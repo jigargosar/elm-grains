@@ -2,7 +2,6 @@ module Grain exposing
     ( Grain
     , Update(..)
     , content
-    , contentOrEmpty
     , createdAt
     , decoder
     , deleted
@@ -13,6 +12,7 @@ module Grain exposing
     , idEq
     , idString
     , modifiedAt
+    , titleOrEmpty
     , toDomIdWithPrefix
     , update
     )
@@ -114,7 +114,7 @@ titleFromContent =
         >> Maybe.map String.trim
 
 
-contentOrEmpty =
+titleOrEmpty =
     content >> titleFromContent >> Maybe.withDefault ""
 
 

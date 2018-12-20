@@ -28,6 +28,7 @@ modal { content, onDismiss } =
         , div
             [ css
                 [ Css.minWidth <| Css.rem 15
+                , CS.max_w_full
                 , CS.absolute
                 , CS.bgWhite
                 , CS.pa space2

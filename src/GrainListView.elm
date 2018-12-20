@@ -86,7 +86,7 @@ viewFab =
 
 
 grainDisplayTitle =
-    Grain.contentOrEmpty >> defaultEmptyStringTo "<empty>"
+    Grain.titleOrEmpty >> defaultEmptyStringTo "<empty>"
 
 
 viewGrainItems inlineEditGrain list =

@@ -403,11 +403,19 @@ grainMovePopupViewModel model grain =
 
 
 viewGrainMovePopup { grain, otherGrains } =
+    let
+        viewGrainItem g =
+            flexRow [ CS.ellipsis ]
+                []
+                [ text <| Grain.titleOrEmpty g
+                ]
+    in
     CssProto.modal
         { content =
             [ flexCol []
                 []
                 [ flexRow [ CS.justifyCenter ] [] [ text "Move Grain" ]
+                , flexCol [] [] (List.map viewGrainItem otherGrains)
                 ]
             ]
         , onDismiss = Msg.DismissPopup
