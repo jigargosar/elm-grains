@@ -26,6 +26,7 @@ type Msg
     | DismissPopup
     | PopupActionSetGrainParent Grain Grain.ParentId
     | PopupActionMoveGrainUp Grain
+    | PopupActionMoveGrainDown Grain
     | GrainMoreClicked Grain
     | CreateAndAddNewGrain
     | CreateAndAddNewGrainWithNow Posix

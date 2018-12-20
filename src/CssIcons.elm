@@ -1,5 +1,6 @@
 module CssIcons exposing
     ( add
+    , arrowDown
     , arrowUp
     , delete
     , dragHandle
@@ -57,3 +58,7 @@ dragHandle =
 
 arrowUp =
     MI.arrow_upward
+
+
+arrowDown =
+    MI.arrow_downward

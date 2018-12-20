@@ -287,6 +287,13 @@ update message model =
                 Time.now
             )
 
+        PopupActionMoveGrainDown grain ->
+            ( dismissPopup model
+            , Task.perform
+                (MoveGrainBy (Grain.id grain) 1)
+                Time.now
+            )
+
         DismissPopup ->
             dismissPopup model
                 |> Return.singleton
@@ -532,7 +539,17 @@ viewGrainMorePopup grain =
                     ]
                 ]
 
-        viewMoveUnder g =
+        viewMoveDown g =
+            flexRow [ CS.pointer, CS.p2 space2 zero ]
+                [ onClick (Msg.PopupActionMoveGrainDown g) ]
+                [ flexCol [] [] [ text "Move Down" ]
+                , CssElements.iconBtnWithStyles [ CS.selfCenter ]
+                    []
+                    [ CssIcons.view CssIcons.arrowDown
+                    ]
+                ]
+
+        viewNestUnder g =
             flexRow [ CS.pointer, CS.p2 space2 zero ]
                 [ onClick (Msg.ShowMoveToPopup g) ]
                 [ flexCol [] [] [ text "Nest Under..." ]
@@ -575,7 +592,8 @@ viewGrainMorePopup grain =
                 [ flexRow [ CS.justifyCenter ] [] [ text "Grain Menu" ]
                 , viewEdit grain
                 , viewMoveUp grain
-                , viewMoveUnder grain
+                , viewMoveDown grain
+                , viewNestUnder grain
                 , viewDelete grain
                 ]
             ]
