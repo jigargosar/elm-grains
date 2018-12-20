@@ -47,7 +47,6 @@ type alias GrainListView =
 
 type alias NodeModel =
     { grain : Grain
-    , domId : String
     , level : Int
     , maybeEditContent : Maybe String
     , children : List Node
@@ -59,7 +58,7 @@ type Node
 
 
 nodeDomId (Node model) =
-    model.domId
+    model.grain |> grainDomId
 
 
 nodeLevel (Node model) =
@@ -119,7 +118,6 @@ view { grains, inlineEditGrain, getChildren } =
                 nodeModel : NodeModel
                 nodeModel =
                     { grain = g
-                    , domId = grainDomId g
                     , level = level
                     , maybeEditContent =
                         InlineEditGrain.maybeContentFor g inlineEditGrain
