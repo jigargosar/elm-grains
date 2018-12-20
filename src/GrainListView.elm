@@ -93,28 +93,28 @@ nodeGid =
     nodeGrain >> Grain.id
 
 
-nodeDragMsg (Node model) =
-    Msg.DragGrain model.grain
+nodeDragMsg =
+    nodeGrain >> Msg.DragGrain
 
 
-nodeInlineEditMsg (Node model) =
-    Msg.InlineEditGrain model.grain
+nodeInlineEditMsg =
+    nodeGrain >> Msg.InlineEditGrain
 
 
-nodeMoreClicked (Node model) =
-    Msg.GrainMoreClicked model.grain
+nodeMoreClicked =
+    nodeGrain >> Msg.GrainMoreClicked
 
 
-nodeTitle (Node model) =
-    Grain.titleOrEmpty model.grain
+nodeTitle =
+    nodeGrain >> Grain.titleOrEmpty
 
 
-nodeInlineEditInputId (Node model) =
-    inlineGrainEditInputDomId model.grain
+nodeInlineEditInputId =
+    nodeGrain >> inlineGrainEditInputDomId
 
 
-nodeInlineEditInputContentChanged (Node model) =
-    Msg.InlineEditGrainContentChanged model.grain
+nodeInlineEditInputContentChanged =
+    nodeGrain >> Msg.InlineEditGrainContentChanged
 
 
 view : GrainListView -> List (Html Msg)
