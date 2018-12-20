@@ -49,20 +49,23 @@ type alias NodeModel =
     { grain : Grain
     , level : Int
     , maybeEditContent : Maybe String
-    , children : List Node
     }
 
 
 type Node
-    = Node NodeModel
+    = Node NodeModel Forest
 
 
 type alias Forest =
     List Node
 
 
-nodeModel (Node model) =
+nodeModel (Node model children) =
     model
+
+
+nodeChildren (Node model children) =
+    children
 
 
 nodeGrain =
@@ -71,10 +74,6 @@ nodeGrain =
 
 nodeLevel =
     nodeModel >> .level
-
-
-nodeChildren =
-    nodeModel >> .children
 
 
 maybeNodeEditContent =
@@ -133,10 +132,13 @@ view { grains, inlineEditGrain, getChildren } =
                     , level = level
                     , maybeEditContent =
                         InlineEditGrain.maybeContentFor g inlineEditGrain
-                    , children = getChildren g |> List.map (createNode (level + 1))
                     }
+
+                children : Forest
+                children =
+                    getChildren g |> List.map (createNode (level + 1))
             in
-            Node newNodeModel
+            Node newNodeModel children
 
         forest : Forest
         forest =
