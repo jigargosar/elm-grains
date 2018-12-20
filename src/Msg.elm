@@ -46,8 +46,6 @@ type Msg
     | InlineEditGrainSubmit
     | GrainContentChanged Grain String
     | InlineEditGrainContentChanged Grain String
-    | SetGrainParentIdWithNow GrainId Grain.ParentId Posix
-    | MoveGrainByWithNow GrainId Int Posix
     | ToastDismiss
     | RouteTo Route
     | UrlChanged String
