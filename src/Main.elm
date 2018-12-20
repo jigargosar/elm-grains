@@ -265,7 +265,7 @@ update message model =
         PopupActionSetGrainParent grain parentId ->
             ( dismissPopup model
             , Task.perform
-                (SetGrainParentWithNow (Grain.id grain) parentId)
+                (SetGrainParentIdWithNow (Grain.id grain) parentId)
                 Time.now
             )
 
@@ -305,7 +305,17 @@ update message model =
                         (GrainStore.setDeleted now deleted gid)
                         model
 
-        SetGrainParentWithNow gid parentId now ->
+                Msg.SetGrainParentId parentId ->
+                    updateGrainAndHandleResult
+                        (GrainStore.setParentId now parentId gid)
+                        model
+
+                Msg.MoveGrainBy offset ->
+                    updateGrainAndHandleResult
+                        (GrainStore.moveBy now offset gid)
+                        model
+
+        SetGrainParentIdWithNow gid parentId now ->
             updateGrainAndHandleResult
                 (GrainStore.setParentId now parentId gid)
                 model
