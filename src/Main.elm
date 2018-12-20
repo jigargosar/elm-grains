@@ -603,6 +603,7 @@ toGrainListView model =
             Grain.createdAt >> Time.posixToMillis >> negate
     in
     { grains = rootGrains
+    , getChildren = \grain -> List.filter (Grain.isChildOf grain) allGrains
     , inlineEditGrain = model.inlineEditGrain
     }
 

@@ -13,6 +13,7 @@ module Grain exposing
     , idAsParentId
     , idAsString
     , idEq
+    , isChildOf
     , isParentOf
     , modifiedAt
     , parentIdEq
@@ -168,6 +169,10 @@ idAsParentId =
 
 isParentOf child =
     idAsParentId >> eqs (parentId child)
+
+
+isChildOf parent =
+    parentIdEq (idAsParentId parent)
 
 
 parentId =

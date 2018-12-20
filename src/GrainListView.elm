@@ -40,19 +40,20 @@ inlineGrainEditInputDomId =
 
 type alias GrainListView =
     { grains : List Grain
+    , getChildren : Grain -> List Grain
     , inlineEditGrain : InlineEditGrain
     }
 
 
 view : GrainListView -> List (Html Msg)
-view { grains, inlineEditGrain } =
+view { grains, inlineEditGrain, getChildren } =
     [ CssHtml.keyedDiv
         [ css
             [ CS.pa space2
             , Css.marginBottom <| rem 3
             ]
         ]
-        (viewGrainItems inlineEditGrain grains)
+        (viewGrainItems getChildren inlineEditGrain grains)
     , viewFab
     ]
 
@@ -86,7 +87,7 @@ grainDisplayTitle =
     Grain.titleOrEmpty >> defaultEmptyStringTo "<empty>"
 
 
-viewGrainItems inlineEditGrain list =
+viewGrainItems getChildren inlineEditGrain list =
     let
         viewTitle g =
             let
