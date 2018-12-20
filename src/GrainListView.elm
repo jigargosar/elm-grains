@@ -53,7 +53,7 @@ view { grains, inlineEditGrain, getChildren } =
             , Css.marginBottom <| rem 3
             ]
         ]
-        (viewGrainItems getChildren inlineEditGrain grains)
+        (viewGrainItems getChildren inlineEditGrain 0 grains)
     , viewFab
     ]
 
@@ -87,7 +87,7 @@ grainDisplayTitle =
     Grain.titleOrEmpty >> defaultEmptyStringTo "<empty>"
 
 
-viewGrainItems getChildren inlineEditGrain list =
+viewGrainItems getChildren inlineEditGrain level list =
     let
         viewTitle g =
             let
