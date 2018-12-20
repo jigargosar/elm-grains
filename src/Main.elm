@@ -36,6 +36,7 @@ import InlineEditGrain exposing (InlineEditGrain)
 import Json.Decode as D
 import Json.Decode.Pipeline exposing (optional)
 import Json.Encode as E exposing (Value)
+import Lazy.Tree
 import List.Extra as List
 import ListIndex exposing (ListIndex)
 import Material.Icons.Action as MIcons
@@ -409,6 +410,15 @@ grainMovePopupViewModel model grain =
     let
         allGrains =
             model.grainStore |> GrainStore.allAsList
+
+        grainForest =
+            Lazy.Tree.fromList
+                (\maybeParent child ->
+                    Maybe.unwrap False
+                        (Grain.isParentOf child)
+                        maybeParent
+                )
+                allGrains
     in
     { grain = grain
     , otherGrains =
