@@ -411,6 +411,9 @@ grainMovePopupViewModel model grain =
         allGrains =
             model.grainStore |> GrainStore.allAsList
 
+        getAncestorIds g =
+            GrainStore.getAncestorIds g model.grainStore
+
         grainForest =
             Lazy.Tree.fromList
                 (\maybeParent child ->

@@ -3,6 +3,7 @@ module GrainStore exposing
     , addNewGrain
     , allAsList
     , empty
+    , getAncestorIds
     , getById
     , loadCache
     , onFirebaseChanges
@@ -48,6 +49,16 @@ allAsList =
 getById : GrainId -> GrainStore -> Maybe Grain
 getById gid =
     GrainDict.get gid
+
+
+getAncestorIds grain model =
+    getAncestorIdsHelp [] grain model
+
+
+getAncestorIdsHelp ids grain model =
+    Grain.parentIdAsGrainId grain
+        |> Maybe.andThen (getById >> callWith model)
+        |> Maybe.unwrap ids (getAncestorIdsHelp ids >> callWith model)
 
 
 

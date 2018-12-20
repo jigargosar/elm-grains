@@ -16,6 +16,7 @@ module Grain exposing
     , isChildOf
     , isParentOf
     , modifiedAt
+    , parentIdAsGrainId
     , parentIdEq
     , rootParentId
     , titleOrEmpty
@@ -173,6 +174,15 @@ isParentOf child =
 
 isChildOf =
     flip isParentOf
+
+
+parentIdAsGrainId grain =
+    case parentId grain of
+        ParentId gid ->
+            Just gid
+
+        RootId ->
+            Nothing
 
 
 parentId =
