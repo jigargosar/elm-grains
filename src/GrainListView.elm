@@ -253,8 +253,10 @@ viewDisplayItem node =
         , Css.paddingLeft <| px (level * 16)
         ]
         []
-        [ viewDragHandle node
-        , viewTitle node
+        [ {- viewDragHandle node
+             ,
+          -}
+          viewTitle node
         , viewRightMenu node
         ]
 
