@@ -280,6 +280,13 @@ update message model =
                 Time.now
             )
 
+        PopupActionMoveGrainUp grain ->
+            ( dismissPopup model
+            , Task.perform
+                (MoveGrainUp (Grain.id grain))
+                Time.now
+            )
+
         DismissPopup ->
             dismissPopup model
                 |> Return.singleton
@@ -297,6 +304,14 @@ update message model =
 
         SetGrainParentWithNow gid parentId now ->
             case GrainStore.setParentId now parentId gid model.grainStore of
+                Err errString ->
+                    handleErrorString errString model
+
+                Ok ( newGrainStore, cmd ) ->
+                    Return.return (setGrainStore newGrainStore model) cmd
+
+        MoveGrainUp gid now ->
+            case GrainStore.moveUp now gid model.grainStore of
                 Err errString ->
                     handleErrorString errString model
 
@@ -507,7 +522,17 @@ viewGrainMorePopup grain =
                     ]
                 ]
 
-        viewMoveTo g =
+        viewMoveUp g =
+            flexRow [ CS.pointer, CS.p2 space2 zero ]
+                [ onClick (Msg.PopupActionMoveGrainUp g) ]
+                [ flexCol [] [] [ text "Move Up" ]
+                , CssElements.iconBtnWithStyles [ CS.selfCenter ]
+                    []
+                    [ CssIcons.view CssIcons.arrowUp
+                    ]
+                ]
+
+        viewMoveUnder g =
             flexRow [ CS.pointer, CS.p2 space2 zero ]
                 [ onClick (Msg.ShowMoveToPopup g) ]
                 [ flexCol [] [] [ text "Nest Under..." ]
@@ -549,7 +574,8 @@ viewGrainMorePopup grain =
                 []
                 [ flexRow [ CS.justifyCenter ] [] [ text "Grain Menu" ]
                 , viewEdit grain
-                , viewMoveTo grain
+                , viewMoveUp grain
+                , viewMoveUnder grain
                 , viewDelete grain
                 ]
             ]

@@ -1,5 +1,6 @@
 module CssIcons exposing
     ( add
+    , arrowUp
     , delete
     , dragHandle
     , modeEdit
@@ -52,3 +53,7 @@ modeEdit =
 
 dragHandle =
     MI.drag_handle
+
+
+arrowUp =
+    MI.arrow_upward
