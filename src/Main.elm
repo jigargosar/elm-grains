@@ -412,6 +412,11 @@ grainMovePopupViewModel model grain =
 
         getAncestorIds g =
             GrainStore.getAncestorIds g model.grainStore
+
+        _ =
+            allGrains
+                |> List.map getAncestorIds
+                |> Debug.log "getAncestorIds"
     in
     { grain = grain
     , otherGrains =

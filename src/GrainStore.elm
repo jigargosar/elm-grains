@@ -56,9 +56,16 @@ getAncestorIds grain model =
 
 
 getAncestorIdsHelp ids grain model =
+    let
+        gid =
+            Grain.id grain
+
+        newIds =
+            gid :: ids
+    in
     Grain.parentIdAsGrainId grain
         |> Maybe.andThen (getById >> callWith model)
-        |> Maybe.unwrap ids (getAncestorIdsHelp ids >> callWith model)
+        |> Maybe.unwrap newIds (getAncestorIdsHelp newIds >> callWith model)
 
 
 
