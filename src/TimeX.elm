@@ -1,5 +1,6 @@
-module TimeX exposing (posixDecoder, posixEncoder)
+module TimeX exposing (comparator, posixDecoder, posixEncoder)
 
+import Compare
 import DecodeX exposing (Encoder)
 import Json.Decode as D exposing (Decoder)
 import Json.Encode as E
@@ -15,3 +16,8 @@ posixEncoder posix =
 posixDecoder : Decoder Posix
 posixDecoder =
     D.int |> D.map Time.millisToPosix
+
+
+comparator : Compare.Comparator Posix
+comparator =
+    Compare.by Time.posixToMillis

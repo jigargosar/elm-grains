@@ -5,6 +5,7 @@ module Grain exposing
     , content
     , createdAt
     , decoder
+    , defaultComparator
     , deleted
     , encoder
     , eqById
@@ -25,6 +26,7 @@ module Grain exposing
     )
 
 import BasicsX exposing (eqs, flip)
+import Compare
 import DecodeX exposing (Encoder)
 import GrainId exposing (GrainId(..))
 import Json.Decode as D exposing (Decoder)
@@ -255,12 +257,16 @@ setSortIdx newSortIdx =
     map (\model -> { model | sortIdx = newSortIdx })
 
 
-defaultSort =
-    let
-        createdAtAtDesc =
-            createdAt >> Time.posixToMillis >> negate
-    in
-    createdAtAtDesc
+sortIdxComparator =
+    Compare.by identity
+
+
+defaultComparator : Compare.Comparator Grain
+defaultComparator =
+    Compare.concat
+        [ Compare.compose sortIdx sortIdxComparator
+        , Compare.compose createdAt (Compare.reverse TimeX.comparator)
+        ]
 
 
 type Update

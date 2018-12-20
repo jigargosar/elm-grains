@@ -631,8 +631,13 @@ viewToast toast =
 toGrainListView : Model -> GrainListView
 toGrainListView model =
     let
+        sort =
+            List.sortWith Grain.defaultComparator
+
         allGrains =
-            model.grainStore |> GrainStore.allAsList
+            model.grainStore
+                |> GrainStore.allAsList
+                |> sort
 
         rootGrains =
             allGrains |> List.filter (Grain.parentIdEq Grain.rootParentId)
