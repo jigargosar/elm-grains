@@ -290,24 +290,22 @@ update message model =
         UpdateGrainWithNow gid msg now ->
             let
                 updateGrainHelp fn =
-                    updateGrainAndHandleResult (fn gid) model
+                    updateGrainAndHandleResult (fn now gid) model
             in
-            case msg of
+            (case msg of
                 Msg.SetGrainContent content ->
-                    updateGrainHelp
-                        (GrainStore.setContent now content)
+                    GrainStore.setContent content
 
                 Msg.SetGrainDeleted deleted ->
-                    updateGrainHelp
-                        (GrainStore.setDeleted now deleted)
+                    GrainStore.setDeleted deleted
 
                 Msg.SetGrainParentId parentId ->
-                    updateGrainHelp
-                        (GrainStore.setParentId now parentId)
+                    GrainStore.setParentId parentId
 
                 Msg.MoveGrainBy offset ->
-                    updateGrainHelp
-                        (GrainStore.moveBy now offset)
+                    GrainStore.moveBy offset
+            )
+                |> updateGrainHelp
 
         CreateAndAddNewGrain ->
             ( model

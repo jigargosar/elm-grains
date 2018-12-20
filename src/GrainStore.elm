@@ -157,7 +157,7 @@ withUpdateGrainCmd grain model =
 --  SET CONTENT
 
 
-setContent now content gid model =
+setContent content now gid model =
     getById gid model
         |> Maybe.map (updateGrain now (Grain.SetContent content) model)
         |> Result.fromMaybe "Error: SetContent Grain Not Found in Cache"
@@ -167,7 +167,7 @@ setContent now content gid model =
 -- SET DELETED
 
 
-setDeleted now deleted gid model =
+setDeleted deleted now gid model =
     getById gid model
         |> Maybe.map (updateGrain now (Grain.SetDeleted deleted) model)
         |> Result.fromMaybe "Error: setDeleted: Grain Not Found in Cache"
@@ -177,7 +177,7 @@ setDeleted now deleted gid model =
 -- SET ParentId
 
 
-setParentId now parentId gid model =
+setParentId parentId now gid model =
     getById gid model
         |> Maybe.map (updateGrain now (Grain.SetParentId parentId) model)
         |> Result.fromMaybe "Error: setParentId: Grain Not Found in Cache"
