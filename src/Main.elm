@@ -382,14 +382,30 @@ viewPopup model =
                 |> Maybe.unwrap CssHtml.noView viewGrainMorePopup
 
         GrainMovePopup gid ->
-            grainById gid model
+            let
+                maybeGrain =
+                    grainById gid model
+                        |> Maybe.map
+                            (\grain ->
+                                let
+                                    allGrains =
+                                        model.grainStore |> GrainStore.allAsList
+                                in
+                                { grain = grain
+                                , otherGrains =
+                                    allGrains
+                                        |> List.filterNot (Grain.eqById grain)
+                                }
+                            )
+            in
+            maybeGrain
                 |> Maybe.unwrap CssHtml.noView viewGrainMovePopup
 
         NoPopup ->
             CssHtml.noView
 
 
-viewGrainMovePopup grain =
+viewGrainMovePopup { grain, otherGrains } =
     CssProto.modal
         { content =
             [ flexCol []
