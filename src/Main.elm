@@ -297,12 +297,9 @@ update message model =
             Return.singleton model
 
         SetGrainContentWithNow gid content now ->
-            case GrainStore.setContent now content gid model.grainStore of
-                Err errString ->
-                    handleErrorString errString model
-
-                Ok ( newGrainStore, cmd ) ->
-                    Return.return (setGrainStore newGrainStore model) cmd
+            updateGrainAndHandleResult
+                (GrainStore.setContent now content gid)
+                model
 
         SetGrainDeletedWithNow gid bool now ->
             updateGrainAndHandleResult
