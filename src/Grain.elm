@@ -23,6 +23,7 @@ import GrainId exposing (GrainId(..))
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline exposing (custom, hardcoded, optional, required)
 import Json.Encode as E
+import Maybe.Extra as Maybe
 import Random exposing (Generator)
 import Time exposing (Posix)
 import TimeX
@@ -30,6 +31,7 @@ import TimeX
 
 type alias Model =
     { id : GrainId
+    , parentId : Maybe GrainId
     , content : String
     , deleted : Bool
     , createdAt : Posix
@@ -45,6 +47,7 @@ new : Posix -> GrainId -> Grain
 new now newId =
     Grain
         { id = newId
+        , parentId = Nothing
         , content = ""
         , deleted = False
         , createdAt = now
@@ -56,6 +59,7 @@ encoder : Encoder Grain
 encoder (Grain model) =
     E.object
         [ ( "id", GrainId.encoder model.id )
+        , ( "parentId", Maybe.unwrap E.null GrainId.encoder model.parentId )
         , ( "content", E.string model.content )
         , ( "deleted", E.bool model.deleted )
         , ( "createdAt", TimeX.posixEncoder model.createdAt )
@@ -67,6 +71,7 @@ decoder : Decoder Grain
 decoder =
     DecodeX.start Model
         |> required "id" GrainId.decoder
+        |> optional "parentId" (GrainId.decoder |> D.map Just) Nothing
         |> required "content" D.string
         |> optional "deleted" D.bool False
         |> required "createdAt" TimeX.posixDecoder
