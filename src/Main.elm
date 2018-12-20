@@ -413,6 +413,13 @@ grainMovePopupViewModel model grain =
         getAncestorIds g =
             GrainStore.getAncestorIds g model.grainStore
 
+        gid =
+            Grain.id grain
+
+        isDescendent g =
+            getAncestorIds g
+                |> List.member gid
+
         _ =
             allGrains
                 |> List.map getAncestorIds
@@ -421,7 +428,7 @@ grainMovePopupViewModel model grain =
     { grain = grain
     , otherGrains =
         allGrains
-            |> List.filterNot (Grain.eqById grain)
+            |> List.filterNot isDescendent
     }
 
 
