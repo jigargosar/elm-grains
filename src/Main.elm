@@ -305,28 +305,19 @@ update message model =
                     Return.return (setGrainStore newGrainStore model) cmd
 
         SetGrainDeletedWithNow gid bool now ->
-            case GrainStore.setDeleted now bool gid model.grainStore of
-                Err errString ->
-                    handleErrorString errString model
-
-                Ok ( newGrainStore, cmd ) ->
-                    Return.return (setGrainStore newGrainStore model) cmd
+            updateGrainAndHandleResult
+                (GrainStore.setDeleted now bool gid)
+                model
 
         SetGrainParentWithNow gid parentId now ->
-            case GrainStore.setParentId now parentId gid model.grainStore of
-                Err errString ->
-                    handleErrorString errString model
-
-                Ok ( newGrainStore, cmd ) ->
-                    Return.return (setGrainStore newGrainStore model) cmd
+            updateGrainAndHandleResult
+                (GrainStore.setParentId now parentId gid)
+                model
 
         MoveGrainByWithNow gid offset now ->
-            case GrainStore.moveBy now offset gid model.grainStore of
-                Err errString ->
-                    handleErrorString errString model
-
-                Ok ( newGrainStore, cmd ) ->
-                    Return.return (setGrainStore newGrainStore model) cmd
+            updateGrainAndHandleResult
+                (GrainStore.moveBy now offset gid)
+                model
 
         CreateAndAddNewGrain ->
             ( model
@@ -393,6 +384,15 @@ update message model =
 
 performWithNow nowToMsg =
     Task.perform nowToMsg Time.now
+
+
+updateGrainAndHandleResult fn model =
+    case fn model.grainStore of
+        Err errString ->
+            handleErrorString errString model
+
+        Ok ( newGrainStore, cmd ) ->
+            Return.return (setGrainStore newGrainStore model) cmd
 
 
 view : Model -> Html Msg
