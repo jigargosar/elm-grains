@@ -378,7 +378,7 @@ view : Model -> Html Msg
 view model =
     let
         routeVM =
-            routeViewModel model.route
+            toRouteView model.route
     in
     Skeleton.view
         { children =
@@ -516,12 +516,12 @@ viewGrainMorePopup grain =
         }
 
 
-type alias RouteViewModel =
+type alias RouteView =
     { title : String, showBackBtn : Bool, children : List (Html Msg) }
 
 
-routeViewModel : Route -> RouteViewModel
-routeViewModel route =
+toRouteView : Route -> RouteView
+toRouteView route =
     case route of
         Route.GrainList ->
             { title = "Grain List", showBackBtn = False, children = [] }
@@ -562,6 +562,7 @@ viewAppBar { title, showBackBtn } authState =
         [ CS.sticky
         , Css.top <| px 0
         , CS.p2 zero space2
+        , CS.itemsCenter
         ]
         [ class "bg-dark" ]
         [ CssHtml.viewIf showBackBtn viewBackBtn
@@ -573,7 +574,7 @@ viewAppBar { title, showBackBtn } authState =
 viewRouteChildren model =
     case model.route of
         Route.GrainList ->
-            grainListViewModel model |> GrainListView.view
+            toGrainListView model |> GrainListView.view
 
         Route.Grain gid ->
             grainById gid model |> GrainView.view
@@ -586,8 +587,8 @@ viewToast toast =
     Toast.view toast
 
 
-grainListViewModel : Model -> GrainListView
-grainListViewModel model =
+toGrainListView : Model -> GrainListView
+toGrainListView model =
     let
         allGrains =
             model.grainStore |> GrainStore.allAsList
