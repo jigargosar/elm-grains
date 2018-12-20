@@ -209,8 +209,7 @@ update message model =
 
         GrainContentChanged grain content ->
             ( model
-            , performWithNow
-                (SetGrainContentWithNow (Grain.id grain) content)
+            , updateGrainWithNowCmd grain (Msg.SetGrainContent content)
             )
 
         InlineEditGrainContentChanged grain content ->
@@ -244,9 +243,7 @@ update message model =
                         { model
                             | inlineEditGrain = inlineEditGrain
                         }
-                        (performWithNow
-                            (SetGrainContentWithNow gid content)
-                        )
+                        (updateGrainIdWithNowCmd gid (Msg.SetGrainContent content))
 
         DeleteGrain grain ->
             ( model
@@ -296,10 +293,12 @@ update message model =
         DragGrain grain ->
             Return.singleton model
 
-        SetGrainContentWithNow gid content now ->
-            updateGrainAndHandleResult
-                (GrainStore.setContent now content gid)
-                model
+        UpgradeGrainWithNow gid msg now ->
+            case msg of
+                Msg.SetGrainContent content ->
+                    updateGrainAndHandleResult
+                        (GrainStore.setContent now content gid)
+                        model
 
         SetGrainDeletedWithNow gid bool now ->
             updateGrainAndHandleResult
@@ -381,6 +380,14 @@ update message model =
 
 performWithNow nowToMsg =
     Task.perform nowToMsg Time.now
+
+
+updateGrainWithNowCmd grain msg =
+    updateGrainIdWithNowCmd (Grain.id grain) msg
+
+
+updateGrainIdWithNowCmd gid msg =
+    Task.perform (UpgradeGrainWithNow gid msg) Time.now
 
 
 updateGrainAndHandleResult fn model =

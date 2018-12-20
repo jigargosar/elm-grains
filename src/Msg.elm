@@ -1,5 +1,6 @@
 module Msg exposing
     ( Msg(..)
+    , UpdateGrainMsg(..)
     , routeToGrain
     )
 
@@ -14,6 +15,10 @@ import Route exposing (Route)
 import Time exposing (Posix)
 
 
+type UpdateGrainMsg
+    = SetGrainContent String
+
+
 type Msg
     = ---- INJECT MSG BELOW ----
       NoOp
@@ -24,6 +29,7 @@ type Msg
     | GrainMoreAction Msg
     | ShowMoveToPopup Grain
     | DismissPopup
+    | UpgradeGrainWithNow GrainId UpdateGrainMsg Posix
     | PopupActionSetGrainParent Grain Grain.ParentId
     | PopupActionMoveGrainUp Grain
     | PopupActionMoveGrainDown Grain
@@ -37,7 +43,6 @@ type Msg
     | InlineEditGrainSubmit
     | GrainContentChanged Grain String
     | InlineEditGrainContentChanged Grain String
-    | SetGrainContentWithNow GrainId String Posix
     | SetGrainDeletedWithNow GrainId Bool Posix
     | SetGrainParentWithNow GrainId Grain.ParentId Posix
     | MoveGrainByWithNow GrainId Int Posix
