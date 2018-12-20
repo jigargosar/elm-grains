@@ -32,23 +32,29 @@ import Time exposing (Posix)
 import TimeX
 
 
-type alias ParentId =
-    Maybe GrainId
+type ParentId
+    = ParentId GrainId
+    | RootId
 
 
 defaultParentId : ParentId
 defaultParentId =
-    Nothing
+    RootId
 
 
 parentIdEncoder : ParentId -> Value
-parentIdEncoder =
-    Maybe.unwrap E.null GrainId.encoder
+parentIdEncoder model =
+    case model of
+        ParentId gid ->
+            GrainId.encoder gid
+
+        RootId ->
+            E.null
 
 
 parentIdDecoder : Decoder ParentId
 parentIdDecoder =
-    GrainId.decoder |> D.map Just
+    D.oneOf [ GrainId.decoder |> D.map ParentId, D.succeed RootId ]
 
 
 type alias Model =
@@ -146,7 +152,7 @@ idAsString =
 
 
 idAsParentId =
-    id >> Just
+    id >> ParentId
 
 
 isParentOf child =
