@@ -187,13 +187,12 @@ grainDisplayTitle =
 viewGrainItems : Forest -> List ( String, Html Msg )
 viewGrainItems forest =
     let
-        viewItem node =
-            maybeNodeEditContent node
+        viewKeyedItem node =
+            ( nodeDomId node
+            , maybeNodeEditContent node
                 |> Maybe.unwrap viewDisplayItem viewEditingItem
                 |> callWith node
-
-        viewKeyedItem node =
-            ( nodeDomId node, viewItem node )
+            )
                 :: List.concatMap viewKeyedItem (nodeChildren node)
     in
     List.concatMap viewKeyedItem forest
