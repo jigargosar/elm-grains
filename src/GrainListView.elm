@@ -194,8 +194,7 @@ viewGrainItems forest =
 
         viewKeyedItem node =
             ( nodeDomId node, viewItem node )
-                :: List.concatMap viewKeyedItem
-                    (nodeChildren node)
+                :: List.concatMap viewKeyedItem (nodeChildren node)
     in
     List.concatMap viewKeyedItem forest
 
