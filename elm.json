@@ -32,6 +32,7 @@
       "elm-community/string-extra": "4.0.0",
       "elm-community/undo-redo": "3.0.0",
       "hecrj/composable-form": "5.0.0",
+      "ir4y/elm-dnd": "3.0.2",
       "jigargosar/elm-material-color": "1.0.0",
       "joneshf/elm-tagged": "2.1.1",
       "miyamoen/select-list": "4.0.0",
@@ -40,13 +41,15 @@
       "stil4m/structured-writer": "1.0.2",
       "toastal/either": "3.5.0",
       "tripokey/elm-fuzzy": "5.2.1",
-      "turboMaCk/lazy-tree-with-zipper": "3.0.1"
+      "turboMaCk/lazy-tree-with-zipper": "3.0.1",
+      "zaboco/elm-draggable": "4.0.1"
     },
     "indirect": {
       "Skinney/murmur3": "2.0.8",
       "elm/parser": "1.1.0",
       "elm/regex": "1.0.0",
       "elm/virtual-dom": "1.0.2",
+      "mpizenberg/elm-pointer-events": "3.1.0",
       "rtfeldman/elm-hex": "1.0.0",
       "rtfeldman/elm-iso8601-date-strings": "1.1.2"
     }
@@ -56,8 +59,7 @@
       "elm-explorations/test": "1.0.0"
     },
     "indirect": {
-      "justinmimbs/date": "1.1.0",
-      "mpizenberg/elm-pointer-events": "3.1.0"
+      "justinmimbs/date": "1.1.0"
     }
   }
 }
