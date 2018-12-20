@@ -273,6 +273,11 @@ update message model =
         ShowMoveToPopup grain ->
             Return.singleton { model | popup = GrainMovePopup (Grain.id grain) }
 
+        PopupActionSetGrainParent grain parent ->
+            ( model
+            , Task.perform (SetGrainDeletedWithNow (Grain.id grain) False) Time.now
+            )
+
         DismissPopup ->
             dismissPopup model
                 |> Return.singleton
@@ -282,6 +287,14 @@ update message model =
 
         SetGrainDeletedWithNow gid bool now ->
             case GrainStore.setDeleted now bool gid model.grainStore of
+                Err errString ->
+                    handleErrorString errString model
+
+                Ok ( newGrainStore, cmd ) ->
+                    Return.return (setGrainStore newGrainStore model) cmd
+
+        SetGrainParentWithNow gid parentId now ->
+            case GrainStore.setParentId now parentId gid model.grainStore of
                 Err errString ->
                     handleErrorString errString model
 
@@ -416,7 +429,10 @@ viewGrainMovePopup { grain, otherGrains } =
                     [ Css.property "background-color" "lightgray"
                     ]
                 ]
-                []
+                [ onClick <|
+                    Msg.PopupActionSetGrainParent grain
+                        (Grain.idAsParentId g)
+                ]
                 [ flexRow [ CS.ellipsis ]
                     []
                     [ text <| Grain.titleOrEmpty g

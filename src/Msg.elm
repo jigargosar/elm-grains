@@ -24,6 +24,7 @@ type Msg
     | GrainMoreAction Msg
     | ShowMoveToPopup Grain
     | DismissPopup
+    | PopupActionSetGrainParent Grain Grain.ParentId
     | GrainMoreClicked Grain
     | CreateAndAddNewGrain
     | CreateAndAddNewGrainWithNow Posix
@@ -35,6 +36,7 @@ type Msg
     | InlineEditGrainContentChanged Grain String
     | SetGrainContentWithNow GrainId String Posix
     | SetGrainDeletedWithNow GrainId Bool Posix
+    | SetGrainParentWithNow GrainId Grain.ParentId Posix
     | ToastDismiss
     | RouteTo Route
     | UrlChanged String

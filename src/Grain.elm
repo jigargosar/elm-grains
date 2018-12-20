@@ -1,5 +1,6 @@
 module Grain exposing
     ( Grain
+    , ParentId
     , Update(..)
     , content
     , createdAt
@@ -9,8 +10,9 @@ module Grain exposing
     , eqById
     , generator
     , id
+    , idAsParentId
+    , idAsString
     , idEq
-    , idString
     , modifiedAt
     , titleOrEmpty
     , toDomIdWithPrefix
@@ -138,8 +140,12 @@ toDomIdWithPrefix prefix =
     id >> GrainId.toDomIdWithPrefix prefix
 
 
-idString =
+idAsString =
     id >> GrainId.toString
+
+
+idAsParentId =
+    id >> Just
 
 
 deleted =
