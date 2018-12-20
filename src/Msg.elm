@@ -22,6 +22,7 @@ type Msg
     | RestoreGrain Grain
     | DeleteGrain Grain
     | GrainMoreAction Msg
+    | ShowMoveToPopup Grain
     | DismissPopup
     | GrainMoreClicked Grain
     | CreateAndAddNewGrain

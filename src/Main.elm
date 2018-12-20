@@ -269,6 +269,9 @@ update message model =
             update msg model
                 |> Return.map dismissPopup
 
+        ShowMoveToPopup grain ->
+            Return.singleton model
+
         DismissPopup ->
             dismissPopup model
                 |> Return.singleton
@@ -383,6 +386,27 @@ viewPopup model =
 
 viewGrainMorePopup grain =
     let
+        viewEdit : Grain -> Html Msg
+        viewEdit g =
+            flexRow [ CS.pointer, CS.p2 space2 zero ]
+                [ onClick (Msg.GrainMoreAction <| Msg.routeToGrain g) ]
+                [ flexCol [] [] [ text "Edit" ]
+                , CssElements.iconBtnWithStyles [ CS.selfCenter ]
+                    []
+                    [ CssIcons.view CssIcons.modeEdit
+                    ]
+                ]
+
+        viewMoveTo g =
+            flexRow [ CS.pointer, CS.p2 space2 zero ]
+                [ onClick (Msg.GrainMoreAction <| Msg.ShowMoveToPopup g) ]
+                [ flexCol [] [] [ text "Move To..." ]
+                , CssElements.iconBtnWithStyles [ CS.selfCenter ]
+                    []
+                    [ CssIcons.view CssIcons.modeEdit
+                    ]
+                ]
+
         viewDelete g =
             let
                 deleted =
@@ -408,17 +432,6 @@ viewGrainMorePopup grain =
                     [ CssIcons.view icon
                     ]
                 ]
-
-        viewEdit : Grain -> Html Msg
-        viewEdit g =
-            flexRow [ CS.pointer, CS.p2 space2 zero ]
-                [ onClick (Msg.GrainMoreAction <| Msg.routeToGrain g) ]
-                [ flexCol [] [] [ text "Edit" ]
-                , CssElements.iconBtnWithStyles [ CS.selfCenter ]
-                    []
-                    [ CssIcons.view CssIcons.modeEdit
-                    ]
-                ]
     in
     CssProto.modal
         { content =
@@ -426,6 +439,7 @@ viewGrainMorePopup grain =
                 []
                 [ flexRow [ CS.justifyCenter ] [] [ text "Grain Menu" ]
                 , viewEdit grain
+                , viewMoveTo grain
                 , viewDelete grain
                 ]
             ]
