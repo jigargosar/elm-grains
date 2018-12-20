@@ -69,16 +69,8 @@ nodeGrain =
     nodeModel >> .grain
 
 
-nodeDomId =
-    nodeGrain >> grainDomId
-
-
 nodeLevel =
     nodeModel >> .level
-
-
-nodeDeleted =
-    nodeGrain >> Grain.deleted
 
 
 nodeChildren =
@@ -89,12 +81,20 @@ maybeNodeEditContent =
     nodeModel >> .maybeEditContent
 
 
-canEditNodeContent =
-    nodeDeleted >> not
+nodeDomId =
+    nodeGrain >> grainDomId
 
 
 nodeGid =
     nodeGrain >> Grain.id
+
+
+nodeDeleted =
+    nodeGrain >> Grain.deleted
+
+
+canEditNodeContent =
+    nodeDeleted >> not
 
 
 nodeDragMsg =
