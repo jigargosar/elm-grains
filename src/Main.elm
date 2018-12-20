@@ -283,14 +283,14 @@ update message model =
         PopupActionMoveGrainUp grain ->
             ( dismissPopup model
             , Task.perform
-                (MoveGrainBy (Grain.id grain) -1)
+                (MoveGrainByWithNow (Grain.id grain) -1)
                 Time.now
             )
 
         PopupActionMoveGrainDown grain ->
             ( dismissPopup model
             , Task.perform
-                (MoveGrainBy (Grain.id grain) 1)
+                (MoveGrainByWithNow (Grain.id grain) 1)
                 Time.now
             )
 
@@ -320,7 +320,7 @@ update message model =
                 Ok ( newGrainStore, cmd ) ->
                     Return.return (setGrainStore newGrainStore model) cmd
 
-        MoveGrainBy gid offset now ->
+        MoveGrainByWithNow gid offset now ->
             case GrainStore.moveBy now offset gid model.grainStore of
                 Err errString ->
                     handleErrorString errString model

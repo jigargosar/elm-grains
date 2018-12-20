@@ -40,7 +40,7 @@ type Msg
     | SetGrainContentWithNow GrainId String Posix
     | SetGrainDeletedWithNow GrainId Bool Posix
     | SetGrainParentWithNow GrainId Grain.ParentId Posix
-    | MoveGrainBy GrainId Int Posix
+    | MoveGrainByWithNow GrainId Int Posix
     | ToastDismiss
     | RouteTo Route
     | UrlChanged String
