@@ -183,6 +183,16 @@ setParentId now parentId gid model =
 
 
 
+-- SET SortIdx
+
+
+setSortIdx now sortIdx gid model =
+    getById gid model
+        |> Maybe.map (updateGrain now (Grain.SetSortIdx sortIdx) model)
+        |> Result.fromMaybe "Error: setSortIdx: Grain Not Found in Cache"
+
+
+
 -- PERMANENT DELETE EXISTING
 
 
