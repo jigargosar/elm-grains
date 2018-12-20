@@ -246,10 +246,16 @@ setParentId newParentId =
     map (\model -> { model | parentId = newParentId })
 
 
+setSortIdx : SortIdx -> Grain -> Grain
+setSortIdx newSortIdx =
+    map (\model -> { model | sortIdx = newSortIdx })
+
+
 type Update
     = SetContent String
     | SetDeleted Bool
     | SetParentId ParentId
+    | SetSortIdx SortIdx
 
 
 update : Posix -> Update -> Grain -> Grain
@@ -265,5 +271,8 @@ update now msg =
 
                 SetParentId parentId_ ->
                     setParentId parentId_
+
+                SetSortIdx sortIdx_ ->
+                    setSortIdx sortIdx_
     in
     innerUpdate >> setModifiedAt now
