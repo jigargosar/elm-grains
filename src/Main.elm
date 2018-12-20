@@ -455,13 +455,39 @@ viewGrainMovePopup { grain, otherGrains } =
                     [ text <| Grain.titleOrEmpty g
                     ]
                 ]
+
+        viewRootItem =
+            let
+                isRoot =
+                    Grain.parentIdEq Grain.rootParentId grain
+            in
+            flexCol
+                [ CS.pointer
+                , CS.styleIf isRoot CS.bold
+                , Css.hover
+                    [ Css.property "background-color" "lightgray"
+                    ]
+                ]
+                [ onClick <|
+                    Msg.PopupActionSetGrainParent grain
+                        Grain.rootParentId
+                ]
+                [ flexRow [ CS.ellipsis ]
+                    []
+                    [ text "<Root>"
+                    ]
+                ]
     in
     CssProto.modal
         { content =
             [ flexCol []
                 []
                 [ flexRow [ CS.justifyCenter ] [] [ text "Move Grain" ]
-                , flexCol [] [] (List.map viewGrainItem otherGrains)
+                , flexCol []
+                    []
+                    (viewRootItem
+                        :: List.map viewGrainItem otherGrains
+                    )
                 ]
             ]
         , onDismiss = Msg.DismissPopup
