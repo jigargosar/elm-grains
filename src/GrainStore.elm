@@ -193,7 +193,7 @@ setSortIdx now sortIdx gid model =
         |> Result.fromMaybe "Error: setSortIdx: Grain Not Found in Cache"
 
 
-moveBy now offset gid model =
+moveBy offset now gid model =
     getById gid model
         |> Maybe.map (moveHelp now offset >> callWith model)
         |> Result.fromMaybe "Error: setSortIdx: Grain Not Found in Cache"
