@@ -13,6 +13,7 @@ module Grain exposing
     , idAsParentId
     , idAsString
     , idEq
+    , isParentOf
     , modifiedAt
     , titleOrEmpty
     , toDomIdWithPrefix
@@ -146,6 +147,14 @@ idAsString =
 
 idAsParentId =
     id >> Just
+
+
+isParentOf child =
+    idAsParentId >> eqs (parentId child)
+
+
+parentId =
+    unwrap >> .parentId
 
 
 deleted =

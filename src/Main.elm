@@ -274,7 +274,7 @@ update message model =
             Return.singleton { model | popup = GrainMovePopup (Grain.id grain) }
 
         PopupActionSetGrainParent grain parentId ->
-            ( model
+            ( dismissPopup model
             , Task.perform
                 (SetGrainParentWithNow (Grain.id grain) parentId)
                 Time.now
@@ -422,7 +422,7 @@ viewGrainMovePopup { grain, otherGrains } =
         viewGrainItem g =
             let
                 isCurrentParent =
-                    Grain.eqById grain g
+                    Grain.isParentOf grain g
             in
             flexCol
                 [ CS.pointer
