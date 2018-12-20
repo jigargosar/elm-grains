@@ -5,7 +5,7 @@ module GrainListView exposing
     , view
     )
 
-import BasicsX exposing (callWith, defaultEmptyStringTo, ifElse, ter)
+import BasicsX exposing (callWith, callWith2, defaultEmptyStringTo, ifElse, ter)
 import Browser.Dom
 import Css exposing (num, pct, px, rem, vh, vw, zero)
 import CssAttrX exposing (attrIf)
@@ -114,7 +114,7 @@ viewGrainItems getChildren inlineEditGrain level list =
                 [ CssIcons.view CssIcons.moreHoriz
                 ]
 
-        viewDisplayItem g =
+        viewDisplayItem currentLevel g =
             let
                 deleted =
                     Grain.deleted g
@@ -133,7 +133,7 @@ viewGrainItems getChildren inlineEditGrain level list =
                 , viewRightMenu g
                 ]
 
-        viewEditingItem content g =
+        viewEditingItem content currentLevel g =
             let
                 bindings =
                     [ ( HotKey.enter, ( Msg.InlineEditGrainSubmit, True ) )
@@ -167,13 +167,13 @@ viewGrainItems getChildren inlineEditGrain level list =
                     []
                 ]
 
-        viewItem g =
+        viewItem currentLevel g =
             InlineEditGrain.maybeContentFor g inlineEditGrain
                 |> Maybe.unwrap viewDisplayItem viewEditingItem
-                |> callWith g
+                |> callWith2 currentLevel g
 
         viewKeyedItem currentLevel g =
-            ( grainDomId g, viewItem g )
+            ( grainDomId g, viewItem currentLevel g )
                 :: List.concatMap (viewKeyedItem (currentLevel + 1))
                     (getChildren g)
     in
