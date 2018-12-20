@@ -85,6 +85,14 @@ canEditNodeContent =
     nodeDeleted >> not
 
 
+nodeGrain (Node model) =
+    model.grain
+
+
+nodeGid =
+    nodeGrain >> Grain.id
+
+
 nodeDragMsg (Node model) =
     Msg.DragGrain model.grain
 
