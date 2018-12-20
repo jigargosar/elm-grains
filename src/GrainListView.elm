@@ -188,23 +188,3 @@ viewGrainItems getChildren inlineEditGrain level list =
                     (getChildren g)
     in
     List.concatMap (viewKeyedItem level) list
-
-
-
---viewDelete g =
---            let
---                deleted =
---                    Grain.deleted g
---
---                action =
---                    ter deleted Msg.RestoreGrain Msg.DeleteGrain <|
---                        g
---
---                icon =
---                    ter deleted CssIcons.restore CssIcons.delete
---            in
---            CssElements.iconBtnWithStyles [ CS.selfCenter ]
---                [ onClick action
---                ]
---                [ CssIcons.view icon
---                ]
