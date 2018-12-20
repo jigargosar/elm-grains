@@ -115,7 +115,7 @@ viewGrainItems getChildren inlineEditGrain level list =
                 ]
 
         viewDragHandle g =
-            CssElements.iconBtnWithStyles [ CS.selfCenter ]
+            CssElements.iconBtnWithStyles [ CS.selfCenter, CS.move ]
                 [ onClick (Msg.DragGrain g)
                 ]
                 [ CssIcons.view CssIcons.dragHandle

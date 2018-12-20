@@ -24,6 +24,7 @@ module CssShorthand exposing
     , min100V
     , minWidth100VW
     , min_h_screen
+    , move
     , overflowScroll
     , p2
     , pa
@@ -226,6 +227,10 @@ pv unit =
 
 pointer =
     Css.cursor Css.pointer
+
+
+move =
+    Css.cursor Css.move
 
 
 absolute =
