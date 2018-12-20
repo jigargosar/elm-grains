@@ -247,12 +247,12 @@ update message model =
 
         DeleteGrain grain ->
             ( model
-            , Task.perform (SetGrainDeletedWithNow (Grain.id grain) True) Time.now
+            , updateGrainWithNowCmd grain (Msg.SetGrainDeleted True)
             )
 
         RestoreGrain grain ->
             ( model
-            , Task.perform (SetGrainDeletedWithNow (Grain.id grain) False) Time.now
+            , updateGrainWithNowCmd grain (Msg.SetGrainDeleted False)
             )
 
         GrainMoreAction msg ->
@@ -300,10 +300,10 @@ update message model =
                         (GrainStore.setContent now content gid)
                         model
 
-        SetGrainDeletedWithNow gid bool now ->
-            updateGrainAndHandleResult
-                (GrainStore.setDeleted now bool gid)
-                model
+                Msg.SetGrainDeleted deleted ->
+                    updateGrainAndHandleResult
+                        (GrainStore.setDeleted now deleted gid)
+                        model
 
         SetGrainParentWithNow gid parentId now ->
             updateGrainAndHandleResult

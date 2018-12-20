@@ -17,6 +17,7 @@ import Time exposing (Posix)
 
 type UpdateGrainMsg
     = SetGrainContent String
+    | SetGrainDeleted Bool
 
 
 type Msg
@@ -43,7 +44,6 @@ type Msg
     | InlineEditGrainSubmit
     | GrainContentChanged Grain String
     | InlineEditGrainContentChanged Grain String
-    | SetGrainDeletedWithNow GrainId Bool Posix
     | SetGrainParentWithNow GrainId Grain.ParentId Posix
     | MoveGrainByWithNow GrainId Int Posix
     | ToastDismiss
