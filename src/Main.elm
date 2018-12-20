@@ -273,9 +273,11 @@ update message model =
         ShowMoveToPopup grain ->
             Return.singleton { model | popup = GrainMovePopup (Grain.id grain) }
 
-        PopupActionSetGrainParent grain parent ->
+        PopupActionSetGrainParent grain parentId ->
             ( model
-            , Task.perform (SetGrainDeletedWithNow (Grain.id grain) False) Time.now
+            , Task.perform
+                (SetGrainParentWithNow (Grain.id grain) parentId)
+                Time.now
             )
 
         DismissPopup ->
