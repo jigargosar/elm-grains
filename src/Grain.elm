@@ -21,7 +21,7 @@ import BasicsX exposing (eqs)
 import DecodeX exposing (Encoder)
 import GrainId exposing (GrainId(..))
 import Json.Decode as D exposing (Decoder)
-import Json.Decode.Pipeline exposing (custom, hardcoded, optional, required)
+import Json.Decode.Pipeline exposing (custom, hardcoded, optional, required, resolve)
 import Json.Encode as E
 import Maybe.Extra as Maybe
 import Random exposing (Generator)
