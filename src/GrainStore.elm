@@ -6,6 +6,7 @@ module GrainStore exposing
     , getAncestorIds
     , getById
     , loadCache
+    , moveUp
     , onFirebaseChanges
     , permanentlyDeleteGrain
     , setContent
@@ -190,6 +191,47 @@ setSortIdx now sortIdx gid model =
     getById gid model
         |> Maybe.map (updateGrain now (Grain.SetSortIdx sortIdx) model)
         |> Result.fromMaybe "Error: setSortIdx: Grain Not Found in Cache"
+
+
+moveUp now gid model =
+    getById gid model
+        |> Maybe.map (moveUpHelp now >> callWith model)
+        |> Result.fromMaybe "Error: setSortIdx: Grain Not Found in Cache"
+
+
+moveUpHelp now grain model =
+    let
+        siblings : List Grain
+        siblings =
+            getSiblings grain model
+
+        gIdx : Int
+        gIdx =
+            List.findIndex (Grain.eqById grain) siblings
+                |> Maybe.withDefault -1
+
+        updatedGrains : List Grain
+        updatedGrains =
+            List.swapAt gIdx (gIdx - 1) siblings
+                |> Grain.updateSortIndices now
+
+        newModel =
+            List.foldl blindInsert model updatedGrains
+
+        fireCmd : Cmd msg
+        fireCmd =
+            updatedGrains
+                |> List.map Firebase.persistUpdatedGrain
+                |> Cmd.batch
+    in
+    ( newModel, Cmd.batch [ cache newModel, fireCmd ] )
+
+
+getSiblings : Grain -> GrainStore -> List Grain
+getSiblings grain model =
+    allAsList model
+        |> List.filter (Grain.eqByParentId grain)
+        |> List.sortWith Grain.defaultComparator
 
 
 

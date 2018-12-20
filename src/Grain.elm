@@ -9,6 +9,7 @@ module Grain exposing
     , deleted
     , encoder
     , eqById
+    , eqByParentId
     , generator
     , id
     , idAsParentId
@@ -23,6 +24,7 @@ module Grain exposing
     , titleOrEmpty
     , toDomIdWithPrefix
     , update
+    , updateSortIndices
     )
 
 import BasicsX exposing (eqs, flip)
@@ -174,6 +176,11 @@ parentIdEq pid =
     parentId >> eqs pid
 
 
+eqByParentId : Grain -> Grain -> Bool
+eqByParentId g2 =
+    parentIdEq (parentId g2)
+
+
 eqById g2 =
     idEq (id g2)
 
@@ -274,6 +281,11 @@ type Update
     | SetDeleted Bool
     | SetParentId ParentId
     | SetSortIdx SortIdx
+
+
+updateSortIndices : Posix -> List Grain -> List Grain
+updateSortIndices now =
+    List.indexedMap (SetSortIdx >> update now)
 
 
 update : Posix -> Update -> Grain -> Grain
