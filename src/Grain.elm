@@ -36,6 +36,22 @@ import Time exposing (Posix)
 import TimeX
 
 
+type alias SortIdx =
+    Int
+
+
+defaultSortIdx =
+    -1
+
+
+sortIdxEncoder =
+    E.int
+
+
+sortIdxDecoder =
+    D.int
+
+
 type ParentId
     = ParentId GrainId
     | RootId
@@ -69,6 +85,7 @@ parentIdDecoder =
 type alias Model =
     { id : GrainId
     , parentId : ParentId
+    , sortIdx : SortIdx
     , content : String
     , deleted : Bool
     , createdAt : Posix
@@ -85,6 +102,7 @@ new now newId =
     Grain
         { id = newId
         , parentId = defaultParentId
+        , sortIdx = defaultSortIdx
         , content = ""
         , deleted = False
         , createdAt = now
@@ -97,6 +115,7 @@ encoder (Grain model) =
     E.object
         [ ( "id", GrainId.encoder model.id )
         , ( "parentId", parentIdEncoder model.parentId )
+        , ( "sortIdx", sortIdxEncoder model.sortIdx )
         , ( "content", E.string model.content )
         , ( "deleted", E.bool model.deleted )
         , ( "createdAt", TimeX.posixEncoder model.createdAt )
@@ -109,6 +128,7 @@ decoder =
     DecodeX.start Model
         |> required "id" GrainId.decoder
         |> optional "parentId" parentIdDecoder defaultParentId
+        |> optional "sortIdx" sortIdxDecoder defaultSortIdx
         |> required "content" D.string
         |> optional "deleted" D.bool False
         |> required "createdAt" TimeX.posixDecoder
