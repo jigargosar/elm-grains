@@ -160,6 +160,7 @@ type Update
     | SetDeleted Bool
 
 
+update : Posix -> Update -> Grain -> Grain
 update now msg =
     let
         innerUpdate =
