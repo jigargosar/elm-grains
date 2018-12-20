@@ -1,10 +1,12 @@
 module CssShorthand exposing
     ( absolute
+    , batchIf
     , bgBlack20
     , bgWhite
     , black20
     , black80
     , blackAlpha
+    , bold
     , br_pill
     , ellipsis
     , fixed
@@ -54,6 +56,18 @@ styleIf bool style =
 
     else
         noStyle
+
+
+batchIf bool styles =
+    if bool then
+        Css.batch styles
+
+    else
+        noStyle
+
+
+bold =
+    Css.fontWeight Css.bold
 
 
 flex11Auto =

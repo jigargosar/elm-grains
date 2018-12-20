@@ -405,8 +405,13 @@ grainMovePopupViewModel model grain =
 viewGrainMovePopup { grain, otherGrains } =
     let
         viewGrainItem g =
+            let
+                isCurrentParent =
+                    Grain.eqById grain g
+            in
             flexCol
                 [ CS.pointer
+                , CS.styleIf isCurrentParent CS.bold
                 , Css.hover
                     [ Css.property "background-color" "lightgray"
                     ]
