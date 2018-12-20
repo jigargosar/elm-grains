@@ -23,7 +23,7 @@ module Grain exposing
     , update
     )
 
-import BasicsX exposing (eqs)
+import BasicsX exposing (eqs, flip)
 import DecodeX exposing (Encoder)
 import GrainId exposing (GrainId(..))
 import Json.Decode as D exposing (Decoder)
@@ -171,8 +171,8 @@ isParentOf child =
     idAsParentId >> eqs (parentId child)
 
 
-isChildOf parent =
-    parentIdEq (idAsParentId parent)
+isChildOf =
+    flip isParentOf
 
 
 parentId =

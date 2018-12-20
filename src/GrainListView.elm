@@ -172,10 +172,12 @@ viewGrainItems getChildren inlineEditGrain level list =
                 |> Maybe.unwrap viewDisplayItem viewEditingItem
                 |> callWith g
 
-        viewKeyedItem g =
+        viewKeyedItem currentLevel g =
             ( grainDomId g, viewItem g )
+                :: List.concatMap (viewKeyedItem (currentLevel + 1))
+                    (getChildren g)
     in
-    List.map viewKeyedItem list
+    List.concatMap (viewKeyedItem level) list
 
 
 
