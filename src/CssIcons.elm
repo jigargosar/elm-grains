@@ -1,6 +1,7 @@
 module CssIcons exposing
     ( add
     , delete
+    , dragHandle
     , modeEdit
     , moreHoriz
     , moreVert
@@ -47,3 +48,7 @@ moreHoriz =
 
 modeEdit =
     MI.mode_edit
+
+
+dragHandle =
+    MI.drag_handle

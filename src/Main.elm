@@ -469,10 +469,10 @@ viewGrainMorePopup grain =
         viewMoveTo g =
             flexRow [ CS.pointer, CS.p2 space2 zero ]
                 [ onClick (Msg.ShowMoveToPopup g) ]
-                [ flexCol [] [] [ text "Move To..." ]
+                [ flexCol [] [] [ text "Nest Under..." ]
                 , CssElements.iconBtnWithStyles [ CS.selfCenter ]
                     []
-                    [ CssIcons.view CssIcons.modeEdit
+                    [ CssIcons.view CssIcons.dragHandle
                     ]
                 ]
 
