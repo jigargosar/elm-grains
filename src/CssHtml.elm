@@ -1,7 +1,8 @@
-module CssHtml exposing (keyedDiv, noView, viewIf, viewIfLazy)
+module CssHtml exposing (keyedDiv, noView, viewIf, viewIfLazy, viewMaybe)
 
 import Html.Styled exposing (text)
 import Html.Styled.Keyed as HK
+import Maybe.Extra as Maybe
 
 
 noView =
@@ -14,6 +15,10 @@ viewIf bool content =
 
     else
         noView
+
+
+viewMaybe =
+    Maybe.unwrap noView
 
 
 viewIfLazy bool vFn =

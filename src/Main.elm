@@ -379,30 +379,27 @@ viewPopup model =
     case model.popup of
         GrainMorePopup gid ->
             grainById gid model
-                |> Maybe.unwrap CssHtml.noView viewGrainMorePopup
+                |> CssHtml.viewMaybe viewGrainMorePopup
 
         GrainMovePopup gid ->
-            let
-                maybeGrain =
-                    grainById gid model
-                        |> Maybe.map
-                            (\grain ->
-                                let
-                                    allGrains =
-                                        model.grainStore |> GrainStore.allAsList
-                                in
-                                { grain = grain
-                                , otherGrains =
-                                    allGrains
-                                        |> List.filterNot (Grain.eqById grain)
-                                }
-                            )
-            in
-            maybeGrain
-                |> Maybe.unwrap CssHtml.noView viewGrainMovePopup
+            grainById gid model
+                |> Maybe.map (grainMovePopupViewModel model)
+                |> CssHtml.viewMaybe viewGrainMovePopup
 
         NoPopup ->
             CssHtml.noView
+
+
+grainMovePopupViewModel model grain =
+    let
+        allGrains =
+            model.grainStore |> GrainStore.allAsList
+    in
+    { grain = grain
+    , otherGrains =
+        allGrains
+            |> List.filterNot (Grain.eqById grain)
+    }
 
 
 viewGrainMovePopup { grain, otherGrains } =
