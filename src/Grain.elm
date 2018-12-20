@@ -209,6 +209,10 @@ parentId =
     unwrap >> .parentId
 
 
+sortIdx =
+    unwrap >> .sortIdx
+
+
 deleted =
     unwrap >> .deleted
 
@@ -249,6 +253,14 @@ setParentId newParentId =
 setSortIdx : SortIdx -> Grain -> Grain
 setSortIdx newSortIdx =
     map (\model -> { model | sortIdx = newSortIdx })
+
+
+defaultSort =
+    let
+        createdAtAtDesc =
+            createdAt >> Time.posixToMillis >> negate
+    in
+    createdAtAtDesc
 
 
 type Update
