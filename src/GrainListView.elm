@@ -89,94 +89,6 @@ grainDisplayTitle =
 
 viewGrainItems getChildren inlineEditGrain level list =
     let
-        viewTitle g =
-            let
-                title =
-                    grainDisplayTitle g
-
-                canEdit =
-                    Grain.deleted g |> not
-            in
-            styled div
-                [ CS.pa space2
-                , CS.styleIf canEdit CS.pointer
-                , CS.flex11Auto
-                , CS.ellipsis
-                ]
-                --                [ onClick <| Msg.routeToGrain g ]
-                [ attrIf canEdit (onClick <| Msg.InlineEditGrain g) ]
-                [ text title ]
-
-        viewRightMenu g =
-            CssElements.iconBtnWithStyles [ CS.selfCenter ]
-                [ onClick (Msg.GrainMoreClicked g)
-                ]
-                [ CssIcons.view CssIcons.moreHoriz
-                ]
-
-        viewDragHandle g =
-            CssElements.iconBtnWithStyles [ CS.selfCenter, CS.move ]
-                [ onClick (Msg.DragGrain g)
-                ]
-                [ CssIcons.view CssIcons.dragHandle
-                ]
-
-        viewDisplayItem currentLevel g =
-            let
-                deleted =
-                    Grain.deleted g
-
-                opacityValue =
-                    ter deleted 0.7 1
-            in
-            styled div
-                [ Css.displayFlex
-                , Css.flexDirection Css.row
-                , Css.maxWidth <| pct 100
-                , Css.opacity <| num opacityValue
-                , Css.paddingLeft <| px (currentLevel * 16)
-                ]
-                []
-                [ viewDragHandle g
-                , viewTitle g
-                , viewRightMenu g
-                ]
-
-        viewEditingItem content currentLevel g =
-            let
-                bindings =
-                    [ ( HotKey.enter, ( Msg.InlineEditGrainSubmit, True ) )
-                    ]
-            in
-            styled div
-                [ Css.displayFlex
-                , Css.flexDirection Css.row
-                , Css.maxWidth <| pct 100
-                , CS.pv space2
-                , Css.paddingLeft <| px (currentLevel * 16)
-                ]
-                []
-                [ textarea
-                    [ id <| inlineGrainEditInputDomId g
-                    , value <| content
-                    , onInput <| Msg.InlineEditGrainContentChanged g
-                    , CssEventX.onKeyDownPD <|
-                        HotKey.bindEachToMsg bindings
-                    , autocomplete False
-                    , css
-                        [ CS.w_full
-                        , Css.borderWidth zero
-                        , Css.borderBottom3 (px 1.5) Css.solid CS.black20
-                        , CS.p2 space1 space2
-                        , Css.focus
-                            [ Css.outline Css.none
-                            , Css.borderBottomColor CS.black80
-                            ]
-                        ]
-                    ]
-                    []
-                ]
-
         viewItem currentLevel g =
             InlineEditGrain.maybeContentFor g inlineEditGrain
                 |> Maybe.unwrap viewDisplayItem viewEditingItem
@@ -188,3 +100,96 @@ viewGrainItems getChildren inlineEditGrain level list =
                     (getChildren g)
     in
     List.concatMap (viewKeyedItem level) list
+
+
+viewTitle g =
+    let
+        title =
+            grainDisplayTitle g
+
+        canEdit =
+            Grain.deleted g |> not
+    in
+    styled div
+        [ CS.pa space2
+        , CS.styleIf canEdit CS.pointer
+        , CS.flex11Auto
+        , CS.ellipsis
+        ]
+        --                [ onClick <| Msg.routeToGrain g ]
+        [ attrIf canEdit (onClick <| Msg.InlineEditGrain g) ]
+        [ text title ]
+
+
+viewRightMenu g =
+    CssElements.iconBtnWithStyles [ CS.selfCenter ]
+        [ onClick (Msg.GrainMoreClicked g)
+        ]
+        [ CssIcons.view CssIcons.moreHoriz
+        ]
+
+
+viewDragHandle g =
+    CssElements.iconBtnWithStyles [ CS.selfCenter, CS.move ]
+        [ onClick (Msg.DragGrain g)
+        ]
+        [ CssIcons.view CssIcons.dragHandle
+        ]
+
+
+viewDisplayItem currentLevel g =
+    let
+        deleted =
+            Grain.deleted g
+
+        opacityValue =
+            ter deleted 0.7 1
+    in
+    styled div
+        [ Css.displayFlex
+        , Css.flexDirection Css.row
+        , Css.maxWidth <| pct 100
+        , Css.opacity <| num opacityValue
+        , Css.paddingLeft <| px (currentLevel * 16)
+        ]
+        []
+        [ viewDragHandle g
+        , viewTitle g
+        , viewRightMenu g
+        ]
+
+
+viewEditingItem content currentLevel g =
+    let
+        bindings =
+            [ ( HotKey.enter, ( Msg.InlineEditGrainSubmit, True ) )
+            ]
+    in
+    styled div
+        [ Css.displayFlex
+        , Css.flexDirection Css.row
+        , Css.maxWidth <| pct 100
+        , CS.pv space2
+        , Css.paddingLeft <| px (currentLevel * 16)
+        ]
+        []
+        [ textarea
+            [ id <| inlineGrainEditInputDomId g
+            , value <| content
+            , onInput <| Msg.InlineEditGrainContentChanged g
+            , CssEventX.onKeyDownPD <|
+                HotKey.bindEachToMsg bindings
+            , autocomplete False
+            , css
+                [ CS.w_full
+                , Css.borderWidth zero
+                , Css.borderBottom3 (px 1.5) Css.solid CS.black20
+                , CS.p2 space1 space2
+                , Css.focus
+                    [ Css.outline Css.none
+                    , Css.borderBottomColor CS.black80
+                    ]
+                ]
+            ]
+            []
+        ]
