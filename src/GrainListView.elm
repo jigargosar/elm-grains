@@ -40,22 +40,19 @@ inlineGrainEditInputDomId =
 
 type alias GrainListView =
     { grains : List Grain
-    , deleted : List Grain
     , inlineEditGrain : InlineEditGrain
     }
 
 
 view : GrainListView -> List (Html Msg)
-view { grains, deleted, inlineEditGrain } =
+view { grains, inlineEditGrain } =
     [ CssHtml.keyedDiv
         [ css
             [ CS.pa space2
             , Css.marginBottom <| rem 3
             ]
         ]
-        (viewGrainItems inlineEditGrain grains
-            ++ viewGrainItems inlineEditGrain deleted
-        )
+        (viewGrainItems inlineEditGrain grains)
     , viewFab
     ]
 

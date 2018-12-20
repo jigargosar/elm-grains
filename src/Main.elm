@@ -573,7 +573,7 @@ viewAppBar { title, showBackBtn } authState =
 viewRouteChildren model =
     case model.route of
         Route.GrainList ->
-            mapStateToGrainListView model |> GrainListView.view
+            grainListViewModel model |> GrainListView.view
 
         Route.Grain gid ->
             grainById gid model |> GrainView.view
@@ -586,14 +586,11 @@ viewToast toast =
     Toast.view toast
 
 
-mapStateToGrainListView : Model -> GrainListView
-mapStateToGrainListView model =
+grainListViewModel : Model -> GrainListView
+grainListViewModel model =
     let
         allGrains =
             model.grainStore |> GrainStore.allAsList
-
-        ( deletedGrainList, grainList ) =
-            allGrains |> List.partition Grain.deleted
 
         modifiedAtDesc =
             Grain.modifiedAt >> Time.posixToMillis >> negate
@@ -601,8 +598,7 @@ mapStateToGrainListView model =
         createdAtAtDesc =
             Grain.createdAt >> Time.posixToMillis >> negate
     in
-    { grains = grainList
-    , deleted = deletedGrainList
+    { grains = allGrains
     , inlineEditGrain = model.inlineEditGrain
     }
 
