@@ -395,10 +395,6 @@ performWithNow nowToMsg =
     Task.perform nowToMsg Time.now
 
 
-performSetGrainContentWithNow gid content =
-    performWithNow <| SetGrainContentWithNow gid content
-
-
 view : Model -> Html Msg
 view model =
     let
