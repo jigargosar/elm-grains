@@ -32,7 +32,7 @@ type Msg
     | GrainMoreAction Msg
     | ShowMoveToPopup Grain
     | DismissPopup
-    | UpgradeGrainWithNow GrainId UpdateGrainMsg Posix
+    | UpdateGrainWithNow GrainId UpdateGrainMsg Posix
     | PopupActionSetGrainParent Grain Grain.ParentId
     | PopupActionMoveGrainUp Grain
     | PopupActionMoveGrainDown Grain

@@ -287,27 +287,27 @@ update message model =
         DragGrain grain ->
             Return.singleton model
 
-        UpgradeGrainWithNow gid msg now ->
+        UpdateGrainWithNow gid msg now ->
+            let
+                updateGrainHelp fn =
+                    updateGrainAndHandleResult (fn gid) model
+            in
             case msg of
                 Msg.SetGrainContent content ->
-                    updateGrainAndHandleResult
-                        (GrainStore.setContent now content gid)
-                        model
+                    updateGrainHelp
+                        (GrainStore.setContent now content)
 
                 Msg.SetGrainDeleted deleted ->
-                    updateGrainAndHandleResult
-                        (GrainStore.setDeleted now deleted gid)
-                        model
+                    updateGrainHelp
+                        (GrainStore.setDeleted now deleted)
 
                 Msg.SetGrainParentId parentId ->
-                    updateGrainAndHandleResult
-                        (GrainStore.setParentId now parentId gid)
-                        model
+                    updateGrainHelp
+                        (GrainStore.setParentId now parentId)
 
                 Msg.MoveGrainBy offset ->
-                    updateGrainAndHandleResult
-                        (GrainStore.moveBy now offset gid)
-                        model
+                    updateGrainHelp
+                        (GrainStore.moveBy now offset)
 
         CreateAndAddNewGrain ->
             ( model
@@ -381,7 +381,7 @@ updateGrainWithNowCmd grain msg =
 
 
 updateGrainIdWithNowCmd gid msg =
-    Task.perform (UpgradeGrainWithNow gid msg) Time.now
+    Task.perform (UpdateGrainWithNow gid msg) Time.now
 
 
 updateGrainAndHandleResult fn model =
