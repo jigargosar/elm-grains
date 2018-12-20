@@ -9,6 +9,7 @@ module GrainStore exposing
     , permanentlyDeleteGrain
     , setContent
     , setDeleted
+    , setParentId
     )
 
 import ActorId exposing (ActorId)
@@ -151,6 +152,16 @@ setDeleted now deleted gid model =
     getById gid model
         |> Maybe.map (updateGrain now (Grain.SetDeleted deleted) model)
         |> Result.fromMaybe "Error: setDeleted: Grain Not Found in Cache"
+
+
+
+-- SET ParentId
+
+
+setParentId now parentId gid model =
+    getById gid model
+        |> Maybe.map (updateGrain now (Grain.SetParentId parentId) model)
+        |> Result.fromMaybe "Error: setParentId: Grain Not Found in Cache"
 
 
 
