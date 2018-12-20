@@ -248,14 +248,6 @@ update message model =
                             (SetGrainContentWithNow gid content)
                         )
 
-        SetGrainContentWithNow gid content now ->
-            case GrainStore.setContent now content gid model.grainStore of
-                Err errString ->
-                    handleErrorString errString model
-
-                Ok ( newGrainStore, cmd ) ->
-                    Return.return (setGrainStore newGrainStore model) cmd
-
         DeleteGrain grain ->
             ( model
             , Task.perform (SetGrainDeletedWithNow (Grain.id grain) True) Time.now
@@ -303,6 +295,14 @@ update message model =
 
         DragGrain grain ->
             Return.singleton model
+
+        SetGrainContentWithNow gid content now ->
+            case GrainStore.setContent now content gid model.grainStore of
+                Err errString ->
+                    handleErrorString errString model
+
+                Ok ( newGrainStore, cmd ) ->
+                    Return.return (setGrainStore newGrainStore model) cmd
 
         SetGrainDeletedWithNow gid bool now ->
             case GrainStore.setDeleted now bool gid model.grainStore of
