@@ -79,39 +79,42 @@ type alias Forest msg =
     List (Node msg)
 
 
-view : GrainListView msg -> List (Html msg)
-view { grains, inlineEditGrain, getChildren, addFabClicked, grainMsg } =
+createNode : GrainListView msg -> Float -> Grain -> Node msg
+createNode vm level g =
     let
-        createNode : Float -> Grain -> Node msg
-        createNode level g =
-            let
-                newNodeModel : NodeModel msg
-                newNodeModel =
-                    { grain = g
-                    , domId = grainDomId g
-                    , title = Grain.titleOrEmpty g
-                    , level = level
-                    , maybeEditContent =
-                        InlineEditGrain.maybeContentFor g inlineEditGrain
-                    , moreClickedMsg = grainMsg.grainMoreClicked g
-                    , inlineEditMsg = grainMsg.inlineEditGrain g
-                    , inlineEditContentChangedMsg =
-                        grainMsg.inlineEditGrainContentChanged g
-                    , inlineEditSubmit = grainMsg.inlineEditSubmit g
-                    , inlineEditInputId = inlineGrainEditInputDomId g
-                    , canEdit = Grain.deleted g |> not
-                    , deleted = Grain.deleted g
-                    }
+        { grainMsg, inlineEditGrain, getChildren } =
+            vm
 
-                children : Forest msg
-                children =
-                    getChildren g |> List.map (createNode (level + 1))
-            in
-            Node newNodeModel children
+        newNodeModel : NodeModel msg
+        newNodeModel =
+            { grain = g
+            , domId = grainDomId g
+            , title = Grain.titleOrEmpty g
+            , deleted = Grain.deleted g
+            , canEdit = Grain.deleted g |> not
+            , level = level
+            , moreClickedMsg = grainMsg.grainMoreClicked g
+            , maybeEditContent = InlineEditGrain.maybeContentFor g inlineEditGrain
+            , inlineEditMsg = grainMsg.inlineEditGrain g
+            , inlineEditContentChangedMsg =
+                grainMsg.inlineEditGrainContentChanged g
+            , inlineEditSubmit = grainMsg.inlineEditSubmit g
+            , inlineEditInputId = inlineGrainEditInputDomId g
+            }
 
+        children : Forest msg
+        children =
+            getChildren g |> List.map (createNode vm (level + 1))
+    in
+    Node newNodeModel children
+
+
+view : GrainListView msg -> List (Html msg)
+view vm =
+    let
         forest : Forest msg
         forest =
-            List.map (createNode 0) grains
+            List.map (createNode vm 0) vm.grains
     in
     [ CssHtml.keyedDiv
         [ css
@@ -120,7 +123,7 @@ view { grains, inlineEditGrain, getChildren, addFabClicked, grainMsg } =
             ]
         ]
         (viewGrainItems forest)
-    , viewFab addFabClicked
+    , viewFab vm.addFabClicked
     ]
 
 
