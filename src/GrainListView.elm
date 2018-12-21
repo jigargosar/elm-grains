@@ -205,15 +205,18 @@ viewGrainItems forest =
     let
         viewKeyedItem node =
             let
-                modeModel =
+                nModel =
                     nodeModel node
+
+                nChildren =
+                    nodeChildren node
             in
-            ( modeModel.domId
+            ( nModel.domId
             , maybeNodeEditContent node
                 |> Maybe.unwrap viewDisplayItem viewEditingItem
                 |> callWith node
             )
-                :: List.concatMap viewKeyedItem (nodeChildren node)
+                :: List.concatMap viewKeyedItem nChildren
     in
     List.concatMap viewKeyedItem forest
 
