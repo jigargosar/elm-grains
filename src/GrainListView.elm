@@ -58,7 +58,8 @@ type alias GrainListView msg =
 type alias NodeModel msg =
     { grain : Grain
     , domId : String
-    , level : Int
+    , title : String
+    , level : Float
     , maybeEditContent : Maybe String
     , grainMsg : GrainMessages msg
     , moreClickedMsg : msg
@@ -93,10 +94,6 @@ canEditNodeContent =
     nodeDeleted >> not
 
 
-nodeTitle =
-    nodeGrain >> Grain.titleOrEmpty
-
-
 nodeInlineEditInputId =
     nodeGrain >> inlineGrainEditInputDomId
 
@@ -125,13 +122,14 @@ nodeInlineEditSubmit =
 view : GrainListView msg -> List (Html msg)
 view { grains, inlineEditGrain, getChildren, addFabClicked, grainMsg } =
     let
-        createNode : Int -> Grain -> Node msg
+        createNode : Float -> Grain -> Node msg
         createNode level g =
             let
                 newNodeModel : NodeModel msg
                 newNodeModel =
                     { grain = g
                     , domId = grainDomId g
+                    , title = Grain.titleOrEmpty g
                     , level = level
                     , maybeEditContent =
                         InlineEditGrain.maybeContentFor g inlineEditGrain
@@ -210,10 +208,11 @@ viewGrainItems forest =
     List.concatMap viewKeyedItem forest
 
 
-viewTitle node =
+viewTitle : NodeModel msg -> Node msg -> Html msg
+viewTitle nModel node =
     let
         title =
-            nodeTitle node
+            nModel.title
 
         canEdit =
             canEditNodeContent node
@@ -244,10 +243,11 @@ viewDragHandle node =
         ]
 
 
+viewDisplayItem : NodeModel msg -> Node msg -> Html msg
 viewDisplayItem nModel node =
     let
         level =
-            nModel.level |> toFloat
+            nModel.level
 
         deleted =
             nodeDeleted node
@@ -266,11 +266,12 @@ viewDisplayItem nModel node =
         [ {- viewDragHandle node
              ,
           -}
-          viewTitle node
+          viewTitle nModel node
         , viewRightMenu nModel
         ]
 
 
+viewEditingItem : NodeModel msg -> String -> Node msg -> Html msg
 viewEditingItem nModel content node =
     let
         bindings =
@@ -278,7 +279,7 @@ viewEditingItem nModel content node =
             ]
 
         level =
-            nModel.level |> toFloat
+            nModel.level
     in
     styled div
         [ Css.displayFlex
