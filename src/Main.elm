@@ -189,6 +189,7 @@ subscriptions model =
         ]
 
 
+handleErrorString : String -> Model -> ( Model, Cmd Msg )
 handleErrorString errString model =
     Return.return (mapToast (Toast.show errString) model)
         (Port.error errString)
@@ -342,12 +343,22 @@ update message model =
             in
             Return.return (setGrainStore newGrainStore model) cmd
 
-        LoadGrainCache encodedValue ->
+        LoadGrainCache encoded ->
             let
-                _ =
-                    GrainCache.fromEncodedValue encodedValue
+                handleDecodeError =
+                    Result.mapError
+                        (D.errorToString
+                            >> handleErrorString
+                            >> callWith model
+                        )
             in
-            Return.singleton model
+            GrainCache.fromEncodedValue encoded
+                |> handleDecodeError
+                |> Result.map
+                    (\grainCache ->
+                        Return.singleton { model | grainCache = grainCache }
+                    )
+                |> Result.merge
 
         RouteTo route ->
             Return.singleton (setRoute route model)
