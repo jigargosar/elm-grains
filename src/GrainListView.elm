@@ -65,6 +65,7 @@ type alias NodeModel msg =
     , moreClickedMsg : msg
     , inlineEditMsg : msg
     , inlineEditContentChangedMsg : String -> msg
+    , inlineEditSubmit : msg
     }
 
 
@@ -109,10 +110,6 @@ nodeDragMsg =
     nodeGrainMsg .dragGrain
 
 
-nodeInlineEditSubmit =
-    nodeGrainMsg .inlineEditSubmit
-
-
 view : GrainListView msg -> List (Html msg)
 view { grains, inlineEditGrain, getChildren, addFabClicked, grainMsg } =
     let
@@ -132,6 +129,7 @@ view { grains, inlineEditGrain, getChildren, addFabClicked, grainMsg } =
                     , inlineEditMsg = grainMsg.inlineEditGrain g
                     , inlineEditContentChangedMsg =
                         grainMsg.inlineEditGrainContentChanged g
+                    , inlineEditSubmit = grainMsg.inlineEditSubmit g
                     }
 
                 children : Forest msg
@@ -272,7 +270,7 @@ viewEditingItem : NodeModel msg -> String -> Node msg -> Html msg
 viewEditingItem nModel content node =
     let
         bindings =
-            [ ( HotKey.enter, ( nodeInlineEditSubmit node, True ) )
+            [ ( HotKey.enter, ( nModel.inlineEditSubmit, True ) )
             ]
 
         level =
