@@ -1,4 +1,4 @@
-module GrainCache exposing (GrainCache, empty, fromEncodedValue)
+module GrainCache exposing (GrainCache, decoder, empty)
 
 import ActorId exposing (ActorId)
 import BasicsX exposing (callWith, ifElse, unwrapMaybe)
@@ -70,11 +70,6 @@ type alias GrainCache =
 empty : GrainCache
 empty =
     GrainIdLookup.empty
-
-
-fromEncodedValue : Value -> Result D.Error GrainCache
-fromEncodedValue =
-    D.decodeValue decoder
 
 
 decoder : Decoder GrainCache

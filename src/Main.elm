@@ -157,6 +157,10 @@ dismissPopup model =
     { model | popup = NoPopup }
 
 
+setGrainCache grainCache model =
+    { model | grainCache = grainCache }
+
+
 
 ---- UPDATE ----
 
@@ -193,6 +197,17 @@ handleErrorString : String -> Model -> ( Model, Cmd Msg )
 handleErrorString errString model =
     Return.return (mapToast (Toast.show errString) model)
         (Port.error errString)
+
+
+decodeValueAndHandleError { decoder, value, onOk } model =
+    D.decodeValue decoder value
+        |> Result.mapError
+            (D.errorToString
+                >> handleErrorString
+                >> callWith model
+            )
+        |> Result.map (onOk >> callWith model)
+        |> Result.merge
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -344,25 +359,14 @@ update message model =
             Return.return (setGrainStore newGrainStore model) cmd
 
         LoadGrainCache encoded ->
-            let
-                handleDecodeError =
-                    Result.mapError
-                        (D.errorToString
-                            >> handleErrorString
-                            >> callWith model
-                        )
-            in
-            GrainCache.fromEncodedValue encoded
-                |> handleDecodeError
-                |> Result.map
-                    (\grainCache ->
-                        let
-                            _ =
-                                Debug.log "grainCache" grainCache
-                        in
-                        Return.singleton { model | grainCache = grainCache }
-                    )
-                |> Result.merge
+            decodeValueAndHandleError
+                { decoder = GrainCache.decoder
+                , value = encoded
+                , onOk =
+                    \grainCache ->
+                        setGrainCache grainCache >> Return.singleton
+                }
+                model
 
         RouteTo route ->
             Return.singleton (setRoute route model)
