@@ -285,7 +285,7 @@ update message model =
                         GrainListView.inlineGrainEditInputDomId grain
                     )
 
-        InlineEditGrainSubmit ->
+        InlineEditGrainSubmit grain ->
             case InlineEditGrain.endEditing model.inlineEditGrain of
                 Err errString ->
                     handleErrorString errString model
@@ -750,11 +750,13 @@ toGrainListView model =
     { grains = rootGrains
     , getChildren = \parent -> List.filter (Grain.isChildOf parent) allGrains
     , inlineEditGrain = model.inlineEditGrain
-    , messages =
+    , addFabClicked = Msg.CreateAndAddNewGrain
+    , grainMsg =
         { grainMoreClicked = GrainMoreClicked
         , inlineEditGrain = Msg.InlineEditGrain
         , dragGrain = Msg.DragGrain
         , inlineEditGrainContentChanged = Msg.InlineEditGrainContentChanged
+        , inlineEditSubmit = Msg.InlineEditGrainSubmit
         }
     }
 

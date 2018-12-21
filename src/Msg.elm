@@ -44,7 +44,7 @@ type Msg
     | AddNewGrain Grain
     | BackPressed
     | InlineEditGrain Grain
-    | InlineEditGrainSubmit
+    | InlineEditGrainSubmit Grain
     | GrainContentChanged Grain String
     | InlineEditGrainContentChanged Grain String
     | ToastDismiss

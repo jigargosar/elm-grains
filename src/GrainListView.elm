@@ -38,11 +38,12 @@ inlineGrainEditInputDomId =
     Grain.toDomIdWithPrefix "grain-list-item-edit-input--"
 
 
-type alias Messages =
+type alias GrainMessages =
     { grainMoreClicked : Grain -> Msg
     , inlineEditGrain : Grain -> Msg
     , dragGrain : Grain -> Msg
     , inlineEditGrainContentChanged : Grain -> String -> Msg
+    , inlineEditSubmit : Grain -> Msg
     }
 
 
@@ -50,7 +51,8 @@ type alias GrainListView =
     { grains : List Grain
     , getChildren : Grain -> List Grain
     , inlineEditGrain : InlineEditGrain
-    , messages : Messages
+    , addFabClicked : Msg
+    , grainMsg : GrainMessages
     }
 
 
@@ -58,7 +60,7 @@ type alias NodeModel =
     { grain : Grain
     , level : Int
     , maybeEditContent : Maybe String
-    , messages : Messages
+    , grainMsg : GrainMessages
     }
 
 
@@ -114,9 +116,9 @@ nodeInlineEditInputId =
     nodeGrain >> inlineGrainEditInputDomId
 
 
-nodeGrainMsg : (Messages -> Grain -> a) -> Node -> a
+nodeGrainMsg : (GrainMessages -> Grain -> a) -> Node -> a
 nodeGrainMsg fn (Node model _) =
-    fn model.messages model.grain
+    fn model.grainMsg model.grain
 
 
 nodeDragMsg =
@@ -136,8 +138,12 @@ nodeInlineEditGrainContentChanged =
     nodeGrainMsg .inlineEditGrainContentChanged
 
 
+nodeInlineEditSubmit =
+    nodeGrainMsg .inlineEditSubmit
+
+
 view : GrainListView -> List (Html Msg)
-view { grains, inlineEditGrain, getChildren, messages } =
+view { grains, inlineEditGrain, getChildren, addFabClicked, grainMsg } =
     let
         createNode : Int -> Grain -> Node
         createNode level g =
@@ -148,7 +154,7 @@ view { grains, inlineEditGrain, getChildren, messages } =
                     , level = level
                     , maybeEditContent =
                         InlineEditGrain.maybeContentFor g inlineEditGrain
-                    , messages = messages
+                    , grainMsg = grainMsg
                     }
 
                 children : Forest
@@ -168,11 +174,11 @@ view { grains, inlineEditGrain, getChildren, messages } =
             ]
         ]
         (viewGrainItems forest)
-    , viewFab
+    , viewFab addFabClicked
     ]
 
 
-viewFab =
+viewFab addFabClicked =
     flexRow
         [ CS.fixed
         , Css.bottom <| space4
@@ -192,7 +198,7 @@ viewFab =
             , Css.boxShadow4 (px 1) (px 1) (px 8) (blackAlpha 0.5)
             , CS.pa space2
             ]
-            [ onClick Msg.CreateAndAddNewGrain ]
+            [ onClick addFabClicked ]
             [ CssIcons.viewColorWhite CssIcons.add ]
         ]
 
@@ -279,7 +285,7 @@ viewDisplayItem node =
 viewEditingItem content node =
     let
         bindings =
-            [ ( HotKey.enter, ( Msg.InlineEditGrainSubmit, True ) )
+            [ ( HotKey.enter, ( nodeInlineEditSubmit node, True ) )
             ]
 
         level =
