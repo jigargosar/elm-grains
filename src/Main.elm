@@ -22,6 +22,7 @@ import EventX exposing (onKeyDownPD)
 import FireUser exposing (FireUser)
 import Firebase
 import Grain exposing (Grain)
+import GrainCache exposing (GrainCache)
 import GrainChange
 import GrainId exposing (GrainId)
 import GrainListView exposing (GrainListView)
@@ -94,6 +95,7 @@ type alias Model =
     , actorId : ActorId
     , popup : Popup
     , inlineEditGrain : InlineEditGrain
+    , grainCache : GrainCache
     , seed : Seed
     }
 
@@ -111,6 +113,7 @@ init flags =
                 |> Random.with ActorId.generator
                 |> Random.always NoPopup
                 |> Random.always InlineEditGrain.initialValue
+                |> Random.always GrainCache.empty
                 |> Random.finish
     in
     update (LoadGrainStore flags.grains) model

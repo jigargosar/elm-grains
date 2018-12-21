@@ -9,6 +9,7 @@
       "Microsoft/elm-json-tree-view": "2.0.0",
       "NoRedInk/elm-compare": "2.0.0",
       "NoRedInk/elm-json-decode-pipeline": "1.0.0",
+      "NoRedInk/elm-saved": "1.0.1",
       "TSFoster/elm-tuple-extra": "2.0.0",
       "arturopala/elm-monocle": "2.1.0",
       "avh4/elm-color": "1.0.0",
