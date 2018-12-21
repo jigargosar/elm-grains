@@ -38,10 +38,16 @@ inlineGrainEditInputDomId =
     Grain.toDomIdWithPrefix "grain-list-item-edit-input--"
 
 
+type alias Messages =
+    { grainMoreClicked : Grain -> Msg
+    }
+
+
 type alias GrainListView =
     { grains : List Grain
     , getChildren : Grain -> List Grain
     , inlineEditGrain : InlineEditGrain
+    , messages : Messages
     }
 
 
@@ -49,6 +55,7 @@ type alias NodeModel =
     { grain : Grain
     , level : Int
     , maybeEditContent : Maybe String
+    , messages : Messages
     }
 
 
@@ -60,11 +67,11 @@ type alias Forest =
     List Node
 
 
-nodeModel (Node model children) =
+nodeModel (Node model _) =
     model
 
 
-nodeChildren (Node model children) =
+nodeChildren (Node _ children) =
     children
 
 
@@ -112,8 +119,14 @@ nodeInlineEditMsg =
     nodeGrain >> Msg.InlineEditGrain
 
 
+nodeGrainMsg : (Messages -> Grain -> Msg) -> Node -> Msg
+nodeGrainMsg fn (Node model _) =
+    fn model.messages model.grain
+
+
+nodeMoreClicked : Node -> Msg
 nodeMoreClicked =
-    nodeGrain >> Msg.GrainMoreClicked
+    nodeGrainMsg .grainMoreClicked
 
 
 nodeInlineEditInputContentChanged =
@@ -121,7 +134,7 @@ nodeInlineEditInputContentChanged =
 
 
 view : GrainListView -> List (Html Msg)
-view { grains, inlineEditGrain, getChildren } =
+view { grains, inlineEditGrain, getChildren, messages } =
     let
         createNode : Int -> Grain -> Node
         createNode level g =
@@ -132,6 +145,7 @@ view { grains, inlineEditGrain, getChildren } =
                     , level = level
                     , maybeEditContent =
                         InlineEditGrain.maybeContentFor g inlineEditGrain
+                    , messages = messages
                     }
 
                 children : Forest

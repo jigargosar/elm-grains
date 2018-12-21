@@ -750,6 +750,9 @@ toGrainListView model =
     { grains = rootGrains
     , getChildren = \parent -> List.filter (Grain.isChildOf parent) allGrains
     , inlineEditGrain = model.inlineEditGrain
+    , messages =
+        { grainMoreClicked = GrainMoreClicked
+        }
     }
 
 
