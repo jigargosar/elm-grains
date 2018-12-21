@@ -60,3 +60,11 @@ setSaved grain =
 
 remove grain =
     GrainIdLookup.remove (Grain.id grain)
+
+
+update fn gid model =
+    if GrainIdLookup.member gid model then
+        Result.Ok <| GrainIdLookup.updateIfExists gid fn
+
+    else
+        Result.Err "GrainNotFound"
