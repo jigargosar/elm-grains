@@ -33,7 +33,7 @@ initialAuthState =
 
 type Msg
     = AuthStateChanged AuthState
-    | GrainChanges ((List GrainChange))
+    | GrainChanges (List GrainChange)
     | Error String
 
 
