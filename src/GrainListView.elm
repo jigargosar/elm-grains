@@ -101,15 +101,6 @@ nodeInlineEditInputId =
     nodeGrain >> inlineGrainEditInputDomId
 
 
-nodeGrainMsg : (GrainMessages msg -> Grain -> a) -> Node msg -> a
-nodeGrainMsg fn (Node model _) =
-    fn model.grainMsg model.grain
-
-
-nodeDragMsg =
-    nodeGrainMsg .dragGrain
-
-
 view : GrainListView msg -> List (Html msg)
 view { grains, inlineEditGrain, getChildren, addFabClicked, grainMsg } =
     let
@@ -230,12 +221,14 @@ viewRightMenu nModel =
         ]
 
 
-viewDragHandle node =
-    CssElements.iconBtnWithStyles [ CS.selfCenter, CS.move ]
-        [ onClick (nodeDragMsg node)
-        ]
-        [ CssIcons.view CssIcons.dragHandle
-        ]
+
+--viewDragHandle node =
+--    CssElements.iconBtnWithStyles [ CS.selfCenter, CS.move ]
+--        [ onClick (nodeDragMsg node)
+--        ]
+--        [ CssIcons.view CssIcons.dragHandle
+--        ]
+--
 
 
 viewDisplayItem : NodeModel msg -> Node msg -> Html msg
