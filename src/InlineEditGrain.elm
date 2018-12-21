@@ -57,20 +57,6 @@ endEditing model =
             Result.Ok <| ( gid, content, initialValue )
 
 
-maybeGid model =
-    case model of
-        NotEditing ->
-            Nothing
-
-        Editing { gid } ->
-            Just gid
-
-
-
---isEditing grain =
---    maybeGid >> Maybe.unwrap False (Grain.idEq >> callWith grain)
-
-
 maybeContentFor grain model =
     case model of
         NotEditing ->
