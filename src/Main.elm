@@ -290,7 +290,12 @@ update message model =
         UpdateGrainWithNow gid msg now ->
             let
                 updateGrainHelp fn =
-                    updateGrainAndHandleResult (fn now gid) model
+                    case fn now gid model.grainStore of
+                        Err errString ->
+                            handleErrorString errString model
+
+                        Ok ( newGrainStore, cmd ) ->
+                            Return.return (setGrainStore newGrainStore model) cmd
             in
             (case msg of
                 Msg.SetGrainContent content ->
@@ -380,15 +385,6 @@ updateGrainWithNowCmd grain msg =
 
 updateGrainIdWithNowCmd gid msg =
     Task.perform (UpdateGrainWithNow gid msg) Time.now
-
-
-updateGrainAndHandleResult fn model =
-    case fn model.grainStore of
-        Err errString ->
-            handleErrorString errString model
-
-        Ok ( newGrainStore, cmd ) ->
-            Return.return (setGrainStore newGrainStore model) cmd
 
 
 view : Model -> Html Msg
