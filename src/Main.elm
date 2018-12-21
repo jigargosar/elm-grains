@@ -233,6 +233,7 @@ updateGrainCacheFromFirebaseChanges changeList model =
 
         grainCache =
             List.foldr handleChange model.grainCache changeList
+                |> Debug.log "grainCache"
 
         cmd =
             Port.setGrainCache <| GrainCache.encoder grainCache
