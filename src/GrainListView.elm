@@ -63,6 +63,8 @@ type alias NodeModel msg =
     , maybeEditContent : Maybe String
     , grainMsg : GrainMessages msg
     , moreClickedMsg : msg
+    , inlineEditMsg : msg
+    , inlineEditContentChangedMsg : String -> msg
     }
 
 
@@ -107,14 +109,6 @@ nodeDragMsg =
     nodeGrainMsg .dragGrain
 
 
-nodeInlineEditMsg =
-    nodeGrainMsg .inlineEditGrain
-
-
-nodeInlineEditGrainContentChanged =
-    nodeGrainMsg .inlineEditGrainContentChanged
-
-
 nodeInlineEditSubmit =
     nodeGrainMsg .inlineEditSubmit
 
@@ -135,6 +129,9 @@ view { grains, inlineEditGrain, getChildren, addFabClicked, grainMsg } =
                         InlineEditGrain.maybeContentFor g inlineEditGrain
                     , grainMsg = grainMsg
                     , moreClickedMsg = grainMsg.grainMoreClicked g
+                    , inlineEditMsg = grainMsg.inlineEditGrain g
+                    , inlineEditContentChangedMsg =
+                        grainMsg.inlineEditGrainContentChanged g
                     }
 
                 children : Forest msg
@@ -223,7 +220,7 @@ viewTitle nModel node =
         , CS.flex11Auto
         , CS.ellipsis
         ]
-        [ attrIf canEdit (onClick <| nodeInlineEditMsg node) ]
+        [ attrIf canEdit (onClick <| nModel.inlineEditMsg) ]
         [ text title ]
 
 
@@ -292,7 +289,7 @@ viewEditingItem nModel content node =
         [ textarea
             [ id <| nodeInlineEditInputId node
             , value <| content
-            , onInput <| nodeInlineEditGrainContentChanged node
+            , onInput <| nModel.inlineEditContentChangedMsg
             , CssEventX.onKeyDownPD <|
                 HotKey.bindEachToMsg bindings
             , autocomplete False
