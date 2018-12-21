@@ -66,6 +66,9 @@ type alias NodeModel msg =
     , inlineEditMsg : msg
     , inlineEditContentChangedMsg : String -> msg
     , inlineEditSubmit : msg
+    , inlineEditInputId : String
+    , canEdit : Bool
+    , deleted : Bool
     }
 
 
@@ -75,30 +78,6 @@ type Node msg
 
 type alias Forest msg =
     List (Node msg)
-
-
-nodeModel (Node model _) =
-    model
-
-
-nodeChildren (Node _ children) =
-    children
-
-
-nodeGrain =
-    nodeModel >> .grain
-
-
-nodeDeleted =
-    nodeGrain >> Grain.deleted
-
-
-canEditNodeContent =
-    nodeDeleted >> not
-
-
-nodeInlineEditInputId =
-    nodeGrain >> inlineGrainEditInputDomId
 
 
 view : GrainListView msg -> List (Html msg)
@@ -121,6 +100,9 @@ view { grains, inlineEditGrain, getChildren, addFabClicked, grainMsg } =
                     , inlineEditContentChangedMsg =
                         grainMsg.inlineEditGrainContentChanged g
                     , inlineEditSubmit = grainMsg.inlineEditSubmit g
+                    , inlineEditInputId = inlineGrainEditInputDomId g
+                    , canEdit = Grain.deleted g |> not
+                    , deleted = Grain.deleted g
                     }
 
                 children : Forest msg
@@ -178,18 +160,15 @@ viewGrainItems forest =
     let
         viewKeyedItem node =
             let
-                nModel =
-                    nodeModel node
-
-                nChildren =
-                    nodeChildren node
+                (Node nModel children) =
+                    node
             in
             ( nModel.domId
             , nModel.maybeEditContent
                 |> Maybe.unwrap (viewDisplayItem nModel) (viewEditingItem nModel)
                 |> callWith node
             )
-                :: List.concatMap viewKeyedItem nChildren
+                :: List.concatMap viewKeyedItem children
     in
     List.concatMap viewKeyedItem forest
 
@@ -201,7 +180,7 @@ viewTitle nModel node =
             nModel.title
 
         canEdit =
-            canEditNodeContent node
+            nModel.canEdit
     in
     styled div
         [ CS.pa space2
@@ -238,7 +217,7 @@ viewDisplayItem nModel node =
             nModel.level
 
         deleted =
-            nodeDeleted node
+            nModel.deleted
 
         opacityValue =
             ter deleted 0.7 1
@@ -278,7 +257,7 @@ viewEditingItem nModel content node =
         ]
         []
         [ textarea
-            [ id <| nodeInlineEditInputId node
+            [ id <| nModel.inlineEditInputId
             , value <| content
             , onInput <| nModel.inlineEditContentChangedMsg
             , CssEventX.onKeyDownPD <|
