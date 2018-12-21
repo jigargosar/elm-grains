@@ -85,14 +85,6 @@ nodeGrain =
     nodeModel >> .grain
 
 
-nodeLevel =
-    nodeModel >> .level
-
-
-maybeNodeEditContent =
-    nodeModel >> .maybeEditContent
-
-
 nodeDeleted =
     nodeGrain >> Grain.deleted
 
@@ -209,8 +201,8 @@ viewGrainItems forest =
                     nodeChildren node
             in
             ( nModel.domId
-            , maybeNodeEditContent node
-                |> Maybe.unwrap (viewDisplayItem nModel) viewEditingItem
+            , nModel.maybeEditContent
+                |> Maybe.unwrap (viewDisplayItem nModel) (viewEditingItem nModel)
                 |> callWith node
             )
                 :: List.concatMap viewKeyedItem nChildren
@@ -255,7 +247,7 @@ viewDragHandle node =
 viewDisplayItem nModel node =
     let
         level =
-            nodeLevel node |> toFloat
+            nModel.level |> toFloat
 
         deleted =
             nodeDeleted node
@@ -279,14 +271,14 @@ viewDisplayItem nModel node =
         ]
 
 
-viewEditingItem content node =
+viewEditingItem nModel content node =
     let
         bindings =
             [ ( HotKey.enter, ( nodeInlineEditSubmit node, True ) )
             ]
 
         level =
-            nodeLevel node |> toFloat
+            nModel.level |> toFloat
     in
     styled div
         [ Css.displayFlex
