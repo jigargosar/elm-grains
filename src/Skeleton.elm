@@ -9,7 +9,6 @@ import EventX
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes as SA
 import Html.Styled.Events as SE
-import Msg
 import StyledEvents as SE
 
 

@@ -46,7 +46,6 @@ import Material.Icons.Editor as MIcons
 import Material.Icons.Navigation as MIcons
 import Material.Icons.Toggle as MIcons
 import Maybe.Extra as Maybe
-import Msg exposing (Msg(..))
 import NotFoundView
 import Port
 import Random exposing (Generator, Seed)
@@ -58,7 +57,7 @@ import Route exposing (Route)
 import Skeleton
 import Tagged
 import Task
-import Time
+import Time exposing (Posix)
 import TimeX
 import Toast exposing (Toast)
 import Tuple exposing (mapFirst)
@@ -165,6 +164,59 @@ setGrainCache grainCache model =
 ---- UPDATE ----
 
 
+type UpdateGrainMsg
+    = SetGrainContent String
+    | SetGrainDeleted Bool
+    | SetGrainParentId Grain.ParentId
+    | MoveGrainBy Int
+
+
+type Msg
+    = ---- INJECT MSG BELOW ----
+      NoOp
+    | FocusResult (Result String ())
+    | LoadGrainStore Value
+    | LoadGrainCache Value
+    | RestoreGrain Grain
+    | DeleteGrain Grain
+    | GrainMoreAction Msg
+    | ShowMoveToPopup Grain
+    | DismissPopup
+    | UpdateGrainWithNow GrainId UpdateGrainMsg Posix
+    | PopupActionSetGrainParent Grain Grain.ParentId
+    | PopupActionMoveGrainUp Grain
+    | PopupActionMoveGrainDown Grain
+    | GrainMoreClicked Grain
+    | DragGrain Grain
+    | CreateAndAddNewGrain
+    | CreateAndAddNewGrainWithNow Posix
+    | AddNewGrain Grain
+    | BackPressed
+    | InlineEditGrain Grain
+    | InlineEditGrainSubmit Grain
+    | GrainContentChanged Grain String
+    | InlineEditGrainContentChanged Grain String
+    | ToastDismiss
+    | RouteTo Route
+    | UrlChanged String
+    | Firebase Value
+    | ErrorString String
+    | SignIn
+    | SignOut
+
+
+routeTo route =
+    RouteTo route
+
+
+routeToGrain grain =
+    routeToGrainId (Grain.id grain)
+
+
+routeToGrainId gid =
+    routeTo <| Route.Grain gid
+
+
 autoFocusRoute route =
     let
         maybeDomId =
@@ -261,7 +313,7 @@ update message model =
 
         GrainContentChanged grain content ->
             ( model
-            , updateGrainWithNowCmd grain (Msg.SetGrainContent content)
+            , updateGrainWithNowCmd grain (SetGrainContent content)
             )
 
         InlineEditGrainContentChanged grain content ->
@@ -295,16 +347,16 @@ update message model =
                         { model
                             | inlineEditGrain = inlineEditGrain
                         }
-                        (updateGrainIdWithNowCmd gid (Msg.SetGrainContent content))
+                        (updateGrainIdWithNowCmd gid (SetGrainContent content))
 
         DeleteGrain grain ->
             ( model
-            , updateGrainWithNowCmd grain (Msg.SetGrainDeleted True)
+            , updateGrainWithNowCmd grain (SetGrainDeleted True)
             )
 
         RestoreGrain grain ->
             ( model
-            , updateGrainWithNowCmd grain (Msg.SetGrainDeleted False)
+            , updateGrainWithNowCmd grain (SetGrainDeleted False)
             )
 
         GrainMoreAction msg ->
@@ -316,17 +368,17 @@ update message model =
 
         PopupActionSetGrainParent grain parentId ->
             ( dismissPopup model
-            , updateGrainWithNowCmd grain (Msg.SetGrainParentId parentId)
+            , updateGrainWithNowCmd grain (SetGrainParentId parentId)
             )
 
         PopupActionMoveGrainUp grain ->
             ( dismissPopup model
-            , updateGrainWithNowCmd grain (Msg.MoveGrainBy -1)
+            , updateGrainWithNowCmd grain (MoveGrainBy -1)
             )
 
         PopupActionMoveGrainDown grain ->
             ( dismissPopup model
-            , updateGrainWithNowCmd grain (Msg.MoveGrainBy 1)
+            , updateGrainWithNowCmd grain (MoveGrainBy 1)
             )
 
         DismissPopup ->
@@ -350,16 +402,16 @@ update message model =
                             Return.return (setGrainStore newGrainStore model) cmd
             in
             (case msg of
-                Msg.SetGrainContent content ->
+                SetGrainContent content ->
                     GrainStore.setContent content
 
-                Msg.SetGrainDeleted deleted ->
+                SetGrainDeleted deleted ->
                     GrainStore.setDeleted deleted
 
-                Msg.SetGrainParentId parentId ->
+                SetGrainParentId parentId ->
                     GrainStore.setParentId parentId
 
-                Msg.MoveGrainBy offset ->
+                MoveGrainBy offset ->
                     GrainStore.moveBy offset
             )
                 |> updateGrainHelp
@@ -380,7 +432,7 @@ update message model =
 
                 Ok ( newGrainStore, cmd ) ->
                     Return.return (setGrainStore newGrainStore model) cmd
-                        |> Return.andThen (update (Msg.routeToGrain grain))
+                        |> Return.andThen (update (routeToGrain grain))
 
         LoadGrainStore val ->
             let
@@ -524,7 +576,7 @@ viewGrainMovePopup { grain, otherGrains } =
                     ]
                 ]
                 [ onClick <|
-                    Msg.PopupActionSetGrainParent grain
+                    PopupActionSetGrainParent grain
                         (Grain.idAsParentId g)
                 ]
                 [ flexRow [ CS.ellipsis ]
@@ -546,7 +598,7 @@ viewGrainMovePopup { grain, otherGrains } =
                     ]
                 ]
                 [ onClick <|
-                    Msg.PopupActionSetGrainParent grain
+                    PopupActionSetGrainParent grain
                         Grain.rootParentId
                 ]
                 [ flexRow [ CS.ellipsis ]
@@ -567,7 +619,7 @@ viewGrainMovePopup { grain, otherGrains } =
                     )
                 ]
             ]
-        , onDismiss = Msg.DismissPopup
+        , onDismiss = DismissPopup
         }
 
 
@@ -576,7 +628,7 @@ viewGrainMorePopup grain =
         viewEdit : Grain -> Html Msg
         viewEdit g =
             flexRow [ CS.pointer, CS.p2 space2 zero ]
-                [ onClick (Msg.GrainMoreAction <| Msg.routeToGrain g) ]
+                [ onClick (GrainMoreAction <| routeToGrain g) ]
                 [ flexCol [] [] [ text "Edit" ]
                 , CssElements.iconBtnWithStyles [ CS.selfCenter ]
                     []
@@ -586,7 +638,7 @@ viewGrainMorePopup grain =
 
         viewMoveUp g =
             flexRow [ CS.pointer, CS.p2 space2 zero ]
-                [ onClick (Msg.PopupActionMoveGrainUp g) ]
+                [ onClick (PopupActionMoveGrainUp g) ]
                 [ flexCol [] [] [ text "Move Up" ]
                 , CssElements.iconBtnWithStyles [ CS.selfCenter ]
                     []
@@ -596,7 +648,7 @@ viewGrainMorePopup grain =
 
         viewMoveDown g =
             flexRow [ CS.pointer, CS.p2 space2 zero ]
-                [ onClick (Msg.PopupActionMoveGrainDown g) ]
+                [ onClick (PopupActionMoveGrainDown g) ]
                 [ flexCol [] [] [ text "Move Down" ]
                 , CssElements.iconBtnWithStyles [ CS.selfCenter ]
                     []
@@ -606,7 +658,7 @@ viewGrainMorePopup grain =
 
         viewNestUnder g =
             flexRow [ CS.pointer, CS.p2 space2 zero ]
-                [ onClick (Msg.ShowMoveToPopup g) ]
+                [ onClick (ShowMoveToPopup g) ]
                 [ flexCol [] [] [ text "Nest Under..." ]
                 , CssElements.iconBtnWithStyles [ CS.selfCenter ]
                     []
@@ -620,10 +672,10 @@ viewGrainMorePopup grain =
                     Grain.deleted g
 
                 action =
-                    (ter deleted Msg.RestoreGrain Msg.DeleteGrain <|
+                    (ter deleted RestoreGrain DeleteGrain <|
                         g
                     )
-                        |> Msg.GrainMoreAction
+                        |> GrainMoreAction
 
                 actionTitle =
                     ter deleted "Restore" "Trash"
@@ -652,7 +704,7 @@ viewGrainMorePopup grain =
                 , viewDelete grain
                 ]
             ]
-        , onDismiss = Msg.DismissPopup
+        , onDismiss = DismissPopup
         }
 
 
@@ -717,14 +769,14 @@ viewRouteChildren model =
             toGrainListView model |> GrainListView.view
 
         Route.Grain gid ->
-            grainById gid model |> GrainView.view Msg.GrainContentChanged
+            grainById gid model |> GrainView.view GrainContentChanged
 
         Route.NotFound string ->
             NotFoundView.view
 
 
 viewToast toast =
-    Toast.view toast
+    Toast.view ToastDismiss toast
 
 
 toGrainListView : Model -> GrainListView Msg
@@ -750,13 +802,13 @@ toGrainListView model =
     { grains = rootGrains
     , getChildren = \parent -> List.filter (Grain.isChildOf parent) allGrains
     , inlineEditGrain = model.inlineEditGrain
-    , addFabClicked = Msg.CreateAndAddNewGrain
+    , addFabClicked = CreateAndAddNewGrain
     , grainMsg =
         { grainMoreClicked = GrainMoreClicked
-        , inlineEditGrain = Msg.InlineEditGrain
-        , dragGrain = Msg.DragGrain
-        , inlineEditGrainContentChanged = Msg.InlineEditGrainContentChanged
-        , inlineEditSubmit = Msg.InlineEditGrainSubmit
+        , inlineEditGrain = InlineEditGrain
+        , dragGrain = DragGrain
+        , inlineEditGrainContentChanged = InlineEditGrainContentChanged
+        , inlineEditSubmit = InlineEditGrainSubmit
         }
     }
 

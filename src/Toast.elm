@@ -44,7 +44,6 @@ import Material.Icons.Editor as MIcons
 import Material.Icons.Navigation as MIcons
 import Material.Icons.Toggle as MIcons
 import Maybe.Extra as Maybe
-import Msg exposing (Msg(..))
 import Port
 import Random exposing (Generator, Seed)
 import Random.Pipeline as Random
@@ -73,13 +72,13 @@ show title model =
     { model | title = title, visible = True }
 
 
-view : Toast -> Html Msg
-view toast =
+view : msg -> Toast -> Html msg
+view dismissMsg toast =
     viewIfLazy toast.visible
-        (\_ -> viewContent toast.title)
+        (\_ -> viewContent dismissMsg toast.title)
 
 
-viewContent title =
+viewContent dismissMsg title =
     flexRow
         [ CS.sticky
         , Css.bottom <| space4
@@ -96,5 +95,7 @@ viewContent title =
             ]
             []
             [ text title ]
-        , flexRow [ CS.pa space2 ] [ class "pointer", onClick ToastDismiss ] [ text "X" ]
+        , flexRow [ CS.pa space2 ]
+            [ class "pointer", onClick dismissMsg ]
+            [ text "X" ]
         ]
