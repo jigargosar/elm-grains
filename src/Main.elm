@@ -717,7 +717,7 @@ viewRouteChildren model =
             toGrainListView model |> GrainListView.view
 
         Route.Grain gid ->
-            grainById gid model |> GrainView.view
+            grainById gid model |> GrainView.view Msg.GrainContentChanged
 
         Route.NotFound string ->
             NotFoundView.view
@@ -727,7 +727,7 @@ viewToast toast =
     Toast.view toast
 
 
-toGrainListView : Model -> GrainListView
+toGrainListView : Model -> GrainListView Msg
 toGrainListView model =
     let
         sort =

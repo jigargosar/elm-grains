@@ -23,7 +23,6 @@ import Html.Styled.Attributes exposing (autocomplete, class, css, id, value)
 import Html.Styled.Events exposing (onClick, onInput)
 import InlineEditGrain exposing (InlineEditGrain)
 import Maybe.Extra as Maybe
-import Msg exposing (Msg)
 import Route
 import Skeleton
 import Task exposing (Task)
@@ -38,38 +37,38 @@ inlineGrainEditInputDomId =
     Grain.toDomIdWithPrefix "grain-list-item-edit-input--"
 
 
-type alias GrainMessages =
-    { grainMoreClicked : Grain -> Msg
-    , inlineEditGrain : Grain -> Msg
-    , dragGrain : Grain -> Msg
-    , inlineEditGrainContentChanged : Grain -> String -> Msg
-    , inlineEditSubmit : Grain -> Msg
+type alias GrainMessages msg =
+    { grainMoreClicked : Grain -> msg
+    , inlineEditGrain : Grain -> msg
+    , dragGrain : Grain -> msg
+    , inlineEditGrainContentChanged : Grain -> String -> msg
+    , inlineEditSubmit : Grain -> msg
     }
 
 
-type alias GrainListView =
+type alias GrainListView msg =
     { grains : List Grain
     , getChildren : Grain -> List Grain
     , inlineEditGrain : InlineEditGrain
-    , addFabClicked : Msg
-    , grainMsg : GrainMessages
+    , addFabClicked : msg
+    , grainMsg : GrainMessages msg
     }
 
 
-type alias NodeModel =
+type alias NodeModel msg =
     { grain : Grain
     , level : Int
     , maybeEditContent : Maybe String
-    , grainMsg : GrainMessages
+    , grainMsg : GrainMessages msg
     }
 
 
-type Node
-    = Node NodeModel Forest
+type Node msg
+    = Node (NodeModel msg) (Forest msg)
 
 
-type alias Forest =
-    List Node
+type alias Forest msg =
+    List (Node msg)
 
 
 nodeModel (Node model _) =
@@ -116,7 +115,7 @@ nodeInlineEditInputId =
     nodeGrain >> inlineGrainEditInputDomId
 
 
-nodeGrainMsg : (GrainMessages -> Grain -> a) -> Node -> a
+nodeGrainMsg : (GrainMessages msg -> Grain -> a) -> Node msg -> a
 nodeGrainMsg fn (Node model _) =
     fn model.grainMsg model.grain
 
@@ -129,7 +128,7 @@ nodeInlineEditMsg =
     nodeGrainMsg .inlineEditGrain
 
 
-nodeMoreClicked : Node -> Msg
+nodeMoreClicked : Node msg -> msg
 nodeMoreClicked =
     nodeGrainMsg .grainMoreClicked
 
@@ -142,13 +141,13 @@ nodeInlineEditSubmit =
     nodeGrainMsg .inlineEditSubmit
 
 
-view : GrainListView -> List (Html Msg)
+view : GrainListView msg -> List (Html msg)
 view { grains, inlineEditGrain, getChildren, addFabClicked, grainMsg } =
     let
-        createNode : Int -> Grain -> Node
+        createNode : Int -> Grain -> Node msg
         createNode level g =
             let
-                newNodeModel : NodeModel
+                newNodeModel : NodeModel msg
                 newNodeModel =
                     { grain = g
                     , level = level
@@ -157,13 +156,13 @@ view { grains, inlineEditGrain, getChildren, addFabClicked, grainMsg } =
                     , grainMsg = grainMsg
                     }
 
-                children : Forest
+                children : Forest msg
                 children =
                     getChildren g |> List.map (createNode (level + 1))
             in
             Node newNodeModel children
 
-        forest : Forest
+        forest : Forest msg
         forest =
             List.map (createNode 0) grains
     in
@@ -207,7 +206,7 @@ grainDisplayTitle =
     Grain.titleOrEmpty >> defaultEmptyStringTo "<empty>"
 
 
-viewGrainItems : Forest -> List ( String, Html Msg )
+viewGrainItems : Forest msg -> List ( String, Html msg )
 viewGrainItems forest =
     let
         viewKeyedItem node =

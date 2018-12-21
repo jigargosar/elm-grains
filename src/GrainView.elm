@@ -10,7 +10,6 @@ import Grain exposing (Grain)
 import Html.Styled exposing (Html, button, div, input, styled, text, textarea)
 import Html.Styled.Attributes exposing (autofocus, class, id, placeholder, value)
 import Html.Styled.Events exposing (onClick, onInput)
-import Msg exposing (Msg)
 import Skeleton
 import Task exposing (Task)
 
@@ -19,8 +18,8 @@ autoFocusId =
     "grain-view-input"
 
 
-view maybeGrain =
-    [ unwrapMaybe viewNotFound viewGrain maybeGrain
+view contentChangeMsg maybeGrain =
+    [ unwrapMaybe viewNotFound (viewGrain contentChangeMsg) maybeGrain
     ]
 
 
@@ -28,7 +27,7 @@ viewNotFound =
     div [] [ text "Grain Not Found" ]
 
 
-viewGrain grain =
+viewGrain contentChangeMsg grain =
     styled textarea
         [ Css.displayFlex
         , CS.flexGrow1
@@ -40,6 +39,6 @@ viewGrain grain =
         , placeholder "Start Typing..."
         , value <| Grain.content grain
         , autofocus True
-        , onInput <| Msg.GrainContentChanged grain
+        , onInput <| contentChangeMsg grain
         ]
         []
