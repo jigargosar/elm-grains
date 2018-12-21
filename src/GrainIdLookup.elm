@@ -7,6 +7,7 @@ module GrainIdLookup exposing
     , member
     , remove
     , toList
+    , update
     , updateIfExists
     )
 
@@ -65,7 +66,11 @@ remove gid =
 
 
 updateIfExists gid fn =
-    map <| Dict.update (GrainId.toString gid) (Maybe.map fn)
+    update gid (Maybe.map fn)
+
+
+update gid fn =
+    map <| Dict.update (GrainId.toString gid) fn
 
 
 member gid =

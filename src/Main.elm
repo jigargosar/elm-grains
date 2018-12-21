@@ -23,7 +23,7 @@ import FireUser exposing (FireUser)
 import Firebase
 import Grain exposing (Grain)
 import GrainCache exposing (GrainCache)
-import GrainChange
+import GrainChange exposing (GrainChange)
 import GrainId exposing (GrainId)
 import GrainListView exposing (GrainListView)
 import GrainStore exposing (GrainStore)
@@ -210,6 +210,36 @@ decodeValueAndHandleError { decoder, value, onOk } model =
         |> Result.merge
 
 
+updateGrainCacheFromFirebaseChanges :
+    List GrainChange
+    -> Model
+    -> ( Model, Cmd Msg )
+updateGrainCacheFromFirebaseChanges changeList model =
+    let
+        handleChange change =
+            let
+                grain =
+                    GrainChange.grain change
+            in
+            case GrainChange.type_ change of
+                GrainChange.Added ->
+                    GrainCache.setSaved grain
+
+                GrainChange.Modified ->
+                    GrainCache.setSaved grain
+
+                GrainChange.Removed ->
+                    GrainCache.remove grain
+
+        grainCache =
+            List.foldr handleChange model.grainCache changeList
+
+        cmd =
+            Port.setGrainCache <| GrainCache.encoder grainCache
+    in
+    ( setGrainCache grainCache model, cmd )
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
@@ -393,6 +423,8 @@ update message model =
                                         model.grainStore
                             in
                             Return.return (setGrainStore newGrainStore model) cmd
+                                |> Return.andThen
+                                    (updateGrainCacheFromFirebaseChanges changes)
             in
             handleFireMsg (Firebase.decodeInbound encodedMsg)
 

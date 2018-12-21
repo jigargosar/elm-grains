@@ -1,4 +1,11 @@
-module GrainCache exposing (GrainCache, decoder, empty)
+module GrainCache exposing
+    ( GrainCache
+    , decoder
+    , empty
+    , encoder
+    , remove
+    , setSaved
+    )
 
 import ActorId exposing (ActorId)
 import BasicsX exposing (callWith, ifElse, unwrapMaybe)
@@ -67,12 +74,29 @@ type alias GrainCache =
     GrainIdLookup (Saved Grain)
 
 
+decoder : Decoder GrainCache
+decoder =
+    D.list savedGrainDecoder
+        |> D.map (GrainIdLookup.fromList savedGrainId)
+
+
+encoder : GrainCache -> Value
+encoder =
+    GrainIdLookup.toList >> E.list savedGrainEncoder
+
+
 empty : GrainCache
 empty =
     GrainIdLookup.empty
 
 
-decoder : Decoder GrainCache
-decoder =
-    D.list savedGrainDecoder
-        |> D.map (GrainIdLookup.fromList savedGrainId)
+setSaved : Grain -> GrainCache -> GrainCache
+setSaved grain =
+    GrainIdLookup.update (Grain.id grain)
+        (Maybe.map (Saved.setSaved grain)
+            >> Maybe.orElseLazy (\_ -> Just <| Saved.new grain)
+        )
+
+
+remove grain =
+    GrainIdLookup.remove (Grain.id grain)
