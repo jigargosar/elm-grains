@@ -40,6 +40,9 @@ inlineGrainEditInputDomId =
 
 type alias Messages =
     { grainMoreClicked : Grain -> Msg
+    , inlineEditGrain : Grain -> Msg
+    , dragGrain : Grain -> Msg
+    , inlineEditGrainContentChanged : Grain -> String -> Msg
     }
 
 
@@ -111,17 +114,17 @@ nodeInlineEditInputId =
     nodeGrain >> inlineGrainEditInputDomId
 
 
+nodeGrainMsg : (Messages -> Grain -> a) -> Node -> a
+nodeGrainMsg fn (Node model _) =
+    fn model.messages model.grain
+
+
 nodeDragMsg =
-    nodeGrain >> Msg.DragGrain
+    nodeGrainMsg .dragGrain
 
 
 nodeInlineEditMsg =
-    nodeGrain >> Msg.InlineEditGrain
-
-
-nodeGrainMsg : (Messages -> Grain -> Msg) -> Node -> Msg
-nodeGrainMsg fn (Node model _) =
-    fn model.messages model.grain
+    nodeGrainMsg .inlineEditGrain
 
 
 nodeMoreClicked : Node -> Msg
@@ -129,8 +132,8 @@ nodeMoreClicked =
     nodeGrainMsg .grainMoreClicked
 
 
-nodeInlineEditInputContentChanged =
-    nodeGrain >> Msg.InlineEditGrainContentChanged
+nodeInlineEditGrainContentChanged =
+    nodeGrainMsg .inlineEditGrainContentChanged
 
 
 view : GrainListView -> List (Html Msg)
@@ -293,7 +296,7 @@ viewEditingItem content node =
         [ textarea
             [ id <| nodeInlineEditInputId node
             , value <| content
-            , onInput <| nodeInlineEditInputContentChanged node
+            , onInput <| nodeInlineEditGrainContentChanged node
             , CssEventX.onKeyDownPD <|
                 HotKey.bindEachToMsg bindings
             , autocomplete False

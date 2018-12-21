@@ -752,6 +752,9 @@ toGrainListView model =
     , inlineEditGrain = model.inlineEditGrain
     , messages =
         { grainMoreClicked = GrainMoreClicked
+        , inlineEditGrain = Msg.InlineEditGrain
+        , dragGrain = Msg.DragGrain
+        , inlineEditGrainContentChanged = Msg.InlineEditGrainContentChanged
         }
     }
 
