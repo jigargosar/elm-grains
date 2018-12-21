@@ -61,7 +61,6 @@ type alias NodeModel msg =
     , title : String
     , level : Float
     , maybeEditContent : Maybe String
-    , grainMsg : GrainMessages msg
     , moreClickedMsg : msg
     , inlineEditMsg : msg
     , inlineEditContentChangedMsg : String -> msg
@@ -94,7 +93,6 @@ view { grains, inlineEditGrain, getChildren, addFabClicked, grainMsg } =
                     , level = level
                     , maybeEditContent =
                         InlineEditGrain.maybeContentFor g inlineEditGrain
-                    , grainMsg = grainMsg
                     , moreClickedMsg = grainMsg.grainMoreClicked g
                     , inlineEditMsg = grainMsg.inlineEditGrain g
                     , inlineEditContentChangedMsg =
