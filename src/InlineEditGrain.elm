@@ -3,7 +3,6 @@ module InlineEditGrain exposing
     , endEditing
     , initialValue
     , maybeContentFor
-    , maybeGid
     , onContentChange
     , startEditing
     )
