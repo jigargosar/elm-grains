@@ -29,6 +29,21 @@ type SavedGrain
     = SavedGrain Grain Grain
 
 
+decoder : Decoder SavedGrain
+decoder =
+    D.map2 SavedGrain
+        (D.field "initial" Grain.decoder)
+        (D.field "latest" Grain.decoder)
+
+
+encoder : SavedGrain -> Value
+encoder (SavedGrain initial latest) =
+    E.object
+        [ ( "initial", Grain.encoder initial )
+        , ( "latest", Grain.encoder latest )
+        ]
+
+
 id : SavedGrain -> GrainId
 id (SavedGrain _ latest) =
     Grain.id latest
@@ -80,22 +95,3 @@ change fn (SavedGrain initial latest) =
                 initial
     in
     SavedGrain newInitial newLatest
-
-
-init initial latest =
-    SavedGrain initial latest
-
-
-decoder : Decoder SavedGrain
-decoder =
-    D.map2 init
-        (D.field "initial" Grain.decoder)
-        (D.field "latest" Grain.decoder)
-
-
-encoder : SavedGrain -> Value
-encoder (SavedGrain initial latest) =
-    E.object
-        [ ( "initial", Grain.encoder initial )
-        , ( "latest", Grain.encoder latest )
-        ]
