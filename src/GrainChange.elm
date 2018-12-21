@@ -41,30 +41,15 @@ changeTypeDecoder =
             )
 
 
-type alias Model =
-    { type_ : ChangeType
-    , grain : Grain
-    }
-
-
 type GrainChange
-    = GrainChange Model
-
-
-unwrap (GrainChange model) =
-    model
-
-
-map fn =
-    unwrap >> fn >> GrainChange
+    = GrainChange ChangeType Grain
 
 
 decoder : Decoder GrainChange
 decoder =
-    DecodeX.start Model
+    DecodeX.start GrainChange
         |> required "type" changeTypeDecoder
         |> required "doc" Grain.decoder
-        |> D.map GrainChange
 
 
 listDecoder : Decoder (List GrainChange)
@@ -72,9 +57,9 @@ listDecoder =
     D.list decoder
 
 
-grain =
-    unwrap >> .grain
+grain (GrainChange _ grain_) =
+    grain_
 
 
-type_ =
-    unwrap >> .type_
+type_ (GrainChange changeType _) =
+    changeType
