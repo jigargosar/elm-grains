@@ -57,6 +57,7 @@ type alias GrainListView msg =
 
 type alias NodeModel msg =
     { grain : Grain
+    , domId : String
     , level : Int
     , maybeEditContent : Maybe String
     , grainMsg : GrainMessages msg
@@ -89,14 +90,6 @@ nodeLevel =
 
 maybeNodeEditContent =
     nodeModel >> .maybeEditContent
-
-
-nodeDomId =
-    nodeGrain >> grainDomId
-
-
-nodeGid =
-    nodeGrain >> Grain.id
 
 
 nodeDeleted =
@@ -150,6 +143,7 @@ view { grains, inlineEditGrain, getChildren, addFabClicked, grainMsg } =
                 newNodeModel : NodeModel msg
                 newNodeModel =
                     { grain = g
+                    , domId = grainDomId g
                     , level = level
                     , maybeEditContent =
                         InlineEditGrain.maybeContentFor g inlineEditGrain
@@ -210,7 +204,11 @@ viewGrainItems : Forest msg -> List ( String, Html msg )
 viewGrainItems forest =
     let
         viewKeyedItem node =
-            ( nodeDomId node
+            let
+                modeModel =
+                    nodeModel node
+            in
+            ( modeModel.domId
             , maybeNodeEditContent node
                 |> Maybe.unwrap viewDisplayItem viewEditingItem
                 |> callWith node
