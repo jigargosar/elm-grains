@@ -8,6 +8,7 @@ port module Port exposing
     , persistRemovedGrain
     , persistUpdatedGrain
     , pushUrl
+    , setGrainCache
     , signIn
     , signOut
     , urlChanged
@@ -17,6 +18,9 @@ import Json.Encode exposing (Value)
 
 
 port cacheGrains : Value -> Cmd msg
+
+
+port setGrainCache : Value -> Cmd msg
 
 
 port persistGrains : Value -> Cmd msg

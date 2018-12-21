@@ -78,6 +78,7 @@ type alias Flags =
     { now : Millis
     , windowSize : WindowSize
     , grains : Value
+    , grainCache : Value
     , url : String
     }
 
@@ -117,6 +118,7 @@ init flags =
                 |> Random.finish
     in
     update (LoadGrainStore flags.grains) model
+        |> Return.andThen (update (LoadGrainCache flags.grainCache))
 
 
 setGrainStore grainStore model =
@@ -339,6 +341,13 @@ update message model =
                     GrainStore.loadCache val model.grainStore
             in
             Return.return (setGrainStore newGrainStore model) cmd
+
+        LoadGrainCache encodedValue ->
+            let
+                _ =
+                    GrainCache.fromEncodedValue encodedValue
+            in
+            Return.singleton model
 
         RouteTo route ->
             Return.singleton (setRoute route model)

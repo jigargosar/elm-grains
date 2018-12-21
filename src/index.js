@@ -18,7 +18,8 @@ const app = Elm.Main.init({
   flags: {
     now: Date.now(),
     windowSize: { width: window.innerWidth, height: window.innerHeight },
-    grains: jsonCacheGetOr({ list: [] }, 'grains'),
+    grains: jsonCacheGetOr([], 'grains'),
+    grainCache: jsonCacheGetOr([], 'grainCache'),
     url: document.URL,
   },
 })
@@ -43,6 +44,9 @@ setElmAppPortSubscriptions(
     },
     cacheGrains: data => {
       jsonCacheSet('grains', data)
+    },
+    setGrainCache: data => {
+      jsonCacheSet('grainCache', data)
     },
     navigateBack: () => history.goBack(),
     ...getFireSubscriptions(app),

@@ -27,6 +27,7 @@ type Msg
       NoOp
     | FocusResult (Result String ())
     | LoadGrainStore Value
+    | LoadGrainCache Value
     | RestoreGrain Grain
     | DeleteGrain Grain
     | GrainMoreAction Msg
