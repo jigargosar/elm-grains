@@ -356,6 +356,10 @@ update message model =
                 |> handleDecodeError
                 |> Result.map
                     (\grainCache ->
+                        let
+                            _ =
+                                Debug.log "grainCache" grainCache
+                        in
                         Return.singleton { model | grainCache = grainCache }
                     )
                 |> Result.merge
