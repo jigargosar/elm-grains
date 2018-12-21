@@ -40,8 +40,12 @@ empty =
 
 
 fromList : (a -> GrainId) -> List a -> GrainIdLookup a
-fromList gidGetter =
-    List.map insert >> GrainIdLookup
+fromList toGrainId =
+    let
+        insertHelp val =
+            insert (toGrainId val) val
+    in
+    List.foldl insertHelp empty
 
 
 toList =
