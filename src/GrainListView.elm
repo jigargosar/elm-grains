@@ -56,8 +56,7 @@ type alias GrainListView msg =
 
 
 type alias NodeModel msg =
-    { grain : Grain
-    , domId : String
+    { domId : String
     , title : String
     , level : Float
     , maybeEditContent : Maybe String
@@ -87,8 +86,7 @@ createNode vm level g =
 
         newNodeModel : NodeModel msg
         newNodeModel =
-            { grain = g
-            , domId = grainDomId g
+            { domId = grainDomId g
             , title = Grain.titleOrEmpty g
             , deleted = Grain.deleted g
             , canEdit = Grain.deleted g |> not
