@@ -61,6 +61,7 @@ type alias NodeModel msg =
     , level : Int
     , maybeEditContent : Maybe String
     , grainMsg : GrainMessages msg
+    , moreClickedMsg : msg
     }
 
 
@@ -121,11 +122,6 @@ nodeInlineEditMsg =
     nodeGrainMsg .inlineEditGrain
 
 
-nodeMoreClicked : Node msg -> msg
-nodeMoreClicked =
-    nodeGrainMsg .grainMoreClicked
-
-
 nodeInlineEditGrainContentChanged =
     nodeGrainMsg .inlineEditGrainContentChanged
 
@@ -148,6 +144,7 @@ view { grains, inlineEditGrain, getChildren, addFabClicked, grainMsg } =
                     , maybeEditContent =
                         InlineEditGrain.maybeContentFor g inlineEditGrain
                     , grainMsg = grainMsg
+                    , moreClickedMsg = grainMsg.grainMoreClicked g
                     }
 
                 children : Forest msg
@@ -213,7 +210,7 @@ viewGrainItems forest =
             in
             ( nModel.domId
             , maybeNodeEditContent node
-                |> Maybe.unwrap viewDisplayItem viewEditingItem
+                |> Maybe.unwrap (viewDisplayItem nModel) viewEditingItem
                 |> callWith node
             )
                 :: List.concatMap viewKeyedItem nChildren
@@ -239,9 +236,9 @@ viewTitle node =
         [ text title ]
 
 
-viewRightMenu node =
+viewRightMenu nModel =
     CssElements.iconBtnWithStyles [ CS.selfCenter ]
-        [ onClick (nodeMoreClicked node)
+        [ onClick nModel.moreClickedMsg
         ]
         [ CssIcons.view CssIcons.moreHoriz
         ]
@@ -255,7 +252,7 @@ viewDragHandle node =
         ]
 
 
-viewDisplayItem node =
+viewDisplayItem nModel node =
     let
         level =
             nodeLevel node |> toFloat
@@ -278,7 +275,7 @@ viewDisplayItem node =
              ,
           -}
           viewTitle node
-        , viewRightMenu node
+        , viewRightMenu nModel
         ]
 
 
