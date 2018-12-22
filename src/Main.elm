@@ -289,6 +289,11 @@ updateGrainCacheFromFirebaseChanges changeList model =
     setGrainCacheAndLocalPersist grainCache model
 
 
+type UpdateGrainCacheMsg
+    = SingleGrainUpdate Grain.Update
+    | MultipleGrainUpdate_MoveBy Int
+
+
 updateGrainCacheWithNow :
     GrainId
     -> UpdateGrainMsg
@@ -297,28 +302,29 @@ updateGrainCacheWithNow :
     -> ( Model, Cmd Msg )
 updateGrainCacheWithNow gid message now model =
     let
-        maybeGrainUpdateMsg =
+        updateGrainCacheMsg =
             case message of
                 SetGrainContent content ->
-                    Just <| Grain.SetContent content
+                    SingleGrainUpdate <| Grain.SetContent content
 
                 SetGrainDeleted deleted ->
-                    Just <| Grain.SetDeleted deleted
+                    SingleGrainUpdate <| Grain.SetDeleted deleted
 
                 SetGrainParentId parentId ->
-                    Just <| Grain.SetParentId parentId
+                    SingleGrainUpdate <| Grain.SetParentId parentId
 
                 MoveGrainBy offset ->
-                    Nothing
-
-        updateHelp grainMsg =
-            GrainCache.updateWithGrainMsg now grainMsg gid model.grainCache
+                    MultipleGrainUpdate_MoveBy offset
+    in
+    case updateGrainCacheMsg of
+        SingleGrainUpdate grainUpdateMsg ->
+            GrainCache.updateWithGrainMsg now grainUpdateMsg gid model.grainCache
                 |> Result.mapBoth handleErrorString setGrainCacheAndLocalPersist
                 |> Result.merge
                 |> callWith model
-    in
-    maybeGrainUpdateMsg
-        |> Maybe.unwrap (Return.singleton model) updateHelp
+
+        MultipleGrainUpdate_MoveBy offset ->
+            Return.singleton model
 
 
 setGrainCacheAndLocalPersist grainCache model =
