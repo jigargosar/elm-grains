@@ -19,6 +19,9 @@ globalStylesForSelector selector =
     selector
         [ CS.pa0
         , CS.ma0
+        , CS.min_h_screen
+        , CS.min_w_screen
+        , CS.row
         , Css.boxSizing Css.borderBox
         , Css.property "font-size" "16px"
         , Css.color CssTheme.textColor

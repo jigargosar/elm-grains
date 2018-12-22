@@ -35,9 +35,10 @@ viewDocument _ =
 viewPage =
     div
         [ css
-            [ Css.width <| rem 30
+            [ CS.w_sm
             , CS.max_w_screen
-            , Css.margin Css.auto
+            , CS.min_h_full
+            , Css.margin2 Css.zero Css.auto
             , Css.boxShadow4
                 (px 0)
                 (px 0)

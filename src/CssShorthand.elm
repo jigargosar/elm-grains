@@ -26,8 +26,9 @@ module CssShorthand exposing
     , max_w_sm
     , max_w_xs
     , min100V
-    , minWidth100VW
+    , min_h_full
     , min_h_screen
+    , min_w_screen
     , move
     , overflowScroll
     , p2
@@ -172,14 +173,14 @@ max_w_xs =
 
 
 min100V =
-    Css.batch [ minWidth100VW, min_h_screen ]
+    Css.batch [ min_w_screen, min_h_screen ]
 
 
 max_w_screen =
     Css.maxWidth <| vw 100
 
 
-minWidth100VW =
+min_w_screen =
     Css.minWidth <| vw 100
 
 
@@ -189,6 +190,10 @@ maxHeight100VH =
 
 min_h_screen =
     Css.minHeight <| vh 100
+
+
+min_h_full =
+    Css.minHeight <| pct 100
 
 
 flexShrink0 =
