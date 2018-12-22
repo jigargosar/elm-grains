@@ -48,6 +48,7 @@ borderButtonStyles =
     , CS.row
     , CS.p2 (rem 0.25) (rem 0.5)
     , Css.borderRadius (rem 0.25)
+    , Css.borderRadius Css.zero
     , CS.uppercase
     , CS.pointer
     , Css.boxShadow4
