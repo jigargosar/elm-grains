@@ -129,10 +129,7 @@ moveHelp now offset savedGrain model =
 
         gIdx : Int
         gIdx =
-            List.findIndex
-                (SavedGrain.value
-                    >> Grain.eqById (SavedGrain.value savedGrain)
-                )
+            List.findIndex (eqById savedGrain)
                 siblings
                 |> Maybe.withDefault -1
 
@@ -153,7 +150,7 @@ moveHelp now offset savedGrain model =
 getSiblings : SavedGrain -> GrainCache -> List SavedGrain
 getSiblings savedGrain model =
     toList model
-        |> List.filter (eqById savedGrain)
+        |> List.filter (eqByParentId savedGrain)
         |> List.sortWith defaultComparator
 
 
@@ -161,6 +158,11 @@ defaultComparator =
     Compare.compose SavedGrain.value Grain.defaultComparator
 
 
-eqById savedGrain =
+eqByParentId savedGrain =
     SavedGrain.value
         >> Grain.eqByParentId (SavedGrain.value savedGrain)
+
+
+eqById savedGrain =
+    SavedGrain.value
+        >> Grain.eqById (SavedGrain.value savedGrain)
