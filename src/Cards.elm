@@ -1,5 +1,6 @@
 module Cards exposing (initialCardModel, initialMenuModel, main)
 
+import Browser
 import Css exposing (hex, px, rem)
 import Css.Global
 import CssShorthand as CS
@@ -8,6 +9,7 @@ import Html.Styled exposing (button, div, text)
 import Html.Styled.Attributes exposing (css, id, tabindex)
 import Main as App
 import MaterialColor
+import Return
 import Styles
 import UiCards exposing (card, cardError, deck, show)
 
@@ -33,21 +35,44 @@ cssContainer el =
         div [ id "css-container" ] [ Styles.global, el ]
 
 
+viewFlatButton1 =
+    button [ css [ Styles.flatButton ] ]
+        [ text "Flat Button" ]
+
+
+viewBorderButton1 =
+    button
+        [ css [ Styles.borderButton ]
+        ]
+        [ text "Click Me!" ]
+
+
+view _ =
+    cssContainer <|
+        div [] [ Styles.global, viewFlatButton1, viewBorderButton1 ]
+
+
+main : Program () () ()
 main =
+    Browser.element
+        { init = \_ -> Return.singleton ()
+        , view = view
+        , update = \_ -> Return.singleton
+        , subscriptions = \_ -> Sub.none
+        }
+
+
+main2 =
     show mockUpdate
         [ deck "Button"
             [ card "Flat" initialMenuModel <|
                 \_ ->
                     cssContainer <|
-                        button [ css [ Styles.flatButton ] ]
-                            [ text "Flat Button" ]
+                        viewFlatButton1
             , card "Border" initialMenuModel <|
                 \_ ->
                     cssContainer <|
-                        button
-                            [ css [ Styles.borderButton ]
-                            ]
-                            [ text "Click Me!" ]
+                        viewBorderButton1
             ]
         , deck "Menu elements"
             [ card "Menu button" initialMenuModel <|
