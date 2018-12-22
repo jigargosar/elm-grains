@@ -30,9 +30,8 @@ globalStyles =
         [ Css.Global.id "css-container"
             [ Css.boxSizing Css.borderBox
             , Css.property "font-size" "16px"
+            , Css.property "color" "rgba (0,0,0,0.8)"
             , Css.property "font-family"
-            , Css.property "color"
-                "rgba (0,0,0,0.8)"
                 """-apple-system, system-ui, BlinkMacSystemFont, "Segoe UI",
                Roboto, "Helvetica Neue", sans-serif;"""
             , Css.Global.descendants
@@ -78,7 +77,7 @@ borderButtonStyleList =
             (px 2)
             CS.black20
         ]
-    , Css.textTransform Css.uppercase
+    , CS.uppercase
     ]
 
 

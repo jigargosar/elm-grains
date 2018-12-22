@@ -37,6 +37,7 @@ module CssShorthand exposing
     , selfCenter
     , sticky
     , styleIf
+    , uppercase
     , w_full
     , w_sm
     , w_xs
@@ -231,6 +232,10 @@ pointer =
 
 move =
     Css.cursor Css.move
+
+
+uppercase =
+    Css.textTransform Css.uppercase
 
 
 absolute =
