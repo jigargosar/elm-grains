@@ -70,6 +70,7 @@ main =
                                         (px 1)
                                         (px 2)
                                         CS.black20
+                                    , Css.borderColor (Css.hsla 210 1 0.56 1)
                                     ]
                                 , Css.active
                                     [ Css.boxShadow5 Css.inset
