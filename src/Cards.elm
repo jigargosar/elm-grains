@@ -56,6 +56,7 @@ borderButtonStyleList =
     --    , Css.property "color" "#555"
     , Css.color <| hex "#555"
     , Css.borderColor (Css.hsla 210 1 0.56 0.6)
+    , Css.borderColor (Css.hsla 210 1 0.56 1)
     , Css.display Css.inlineFlex
     , Css.flexDirection Css.row
     , CS.p2 (rem 0.25) (rem 0.5)
