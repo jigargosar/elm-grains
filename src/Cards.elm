@@ -56,7 +56,9 @@ main =
                         button
                             [ css
                                 [ Css.border2 (px 2) Css.solid
-                                , Css.property "border-color" "lightblue"
+                                , Css.property "border-color" "dodgerblue"
+                                , Css.property "color" "charcoal"
+                                , Css.borderColor (Css.hsla 210 1 0.56 0.6)
                                 , Css.display Css.inlineFlex
                                 , Css.flexDirection Css.row
                                 , CS.p2 (rem 0.25) (rem 0.5)
