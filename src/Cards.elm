@@ -35,14 +35,20 @@ viewDocument _ =
 viewPage =
     div
         [ css
-            [ CS.w_sm
-            , CS.max_w_screen
-            , CS.min_h_full
-            , Css.margin2 Css.zero Css.auto
-            , CS.debug
+            [ CS.w_screen
+            , CS.h_screen
+            , CS.rowCC
             ]
         ]
-        [ div [ css [ CS.pa (rem 1) ] ] [ viewFlatButton1, viewBorderButton1 ] ]
+        [ div
+            [ css
+                [ CS.pa (rem 1)
+                , CS.w_sm
+                , CS.debug
+                ]
+            ]
+            [ viewFlatButton1, viewBorderButton1 ]
+        ]
 
 
 main : Program () () ()

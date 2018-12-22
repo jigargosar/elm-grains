@@ -17,6 +17,7 @@ module CssShorthand exposing
     , flexGrow1
     , flexShrink0
     , fromMaterialColor
+    , h_screen
     , inlineRow
     , itemsCenter
     , justifyCenter
@@ -46,6 +47,7 @@ module CssShorthand exposing
     , styleIf
     , uppercase
     , w_full
+    , w_screen
     , w_sm
     , w_xs
     , wpx
@@ -196,6 +198,14 @@ min_h_screen =
 
 min_h_full =
     Css.minHeight <| pct 100
+
+
+w_screen =
+    Css.width <| vw 100
+
+
+h_screen =
+    Css.height <| vh 100
 
 
 debug =
