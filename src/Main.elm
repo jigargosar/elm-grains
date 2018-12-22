@@ -144,6 +144,10 @@ grainById gid =
     .grainStore >> GrainStore.getById gid
 
 
+savedGrainById gid =
+    .grainCache >> GrainCache.get gid
+
+
 mapGrainStore fn model =
     { model | grainStore = fn model.grainStore }
 

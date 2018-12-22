@@ -4,6 +4,7 @@ module GrainCache exposing
     , decoder
     , empty
     , encoder
+    , get
     , moveBy
     , remove
     , setSaved
