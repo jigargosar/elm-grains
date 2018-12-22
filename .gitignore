@@ -9,4 +9,4 @@ node_modules
 .idea/workspace.xml
 .vscode/
 gmail-api-test/
-index.html
+/index.html
