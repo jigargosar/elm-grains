@@ -7,7 +7,6 @@ import CssShorthand as CS
 import CssTheme
 import Html.Styled exposing (button, div, text)
 import Html.Styled.Attributes exposing (css, id, tabindex)
-import Main as App
 import MaterialColor
 import Return
 import Styles
