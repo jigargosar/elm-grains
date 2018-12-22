@@ -63,13 +63,17 @@ remove grain =
 
 
 update :
-    (SavedGrain -> SavedGrain)
+    (Grain -> Grain)
     -> GrainId
     -> GrainCache
     -> Result String GrainCache
-update fn gid model =
+update changeFn gid model =
     if GrainIdLookup.member gid model then
-        Result.Ok <| GrainIdLookup.updateIfExists gid fn model
+        let
+            updateFn =
+                SavedGrain.change changeFn
+        in
+        Result.Ok <| GrainIdLookup.updateIfExists gid updateFn model
 
     else
         Result.Err "GrainNotFound"

@@ -293,6 +293,16 @@ updateGrainCacheFromFirebaseChanges changeList model =
     ( setGrainCache grainCache model, cacheCmd )
 
 
+updateGrainCacheWithNow :
+    GrainId
+    -> UpdateGrainMsg
+    -> Posix
+    -> Model
+    -> ( Model, Cmd Msg )
+updateGrainCacheWithNow gid message now model =
+    Return.singleton model
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
@@ -415,6 +425,7 @@ update message model =
                     GrainStore.moveBy offset
             )
                 |> updateGrainHelp
+                |> Return.andThen (updateGrainCacheWithNow gid msg now)
 
         CreateAndAddNewGrain ->
             ( model
