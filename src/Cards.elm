@@ -28,8 +28,11 @@ mockUpdate message model =
 globalStyles =
     Css.Global.global
         [ Css.Global.id "css-container"
-            [ Css.property "font-size" "16px"
+            [ Css.boxSizing Css.borderBox
+            , Css.property "font-size" "16px"
             , Css.property "font-family"
+            , Css.property "color"
+                "rgba (0,0,0,0.8)"
                 """-apple-system, system-ui, BlinkMacSystemFont, "Segoe UI",
                Roboto, "Helvetica Neue", sans-serif;"""
             , Css.Global.descendants
