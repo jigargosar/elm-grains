@@ -6,7 +6,6 @@ module GrainCache exposing
     , encoder
     , remove
     , setSaved
-    , update
     , updateWithGrainMsg
     )
 
