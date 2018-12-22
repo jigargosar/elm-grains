@@ -38,16 +38,16 @@
   },
   "dependencies": {
     "clientjs": "^0.1.11",
-    "firebase": "^5.7.0",
+    "firebase": "^5.7.1",
     "history": "^4.7.2",
-    "ramda": "^0.25.0",
     "spectre.css": "^0.5.7",
-    "tachyons": "^4.11.1"
+    "tachyons": "^4.11.1",
+    "ramda": "^0.26.1"
   },
   "devDependencies": {
     "@babel/runtime": "^7.2.0",
-    "create-elm-app": "^2.2.4",
-    "husky": "^1.1.4",
+    "create-elm-app": "^3.0.2",
+    "husky": "^1.2.1",
     "lint-staged": "^8.0.4",
     "prettier": "^1.15.2"
   }
