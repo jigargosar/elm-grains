@@ -4,6 +4,7 @@ module Styles exposing
     , flatButton
     , flatButtonStyles
     , global
+    , globalStyles
     )
 
 import Css exposing (px, rem)
