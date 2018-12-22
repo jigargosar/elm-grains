@@ -83,6 +83,42 @@ borderButtonStyleList =
     ]
 
 
+buttonStyleList =
+    [ Css.border2 (px 2) Css.solid
+
+    -- , Css.property "border-color" "dodgerblue"
+    --    , Css.property "color" "#555"
+    , Css.color <| hex "#555"
+    , Css.borderColor CS.dodgerBlue
+    , CS.inlineRow
+    , CS.p2 (rem 0.25) (rem 0.5)
+
+    --    , Css.outline Css.none
+    , Css.borderRadius (rem 0.25)
+    , Css.boxShadow4
+        (px 1)
+        (px 1)
+        (px 2)
+        CS.black20
+    , Css.focus
+        [ Css.borderColor (Css.hsla 210 1 0.56 1)
+        , Css.color <| hex "#000"
+        ]
+    , Css.active
+        [ Css.boxShadow5 Css.inset
+            (px 1)
+            (px 1)
+            (px 2)
+            CS.black20
+        ]
+    , CS.uppercase
+    ]
+
+
+buttonStyle =
+    Css.batch
+
+
 borderButtonStyle =
     Css.batch borderButtonStyleList
 

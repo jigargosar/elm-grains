@@ -8,12 +8,14 @@ module CssShorthand exposing
     , blackAlpha
     , bold
     , br_pill
+    , dodgerBlue
     , ellipsis
     , fixed
     , flex11Auto
     , flexGrow0
     , flexGrow1
     , flexShrink0
+    , inlineRow
     , itemsCenter
     , justifyCenter
     , maxHeight100VH
@@ -50,6 +52,10 @@ import Css exposing (num, pct, px, rem, vh, vw, zero)
 
 noStyle =
     Css.batch []
+
+
+dodgerBlue =
+    Css.hsla 210 1 0.56 1
 
 
 styleIf bool style =
@@ -208,6 +214,10 @@ rowCC =
 
 row =
     Css.batch [ Css.displayFlex, Css.flexDirection Css.row ]
+
+
+inlineRow =
+    Css.batch [ Css.display Css.inlineFlex, Css.flexDirection Css.row ]
 
 
 wpx pVal =
