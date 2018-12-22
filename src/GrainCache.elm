@@ -133,8 +133,8 @@ moveHelp now offset savedGrain model =
                 siblings
                 |> Maybe.withDefault -1
 
-        batchChangeList : List ( Grain -> Grain, GrainId )
-        batchChangeList =
+        updaters : List ( Grain -> Grain, GrainId )
+        updaters =
             List.swapAt gIdx (gIdx + offset) siblings
                 |> List.map SavedGrain.value
                 |> Grain.listToEffectiveSortIndices
@@ -144,7 +144,7 @@ moveHelp now offset savedGrain model =
                         Grain.id
                     )
     in
-    batchUpdate batchChangeList model
+    batchUpdate updaters model
 
 
 getSiblings : SavedGrain -> GrainCache -> List SavedGrain
