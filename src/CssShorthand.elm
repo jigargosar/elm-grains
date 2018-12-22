@@ -8,6 +8,7 @@ module CssShorthand exposing
     , blackAlpha
     , bold
     , br_pill
+    , debug
     , dodgerBlue
     , ellipsis
     , fixed
@@ -52,6 +53,7 @@ module CssShorthand exposing
 
 import BasicsX exposing (callWith)
 import Css exposing (num, pct, px, rem, vh, vw, zero)
+import MaterialColor
 
 
 fromMaterialColor { red, green, blue } =
@@ -194,6 +196,14 @@ min_h_screen =
 
 min_h_full =
     Css.minHeight <| pct 100
+
+
+debug =
+    Css.boxShadow4
+        (px 0)
+        (px 0)
+        (px 50)
+        (fromMaterialColor MaterialColor.grey500)
 
 
 flexShrink0 =
