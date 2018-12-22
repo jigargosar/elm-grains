@@ -24,19 +24,23 @@ viewBorderButton1 =
         [ text "Click Me!" ]
 
 
-view _ =
+viewDocument _ =
     { title = "Beautiful UI in ELM"
     , body =
-        [ Styles.global, viewFlatButton1, viewBorderButton1 ]
+        [ Styles.global, viewPage ]
             |> List.map Html.Styled.toUnstyled
     }
+
+
+viewPage =
+    div [] [ viewFlatButton1, viewBorderButton1 ]
 
 
 main : Program () () ()
 main =
     Browser.document
         { init = \_ -> Return.singleton ()
-        , view = view
+        , view = viewDocument
         , update = \_ -> Return.singleton
         , subscriptions = \_ -> Sub.none
         }
