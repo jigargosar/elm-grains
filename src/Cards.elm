@@ -29,9 +29,13 @@ globalStyles =
     Css.Global.global
         [ Css.Global.id "css-container"
             [ Css.property "font-size" "16px"
+            , Css.property "font-family"
+                """-apple-system, system-ui, BlinkMacSystemFont, "Segoe UI",
+               Roboto, "Helvetica Neue", sans-serif;"""
             , Css.Global.descendants
                 [ Css.Global.button
                     [ Css.property "font-size" "inherit"
+                    , Css.property "font-family" "inherit"
                     ]
                 ]
             ]
