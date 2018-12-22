@@ -1,4 +1,4 @@
-module Main exposing (main)
+module Main exposing (main, update)
 
 import ActorId exposing (ActorId)
 import BasicsX exposing (..)
