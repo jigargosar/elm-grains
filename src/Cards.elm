@@ -97,13 +97,13 @@ borderButtonStyle =
 
 main =
     show mockUpdate
-        [ deck "Basic elements"
-            [ card "button" initialMenuModel <|
+        [ deck "Button"
+            [ card "Flat" initialMenuModel <|
                 \_ ->
                     cssContainer <|
                         button [ css [ flatButtonStyle ] ]
                             [ text "Flat Button" ]
-            , card "button" initialMenuModel <|
+            , card "Border" initialMenuModel <|
                 \_ ->
                     cssContainer <|
                         button
