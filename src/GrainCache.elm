@@ -5,6 +5,7 @@ module GrainCache exposing
     , encoder
     , remove
     , setSaved
+    , update
     )
 
 import ActorId exposing (ActorId)

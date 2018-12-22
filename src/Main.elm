@@ -300,7 +300,42 @@ updateGrainCacheWithNow :
     -> Model
     -> ( Model, Cmd Msg )
 updateGrainCacheWithNow gid message now model =
-    Return.singleton model
+    let
+        maybeGrainUpdateMsg =
+            case message of
+                SetGrainContent content ->
+                    Just <| Grain.SetContent content
+
+                SetGrainDeleted deleted ->
+                    Just <| Grain.SetDeleted deleted
+
+                SetGrainParentId parentId ->
+                    Just <| Grain.SetParentId parentId
+
+                MoveGrainBy offset ->
+                    Nothing
+
+        updateHelp grainMsg =
+            let
+                changeFn =
+                    Grain.update now grainMsg
+
+                result =
+                    GrainCache.update changeFn gid model.grainCache
+            in
+            case result of
+                Result.Ok grainCache ->
+                    let
+                        cacheCmd =
+                            Port.setGrainCache <| GrainCache.encoder grainCache
+                    in
+                    ( setGrainCache grainCache model, cacheCmd )
+
+                Result.Err errString ->
+                    handleErrorString errString model
+    in
+    maybeGrainUpdateMsg
+        |> Maybe.unwrap (Return.singleton model) updateHelp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
