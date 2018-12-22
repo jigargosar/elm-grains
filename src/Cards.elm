@@ -6,6 +6,7 @@ import CssShorthand as CS
 import Html.Styled exposing (button, div, text)
 import Html.Styled.Attributes exposing (css, id, tabindex)
 import Main as App
+import MaterialColor
 import UiCards exposing (card, cardError, deck, show)
 
 
@@ -30,7 +31,9 @@ globalStyles =
         [ Css.Global.id "css-container"
             [ Css.boxSizing Css.borderBox
             , Css.property "font-size" "16px"
-            , Css.property "color" "rgba (0,0,0,0.8)"
+
+            --            , Css.property "color" "rgba (0,0,0,0.8)"
+            , Css.color <| fromMaterialColor MaterialColor.grey800
             , Css.property "font-family"
                 """-apple-system, system-ui, BlinkMacSystemFont, "Segoe UI",
                Roboto, "Helvetica Neue", sans-serif;"""
@@ -50,28 +53,16 @@ cssContainer el =
 
 
 borderButtonStyleList =
-    [ Css.border2 (px 2) Css.solid
-
-    -- , Css.property "border-color" "dodgerblue"
-    --    , Css.property "color" "#555"
-    , Css.color <| hex "#555"
-    , Css.borderColor (Css.hsla 210 1 0.56 0.6)
-    , Css.borderColor (Css.hsla 210 1 0.56 1)
-    , Css.display Css.inlineFlex
-    , Css.flexDirection Css.row
+    [ Css.border2 (px 2) Css.solid CS.dodgerBlue
+    , CS.row
     , CS.p2 (rem 0.25) (rem 0.5)
-
-    --    , Css.outline Css.none
     , Css.borderRadius (rem 0.25)
+    , CS.uppercase
     , Css.boxShadow4
         (px 1)
         (px 1)
         (px 2)
         CS.black20
-    , Css.focus
-        [ Css.borderColor (Css.hsla 210 1 0.56 1)
-        , Css.color <| hex "#000"
-        ]
     , Css.active
         [ Css.boxShadow5 Css.inset
             (px 1)
@@ -79,44 +70,19 @@ borderButtonStyleList =
             (px 2)
             CS.black20
         ]
-    , CS.uppercase
     ]
+
+
+fromMaterialColor { red, green, blue } =
+    Css.rgb red green blue
 
 
 buttonStyleList =
-    [ Css.border2 (px 2) Css.solid
-
-    -- , Css.property "border-color" "dodgerblue"
-    --    , Css.property "color" "#555"
-    , Css.color <| hex "#555"
-    , Css.borderColor CS.dodgerBlue
-    , CS.inlineRow
-    , CS.p2 (rem 0.25) (rem 0.5)
-
-    --    , Css.outline Css.none
-    , Css.borderRadius (rem 0.25)
-    , Css.boxShadow4
-        (px 1)
-        (px 1)
-        (px 2)
-        CS.black20
-    , Css.focus
-        [ Css.borderColor (Css.hsla 210 1 0.56 1)
-        , Css.color <| hex "#000"
-        ]
-    , Css.active
-        [ Css.boxShadow5 Css.inset
-            (px 1)
-            (px 1)
-            (px 2)
-            CS.black20
-        ]
-    , CS.uppercase
-    ]
+    []
 
 
 buttonStyle =
-    Css.batch
+    Css.batch buttonStyleList
 
 
 borderButtonStyle =
