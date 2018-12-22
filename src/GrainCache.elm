@@ -1,5 +1,6 @@
 module GrainCache exposing
     ( GrainCache
+    , batchUpdate
     , decoder
     , empty
     , encoder
