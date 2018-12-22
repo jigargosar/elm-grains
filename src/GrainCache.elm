@@ -6,6 +6,7 @@ module GrainCache exposing
     , remove
     , setSaved
     , update
+    , updateWithGrainMsg
     )
 
 import ActorId exposing (ActorId)
@@ -29,6 +30,7 @@ import RandomX
 import Return exposing (Return)
 import Return3 as R3 exposing (Return3F)
 import SavedGrain exposing (SavedGrain)
+import Time exposing (Posix)
 
 
 type alias GrainCache =
@@ -78,3 +80,13 @@ update changeFn gid model =
 
     else
         Result.Err "GrainNotFound"
+
+
+updateWithGrainMsg :
+    Posix
+    -> Grain.Update
+    -> GrainId
+    -> GrainCache
+    -> Result String GrainCache
+updateWithGrainMsg now grainMsg gid model =
+    update (Grain.update now grainMsg) gid model

@@ -285,12 +285,8 @@ updateGrainCacheFromFirebaseChanges changeList model =
 
         grainCache =
             List.foldr handleChange model.grainCache changeList
-
-        --                |> Debug.log "grainCache"
-        cacheCmd =
-            Port.setGrainCache <| GrainCache.encoder grainCache
     in
-    ( setGrainCache grainCache model, cacheCmd )
+    setGrainCacheAndLocalPersist grainCache model
 
 
 updateGrainCacheWithNow :
@@ -316,26 +312,21 @@ updateGrainCacheWithNow gid message now model =
                     Nothing
 
         updateHelp grainMsg =
-            let
-                changeFn =
-                    Grain.update now grainMsg
-
-                result =
-                    GrainCache.update changeFn gid model.grainCache
-            in
-            case result of
-                Result.Ok grainCache ->
-                    let
-                        cacheCmd =
-                            Port.setGrainCache <| GrainCache.encoder grainCache
-                    in
-                    ( setGrainCache grainCache model, cacheCmd )
-
-                Result.Err errString ->
-                    handleErrorString errString model
+            GrainCache.updateWithGrainMsg now grainMsg gid model.grainCache
+                |> Result.mapBoth handleErrorString setGrainCacheAndLocalPersist
+                |> Result.merge
+                |> callWith model
     in
     maybeGrainUpdateMsg
         |> Maybe.unwrap (Return.singleton model) updateHelp
+
+
+setGrainCacheAndLocalPersist grainCache model =
+    let
+        cacheCmd =
+            Port.setGrainCache <| GrainCache.encoder grainCache
+    in
+    ( setGrainCache grainCache model, cacheCmd )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
