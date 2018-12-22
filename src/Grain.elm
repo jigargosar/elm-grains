@@ -1,6 +1,7 @@
 module Grain exposing
     ( Grain
     , ParentId
+    , SortIdx
     , Update(..)
     , content
     , createdAt
@@ -17,6 +18,7 @@ module Grain exposing
     , idEq
     , isChildOf
     , isParentOf
+    , listToEffectiveSortIndices
     , modifiedAt
     , parentIdAsGrainId
     , parentIdEq
@@ -286,6 +288,11 @@ type Update
 updateSortIndices : Posix -> List Grain -> List Grain
 updateSortIndices now =
     List.indexedMap (SetSortIdx >> update now)
+
+
+listToEffectiveSortIndices : List Grain -> List ( SortIdx, Grain )
+listToEffectiveSortIndices =
+    List.indexedMap Tuple.pair
 
 
 update : Posix -> Update -> Grain -> Grain

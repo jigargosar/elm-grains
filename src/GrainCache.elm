@@ -11,6 +11,7 @@ module GrainCache exposing
 
 import ActorId exposing (ActorId)
 import BasicsX exposing (callWith, ifElse, unwrapMaybe)
+import Compare
 import DecodeX exposing (Encoder)
 import Firebase
 import Grain exposing (Grain)
@@ -51,6 +52,14 @@ encoder =
 empty : GrainCache
 empty =
     GrainIdLookup.empty
+
+
+get =
+    GrainIdLookup.get
+
+
+toList =
+    GrainIdLookup.toList
 
 
 setSaved : Grain -> GrainCache -> GrainCache
@@ -103,3 +112,55 @@ updateWithGrainMsg :
     -> UpdateResult
 updateWithGrainMsg now grainMsg gid model =
     update (Grain.update now grainMsg) gid model
+
+
+moveBy offset now gid model =
+    get gid model
+        |> Maybe.map (moveHelp now offset >> callWith model)
+        |> Result.fromMaybe "Error: setSortIdx: Grain Not Found in Cache"
+
+
+moveHelp : Posix -> Int -> SavedGrain -> GrainCache -> UpdateResult
+moveHelp now offset savedGrain model =
+    let
+        siblings : List SavedGrain
+        siblings =
+            getSiblings savedGrain model
+
+        gIdx : Int
+        gIdx =
+            List.findIndex
+                (SavedGrain.value
+                    >> Grain.eqById (SavedGrain.value savedGrain)
+                )
+                siblings
+                |> Maybe.withDefault -1
+
+        batchChangeList : List ( Grain -> Grain, GrainId )
+        batchChangeList =
+            List.swapAt gIdx (gIdx + offset) siblings
+                |> List.map SavedGrain.value
+                |> Grain.listToEffectiveSortIndices
+                |> List.map
+                    (Tuple.mapBoth
+                        (Grain.SetSortIdx >> Grain.update now)
+                        Grain.id
+                    )
+    in
+    batchUpdate batchChangeList model
+
+
+getSiblings : SavedGrain -> GrainCache -> List SavedGrain
+getSiblings savedGrain model =
+    toList model
+        |> List.filter (eqById savedGrain)
+        |> List.sortWith defaultComparator
+
+
+defaultComparator =
+    Compare.compose SavedGrain.value Grain.defaultComparator
+
+
+eqById savedGrain =
+    SavedGrain.value
+        >> Grain.eqByParentId (SavedGrain.value savedGrain)
