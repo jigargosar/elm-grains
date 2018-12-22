@@ -4,7 +4,7 @@ module Styles exposing
     , flatButton
     , flatButtonStyles
     , global
-    , globalStyles
+    , globalStylesForSelector
     )
 
 import Css exposing (px, rem)
@@ -14,8 +14,8 @@ import CssTheme
 import MaterialColor
 
 
-globalStyles =
-    [ Css.Global.id "css-container"
+globalStylesForSelector selector =
+    selector
         [ Css.boxSizing Css.borderBox
         , Css.property "font-size" "16px"
         , Css.color CssTheme.textColor
@@ -27,11 +27,10 @@ globalStyles =
                 ]
             ]
         ]
-    ]
 
 
-global =
-    Css.Global.global globalStyles
+global selector =
+    Css.Global.global [ globalStylesForSelector selector ]
 
 
 borderButtonStyles =

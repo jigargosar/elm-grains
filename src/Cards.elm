@@ -32,7 +32,11 @@ mockUpdate message model =
 
 cssContainer el =
     Html.Styled.toUnstyled <|
-        div [ id "css-container" ] [ Styles.global, el ]
+        div [ id "css-container" ]
+            [ Styles.global <|
+                Css.Global.id "css-container"
+            , el
+            ]
 
 
 viewFlatButton1 =
@@ -49,7 +53,7 @@ viewBorderButton1 =
 
 view _ =
     cssContainer <|
-        div [] [ Styles.global, viewFlatButton1, viewBorderButton1 ]
+        div [] [ viewFlatButton1, viewBorderButton1 ]
 
 
 main : Program () () ()
