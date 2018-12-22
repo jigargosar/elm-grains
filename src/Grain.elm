@@ -289,7 +289,7 @@ updateSortIndices now =
 
 
 update : Posix -> Update -> Grain -> Grain
-update now msg =
+update now msg grain =
     let
         innerUpdate =
             case msg of
@@ -304,5 +304,12 @@ update now msg =
 
                 SetSortIdx sortIdx_ ->
                     setSortIdx sortIdx_
+
+        newGrain =
+            innerUpdate grain
     in
-    innerUpdate >> setModifiedAt now
+    if grain == newGrain then
+        newGrain
+
+    else
+        setModifiedAt now newGrain
