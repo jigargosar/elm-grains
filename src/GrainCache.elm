@@ -65,11 +65,15 @@ remove grain =
     GrainIdLookup.remove (Grain.id grain)
 
 
+type alias UpdateResult =
+    Result String GrainCache
+
+
 update :
     (Grain -> Grain)
     -> GrainId
     -> GrainCache
-    -> Result String GrainCache
+    -> UpdateResult
 update changeFn gid model =
     if GrainIdLookup.member gid model then
         let
@@ -82,11 +86,20 @@ update changeFn gid model =
         Result.Err "GrainNotFound"
 
 
+batchUpdate : List ( Grain -> Grain, GrainId ) -> GrainCache -> UpdateResult
+batchUpdate list model =
+    let
+        reducer ( changeFn, gid ) =
+            Result.andThen (update changeFn gid)
+    in
+    List.foldl reducer (Result.Ok model) list
+
+
 updateWithGrainMsg :
     Posix
     -> Grain.Update
     -> GrainId
     -> GrainCache
-    -> Result String GrainCache
+    -> UpdateResult
 updateWithGrainMsg now grainMsg gid model =
     update (Grain.update now grainMsg) gid model
