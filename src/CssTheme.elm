@@ -1,16 +1,20 @@
 module CssTheme exposing
     ( black80
     , blackAlpha
+    , fontFamily
     , pageWidth
+    , primaryColor
     , space1
     , space2
     , space4
     , space8
+    , textColor
     , white
     )
 
 import Css exposing (hex, px, rem)
 import CssShorthand as CS
+import MaterialColor
 
 
 black80 =
@@ -47,3 +51,17 @@ white =
 
 pageWidth =
     CS.w_xs
+
+
+textColor =
+    CS.fromMaterialColor MaterialColor.grey800
+
+
+fontFamily =
+    Css.property "font-family"
+        """-apple-system, system-ui, BlinkMacSystemFont, "Segoe UI",
+                   Roboto, "Helvetica Neue", sans-serif;"""
+
+
+primaryColor =
+    CS.dodgerBlue

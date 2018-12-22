@@ -15,6 +15,7 @@ module CssShorthand exposing
     , flexGrow0
     , flexGrow1
     , flexShrink0
+    , fromMaterialColor
     , inlineRow
     , itemsCenter
     , justifyCenter
@@ -48,6 +49,10 @@ module CssShorthand exposing
 
 import BasicsX exposing (callWith)
 import Css exposing (num, pct, px, rem, vh, vw, zero)
+
+
+fromMaterialColor { red, green, blue } =
+    Css.rgb red green blue
 
 
 noStyle =

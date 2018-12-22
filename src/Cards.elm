@@ -3,10 +3,12 @@ module Cards exposing (initialCardModel, initialMenuModel, main)
 import Css exposing (hex, px, rem)
 import Css.Global
 import CssShorthand as CS
+import CssTheme
 import Html.Styled exposing (button, div, text)
 import Html.Styled.Attributes exposing (css, id, tabindex)
 import Main as App
 import MaterialColor
+import Styles
 import UiCards exposing (card, cardError, deck, show)
 
 
@@ -26,73 +28,9 @@ mockUpdate message model =
     ( model, Cmd.none )
 
 
-globalStyles =
-    Css.Global.global
-        [ Css.Global.id "css-container"
-            [ Css.boxSizing Css.borderBox
-            , Css.property "font-size" "16px"
-
-            --            , Css.property "color" "rgba (0,0,0,0.8)"
-            , Css.color <| fromMaterialColor MaterialColor.grey800
-            , Css.property "font-family"
-                """-apple-system, system-ui, BlinkMacSystemFont, "Segoe UI",
-               Roboto, "Helvetica Neue", sans-serif;"""
-            , Css.Global.descendants
-                [ Css.Global.button
-                    [ Css.property "font-size" "inherit"
-                    , Css.property "font-family" "inherit"
-                    ]
-                ]
-            ]
-        ]
-
-
 cssContainer el =
     Html.Styled.toUnstyled <|
-        div [ id "css-container" ] [ globalStyles, el ]
-
-
-borderButtonStyleList =
-    [ Css.border3 (px 2) Css.solid CS.dodgerBlue
-    , CS.row
-    , CS.p2 (rem 0.25) (rem 0.5)
-    , Css.borderRadius (rem 0.25)
-    , CS.uppercase
-    , CS.pointer
-    , Css.boxShadow4
-        (px 1)
-        (px 1)
-        (px 2)
-        CS.black20
-    , Css.active
-        [ Css.boxShadow5 Css.inset
-            (px 1)
-            (px 1)
-            (px 2)
-            CS.black20
-        ]
-    ]
-
-
-fromMaterialColor { red, green, blue } =
-    Css.rgb red green blue
-
-
-flatButtonStyleList =
-    [ CS.row
-    , CS.p2 (rem 0.25) (rem 0.5)
-    , Css.borderWidth Css.zero
-    , Css.color CS.dodgerBlue
-    , CS.pointer
-    ]
-
-
-flatButtonStyle =
-    Css.batch flatButtonStyleList
-
-
-borderButtonStyle =
-    Css.batch borderButtonStyleList
+        div [ id "css-container" ] [ Styles.globalStyles, el ]
 
 
 main =
@@ -101,14 +39,13 @@ main =
             [ card "Flat" initialMenuModel <|
                 \_ ->
                     cssContainer <|
-                        button [ css [ flatButtonStyle ] ]
+                        button [ css [ Styles.flatButtonStyle ] ]
                             [ text "Flat Button" ]
             , card "Border" initialMenuModel <|
                 \_ ->
                     cssContainer <|
                         button
-                            [ css [ borderButtonStyle ]
-                            , tabindex 0
+                            [ css [ Styles.borderButtonStyle ]
                             ]
                             [ text "Click Me!" ]
             ]
