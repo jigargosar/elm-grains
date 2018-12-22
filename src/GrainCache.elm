@@ -4,6 +4,7 @@ module GrainCache exposing
     , decoder
     , empty
     , encoder
+    , moveBy
     , remove
     , setSaved
     , updateWithGrainMsg
@@ -54,8 +55,9 @@ empty =
     GrainIdLookup.empty
 
 
-get =
-    GrainIdLookup.get
+get : GrainId -> GrainCache -> Maybe SavedGrain
+get gid =
+    GrainIdLookup.get gid
 
 
 toList =
@@ -114,10 +116,11 @@ updateWithGrainMsg now grainMsg gid model =
     update (Grain.update now grainMsg) gid model
 
 
+moveBy : Int -> Posix -> GrainId -> GrainCache -> UpdateResult
 moveBy offset now gid model =
     get gid model
-        |> Maybe.map (moveHelp now offset >> callWith model)
         |> Result.fromMaybe "Error: setSortIdx: Grain Not Found in Cache"
+        |> Result.andThen (moveHelp now offset >> callWith model)
 
 
 moveHelp : Posix -> Int -> SavedGrain -> GrainCache -> UpdateResult
