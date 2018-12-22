@@ -324,7 +324,10 @@ updateGrainCacheWithNow gid message now model =
                 |> callWith model
 
         MultipleGrainUpdate_MoveBy offset ->
-            Return.singleton model
+            GrainCache.moveBy offset now gid model.grainCache
+                |> Result.mapBoth handleErrorString setGrainCacheAndLocalPersist
+                |> Result.merge
+                |> callWith model
 
 
 setGrainCacheAndLocalPersist grainCache model =
