@@ -290,8 +290,8 @@ updateGrainCacheFromFirebaseChanges changeList model =
 
 
 type UpdateGrainCacheMsg
-    = SingleGrainUpdate Grain.Update
-    | MultipleGrainUpdate_MoveBy Int
+    = UpdateWithGrainMsg Grain.Update
+    | UpdateGrainMoveBy Int
 
 
 updateGrainCacheWithNow :
@@ -305,25 +305,25 @@ updateGrainCacheWithNow gid message now model =
         updateGrainCacheMsg =
             case message of
                 SetGrainContent content ->
-                    SingleGrainUpdate <| Grain.SetContent content
+                    UpdateWithGrainMsg <| Grain.SetContent content
 
                 SetGrainDeleted deleted ->
-                    SingleGrainUpdate <| Grain.SetDeleted deleted
+                    UpdateWithGrainMsg <| Grain.SetDeleted deleted
 
                 SetGrainParentId parentId ->
-                    SingleGrainUpdate <| Grain.SetParentId parentId
+                    UpdateWithGrainMsg <| Grain.SetParentId parentId
 
                 MoveGrainBy offset ->
-                    MultipleGrainUpdate_MoveBy offset
+                    UpdateGrainMoveBy offset
     in
     case updateGrainCacheMsg of
-        SingleGrainUpdate grainUpdateMsg ->
+        UpdateWithGrainMsg grainUpdateMsg ->
             GrainCache.updateWithGrainMsg now grainUpdateMsg gid model.grainCache
                 |> Result.mapBoth handleErrorString setGrainCacheAndLocalPersist
                 |> Result.merge
                 |> callWith model
 
-        MultipleGrainUpdate_MoveBy offset ->
+        UpdateGrainMoveBy offset ->
             GrainCache.moveBy offset now gid model.grainCache
                 |> Result.mapBoth handleErrorString setGrainCacheAndLocalPersist
                 |> Result.merge
