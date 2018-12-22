@@ -53,11 +53,12 @@ cssContainer el =
 
 
 borderButtonStyleList =
-    [ Css.border2 (px 2) Css.solid CS.dodgerBlue
+    [ Css.border3 (px 2) Css.solid CS.dodgerBlue
     , CS.row
     , CS.p2 (rem 0.25) (rem 0.5)
     , Css.borderRadius (rem 0.25)
     , CS.uppercase
+    , CS.pointer
     , Css.boxShadow4
         (px 1)
         (px 1)
@@ -77,12 +78,17 @@ fromMaterialColor { red, green, blue } =
     Css.rgb red green blue
 
 
-buttonStyleList =
-    []
+flatButtonStyleList =
+    [ CS.row
+    , CS.p2 (rem 0.25) (rem 0.5)
+    , Css.borderWidth Css.zero
+    , Css.color CS.dodgerBlue
+    , CS.pointer
+    ]
 
 
-buttonStyle =
-    Css.batch buttonStyleList
+flatButtonStyle =
+    Css.batch flatButtonStyleList
 
 
 borderButtonStyle =
@@ -94,8 +100,9 @@ main =
         [ deck "Basic elements"
             [ card "button" initialMenuModel <|
                 \_ ->
-                    Html.Styled.toUnstyled <|
-                        div [ css [] ] [ text "I should be a button" ]
+                    cssContainer <|
+                        button [ css [ flatButtonStyle ] ]
+                            [ text "Flat Button" ]
             , card "button" initialMenuModel <|
                 \_ ->
                     cssContainer <|
