@@ -60,15 +60,16 @@ borderButtonStyleList =
     , Css.display Css.inlineFlex
     , Css.flexDirection Css.row
     , CS.p2 (rem 0.25) (rem 0.5)
-    , Css.outline Css.none
+
+    --    , Css.outline Css.none
     , Css.borderRadius (rem 0.25)
+    , Css.boxShadow4
+        (px 1)
+        (px 1)
+        (px 2)
+        CS.black20
     , Css.focus
-        [ Css.boxShadow4
-            (px 1)
-            (px 1)
-            (px 2)
-            CS.black20
-        , Css.borderColor (Css.hsla 210 1 0.56 1)
+        [ Css.borderColor (Css.hsla 210 1 0.56 1)
         , Css.color <| hex "#000"
         ]
     , Css.active
