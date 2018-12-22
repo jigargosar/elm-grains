@@ -1,4 +1,10 @@
-module Styles exposing (borderButtonStyle, borderButtonStyleList, flatButtonStyle, flatButtonStyleList, globalStyles)
+module Styles exposing
+    ( borderButton
+    , borderButtonStyles
+    , flatButton
+    , flatButtonStyles
+    , global
+    )
 
 import Css exposing (px, rem)
 import Css.Global
@@ -8,23 +14,26 @@ import MaterialColor
 
 
 globalStyles =
-    Css.Global.global
-        [ Css.Global.id "css-container"
-            [ Css.boxSizing Css.borderBox
-            , Css.property "font-size" "16px"
-            , Css.color CssTheme.textColor
-            , CssTheme.fontFamily
-            , Css.Global.descendants
-                [ Css.Global.button
-                    [ Css.property "font-size" "inherit"
-                    , Css.property "font-family" "inherit"
-                    ]
+    [ Css.Global.id "css-container"
+        [ Css.boxSizing Css.borderBox
+        , Css.property "font-size" "16px"
+        , Css.color CssTheme.textColor
+        , CssTheme.fontFamily
+        , Css.Global.descendants
+            [ Css.Global.button
+                [ Css.property "font-size" "inherit"
+                , Css.property "font-family" "inherit"
                 ]
             ]
         ]
+    ]
 
 
-borderButtonStyleList =
+global =
+    Css.Global.global globalStyles
+
+
+borderButtonStyles =
     [ Css.border3 (px 2) Css.solid CssTheme.primaryColor
     , CS.row
     , CS.p2 (rem 0.25) (rem 0.5)
@@ -46,7 +55,7 @@ borderButtonStyleList =
     ]
 
 
-flatButtonStyleList =
+flatButtonStyles =
     [ CS.row
     , CS.p2 (rem 0.25) (rem 0.5)
     , Css.borderWidth Css.zero
@@ -55,9 +64,9 @@ flatButtonStyleList =
     ]
 
 
-flatButtonStyle =
-    Css.batch flatButtonStyleList
+flatButton =
+    Css.batch flatButtonStyles
 
 
-borderButtonStyle =
-    Css.batch borderButtonStyleList
+borderButton =
+    Css.batch borderButtonStyles

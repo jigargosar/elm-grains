@@ -30,7 +30,7 @@ mockUpdate message model =
 
 cssContainer el =
     Html.Styled.toUnstyled <|
-        div [ id "css-container" ] [ Styles.globalStyles, el ]
+        div [ id "css-container" ] [ Styles.global, el ]
 
 
 main =
@@ -39,13 +39,13 @@ main =
             [ card "Flat" initialMenuModel <|
                 \_ ->
                     cssContainer <|
-                        button [ css [ Styles.flatButtonStyle ] ]
+                        button [ css [ Styles.flatButton ] ]
                             [ text "Flat Button" ]
             , card "Border" initialMenuModel <|
                 \_ ->
                     cssContainer <|
                         button
-                            [ css [ Styles.borderButtonStyle ]
+                            [ css [ Styles.borderButton ]
                             ]
                             [ text "Click Me!" ]
             ]
