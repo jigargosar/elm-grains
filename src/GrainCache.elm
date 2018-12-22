@@ -62,9 +62,14 @@ remove grain =
     GrainIdLookup.remove (Grain.id grain)
 
 
+update :
+    (SavedGrain -> SavedGrain)
+    -> GrainId
+    -> GrainCache
+    -> Result String GrainCache
 update fn gid model =
     if GrainIdLookup.member gid model then
-        Result.Ok <| GrainIdLookup.updateIfExists gid fn
+        Result.Ok <| GrainIdLookup.updateIfExists gid fn model
 
     else
         Result.Err "GrainNotFound"
