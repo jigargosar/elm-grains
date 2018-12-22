@@ -4,6 +4,7 @@ module Styles exposing
     , flatButton
     , flatButtonStyles
     , global
+    , globalForSelector
     , globalStylesForSelector
     )
 
@@ -16,7 +17,9 @@ import MaterialColor
 
 globalStylesForSelector selector =
     selector
-        [ Css.boxSizing Css.borderBox
+        [ CS.pa0
+        , CS.ma0
+        , Css.boxSizing Css.borderBox
         , Css.property "font-size" "16px"
         , Css.color CssTheme.textColor
         , CssTheme.fontFamily
@@ -29,8 +32,12 @@ globalStylesForSelector selector =
         ]
 
 
-global selector =
+globalForSelector selector =
     Css.Global.global [ globalStylesForSelector selector ]
+
+
+global =
+    Css.Global.global [ globalStylesForSelector Css.Global.body ]
 
 
 borderButtonStyles =

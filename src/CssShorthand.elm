@@ -19,6 +19,7 @@ module CssShorthand exposing
     , inlineRow
     , itemsCenter
     , justifyCenter
+    , ma0
     , maxHeight100VH
     , max_w_full
     , max_w_screen
@@ -31,6 +32,7 @@ module CssShorthand exposing
     , overflowScroll
     , p2
     , pa
+    , pa0
     , pointer
     , posFill
     , pv
@@ -235,6 +237,14 @@ pa =
 
 p2 =
     Css.padding2
+
+
+pa0 =
+    Css.padding Css.zero
+
+
+ma0 =
+    Css.margin Css.zero
 
 
 pv unit =
