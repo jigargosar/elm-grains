@@ -293,11 +293,6 @@ updateGrainCacheFromFirebaseChangesAndPersist changeList model =
     setGrainCacheAndPersist grainCache model
 
 
-type UpdateGrainCacheMsg
-    = UpdateWithGrainMsg Grain.Update
-    | UpdateGrainMoveBy Int
-
-
 updateGrainCacheWithNow :
     GrainId
     -> UpdateGrainMsg
