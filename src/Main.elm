@@ -174,7 +174,7 @@ type Msg
     | PopupRouteToGrain GrainId
     | ShowMoveToPopup GrainId
     | DismissPopup
-    | UpdateGrainWithNow GrainId UpdateGrainMsg Posix
+    | UpdateGrainWithNow UpdateGrainMsg Posix
     | PopupActionSetGrainParent GrainId Grain.ParentId
     | PopupActionMoveGrainUp GrainId
     | PopupActionMoveGrainDown GrainId
@@ -289,30 +289,25 @@ updateGrainCacheFromFirebaseChangesAndPersist changeList model =
 
 
 performGrainMove gid offset =
-    Task.perform (UpdateGrainWithNow gid (MoveGrainBy gid offset)) Time.now
+    Task.perform (UpdateGrainWithNow (MoveGrainBy gid offset)) Time.now
 
 
 performGrainUpdate gid grainUpdate =
-    Task.perform (UpdateGrainWithNow gid (GrainUpdate gid grainUpdate)) Time.now
+    Task.perform (UpdateGrainWithNow (GrainUpdate gid grainUpdate)) Time.now
 
 
 updateExistingGrainInCacheWithNow :
-    GrainId
-    -> UpdateGrainMsg
+    UpdateGrainMsg
     -> Posix
     -> Model
     -> ( Model, Cmd Msg )
-updateExistingGrainInCacheWithNow gid message now model =
-    let
-        moveBy offset =
-            GrainCache.moveBy offset now gid model.grainCache
+updateExistingGrainInCacheWithNow message now model =
+    case message of
+        MoveGrainBy grainId offset ->
+            GrainCache.moveBy offset now grainId model.grainCache
                 |> Result.mapBoth handleErrorString setGrainCacheAndPersist
                 |> Result.merge
                 |> callWith model
-    in
-    case message of
-        MoveGrainBy grainId offset ->
-            moveBy offset
 
         GrainUpdate grainId grainUpdate ->
             GrainCache.updateWithGrainMsg now grainUpdate grainId model.grainCache
@@ -443,8 +438,8 @@ update message model =
         DragGrain gid ->
             Return.singleton model
 
-        UpdateGrainWithNow gid msg now ->
-            updateExistingGrainInCacheWithNow gid msg now model
+        UpdateGrainWithNow msg now ->
+            updateExistingGrainInCacheWithNow msg now model
 
         CreateAndAddNewGrain ->
             ( model
