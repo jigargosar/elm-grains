@@ -255,6 +255,10 @@ decodeValueAndHandleError { decoder, value, onOk } model =
         |> Result.merge
 
 
+
+-- GRAIN CACHE --
+
+
 addNewGrainToCache grain model =
     GrainCache.addNewGrain grain model.grainCache
         |> Result.mapBoth handleErrorString setGrainCacheAndPersist
@@ -262,11 +266,11 @@ addNewGrainToCache grain model =
         |> callWith model
 
 
-updateGrainCacheFromFirebaseChanges :
+updateGrainCacheFromFirebaseChangesAndPersist :
     List GrainChange
     -> Model
     -> ( Model, Cmd Msg )
-updateGrainCacheFromFirebaseChanges changeList model =
+updateGrainCacheFromFirebaseChangesAndPersist changeList model =
     let
         handleChange change =
             let
@@ -349,6 +353,10 @@ setGrainCacheAndPersist grainCache model =
     in
     ( setGrainCache grainCache model, cacheCmd )
         |> Return.effect_ firePersistUnsavedGrainsEffect
+
+
+
+-- UPDATE
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -494,7 +502,7 @@ update message model =
                         |> Return.singleton
 
                 Firebase.GrainChanges changes ->
-                    updateGrainCacheFromFirebaseChanges changes model
+                    updateGrainCacheFromFirebaseChangesAndPersist changes model
 
         SignIn ->
             Return.return model (Firebase.signIn ())
