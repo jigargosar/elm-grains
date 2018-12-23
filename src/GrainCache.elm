@@ -11,7 +11,7 @@ module GrainCache exposing
     , remove
     , setSaved
     , toList
-    , updateWithGrainMsg
+    , updateWithGrainUpdate
     )
 
 import ActorId exposing (ActorId)
@@ -163,13 +163,13 @@ batchUpdate list model =
     List.foldl reducer (Result.Ok model) list
 
 
-updateWithGrainMsg :
+updateWithGrainUpdate :
     Grain.Update
     -> Posix
     -> GrainId
     -> GrainCache
     -> UpdateResult
-updateWithGrainMsg grainUpdate now gid model =
+updateWithGrainUpdate grainUpdate now gid model =
     update (Grain.update now grainUpdate) gid model
 
 

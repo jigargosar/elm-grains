@@ -315,7 +315,7 @@ updateGrainCacheWithNow message now model =
                 |> handleResult
 
         GrainUpdate grainId grainUpdate ->
-            GrainCache.updateWithGrainMsg grainUpdate now grainId model.grainCache
+            GrainCache.updateWithGrainUpdate grainUpdate now grainId model.grainCache
                 |> handleResult
 
 
