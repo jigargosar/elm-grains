@@ -26,7 +26,7 @@ import GrainCache exposing (GrainCache)
 import GrainChange exposing (GrainChange)
 import GrainId exposing (GrainId)
 import GrainListView exposing (GrainListView)
-import GrainMorePopupView
+import GrainMorePopupView exposing (GrainMorePopupView)
 import GrainView
 import HotKey as K exposing (SoftKey(..))
 import Html.Styled as Html exposing (..)
@@ -46,6 +46,7 @@ import Material.Icons.Editor as MIcons
 import Material.Icons.Navigation as MIcons
 import Material.Icons.Toggle as MIcons
 import Maybe.Extra as Maybe
+import MoveGrainPopupView
 import NotFoundView
 import Port
 import Random exposing (Generator, Seed)
@@ -70,7 +71,7 @@ import Tuple exposing (mapFirst)
 
 type Popup
     = GrainMorePopup GrainId
-    | GrainMovePopup GrainId
+    | MoveGrainPopup GrainId
     | NoPopup
 
 
@@ -432,7 +433,7 @@ update message model =
                 |> Return.map dismissPopup
 
         ShowMoveToPopup grain ->
-            Return.singleton { model | popup = GrainMovePopup (Grain.id grain) }
+            Return.singleton { model | popup = MoveGrainPopup (Grain.id grain) }
 
         PopupActionSetGrainParent grain parentId ->
             ( dismissPopup model
@@ -543,15 +544,16 @@ viewPopup model =
                 |> Maybe.map (grainMorePopupViewModel model)
                 |> CssHtml.viewMaybe GrainMorePopupView.view
 
-        GrainMovePopup gid ->
+        MoveGrainPopup gid ->
             grainById gid model
-                |> Maybe.map (grainMovePopupViewModel model)
-                |> CssHtml.viewMaybe viewGrainMovePopup
+                |> Maybe.map (moveGrainPopupViewModel model)
+                |> CssHtml.viewMaybe MoveGrainPopupView.view
 
         NoPopup ->
             CssHtml.noView
 
 
+grainMorePopupViewModel : Model -> Grain -> GrainMorePopupView Msg
 grainMorePopupViewModel model grain =
     { editMsg = GrainMoreAction <| routeToGrain grain
     , moveUpMsg = PopupActionMoveGrainUp grain
@@ -571,7 +573,7 @@ grainMorePopupViewModel model grain =
     }
 
 
-grainMovePopupViewModel model grain =
+moveGrainPopupViewModel model grain =
     { grain = grain
     , otherGrains =
         model.grainCache
@@ -584,62 +586,8 @@ grainMovePopupViewModel model grain =
     , isSelected = Grain.isParentOf grain
     , dismissMsg = DismissPopup
     , setParentMsg = PopupActionSetGrainParent grain
+    , setParentToRootMsg = PopupActionSetGrainParent grain Grain.rootParentId
     }
-
-
-viewGrainMovePopup vm =
-    let
-        viewGrainItem g =
-            flexCol
-                [ CS.pointer
-                , CS.styleIf (vm.isSelected g) CS.bold
-                , Css.hover
-                    [ Css.property "background-color" "lightgray"
-                    ]
-                ]
-                [ onClick <|
-                    vm.setParentMsg (Grain.idAsParentId g)
-                ]
-                [ flexRow [ CS.ellipsis ]
-                    []
-                    [ text <| Grain.titleOrEmpty g
-                    ]
-                ]
-
-        viewRootItem =
-            let
-                isRoot =
-                    Grain.parentIdEq Grain.rootParentId vm.grain
-            in
-            flexCol
-                [ CS.pointer
-                , CS.styleIf isRoot CS.bold
-                , Css.hover
-                    [ Css.property "background-color" "lightgray"
-                    ]
-                ]
-                [ onClick <| vm.setParentMsg Grain.rootParentId
-                ]
-                [ flexRow [ CS.ellipsis ]
-                    []
-                    [ text "<Root>"
-                    ]
-                ]
-    in
-    CssProto.modal
-        { content =
-            [ flexCol []
-                []
-                [ flexRow [ CS.justifyCenter ] [] [ text "Move Grain" ]
-                , flexCol []
-                    []
-                    (viewRootItem
-                        :: List.map viewGrainItem vm.otherGrains
-                    )
-                ]
-            ]
-        , onDismiss = vm.dismissMsg
-        }
 
 
 type alias RouteView =

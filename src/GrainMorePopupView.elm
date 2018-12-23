@@ -1,4 +1,4 @@
-module GrainMorePopupView exposing (view)
+module GrainMorePopupView exposing (GrainMorePopupView, view)
 
 import BasicsX exposing (ter)
 import Css exposing (zero)
