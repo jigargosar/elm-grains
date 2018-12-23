@@ -27,7 +27,7 @@ import GrainChange exposing (GrainChange)
 import GrainId exposing (GrainId)
 import GrainListView exposing (GrainListView)
 import GrainMorePopupView exposing (GrainMorePopupView)
-import GrainView
+import GrainView exposing (GrainView)
 import HotKey as K exposing (SoftKey(..))
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes as SA exposing (..)
@@ -641,6 +641,16 @@ viewRouteChildren model =
             toGrainListView model |> GrainListView.view
 
         Route.Grain gid ->
+            let
+                viewModel : Maybe Grain -> GrainView Msg
+                viewModel =
+                    Maybe.map
+                        (\grain ->
+                            { contentChangedMsg = GrainContentChanged grain
+                            , content = Grain.content grain
+                            }
+                        )
+            in
             grainById gid model |> GrainView.view GrainContentChanged
 
         Route.NotFound string ->

@@ -1,4 +1,4 @@
-module GrainView exposing (autoFocusId, view)
+module GrainView exposing (GrainView, autoFocusId, view)
 
 import BasicsX exposing (defaultEmptyStringTo, unwrapMaybe)
 import Browser.Dom
@@ -16,6 +16,13 @@ import Task exposing (Task)
 
 autoFocusId =
     "grain-view-input"
+
+
+type alias GrainView msg =
+    Maybe
+        { contentChangedMsg : String -> msg
+        , content : String
+        }
 
 
 view contentChangeMsg maybeGrain =
