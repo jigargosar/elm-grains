@@ -183,7 +183,7 @@ type Msg
     | DragGrain GrainId
     | CreateAndAddNewGrain
     | CreateAndAddNewGrainWithNow Posix
-    | AddNewGrain Grain
+    | AddGrainToCache Grain
     | BackPressed
     | InlineEditGrain GrainId
     | InlineEditGrainSubmit GrainId
@@ -461,9 +461,9 @@ update message model =
 
         CreateAndAddNewGrainWithNow now ->
             Return.return model
-                (Random.generate AddNewGrain (Grain.generator now))
+                (Random.generate AddGrainToCache (Grain.generator now))
 
-        AddNewGrain grain ->
+        AddGrainToCache grain ->
             updateGrainCache (AddGrain grain) model
                 |> Return.andThen
                     (update <| routeToGrainIdMsg <| Grain.id grain)
