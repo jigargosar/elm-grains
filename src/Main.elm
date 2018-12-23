@@ -338,15 +338,17 @@ firePersistUnsavedGrainsCmd grainCache =
         |> Port.persistSavedGrainList
 
 
+firePersistUnsavedGrainsEffect =
+    .grainCache >> firePersistUnsavedGrainsCmd
+
+
 setGrainCacheAndPersist grainCache model =
     let
         cacheCmd =
             Port.setGrainCache <| GrainCache.encoder grainCache
-
-        firebaseCmd =
-            firePersistUnsavedGrainsCmd grainCache
     in
-    ( setGrainCache grainCache model, Cmd.batch [ cacheCmd, firebaseCmd ] )
+    ( setGrainCache grainCache model, cacheCmd )
+        |> Return.effect_ firePersistUnsavedGrainsEffect
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
