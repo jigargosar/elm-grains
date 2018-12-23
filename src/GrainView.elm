@@ -25,8 +25,8 @@ type alias GrainView msg =
         }
 
 
-view contentChangeMsg maybeGrain =
-    [ unwrapMaybe viewNotFound (viewGrain contentChangeMsg) maybeGrain
+view vm =
+    [ unwrapMaybe viewNotFound viewGrain vm
     ]
 
 
@@ -34,7 +34,7 @@ viewNotFound =
     div [] [ text "Grain Not Found" ]
 
 
-viewGrain contentChangeMsg grain =
+viewGrain vm =
     styled textarea
         [ Css.displayFlex
         , CS.flexGrow1
@@ -44,8 +44,8 @@ viewGrain contentChangeMsg grain =
         ]
         [ id autoFocusId
         , placeholder "Start Typing..."
-        , value <| Grain.content grain
+        , value vm.content
         , autofocus True
-        , onInput <| contentChangeMsg grain
+        , onInput vm.contentChangedMsg
         ]
         []

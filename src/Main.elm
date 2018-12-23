@@ -651,7 +651,9 @@ viewRouteChildren model =
                             }
                         )
             in
-            grainById gid model |> GrainView.view GrainContentChanged
+            grainById gid model
+                |> viewModel
+                |> GrainView.view
 
         Route.NotFound string ->
             NotFoundView.view
