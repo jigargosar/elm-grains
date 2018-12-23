@@ -172,9 +172,8 @@ type Msg
       NoOp
     | FocusResult (Result String ())
     | LoadGrainCache Value
-    | RestoreGrain Grain
-    | DeleteGrain Grain
-    | GrainMoreAction Msg
+    | PopupSetDeletedGrain Grain Bool
+    | PopupRouteToGrain Grain
     | ShowMoveToPopup Grain
     | DismissPopup
     | UpdateGrainWithNow GrainId UpdateGrainMsg Posix
@@ -204,11 +203,11 @@ routeTo route =
     RouteTo route
 
 
-routeToGrain grain =
-    routeToGrainId (Grain.id grain)
+routeToGrainMsg grain =
+    routeToGrainIdMsg (Grain.id grain)
 
 
-routeToGrainId gid =
+routeToGrainIdMsg gid =
     routeTo <| Route.Grain gid
 
 
@@ -418,19 +417,13 @@ update message model =
                         }
                         (updateGrainIdWithNowCmd gid (SetGrainContent content))
 
-        DeleteGrain grain ->
-            ( model
-            , updateGrainWithNowCmd grain (SetGrainDeleted True)
+        PopupSetDeletedGrain grain deleted ->
+            ( dismissPopup model
+            , updateGrainWithNowCmd grain (SetGrainDeleted deleted)
             )
 
-        RestoreGrain grain ->
-            ( model
-            , updateGrainWithNowCmd grain (SetGrainDeleted False)
-            )
-
-        GrainMoreAction msg ->
-            update msg model
-                |> Return.map dismissPopup
+        PopupRouteToGrain grain ->
+            update (routeToGrainMsg grain) (dismissPopup model)
 
         ShowMoveToPopup grain ->
             Return.singleton { model | popup = MoveGrainPopup (Grain.id grain) }
@@ -475,7 +468,7 @@ update message model =
         AddNewGrain grain ->
             model
                 |> addNewGrainToCache grain
-                |> Return.andThen (update (routeToGrain grain))
+                |> Return.andThen (update (routeToGrainMsg grain))
 
         LoadGrainCache encoded ->
             decodeValueAndHandleError
@@ -555,21 +548,17 @@ viewPopup model =
 
 grainMorePopupViewModel : Model -> Grain -> GrainMorePopupView Msg
 grainMorePopupViewModel model grain =
-    { editMsg = GrainMoreAction <| routeToGrain grain
+    let
+        deleted =
+            Grain.deleted grain
+    in
+    { editMsg = PopupRouteToGrain grain
     , moveUpMsg = PopupActionMoveGrainUp grain
     , moveDownMsg = PopupActionMoveGrainDown grain
     , moveToMsg = ShowMoveToPopup grain
-    , toggleDeleteMsg =
-        let
-            deleted =
-                Grain.deleted grain
-        in
-        (ter deleted RestoreGrain DeleteGrain <|
-            grain
-        )
-            |> GrainMoreAction
+    , toggleDeleteMsg = PopupSetDeletedGrain grain (not deleted)
     , dismissMsg = DismissPopup
-    , deleted = Grain.deleted grain
+    , deleted = deleted
     }
 
 
