@@ -256,40 +256,6 @@ decodeValueAndHandleError { decoder, value, onOk } model =
 -- GRAIN CACHE --
 
 
-addNewGrainToCache grain model =
-    GrainCache.addNewGrain grain model.grainCache
-        |> Result.mapBoth handleErrorString setGrainCacheAndPersist
-        |> Result.merge
-        |> callWith model
-
-
-updateGrainCacheFromFirebaseChangesAndPersist :
-    List GrainChange
-    -> Model
-    -> ( Model, Cmd Msg )
-updateGrainCacheFromFirebaseChangesAndPersist changeList model =
-    let
-        handleChange change =
-            let
-                grain =
-                    GrainChange.grain change
-            in
-            case GrainChange.type_ change of
-                GrainChange.Added ->
-                    GrainCache.setSaved grain
-
-                GrainChange.Modified ->
-                    GrainCache.setSaved grain
-
-                GrainChange.Removed ->
-                    GrainCache.remove grain
-
-        grainCache =
-            List.foldr handleChange model.grainCache changeList
-    in
-    setGrainCacheAndPersist grainCache model
-
-
 performGrainMove gid offset =
     Task.perform (UpdateGrainCache << MoveGrainBy gid offset) Time.now
 
