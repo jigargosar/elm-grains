@@ -326,29 +326,14 @@ updateGrainCache message model =
                 |> handleResult
 
         AddGrain grain ->
-            GrainCache.addNewGrain grain model.grainCache
+            GrainCache.addNewGrain grain
+                model.grainCache
                 |> handleResult
 
         FirebaseChanges changeList ->
-            let
-                handleChange change =
-                    let
-                        grain =
-                            GrainChange.grain change
-                    in
-                    case GrainChange.type_ change of
-                        GrainChange.Added ->
-                            GrainCache.setSaved grain
-
-                        GrainChange.Modified ->
-                            GrainCache.setSaved grain
-
-                        GrainChange.Removed ->
-                            GrainCache.remove grain
-            in
-            GrainCache.updateFromFirebaseChangeList changeList model.grainCache
-                |> setGrainCacheAndPersist
-                |> callWith model
+            GrainCache.updateFromFirebaseChangeList changeList
+                model.grainCache
+                |> handleResult
 
 
 firePersistUnsavedGrainsCmd grainCache =

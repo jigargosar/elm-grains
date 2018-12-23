@@ -252,3 +252,4 @@ updateFromFirebaseChangeList changeList model =
                     remove grain
     in
     List.foldr handleChange model changeList
+        |> Result.Ok
