@@ -257,7 +257,7 @@ decodeValueAndHandleError { decoder, value, onOk } model =
 
 addNewGrainToCache grain model =
     GrainCache.addNewGrain grain model.grainCache
-        |> Result.mapBoth handleErrorString setGrainCacheAndLocalPersist
+        |> Result.mapBoth handleErrorString setGrainCacheAndPersist
         |> Result.merge
         |> callWith model
 
@@ -286,7 +286,7 @@ updateGrainCacheFromFirebaseChanges changeList model =
         grainCache =
             List.foldr handleChange model.grainCache changeList
     in
-    setGrainCacheAndLocalPersist grainCache model
+    setGrainCacheAndPersist grainCache model
 
 
 type UpdateGrainCacheMsg
@@ -319,30 +319,34 @@ updateGrainCacheWithNow gid message now model =
     case updateGrainCacheMsg of
         UpdateWithGrainMsg grainUpdateMsg ->
             GrainCache.updateWithGrainMsg now grainUpdateMsg gid model.grainCache
-                |> Result.mapBoth handleErrorString setGrainCacheAndLocalPersist
+                |> Result.mapBoth handleErrorString setGrainCacheAndPersist
                 |> Result.merge
                 |> callWith model
 
         UpdateGrainMoveBy offset ->
             GrainCache.moveBy offset now gid model.grainCache
-                |> Result.mapBoth handleErrorString setGrainCacheAndLocalPersist
+                |> Result.mapBoth handleErrorString setGrainCacheAndPersist
                 |> Result.merge
                 |> callWith model
 
 
-setGrainCacheAndLocalPersist grainCache model =
+firePersistUnsavedGrainsCmd grainCache =
+    GrainCache.toList grainCache
+        |> List.filterNot SavedGrain.saved
+        |> Debug.log "dirtyGrains"
+        |> E.list SavedGrain.encoder
+        |> Port.persistSavedGrainList
+
+
+setGrainCacheAndPersist grainCache model =
     let
         cacheCmd =
             Port.setGrainCache <| GrainCache.encoder grainCache
 
-        firebasePersistCmd =
-            GrainCache.toList grainCache
-                |> List.filterNot SavedGrain.saved
-                |> Debug.log "dirtyGrains"
-                |> E.list SavedGrain.encoder
-                |> Port.persistSavedGrainList
+        firebaseCmd =
+            firePersistUnsavedGrainsCmd grainCache
     in
-    ( setGrainCache grainCache model, Cmd.batch [ cacheCmd, firebasePersistCmd ] )
+    ( setGrainCache grainCache model, Cmd.batch [ cacheCmd, firebaseCmd ] )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
