@@ -71,18 +71,31 @@ function getFireSubscriptions(app) {
       await auth.signInWithPopup(gp)
     },
     signOut: () => auth.signOut(),
-    persistNewGrain: async grain => {
-      console.log(`fire: persistNewGrain started`, grain)
+    persistSavedGrain: async savedGrain => {
+      console.log(`fire: persistSavedGrain started`, savedGrain)
       const gcRef = createCRef('grains')
-      gcRef.doc(grain.id).set(grain)
-      console.log(`fire: persistNewGrain completed`)
+      const { initial, latest } = savedGrain
+      // https://github.com/topics/diff?l=javascript&q=json&unscoped_q=json
+      // https://github.com/benjamine/jsondiffpatch
+      // https://github.com/mattphillips/deep-object-diff#detaileddiff
+      // https://github.com/RobinBressan/json-git
+      // https://github.com/flitbit/diff
+      // https://github.com/cosmicanant/recursive-diff
+      gcRef.doc(latest.id).set(latest)
+      console.log(`fire: persistSavedGrain completed`)
     },
-    persistUpdatedGrain: async grain => {
-      console.log(`fire: persistUpdatedGrain started`, grain)
-      const gcRef = createCRef('grains')
-      gcRef.doc(grain.id).set(grain)
-      console.log(`fire: persistUpdatedGrain completed`)
-    },
+    // persistNewGrain: async grain => {
+    //   console.log(`fire: persistNewGrain started`, grain)
+    //   const gcRef = createCRef('grains')
+    //   gcRef.doc(grain.id).set(grain)
+    //   console.log(`fire: persistNewGrain completed`)
+    // },
+    // persistUpdatedGrain: async grain => {
+    //   console.log(`fire: persistUpdatedGrain started`, grain)
+    //   const gcRef = createCRef('grains')
+    //   gcRef.doc(grain.id).set(grain)
+    //   console.log(`fire: persistUpdatedGrain completed`)
+    // },
     // persistRemovedGrain: async grain => {
     //   console.log(`fire: persistRemovedGrain started`, grain)
     //   const gcRef = createCRef('grains')
