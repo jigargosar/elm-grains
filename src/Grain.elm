@@ -18,11 +18,11 @@ module Grain exposing
     , idEq
     , isChildOf
     , isParentOf
+    , isRoot
     , listToEffectiveSortIndices
     , modifiedAt
     , parentIdAsGrainId
     , parentIdEq
-    , rootParentId
     , titleOrEmpty
     , toDomIdWithPrefix
     , update
@@ -63,8 +63,8 @@ type ParentId
     | RootId
 
 
-rootParentId : ParentId
-rootParentId =
+isRoot : ParentId
+isRoot =
     RootId
 
 

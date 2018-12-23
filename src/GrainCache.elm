@@ -6,6 +6,7 @@ module GrainCache exposing
     , empty
     , encoder
     , get
+    , getAncestorIdsOfGrain
     , moveBy
     , remove
     , setSaved
@@ -14,7 +15,7 @@ module GrainCache exposing
     )
 
 import ActorId exposing (ActorId)
-import BasicsX exposing (callWith, ifElse, unwrapMaybe)
+import BasicsX exposing (callWith, callWith2, ifElse, unwrapMaybe)
 import Compare
 import DecodeX exposing (Encoder)
 import Firebase
@@ -61,6 +62,37 @@ empty =
 get : GrainId -> GrainCache -> Maybe SavedGrain
 get gid =
     GrainIdLookup.get gid
+
+
+getParentOfGrain grain model =
+    Grain.parentIdAsGrainId grain
+        |> Maybe.andThen (GrainIdLookup.get >> callWith model)
+
+
+isDescendent descendent ancestor model =
+    if Grain.isParentOf descendent ancestor then
+        True
+
+    else
+        getParentOfGrain descendent model
+            |> Maybe.unwrap False (isDescendent >> callWith2 ancestor model)
+
+
+getAncestorIdsOfGrain grain model =
+    getAncestorIdsHelp [] grain model
+
+
+getAncestorIdsHelp ids grain model =
+    let
+        gid =
+            Grain.id grain
+
+        newIds =
+            gid :: ids
+    in
+    Grain.parentIdAsGrainId grain
+        |> Maybe.andThen (get >> callWith model >> Maybe.map SavedGrain.value)
+        |> Maybe.unwrap newIds (getAncestorIdsHelp newIds >> callWith model)
 
 
 toList =

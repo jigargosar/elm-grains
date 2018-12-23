@@ -650,7 +650,7 @@ viewGrainMovePopup { grain, otherGrains } =
         viewRootItem =
             let
                 isRoot =
-                    Grain.parentIdEq Grain.rootParentId grain
+                    Grain.parentIdEq Grain.isRoot grain
             in
             flexCol
                 [ CS.pointer
@@ -661,7 +661,7 @@ viewGrainMovePopup { grain, otherGrains } =
                 ]
                 [ onClick <|
                     PopupActionSetGrainParent grain
-                        Grain.rootParentId
+                        Grain.isRoot
                 ]
                 [ flexRow [ CS.ellipsis ]
                     []
@@ -854,7 +854,7 @@ toGrainListView model =
                 |> sort
 
         rootGrains =
-            allGrains |> List.filter (Grain.parentIdEq Grain.rootParentId)
+            allGrains |> List.filter (Grain.parentIdEq Grain.isRoot)
 
         modifiedAtDesc =
             Grain.modifiedAt >> Time.posixToMillis >> negate
