@@ -17,6 +17,7 @@ import CssLayout exposing (flexCol, flexRow)
 import CssShorthand as CS
 import CssTheme exposing (black80, blackAlpha, space1, space2, space4, white)
 import Grain exposing (Grain)
+import GrainId exposing (GrainId)
 import HotKey
 import Html.Styled exposing (Html, button, div, input, styled, text, textarea)
 import Html.Styled.Attributes exposing (autocomplete, class, css, id, value)
@@ -38,11 +39,11 @@ inlineGrainEditInputDomId =
 
 
 type alias GrainMessages msg =
-    { grainMoreClicked : Grain -> msg
-    , inlineEditGrain : Grain -> msg
-    , dragGrain : Grain -> msg
-    , inlineEditGrainContentChanged : Grain -> String -> msg
-    , inlineEditSubmit : Grain -> msg
+    { grainMoreClicked : GrainId -> msg
+    , inlineEditGrain : GrainId -> msg
+    , dragGrain : GrainId -> msg
+    , inlineEditGrainContentChanged : GrainId -> String -> msg
+    , inlineEditSubmit : GrainId -> msg
     }
 
 
@@ -86,17 +87,22 @@ createNode vm level g =
 
         newNodeModel : NodeModel msg
         newNodeModel =
+            let
+                gid =
+                    Grain.id g
+            in
             { domId = grainDomId g
             , title = Grain.titleOrEmpty g
             , deleted = Grain.deleted g
             , canEdit = Grain.deleted g |> not
             , level = level
-            , moreClickedMsg = grainMsg.grainMoreClicked g
-            , maybeEditContent = InlineEditGrain.maybeContentFor g inlineEditGrain
-            , inlineEditMsg = grainMsg.inlineEditGrain g
+            , moreClickedMsg = grainMsg.grainMoreClicked gid
+            , maybeEditContent =
+                InlineEditGrain.maybeContentFor gid inlineEditGrain
+            , inlineEditMsg = grainMsg.inlineEditGrain gid
             , inlineEditContentChangedMsg =
-                grainMsg.inlineEditGrainContentChanged g
-            , inlineEditSubmit = grainMsg.inlineEditSubmit g
+                grainMsg.inlineEditGrainContentChanged gid
+            , inlineEditSubmit = grainMsg.inlineEditSubmit gid
             , inlineEditInputId = inlineGrainEditInputDomId g
             }
 

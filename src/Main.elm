@@ -181,15 +181,15 @@ type Msg
     | PopupActionMoveGrainUp GrainId
     | PopupActionMoveGrainDown GrainId
     | GrainMoreClicked GrainId
-    | DragGrain Grain
+    | DragGrain GrainId
     | CreateAndAddNewGrain
     | CreateAndAddNewGrainWithNow Posix
     | AddNewGrain Grain
     | BackPressed
-    | InlineEditGrain Grain
-    | InlineEditGrainSubmit Grain
+    | InlineEditGrain GrainId
+    | InlineEditGrainSubmit GrainId
     | GrainContentChanged GrainId String
-    | InlineEditGrainContentChanged Grain String
+    | InlineEditGrainContentChanged GrainId String
     | ToastDismiss
     | RouteTo Route
     | UrlChanged String
@@ -387,15 +387,21 @@ update message model =
                             | inlineEditGrain = inlineEditGrain
                         }
 
-        InlineEditGrain grain ->
-            Return.singleton
-                { model
-                    | inlineEditGrain = InlineEditGrain.startEditing grain
-                }
-                |> Return.command
-                    (BrowserX.focus FocusResult <|
-                        GrainListView.inlineGrainEditInputDomId grain
-                    )
+        InlineEditGrain gid ->
+            let
+                inlineEdit grain =
+                    Return.singleton
+                        { model
+                            | inlineEditGrain = InlineEditGrain.startEditing grain
+                        }
+                        |> Return.command
+                            (BrowserX.focus FocusResult <|
+                                GrainListView.inlineGrainEditInputDomId grain
+                            )
+            in
+            grainById gid model
+                |> Maybe.unwrap (Return.singleton model)
+                    inlineEdit
 
         InlineEditGrainSubmit grain ->
             case InlineEditGrain.endEditing model.inlineEditGrain of
@@ -442,7 +448,7 @@ update message model =
         GrainMoreClicked gid ->
             Return.singleton { model | popup = GrainMorePopup gid }
 
-        DragGrain grain ->
+        DragGrain gid ->
             Return.singleton model
 
         UpdateGrainWithNow gid msg now ->
@@ -689,7 +695,7 @@ toGrainListView model =
     , inlineEditGrain = model.inlineEditGrain
     , addFabClicked = CreateAndAddNewGrain
     , grainMsg =
-        { grainMoreClicked = Grain.id >> GrainMoreClicked
+        { grainMoreClicked = GrainMoreClicked
         , inlineEditGrain = InlineEditGrain
         , dragGrain = DragGrain
         , inlineEditGrainContentChanged = InlineEditGrainContentChanged

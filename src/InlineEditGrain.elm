@@ -57,13 +57,13 @@ endEditing model =
             Result.Ok <| ( gid, content, initialValue )
 
 
-maybeContentFor grain model =
+maybeContentFor forGrainId model =
     case model of
         NotEditing ->
             Nothing
 
         Editing { gid, content } ->
-            if Grain.idEq gid grain then
+            if gid == forGrainId then
                 Just content
 
             else
