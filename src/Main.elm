@@ -618,8 +618,13 @@ grainMovePopupViewModel model grain =
     in
     { grain = grain
     , otherGrains =
-        allGrains
-            |> List.filterNot isDescendent
+        model.grainCache
+            |> GrainCache.toList
+            |> List.map SavedGrain.value
+            |> List.filterNot
+                (GrainCache.isDescendent
+                    >> callWith2 grain model.grainCache
+                )
     }
 
 

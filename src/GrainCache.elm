@@ -6,7 +6,7 @@ module GrainCache exposing
     , empty
     , encoder
     , get
-    , getAncestorIdsOfGrain
+    , isDescendent
     , moveBy
     , remove
     , setSaved
@@ -64,18 +64,24 @@ get gid =
     GrainIdLookup.get gid
 
 
+getParentOfGrain : Grain -> GrainCache -> Maybe SavedGrain
 getParentOfGrain grain model =
     Grain.parentIdAsGrainId grain
         |> Maybe.andThen (GrainIdLookup.get >> callWith model)
 
 
+isDescendent : Grain -> Grain -> GrainCache -> Bool
 isDescendent descendent ancestor model =
     if Grain.isParentOf descendent ancestor then
         True
 
     else
         getParentOfGrain descendent model
-            |> Maybe.unwrap False (isDescendent >> callWith2 ancestor model)
+            |> Maybe.unwrap False
+                (SavedGrain.value
+                    >> isDescendent
+                    >> callWith2 ancestor model
+                )
 
 
 getAncestorIdsOfGrain grain model =
