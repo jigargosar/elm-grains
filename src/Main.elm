@@ -161,10 +161,7 @@ setGrainCache grainCache model =
 
 
 type UpdateGrainMsg
-    = SetGrainContent String
-    | SetGrainDeleted Bool
-    | SetGrainParentId Grain.ParentId
-    | MoveGrainBy Int
+    = MoveGrainBy GrainId Int
     | GrainUpdate GrainId Grain.Update
 
 
@@ -291,8 +288,8 @@ updateGrainCacheFromFirebaseChangesAndPersist changeList model =
     setGrainCacheAndPersist grainCache model
 
 
-updateGrainIdWithNowCmd gid msg =
-    Task.perform (UpdateGrainWithNow gid msg) Time.now
+performGrainMove gid offset =
+    Task.perform (UpdateGrainWithNow gid (MoveGrainBy gid offset)) Time.now
 
 
 performGrainUpdate gid grainUpdate =
@@ -307,12 +304,6 @@ updateExistingGrainInCacheWithNow :
     -> ( Model, Cmd Msg )
 updateExistingGrainInCacheWithNow gid message now model =
     let
-        updateWithGrainMsg grainUpdateMsg =
-            GrainCache.updateWithGrainMsg now grainUpdateMsg gid model.grainCache
-                |> Result.mapBoth handleErrorString setGrainCacheAndPersist
-                |> Result.merge
-                |> callWith model
-
         moveBy offset =
             GrainCache.moveBy offset now gid model.grainCache
                 |> Result.mapBoth handleErrorString setGrainCacheAndPersist
@@ -320,16 +311,7 @@ updateExistingGrainInCacheWithNow gid message now model =
                 |> callWith model
     in
     case message of
-        SetGrainContent content ->
-            updateWithGrainMsg <| Grain.SetContent content
-
-        SetGrainDeleted deleted ->
-            updateWithGrainMsg <| Grain.SetDeleted deleted
-
-        SetGrainParentId parentId ->
-            updateWithGrainMsg <| Grain.SetParentId parentId
-
-        MoveGrainBy offset ->
+        MoveGrainBy grainId offset ->
             moveBy offset
 
         GrainUpdate grainId grainUpdate ->
@@ -384,7 +366,7 @@ update message model =
 
         GrainContentChanged gid content ->
             ( model
-            , updateGrainIdWithNowCmd gid (SetGrainContent content)
+            , performGrainUpdate gid (Grain.SetContent content)
             )
 
         InlineEditGrainContentChanged grain content ->
@@ -424,11 +406,11 @@ update message model =
                         { model
                             | inlineEditGrain = inlineEditGrain
                         }
-                        (updateGrainIdWithNowCmd gid (SetGrainContent content))
+                        (performGrainUpdate gid (Grain.SetContent content))
 
         PopupSetDeletedGrain gid deleted ->
             ( dismissPopup model
-            , updateGrainIdWithNowCmd gid (SetGrainDeleted deleted)
+            , performGrainUpdate gid (Grain.SetDeleted deleted)
             )
 
         PopupRouteToGrain gid ->
@@ -444,12 +426,12 @@ update message model =
 
         PopupActionMoveGrainUp gid ->
             ( dismissPopup model
-            , updateGrainIdWithNowCmd gid (MoveGrainBy -1)
+            , performGrainMove gid -1
             )
 
         PopupActionMoveGrainDown gid ->
             ( dismissPopup model
-            , updateGrainIdWithNowCmd gid (MoveGrainBy 1)
+            , performGrainMove gid 1
             )
 
         DismissPopup ->
