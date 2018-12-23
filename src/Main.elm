@@ -293,6 +293,14 @@ updateGrainCacheFromFirebaseChangesAndPersist changeList model =
     setGrainCacheAndPersist grainCache model
 
 
+updateGrainWithNowCmd grain msg =
+    updateGrainIdWithNowCmd (Grain.id grain) msg
+
+
+updateGrainIdWithNowCmd gid msg =
+    Task.perform (UpdateGrainWithNow gid msg) Time.now
+
+
 updateExistingGrainInCacheWithNow :
     GrainId
     -> UpdateGrainMsg
@@ -346,14 +354,6 @@ setGrainCacheAndPersist grainCache model =
     in
     ( setGrainCache grainCache model, cacheCmd )
         |> Return.effect_ firePersistUnsavedGrainsEffect
-
-
-updateGrainWithNowCmd grain msg =
-    updateGrainIdWithNowCmd (Grain.id grain) msg
-
-
-updateGrainIdWithNowCmd gid msg =
-    Task.perform (UpdateGrainWithNow gid msg) Time.now
 
 
 
