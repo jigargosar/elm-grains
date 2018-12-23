@@ -492,9 +492,10 @@ update message model =
 
                         Ok ( newGrainStore, cmd ) ->
                             Return.return (setGrainStore newGrainStore model) cmd
-                                |> Return.andThen (update (routeToGrain grain))
             in
-            return |> Return.andThen (addNewGrainToCache grain)
+            return
+                |> Return.andThen (addNewGrainToCache grain)
+                |> Return.andThen (update (routeToGrain grain))
 
         LoadGrainStore val ->
             let
