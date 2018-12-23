@@ -539,6 +539,7 @@ viewPopup model =
     case model.popup of
         GrainMorePopup gid ->
             grainById gid model
+                |> Maybe.map (grainMorePopupViewModel model)
                 |> CssHtml.viewMaybe viewGrainMorePopup
 
         GrainMovePopup gid ->
@@ -548,6 +549,25 @@ viewPopup model =
 
         NoPopup ->
             CssHtml.noView
+
+
+grainMorePopupViewModel model grain =
+    { editMsg = GrainMoreAction <| routeToGrain grain
+    , moveUpMsg = PopupActionMoveGrainUp grain
+    , moveDownMsg = PopupActionMoveGrainDown grain
+    , moveToMsg = ShowMoveToPopup grain
+    , toggleDeleteMsg =
+        let
+            deleted =
+                Grain.deleted grain
+        in
+        (ter deleted RestoreGrain DeleteGrain <|
+            grain
+        )
+            |> GrainMoreAction
+    , dismissMsg = DismissPopup
+    , deleted = Grain.deleted grain
+    }
 
 
 grainMovePopupViewModel model grain =
@@ -625,12 +645,11 @@ viewGrainMovePopup { grain, otherGrains } =
         }
 
 
-viewGrainMorePopup grain =
+viewGrainMorePopup vm =
     let
-        viewEdit : Grain -> Html Msg
-        viewEdit g =
+        viewEdit =
             flexRow [ CS.pointer, CS.p2 space2 zero ]
-                [ onClick (GrainMoreAction <| routeToGrain g) ]
+                [ onClick vm.editMsg ]
                 [ flexCol [] [] [ text "Edit" ]
                 , CssElements.iconBtnWithStyles [ CS.selfCenter ]
                     []
@@ -638,9 +657,9 @@ viewGrainMorePopup grain =
                     ]
                 ]
 
-        viewMoveUp g =
+        viewMoveUp =
             flexRow [ CS.pointer, CS.p2 space2 zero ]
-                [ onClick (PopupActionMoveGrainUp g) ]
+                [ onClick vm.moveUpMsg ]
                 [ flexCol [] [] [ text "Move Up" ]
                 , CssElements.iconBtnWithStyles [ CS.selfCenter ]
                     []
@@ -648,9 +667,9 @@ viewGrainMorePopup grain =
                     ]
                 ]
 
-        viewMoveDown g =
+        viewMoveDown =
             flexRow [ CS.pointer, CS.p2 space2 zero ]
-                [ onClick (PopupActionMoveGrainDown g) ]
+                [ onClick vm.moveDownMsg ]
                 [ flexCol [] [] [ text "Move Down" ]
                 , CssElements.iconBtnWithStyles [ CS.selfCenter ]
                     []
@@ -658,9 +677,9 @@ viewGrainMorePopup grain =
                     ]
                 ]
 
-        viewNestUnder g =
+        viewNestUnder =
             flexRow [ CS.pointer, CS.p2 space2 zero ]
-                [ onClick (ShowMoveToPopup g) ]
+                [ onClick vm.moveToMsg ]
                 [ flexCol [] [] [ text "Nest Under..." ]
                 , CssElements.iconBtnWithStyles [ CS.selfCenter ]
                     []
@@ -668,16 +687,13 @@ viewGrainMorePopup grain =
                     ]
                 ]
 
-        viewDelete g =
+        viewDelete =
             let
                 deleted =
-                    Grain.deleted g
+                    vm.deleted
 
                 action =
-                    (ter deleted RestoreGrain DeleteGrain <|
-                        g
-                    )
-                        |> GrainMoreAction
+                    vm.toggleDeleteMsg
 
                 actionTitle =
                     ter deleted "Restore" "Trash"
@@ -699,14 +715,14 @@ viewGrainMorePopup grain =
             [ flexCol []
                 []
                 [ flexRow [ CS.justifyCenter ] [] [ text "Grain Menu" ]
-                , viewEdit grain
-                , viewMoveUp grain
-                , viewMoveDown grain
-                , viewNestUnder grain
-                , viewDelete grain
+                , viewEdit
+                , viewMoveUp
+                , viewMoveDown
+                , viewNestUnder
+                , viewDelete
                 ]
             ]
-        , onDismiss = DismissPopup
+        , onDismiss = vm.dismissMsg
         }
 
 
