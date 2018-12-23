@@ -164,13 +164,13 @@ batchUpdate list model =
 
 
 updateWithGrainMsg :
-    Posix
-    -> Grain.Update
+    Grain.Update
+    -> Posix
     -> GrainId
     -> GrainCache
     -> UpdateResult
-updateWithGrainMsg now grainMsg gid model =
-    update (Grain.update now grainMsg) gid model
+updateWithGrainMsg grainUpdate now gid model =
+    update (Grain.update now grainUpdate) gid model
 
 
 moveBy : Int -> Posix -> GrainId -> GrainCache -> UpdateResult

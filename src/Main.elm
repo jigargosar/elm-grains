@@ -174,7 +174,7 @@ type Msg
     | PopupRouteToGrain GrainId
     | ShowMoveToPopup GrainId
     | DismissPopup
-    | UpdateGrainWithNow UpdateGrainMsg Posix
+    | UpdateGrainCacheWithNow UpdateGrainMsg Posix
     | PopupActionSetGrainParent GrainId Grain.ParentId
     | PopupActionMoveGrainUp GrainId
     | PopupActionMoveGrainDown GrainId
@@ -289,31 +289,34 @@ updateGrainCacheFromFirebaseChangesAndPersist changeList model =
 
 
 performGrainMove gid offset =
-    Task.perform (UpdateGrainWithNow (MoveGrainBy gid offset)) Time.now
+    Task.perform (UpdateGrainCacheWithNow (MoveGrainBy gid offset)) Time.now
 
 
 performGrainUpdate gid grainUpdate =
-    Task.perform (UpdateGrainWithNow (GrainUpdate gid grainUpdate)) Time.now
+    Task.perform (UpdateGrainCacheWithNow (GrainUpdate gid grainUpdate)) Time.now
 
 
-updateExistingGrainInCacheWithNow :
+updateGrainCacheWithNow :
     UpdateGrainMsg
     -> Posix
     -> Model
     -> ( Model, Cmd Msg )
-updateExistingGrainInCacheWithNow message now model =
+updateGrainCacheWithNow message now model =
+    let
+        handleResult result =
+            result
+                |> Result.mapBoth handleErrorString setGrainCacheAndPersist
+                |> Result.merge
+                |> callWith model
+    in
     case message of
         MoveGrainBy grainId offset ->
             GrainCache.moveBy offset now grainId model.grainCache
-                |> Result.mapBoth handleErrorString setGrainCacheAndPersist
-                |> Result.merge
-                |> callWith model
+                |> handleResult
 
         GrainUpdate grainId grainUpdate ->
-            GrainCache.updateWithGrainMsg now grainUpdate grainId model.grainCache
-                |> Result.mapBoth handleErrorString setGrainCacheAndPersist
-                |> Result.merge
-                |> callWith model
+            GrainCache.updateWithGrainMsg grainUpdate now grainId model.grainCache
+                |> handleResult
 
 
 firePersistUnsavedGrainsCmd grainCache =
@@ -438,8 +441,8 @@ update message model =
         DragGrain gid ->
             Return.singleton model
 
-        UpdateGrainWithNow msg now ->
-            updateExistingGrainInCacheWithNow msg now model
+        UpdateGrainCacheWithNow msg now ->
+            updateGrainCacheWithNow msg now model
 
         CreateAndAddNewGrain ->
             ( model
