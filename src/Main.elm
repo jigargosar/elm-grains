@@ -161,8 +161,8 @@ setGrainCache grainCache model =
 
 
 type UpdateGrainCacheMsg
-    = MoveGrainBy GrainId Int
-    | GrainUpdate GrainId Grain.Update
+    = MoveGrainBy GrainId Int Posix
+    | GrainUpdate GrainId Grain.Update Posix
     | AddGrain Grain
 
 
@@ -175,7 +175,7 @@ type Msg
     | PopupRouteToGrain GrainId
     | ShowMoveToPopup GrainId
     | DismissPopup
-    | UpdateGrainCacheWithNow UpdateGrainCacheMsg Posix
+    | UpdateGrainCache UpdateGrainCacheMsg
     | PopupActionSetGrainParent GrainId Grain.ParentId
     | PopupActionMoveGrainUp GrainId
     | PopupActionMoveGrainDown GrainId
@@ -290,19 +290,18 @@ updateGrainCacheFromFirebaseChangesAndPersist changeList model =
 
 
 performGrainMove gid offset =
-    Task.perform (UpdateGrainCacheWithNow (MoveGrainBy gid offset)) Time.now
+    Task.perform (UpdateGrainCache << MoveGrainBy gid offset) Time.now
 
 
 performGrainUpdate gid grainUpdate =
-    Task.perform (UpdateGrainCacheWithNow (GrainUpdate gid grainUpdate)) Time.now
+    Task.perform (UpdateGrainCache << GrainUpdate gid grainUpdate) Time.now
 
 
-updateGrainCacheWithNow :
+updateGrainCache :
     UpdateGrainCacheMsg
-    -> Posix
     -> Model
     -> ( Model, Cmd Msg )
-updateGrainCacheWithNow message now model =
+updateGrainCache message model =
     let
         handleResult result =
             result
@@ -311,14 +310,14 @@ updateGrainCacheWithNow message now model =
                 |> callWith model
     in
     case message of
-        MoveGrainBy grainId offset ->
+        MoveGrainBy grainId offset now ->
             GrainCache.moveBy offset
                 grainId
                 now
                 model.grainCache
                 |> handleResult
 
-        GrainUpdate grainId grainUpdate ->
+        GrainUpdate grainId grainUpdate now ->
             GrainCache.updateWithGrainUpdate grainUpdate
                 grainId
                 now
@@ -452,8 +451,8 @@ update message model =
         DragGrain gid ->
             Return.singleton model
 
-        UpdateGrainCacheWithNow msg now ->
-            updateGrainCacheWithNow msg now model
+        UpdateGrainCache msg ->
+            updateGrainCache msg model
 
         CreateAndAddNewGrain ->
             ( model
@@ -465,9 +464,12 @@ update message model =
                 (Random.generate AddNewGrain (Grain.generator now))
 
         AddNewGrain grain ->
-            model
-                |> addNewGrainToCache grain
-                |> Return.andThen (update (routeToGrainIdMsg (Grain.id grain)))
+            updateGrainCache (AddGrain grain) model
+                |> Return.andThen
+                    (update <|
+                        routeToGrainIdMsg <|
+                            Grain.id grain
+                    )
 
         LoadGrainCache encoded ->
             decodeValueAndHandleError
