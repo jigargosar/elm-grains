@@ -466,10 +466,7 @@ update message model =
         AddNewGrain grain ->
             updateGrainCache (AddGrain grain) model
                 |> Return.andThen
-                    (update <|
-                        routeToGrainIdMsg <|
-                            Grain.id grain
-                    )
+                    (update <| routeToGrainIdMsg <| Grain.id grain)
 
         LoadGrainCache encoded ->
             decodeValueAndHandleError
