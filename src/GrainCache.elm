@@ -11,6 +11,7 @@ module GrainCache exposing
     , remove
     , setSaved
     , toList
+    , updateFromFirebaseChangeList
     , updateWithGrainUpdate
     )
 
@@ -231,3 +232,23 @@ eqByParentId savedGrain =
 eqById savedGrain =
     SavedGrain.value
         >> Grain.eqById (SavedGrain.value savedGrain)
+
+
+updateFromFirebaseChangeList changeList model =
+    let
+        handleChange change =
+            let
+                grain =
+                    GrainChange.grain change
+            in
+            case GrainChange.type_ change of
+                GrainChange.Added ->
+                    setSaved grain
+
+                GrainChange.Modified ->
+                    setSaved grain
+
+                GrainChange.Removed ->
+                    remove grain
+    in
+    List.foldr handleChange model changeList

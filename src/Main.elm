@@ -345,11 +345,10 @@ updateGrainCache message model =
 
                         GrainChange.Removed ->
                             GrainCache.remove grain
-
-                grainCache =
-                    List.foldr handleChange model.grainCache changeList
             in
-            setGrainCacheAndPersist grainCache model
+            GrainCache.updateFromFirebaseChangeList changeList model.grainCache
+                |> setGrainCacheAndPersist
+                |> callWith model
 
 
 firePersistUnsavedGrainsCmd grainCache =
