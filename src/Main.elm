@@ -164,6 +164,7 @@ type UpdateGrainCacheMsg
     = MoveGrainBy GrainId Int Posix
     | GrainUpdate GrainId Grain.Update Posix
     | AddGrain Grain
+    | FirebaseChanges (List GrainChange)
 
 
 type Msg
@@ -327,6 +328,28 @@ updateGrainCache message model =
         AddGrain grain ->
             GrainCache.addNewGrain grain model.grainCache
                 |> handleResult
+
+        FirebaseChanges changeList ->
+            let
+                handleChange change =
+                    let
+                        grain =
+                            GrainChange.grain change
+                    in
+                    case GrainChange.type_ change of
+                        GrainChange.Added ->
+                            GrainCache.setSaved grain
+
+                        GrainChange.Modified ->
+                            GrainCache.setSaved grain
+
+                        GrainChange.Removed ->
+                            GrainCache.remove grain
+
+                grainCache =
+                    List.foldr handleChange model.grainCache changeList
+            in
+            setGrainCacheAndPersist grainCache model
 
 
 firePersistUnsavedGrainsCmd grainCache =
@@ -496,7 +519,7 @@ update message model =
                         |> Return.singleton
 
                 Firebase.GrainChanges changes ->
-                    updateGrainCacheFromFirebaseChangesAndPersist changes model
+                    updateGrainCache (FirebaseChanges changes) model
 
         SignIn ->
             Return.return model (Firebase.signIn ())
