@@ -165,6 +165,7 @@ type UpdateGrainMsg
     | SetGrainDeleted Bool
     | SetGrainParentId Grain.ParentId
     | MoveGrainBy Int
+    | GrainUpdate GrainId Grain.Update
 
 
 type Msg
@@ -294,6 +295,10 @@ updateGrainIdWithNowCmd gid msg =
     Task.perform (UpdateGrainWithNow gid msg) Time.now
 
 
+performGrainUpdate gid grainUpdate =
+    Task.perform (UpdateGrainWithNow gid (GrainUpdate gid grainUpdate)) Time.now
+
+
 updateExistingGrainInCacheWithNow :
     GrainId
     -> UpdateGrainMsg
@@ -326,6 +331,12 @@ updateExistingGrainInCacheWithNow gid message now model =
 
         MoveGrainBy offset ->
             moveBy offset
+
+        GrainUpdate grainId grainUpdate ->
+            GrainCache.updateWithGrainMsg now grainUpdate grainId model.grainCache
+                |> Result.mapBoth handleErrorString setGrainCacheAndPersist
+                |> Result.merge
+                |> callWith model
 
 
 firePersistUnsavedGrainsCmd grainCache =
