@@ -26,7 +26,6 @@ import GrainCache exposing (GrainCache)
 import GrainChange exposing (GrainChange)
 import GrainId exposing (GrainId)
 import GrainListView exposing (GrainListView)
-import GrainStore exposing (GrainStore)
 import GrainView
 import HotKey as K exposing (SoftKey(..))
 import Html.Styled as Html exposing (..)
@@ -89,8 +88,7 @@ initialSeed =
 
 
 type alias Model =
-    { grainStore : GrainStore
-    , toast : Toast
+    { toast : Toast
     , route : Route
     , authState : Firebase.AuthState
     , actorId : ActorId
@@ -107,7 +105,6 @@ init flags =
         model =
             Model
                 |> Random.from (initialSeed flags)
-                |> Random.always GrainStore.empty
                 |> Random.always Toast.init
                 |> Random.always (Route.fromString flags.url)
                 |> Random.always Firebase.initialAuthState
@@ -117,12 +114,8 @@ init flags =
                 |> Random.always GrainCache.empty
                 |> Random.finish
     in
-    update (LoadGrainStore flags.grains) model
-        |> Return.andThen (update (LoadGrainCache flags.grainCache))
-
-
-setGrainStore grainStore model =
-    { model | grainStore = grainStore }
+    model
+        |> update (LoadGrainCache flags.grainCache)
 
 
 setRoute route model =
@@ -147,10 +140,6 @@ grainById gid =
 
 savedGrainById gid =
     .grainCache >> GrainCache.get gid
-
-
-mapGrainStore fn model =
-    { model | grainStore = fn model.grainStore }
 
 
 setNewSeed newSeed model =
@@ -180,7 +169,6 @@ type Msg
     = ---- INJECT MSG BELOW ----
       NoOp
     | FocusResult (Result String ())
-    | LoadGrainStore Value
     | LoadGrainCache Value
     | RestoreGrain Grain
     | DeleteGrain Grain
@@ -449,30 +437,7 @@ update message model =
             Return.singleton model
 
         UpdateGrainWithNow gid msg now ->
-            let
-                updateGrainHelp fn =
-                    case fn now gid model.grainStore of
-                        Err errString ->
-                            handleErrorString errString model
-
-                        Ok ( newGrainStore, cmd ) ->
-                            Return.return (setGrainStore newGrainStore model) cmd
-            in
-            (case msg of
-                SetGrainContent content ->
-                    GrainStore.setContent content
-
-                SetGrainDeleted deleted ->
-                    GrainStore.setDeleted deleted
-
-                SetGrainParentId parentId ->
-                    GrainStore.setParentId parentId
-
-                MoveGrainBy offset ->
-                    GrainStore.moveBy offset
-            )
-                |> updateGrainHelp
-                |> Return.andThen (updateGrainCacheWithNow gid msg now)
+            updateGrainCacheWithNow gid msg now model
 
         CreateAndAddNewGrain ->
             ( model
@@ -484,25 +449,9 @@ update message model =
                 (Random.generate AddNewGrain (Grain.generator now))
 
         AddNewGrain grain ->
-            let
-                return =
-                    case GrainStore.addNewGrain grain model.grainStore of
-                        Err errString ->
-                            handleErrorString errString model
-
-                        Ok ( newGrainStore, cmd ) ->
-                            Return.return (setGrainStore newGrainStore model) cmd
-            in
-            return
-                |> Return.andThen (addNewGrainToCache grain)
+            model
+                |> addNewGrainToCache grain
                 |> Return.andThen (update (routeToGrain grain))
-
-        LoadGrainStore val ->
-            let
-                ( newGrainStore, cmd ) =
-                    GrainStore.loadCache val model.grainStore
-            in
-            Return.return (setGrainStore newGrainStore model) cmd
 
         LoadGrainCache encoded ->
             decodeValueAndHandleError
@@ -533,14 +482,7 @@ update message model =
                             Return.singleton (setAuthState authState model)
 
                         Firebase.GrainChanges changes ->
-                            let
-                                ( newGrainStore, cmd ) =
-                                    GrainStore.onFirebaseChanges changes
-                                        model.grainStore
-                            in
-                            Return.return (setGrainStore newGrainStore model) cmd
-                                |> Return.andThen
-                                    (updateGrainCacheFromFirebaseChanges changes)
+                            updateGrainCacheFromFirebaseChanges changes model
             in
             handleFireMsg (Firebase.decodeInbound encodedMsg)
 
