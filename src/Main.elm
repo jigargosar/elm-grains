@@ -442,8 +442,7 @@ update message model =
             )
 
         DismissPopup ->
-            dismissPopup model
-                |> Return.singleton
+            dismissPopup model |> Return.singleton
 
         GrainMoreClicked gid ->
             Return.singleton { model | popup = GrainMorePopup gid }
