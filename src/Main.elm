@@ -306,32 +306,30 @@ updateGrainCacheWithNow :
     -> ( Model, Cmd Msg )
 updateGrainCacheWithNow gid message now model =
     let
-        updateGrainCacheMsg =
-            case message of
-                SetGrainContent content ->
-                    UpdateWithGrainMsg <| Grain.SetContent content
-
-                SetGrainDeleted deleted ->
-                    UpdateWithGrainMsg <| Grain.SetDeleted deleted
-
-                SetGrainParentId parentId ->
-                    UpdateWithGrainMsg <| Grain.SetParentId parentId
-
-                MoveGrainBy offset ->
-                    UpdateGrainMoveBy offset
-    in
-    case updateGrainCacheMsg of
-        UpdateWithGrainMsg grainUpdateMsg ->
+        updateWithGrainMsg grainUpdateMsg =
             GrainCache.updateWithGrainMsg now grainUpdateMsg gid model.grainCache
                 |> Result.mapBoth handleErrorString setGrainCacheAndPersist
                 |> Result.merge
                 |> callWith model
 
-        UpdateGrainMoveBy offset ->
+        moveBy offset =
             GrainCache.moveBy offset now gid model.grainCache
                 |> Result.mapBoth handleErrorString setGrainCacheAndPersist
                 |> Result.merge
                 |> callWith model
+    in
+    case message of
+        SetGrainContent content ->
+            updateWithGrainMsg <| Grain.SetContent content
+
+        SetGrainDeleted deleted ->
+            updateWithGrainMsg <| Grain.SetDeleted deleted
+
+        SetGrainParentId parentId ->
+            updateWithGrainMsg <| Grain.SetParentId parentId
+
+        MoveGrainBy offset ->
+            moveBy offset
 
 
 firePersistUnsavedGrainsCmd grainCache =
