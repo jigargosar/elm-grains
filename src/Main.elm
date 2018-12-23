@@ -483,19 +483,24 @@ update message model =
             Return.singleton (setRouteFromString url model)
 
         Firebase encodedMsg ->
-            let
-                handleFireMsg fireMsg =
-                    case fireMsg of
-                        Firebase.Error errString ->
-                            handleErrorString errString model
+            case Firebase.decodeInbound encodedMsg of
+                Firebase.Error errString ->
+                    handleErrorString errString model
 
-                        Firebase.AuthStateChanged authState ->
-                            Return.singleton (setAuthState authState model)
+                Firebase.AuthStateChanged authState ->
+                    let
+                        firebasePersistCmd =
+                            case authState of
+                                Firebase.AuthStateUser user ->
+                                    firePersistUnsavedGrainsCmd model.grainCache
 
-                        Firebase.GrainChanges changes ->
-                            updateGrainCacheFromFirebaseChanges changes model
-            in
-            handleFireMsg (Firebase.decodeInbound encodedMsg)
+                                _ ->
+                                    Cmd.none
+                    in
+                    ( setAuthState authState model, firebasePersistCmd )
+
+                Firebase.GrainChanges changes ->
+                    updateGrainCacheFromFirebaseChanges changes model
 
         SignIn ->
             Return.return model (Firebase.signIn ())
