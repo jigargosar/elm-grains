@@ -439,7 +439,7 @@ update message model =
 
         PopupActionSetGrainParent gid parentId ->
             ( dismissPopup model
-            , updateGrainIdWithNowCmd gid (SetGrainParentId parentId)
+            , performGrainUpdate gid (Grain.SetParentId parentId)
             )
 
         PopupActionMoveGrainUp gid ->
