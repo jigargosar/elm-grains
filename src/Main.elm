@@ -317,7 +317,7 @@ updateGrainCache message model =
                 , value = encoded
                 , onOk =
                     \grainCache ->
-                        setGrainCache grainCache >> Return.singleton
+                        setGrainCacheAndPersist grainCache
                 }
                 model
 
