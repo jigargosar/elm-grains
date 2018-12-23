@@ -117,7 +117,7 @@ init flags =
                 |> Random.finish
     in
     model
-        |> update (LoadGrainCache flags.grainCache)
+        |> update (UpdateGrainCache <| LoadGrainCache flags.grainCache)
 
 
 setRoute route model =
@@ -165,13 +165,13 @@ type UpdateGrainCacheMsg
     | GrainUpdate GrainId Grain.Update Posix
     | AddGrain Grain
     | FirebaseChanges (List GrainChange)
+    | LoadGrainCache Value
 
 
 type Msg
     = ---- INJECT MSG BELOW ----
       NoOp
     | FocusResult (Result String ())
-    | LoadGrainCache Value
     | PopupSetDeletedGrain GrainId Bool
     | PopupRouteToGrain GrainId
     | ShowMoveToPopup GrainId
@@ -311,6 +311,16 @@ updateGrainCache message model =
                 model.grainCache
                 |> handleResult
 
+        LoadGrainCache encoded ->
+            decodeValueAndHandleError
+                { decoder = GrainCache.decoder
+                , value = encoded
+                , onOk =
+                    \grainCache ->
+                        setGrainCache grainCache >> Return.singleton
+                }
+                model
+
 
 firePersistUnsavedGrainsCmd grainCache =
     GrainCache.toList grainCache
@@ -441,16 +451,6 @@ update message model =
             updateGrainCache (AddGrain grain) model
                 |> Return.andThen
                     (update <| routeToGrainIdMsg <| Grain.id grain)
-
-        LoadGrainCache encoded ->
-            decodeValueAndHandleError
-                { decoder = GrainCache.decoder
-                , value = encoded
-                , onOk =
-                    \grainCache ->
-                        setGrainCache grainCache >> Return.singleton
-                }
-                model
 
         RouteTo route ->
             Return.singleton (setRoute route model)
