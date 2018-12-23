@@ -293,13 +293,13 @@ updateGrainCacheFromFirebaseChangesAndPersist changeList model =
     setGrainCacheAndPersist grainCache model
 
 
-updateGrainCacheWithNow :
+updateGrainInCacheWithNow :
     GrainId
     -> UpdateGrainMsg
     -> Posix
     -> Model
     -> ( Model, Cmd Msg )
-updateGrainCacheWithNow gid message now model =
+updateGrainInCacheWithNow gid message now model =
     let
         updateWithGrainMsg grainUpdateMsg =
             GrainCache.updateWithGrainMsg now grainUpdateMsg gid model.grainCache
@@ -459,7 +459,7 @@ update message model =
             Return.singleton model
 
         UpdateGrainWithNow gid msg now ->
-            updateGrainCacheWithNow gid msg now model
+            updateGrainInCacheWithNow gid msg now model
 
         CreateAndAddNewGrain ->
             ( model
