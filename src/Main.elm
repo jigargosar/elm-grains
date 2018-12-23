@@ -334,8 +334,15 @@ setGrainCacheAndLocalPersist grainCache model =
     let
         cacheCmd =
             Port.setGrainCache <| GrainCache.encoder grainCache
+
+        firebasePersistCmd =
+            GrainCache.toList grainCache
+                |> List.filterNot SavedGrain.saved
+                |> Debug.log "dirtyGrains"
+                |> E.list SavedGrain.encoder
+                |> Port.persistSavedGrainList
     in
-    ( setGrainCache grainCache model, cacheCmd )
+    ( setGrainCache grainCache model, Cmd.batch [ cacheCmd, firebasePersistCmd ] )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

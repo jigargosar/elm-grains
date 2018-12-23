@@ -6,6 +6,7 @@ port module Port exposing
     , persistGrains
     , persistNewGrain
     , persistRemovedGrain
+    , persistSavedGrainList
     , persistUpdatedGrain
     , pushUrl
     , setGrainCache
@@ -15,6 +16,9 @@ port module Port exposing
     )
 
 import Json.Encode exposing (Value)
+
+
+port persistSavedGrainList : Value -> Cmd msg
 
 
 port cacheGrains : Value -> Cmd msg

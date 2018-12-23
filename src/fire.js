@@ -5,9 +5,11 @@ import { sendToElmApp } from './elm-app'
 import * as R from 'ramda'
 
 const disposers = []
+
 function addDisposer(disposer) {
   disposers.push(disposer)
 }
+
 function disposeAll() {
   disposers.forEach(d => d())
   disposers.splice(0, disposers.length)
@@ -71,19 +73,35 @@ function getFireSubscriptions(app) {
       await auth.signInWithPopup(gp)
     },
     signOut: () => auth.signOut(),
-    persistSavedGrain: async savedGrain => {
-      console.log(`fire: persistSavedGrain started`, savedGrain)
+    persistSavedGrainList: async savedGrains => {
+      console.log(`fire: persistSavedGrainList started`, savedGrains)
       const gcRef = createCRef('grains')
-      const { initial, latest } = savedGrain
       // https://github.com/topics/diff?l=javascript&q=json&unscoped_q=json
       // https://github.com/benjamine/jsondiffpatch
       // https://github.com/mattphillips/deep-object-diff#detaileddiff
       // https://github.com/RobinBressan/json-git
       // https://github.com/flitbit/diff
       // https://github.com/cosmicanant/recursive-diff
-      gcRef.doc(latest.id).set(latest)
-      console.log(`fire: persistSavedGrain completed`)
+      const batch = firestore.batch()
+      savedGrains.forEach(({ initial, latest }) =>
+        batch.set(gcRef.doc(latest.id), latest),
+      )
+      batch.commit()
+      console.log(`fire: persistSavedGrainList completed`)
     },
+    // persistSavedGrain: async savedGrain => {
+    //   console.log(`fire: persistSavedGrain started`, savedGrain)
+    //   const gcRef = createCRef('grains')
+    //   const { initial, latest } = savedGrain
+    //   // https://github.com/topics/diff?l=javascript&q=json&unscoped_q=json
+    //   // https://github.com/benjamine/jsondiffpatch
+    //   // https://github.com/mattphillips/deep-object-diff#detaileddiff
+    //   // https://github.com/RobinBressan/json-git
+    //   // https://github.com/flitbit/diff
+    //   // https://github.com/cosmicanant/recursive-diff
+    //   gcRef.doc(latest.id).set(latest)
+    //   console.log(`fire: persistSavedGrain completed`)
+    // },
     // persistNewGrain: async grain => {
     //   console.log(`fire: persistNewGrain started`, grain)
     //   const gcRef = createCRef('grains')
