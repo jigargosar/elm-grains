@@ -264,12 +264,22 @@ performGrainUpdate gid grainUpdate =
     Task.perform (UpdateGrainCache << GrainUpdate gid grainUpdate) Time.now
 
 
+localPersistGrainCacheEffect model =
+    Port.setGrainCache <| GrainCache.encoder model.grainCache
+
+
 updateGrainCache :
     UpdateGrainCacheMsg
     -> Model
     -> ( Model, Cmd Msg )
 updateGrainCache message model =
     let
+        setGrainCacheAndPersist newGrainCache =
+            Return.singleton
+                >> Return.map (setGrainCache newGrainCache)
+                >> Return.effect_ localPersistGrainCacheEffect
+                >> Return.effect_ firePersistUnsavedGrainsEffect
+
         handleResult result =
             result
                 |> Result.mapBoth handleErrorString setGrainCacheAndPersist
@@ -312,15 +322,6 @@ firePersistUnsavedGrainsCmd grainCache =
 
 firePersistUnsavedGrainsEffect =
     .grainCache >> firePersistUnsavedGrainsCmd
-
-
-setGrainCacheAndPersist grainCache model =
-    let
-        cacheCmd =
-            Port.setGrainCache <| GrainCache.encoder grainCache
-    in
-    ( setGrainCache grainCache model, cacheCmd )
-        |> Return.effect_ firePersistUnsavedGrainsEffect
 
 
 
