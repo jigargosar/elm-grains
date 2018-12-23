@@ -1,5 +1,6 @@
 module GrainCache exposing
     ( GrainCache
+    , addNewGrain
     , batchUpdate
     , decoder
     , empty
@@ -8,6 +9,7 @@ module GrainCache exposing
     , moveBy
     , remove
     , setSaved
+    , toList
     , updateWithGrainMsg
     )
 
@@ -79,6 +81,22 @@ remove grain =
 
 type alias UpdateResult =
     Result String GrainCache
+
+
+addNewGrain grain model =
+    let
+        gid =
+            Grain.id grain
+
+        alreadyExists =
+            GrainIdLookup.member gid model
+    in
+    if alreadyExists then
+        Result.Err "Error: Add Grain. GrainId exists"
+
+    else
+        GrainIdLookup.insert gid (SavedGrain.new grain) model
+            |> Result.Ok
 
 
 update :

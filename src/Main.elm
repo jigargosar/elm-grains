@@ -54,6 +54,7 @@ import RandomId
 import Result.Extra as Result
 import Return exposing (Return)
 import Route exposing (Route)
+import SavedGrain
 import Skeleton
 import Tagged
 import Task
@@ -141,7 +142,7 @@ setAuthState authState model =
 
 
 grainById gid =
-    .grainStore >> GrainStore.getById gid
+    savedGrainById gid >> Maybe.map SavedGrain.value
 
 
 savedGrainById gid =
@@ -264,6 +265,13 @@ decodeValueAndHandleError { decoder, value, onOk } model =
             )
         |> Result.map (onOk >> callWith model)
         |> Result.merge
+
+
+addNewGrainToCache grain model =
+    GrainCache.addNewGrain grain model.grainCache
+        |> Result.mapBoth handleErrorString setGrainCacheAndLocalPersist
+        |> Result.merge
+        |> callWith model
 
 
 updateGrainCacheFromFirebaseChanges :
@@ -476,13 +484,17 @@ update message model =
                 (Random.generate AddNewGrain (Grain.generator now))
 
         AddNewGrain grain ->
-            case GrainStore.addNewGrain grain model.grainStore of
-                Err errString ->
-                    handleErrorString errString model
+            let
+                return =
+                    case GrainStore.addNewGrain grain model.grainStore of
+                        Err errString ->
+                            handleErrorString errString model
 
-                Ok ( newGrainStore, cmd ) ->
-                    Return.return (setGrainStore newGrainStore model) cmd
-                        |> Return.andThen (update (routeToGrain grain))
+                        Ok ( newGrainStore, cmd ) ->
+                            Return.return (setGrainStore newGrainStore model) cmd
+                                |> Return.andThen (update (routeToGrain grain))
+            in
+            return |> Return.andThen (addNewGrainToCache grain)
 
         LoadGrainStore val ->
             let
@@ -836,8 +848,9 @@ toGrainListView model =
             List.sortWith Grain.defaultComparator
 
         allGrains =
-            model.grainStore
-                |> GrainStore.allAsList
+            model.grainCache
+                |> GrainCache.toList
+                |> List.map SavedGrain.value
                 |> sort
 
         rootGrains =
