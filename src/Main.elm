@@ -46,7 +46,7 @@ import Material.Icons.Editor as MIcons
 import Material.Icons.Navigation as MIcons
 import Material.Icons.Toggle as MIcons
 import Maybe.Extra as Maybe
-import MoveGrainPopupView
+import MoveGrainPopupView exposing (MoveGrainPopupView)
 import NotFoundView
 import Port
 import Random exposing (Generator, Seed)
@@ -573,6 +573,7 @@ grainMorePopupViewModel model grain =
     }
 
 
+moveGrainPopupViewModel : Model -> Grain -> MoveGrainPopupView Msg
 moveGrainPopupViewModel model grain =
     { grain = grain
     , otherGrains =

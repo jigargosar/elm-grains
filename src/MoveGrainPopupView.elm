@@ -1,4 +1,4 @@
-module MoveGrainPopupView exposing (view)
+module MoveGrainPopupView exposing (MoveGrainPopupView, view)
 
 import BasicsX exposing (ter)
 import Css exposing (zero)
