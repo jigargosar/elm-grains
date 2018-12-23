@@ -583,25 +583,22 @@ grainMovePopupViewModel model grain =
                 )
     , isSelected = Grain.isParentOf grain
     , dismissMsg = DismissPopup
+    , setParentMsg = PopupActionSetGrainParent grain
     }
 
 
 viewGrainMovePopup vm =
     let
-        { grain, otherGrains, isSelected, dismissMsg } =
-            vm
-
         viewGrainItem g =
             flexCol
                 [ CS.pointer
-                , CS.styleIf (isSelected g) CS.bold
+                , CS.styleIf (vm.isSelected g) CS.bold
                 , Css.hover
                     [ Css.property "background-color" "lightgray"
                     ]
                 ]
                 [ onClick <|
-                    PopupActionSetGrainParent grain
-                        (Grain.idAsParentId g)
+                    vm.setParentMsg (Grain.idAsParentId g)
                 ]
                 [ flexRow [ CS.ellipsis ]
                     []
@@ -612,7 +609,7 @@ viewGrainMovePopup vm =
         viewRootItem =
             let
                 isRoot =
-                    Grain.parentIdEq Grain.rootParentId grain
+                    Grain.parentIdEq Grain.rootParentId vm.grain
             in
             flexCol
                 [ CS.pointer
@@ -621,8 +618,7 @@ viewGrainMovePopup vm =
                     [ Css.property "background-color" "lightgray"
                     ]
                 ]
-                [ onClick <|
-                    PopupActionSetGrainParent grain Grain.rootParentId
+                [ onClick <| vm.setParentMsg Grain.rootParentId
                 ]
                 [ flexRow [ CS.ellipsis ]
                     []
@@ -638,11 +634,11 @@ viewGrainMovePopup vm =
                 , flexCol []
                     []
                     (viewRootItem
-                        :: List.map viewGrainItem otherGrains
+                        :: List.map viewGrainItem vm.otherGrains
                     )
                 ]
             ]
-        , onDismiss = dismissMsg
+        , onDismiss = vm.dismissMsg
         }
 
 
