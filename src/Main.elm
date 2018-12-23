@@ -26,6 +26,7 @@ import GrainCache exposing (GrainCache)
 import GrainChange exposing (GrainChange)
 import GrainId exposing (GrainId)
 import GrainListView exposing (GrainListView)
+import GrainMorePopupView
 import GrainView
 import HotKey as K exposing (SoftKey(..))
 import Html.Styled as Html exposing (..)
@@ -540,7 +541,7 @@ viewPopup model =
         GrainMorePopup gid ->
             grainById gid model
                 |> Maybe.map (grainMorePopupViewModel model)
-                |> CssHtml.viewMaybe viewGrainMorePopup
+                |> CssHtml.viewMaybe GrainMorePopupView.view
 
         GrainMovePopup gid ->
             grainById gid model
@@ -580,19 +581,20 @@ grainMovePopupViewModel model grain =
                 (GrainCache.isDescendent
                     >> callWith2 grain model.grainCache
                 )
+    , isSelected = Grain.isParentOf grain
+    , dismissMsg = DismissPopup
     }
 
 
-viewGrainMovePopup { grain, otherGrains } =
+viewGrainMovePopup vm =
     let
+        { grain, otherGrains, isSelected, dismissMsg } =
+            vm
+
         viewGrainItem g =
-            let
-                isCurrentParent =
-                    Grain.isParentOf grain g
-            in
             flexCol
                 [ CS.pointer
-                , CS.styleIf isCurrentParent CS.bold
+                , CS.styleIf (isSelected g) CS.bold
                 , Css.hover
                     [ Css.property "background-color" "lightgray"
                     ]
@@ -610,7 +612,7 @@ viewGrainMovePopup { grain, otherGrains } =
         viewRootItem =
             let
                 isRoot =
-                    Grain.parentIdEq Grain.isRoot grain
+                    Grain.parentIdEq Grain.rootParentId grain
             in
             flexCol
                 [ CS.pointer
@@ -620,8 +622,7 @@ viewGrainMovePopup { grain, otherGrains } =
                     ]
                 ]
                 [ onClick <|
-                    PopupActionSetGrainParent grain
-                        Grain.isRoot
+                    PopupActionSetGrainParent grain Grain.rootParentId
                 ]
                 [ flexRow [ CS.ellipsis ]
                     []
@@ -641,88 +642,7 @@ viewGrainMovePopup { grain, otherGrains } =
                     )
                 ]
             ]
-        , onDismiss = DismissPopup
-        }
-
-
-viewGrainMorePopup vm =
-    let
-        viewEdit =
-            flexRow [ CS.pointer, CS.p2 space2 zero ]
-                [ onClick vm.editMsg ]
-                [ flexCol [] [] [ text "Edit" ]
-                , CssElements.iconBtnWithStyles [ CS.selfCenter ]
-                    []
-                    [ CssIcons.view CssIcons.modeEdit
-                    ]
-                ]
-
-        viewMoveUp =
-            flexRow [ CS.pointer, CS.p2 space2 zero ]
-                [ onClick vm.moveUpMsg ]
-                [ flexCol [] [] [ text "Move Up" ]
-                , CssElements.iconBtnWithStyles [ CS.selfCenter ]
-                    []
-                    [ CssIcons.view CssIcons.arrowUp
-                    ]
-                ]
-
-        viewMoveDown =
-            flexRow [ CS.pointer, CS.p2 space2 zero ]
-                [ onClick vm.moveDownMsg ]
-                [ flexCol [] [] [ text "Move Down" ]
-                , CssElements.iconBtnWithStyles [ CS.selfCenter ]
-                    []
-                    [ CssIcons.view CssIcons.arrowDown
-                    ]
-                ]
-
-        viewNestUnder =
-            flexRow [ CS.pointer, CS.p2 space2 zero ]
-                [ onClick vm.moveToMsg ]
-                [ flexCol [] [] [ text "Nest Under..." ]
-                , CssElements.iconBtnWithStyles [ CS.selfCenter ]
-                    []
-                    [ CssIcons.view CssIcons.dragHandle
-                    ]
-                ]
-
-        viewDelete =
-            let
-                deleted =
-                    vm.deleted
-
-                action =
-                    vm.toggleDeleteMsg
-
-                actionTitle =
-                    ter deleted "Restore" "Trash"
-
-                icon =
-                    ter deleted CssIcons.restore CssIcons.delete
-            in
-            flexRow [ CS.pointer, CS.p2 space2 zero ]
-                [ onClick action ]
-                [ flexCol [] [] [ text actionTitle ]
-                , CssElements.iconBtnWithStyles [ CS.selfCenter ]
-                    []
-                    [ CssIcons.view icon
-                    ]
-                ]
-    in
-    CssProto.modal
-        { content =
-            [ flexCol []
-                []
-                [ flexRow [ CS.justifyCenter ] [] [ text "Grain Menu" ]
-                , viewEdit
-                , viewMoveUp
-                , viewMoveDown
-                , viewNestUnder
-                , viewDelete
-                ]
-            ]
-        , onDismiss = vm.dismissMsg
+        , onDismiss = dismissMsg
         }
 
 
@@ -810,7 +730,7 @@ toGrainListView model =
                 |> sort
 
         rootGrains =
-            allGrains |> List.filter (Grain.parentIdEq Grain.isRoot)
+            allGrains |> List.filter (Grain.parentIdEq Grain.rootParentId)
 
         modifiedAtDesc =
             Grain.modifiedAt >> Time.posixToMillis >> negate

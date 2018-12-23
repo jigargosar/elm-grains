@@ -1,4 +1,4 @@
-module GrainMorePopupView exposing (viewGrainMorePopup)
+module GrainMorePopupView exposing (view)
 
 import BasicsX exposing (ter)
 import Css exposing (zero)
@@ -13,12 +13,23 @@ import Html.Styled exposing (Html, text)
 import Html.Styled.Events exposing (onClick)
 
 
-viewGrainMorePopup grain messages =
+type alias GrainMorePopupView msg =
+    { editMsg : msg
+    , moveUpMsg : msg
+    , moveDownMsg : msg
+    , moveToMsg : msg
+    , toggleDeleteMsg : msg
+    , dismissMsg : msg
+    , deleted : Bool
+    }
+
+
+view : GrainMorePopupView msg -> Html msg
+view vm =
     let
-        viewEdit : Grain -> Html msg
-        viewEdit g =
+        viewEdit =
             flexRow [ CS.pointer, CS.p2 space2 zero ]
-                [ onClick (GrainMoreAction <| routeToGrain g) ]
+                [ onClick vm.editMsg ]
                 [ flexCol [] [] [ text "Edit" ]
                 , CssElements.iconBtnWithStyles [ CS.selfCenter ]
                     []
@@ -26,9 +37,9 @@ viewGrainMorePopup grain messages =
                     ]
                 ]
 
-        viewMoveUp g =
+        viewMoveUp =
             flexRow [ CS.pointer, CS.p2 space2 zero ]
-                [ onClick (PopupActionMoveGrainUp g) ]
+                [ onClick vm.moveUpMsg ]
                 [ flexCol [] [] [ text "Move Up" ]
                 , CssElements.iconBtnWithStyles [ CS.selfCenter ]
                     []
@@ -36,9 +47,9 @@ viewGrainMorePopup grain messages =
                     ]
                 ]
 
-        viewMoveDown g =
+        viewMoveDown =
             flexRow [ CS.pointer, CS.p2 space2 zero ]
-                [ onClick (PopupActionMoveGrainDown g) ]
+                [ onClick vm.moveDownMsg ]
                 [ flexCol [] [] [ text "Move Down" ]
                 , CssElements.iconBtnWithStyles [ CS.selfCenter ]
                     []
@@ -46,9 +57,9 @@ viewGrainMorePopup grain messages =
                     ]
                 ]
 
-        viewNestUnder g =
+        viewNestUnder =
             flexRow [ CS.pointer, CS.p2 space2 zero ]
-                [ onClick (ShowMoveToPopup g) ]
+                [ onClick vm.moveToMsg ]
                 [ flexCol [] [] [ text "Nest Under..." ]
                 , CssElements.iconBtnWithStyles [ CS.selfCenter ]
                     []
@@ -56,16 +67,13 @@ viewGrainMorePopup grain messages =
                     ]
                 ]
 
-        viewDelete g =
+        viewDelete =
             let
                 deleted =
-                    Grain.deleted g
+                    vm.deleted
 
                 action =
-                    (ter deleted RestoreGrain DeleteGrain <|
-                        g
-                    )
-                        |> GrainMoreAction
+                    vm.toggleDeleteMsg
 
                 actionTitle =
                     ter deleted "Restore" "Trash"
@@ -87,12 +95,12 @@ viewGrainMorePopup grain messages =
             [ flexCol []
                 []
                 [ flexRow [ CS.justifyCenter ] [] [ text "Grain Menu" ]
-                , viewEdit grain
-                , viewMoveUp grain
-                , viewMoveDown grain
-                , viewNestUnder grain
-                , viewDelete grain
+                , viewEdit
+                , viewMoveUp
+                , viewMoveDown
+                , viewNestUnder
+                , viewDelete
                 ]
             ]
-        , onDismiss = DismissPopup
+        , onDismiss = vm.dismissMsg
         }
