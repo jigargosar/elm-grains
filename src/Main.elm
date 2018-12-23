@@ -160,9 +160,10 @@ setGrainCache grainCache model =
 ---- UPDATE ----
 
 
-type UpdateGrainMsg
+type UpdateGrainCacheMsg
     = MoveGrainBy GrainId Int
     | GrainUpdate GrainId Grain.Update
+    | AddGrain Grain
 
 
 type Msg
@@ -174,7 +175,7 @@ type Msg
     | PopupRouteToGrain GrainId
     | ShowMoveToPopup GrainId
     | DismissPopup
-    | UpdateGrainCacheWithNow UpdateGrainMsg Posix
+    | UpdateGrainCacheWithNow UpdateGrainCacheMsg Posix
     | PopupActionSetGrainParent GrainId Grain.ParentId
     | PopupActionMoveGrainUp GrainId
     | PopupActionMoveGrainDown GrainId
@@ -297,7 +298,7 @@ performGrainUpdate gid grainUpdate =
 
 
 updateGrainCacheWithNow :
-    UpdateGrainMsg
+    UpdateGrainCacheMsg
     -> Posix
     -> Model
     -> ( Model, Cmd Msg )
@@ -323,6 +324,12 @@ updateGrainCacheWithNow message now model =
                 now
                 model.grainCache
                 |> handleResult
+
+        AddGrain grain ->
+            GrainCache.addNewGrain grain model.grainCache
+                |> Result.mapBoth handleErrorString setGrainCacheAndPersist
+                |> Result.merge
+                |> callWith model
 
 
 firePersistUnsavedGrainsCmd grainCache =
