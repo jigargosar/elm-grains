@@ -3,6 +3,7 @@ import 'firebase/auth'
 import 'firebase/firestore'
 import { sendToElmApp } from './elm-app'
 import * as R from 'ramda'
+import debounce from 'lodash.debounce'
 
 const disposers = []
 
@@ -45,6 +46,28 @@ const { auth, firestore } = init()
 const createCRef = cName =>
   firestore.collection(`users/${auth.currentUser.uid}/${cName}`)
 
+function persistSavedGrainList(savedGrains) {
+  console.log(`fire: debounced: persistSavedGrainList started`, savedGrains)
+  const gcRef = createCRef('grains')
+  // https://github.com/topics/diff?l=javascript&q=json&unscoped_q=json
+  // https://github.com/benjamine/jsondiffpatch
+  // https://github.com/mattphillips/deep-object-diff#detaileddiff
+  // https://github.com/RobinBressan/json-git
+  // https://github.com/flitbit/diff
+  // https://github.com/cosmicanant/recursive-diff
+  const batch = firestore.batch()
+  savedGrains.forEach(({ initial, latest }) =>
+    batch.set(gcRef.doc(latest.id), latest),
+  )
+  batch.commit()
+  console.log(`fire: debounced: persistSavedGrainList completed`)
+}
+
+const debouncedPersistSavedGrainList = debounce(persistSavedGrainList, 1000, {
+  leading: false,
+  trailing: true,
+})
+
 function getFireSubscriptions(app) {
   const send = sendToElmApp(app, 'fire2Elm')
   let grainsListener = R.identity
@@ -66,6 +89,7 @@ function getFireSubscriptions(app) {
       send({ msg: 'UserNotLoggedIn', payload: {} })
     }
   })
+
   return {
     signIn: async () => {
       const gp = new firebase.auth.GoogleAuthProvider()
@@ -74,20 +98,8 @@ function getFireSubscriptions(app) {
     },
     signOut: () => auth.signOut(),
     persistSavedGrainList: async savedGrains => {
-      console.log(`fire: persistSavedGrainList started`, savedGrains)
-      const gcRef = createCRef('grains')
-      // https://github.com/topics/diff?l=javascript&q=json&unscoped_q=json
-      // https://github.com/benjamine/jsondiffpatch
-      // https://github.com/mattphillips/deep-object-diff#detaileddiff
-      // https://github.com/RobinBressan/json-git
-      // https://github.com/flitbit/diff
-      // https://github.com/cosmicanant/recursive-diff
-      const batch = firestore.batch()
-      savedGrains.forEach(({ initial, latest }) =>
-        batch.set(gcRef.doc(latest.id), latest),
-      )
-      batch.commit()
-      console.log(`fire: persistSavedGrainList completed`)
+      console.log(`debouncing: fire: persistSavedGrainList`, savedGrains)
+      debouncedPersistSavedGrainList(savedGrains)
     },
     // persistSavedGrain: async savedGrain => {
     //   console.log(`fire: persistSavedGrain started`, savedGrain)

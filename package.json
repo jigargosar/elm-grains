@@ -40,9 +40,10 @@
     "clientjs": "^0.1.11",
     "firebase": "^5.7.1",
     "history": "^4.7.2",
+    "lodash.debounce": "^4.0.8",
+    "ramda": "^0.26.1",
     "spectre.css": "^0.5.7",
-    "tachyons": "^4.11.1",
-    "ramda": "^0.26.1"
+    "tachyons": "^4.11.1"
   },
   "devDependencies": {
     "@babel/runtime": "^7.2.0",
