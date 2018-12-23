@@ -165,16 +165,21 @@ batchUpdate list model =
 
 updateWithGrainUpdate :
     Grain.Update
-    -> Posix
     -> GrainId
+    -> Posix
     -> GrainCache
     -> UpdateResult
-updateWithGrainUpdate grainUpdate now gid model =
+updateWithGrainUpdate grainUpdate gid now model =
     update (Grain.update now grainUpdate) gid model
 
 
-moveBy : Int -> Posix -> GrainId -> GrainCache -> UpdateResult
-moveBy offset now gid model =
+moveBy :
+    Int
+    -> GrainId
+    -> Posix
+    -> GrainCache
+    -> UpdateResult
+moveBy offset gid now model =
     get gid model
         |> Result.fromMaybe "Error: setSortIdx: Grain Not Found in Cache"
         |> Result.andThen (moveHelp now offset >> callWith model)

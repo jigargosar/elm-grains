@@ -312,15 +312,15 @@ updateGrainCacheWithNow message now model =
     case message of
         MoveGrainBy grainId offset ->
             GrainCache.moveBy offset
-                now
                 grainId
+                now
                 model.grainCache
                 |> handleResult
 
         GrainUpdate grainId grainUpdate ->
             GrainCache.updateWithGrainUpdate grainUpdate
-                now
                 grainId
+                now
                 model.grainCache
                 |> handleResult
 
