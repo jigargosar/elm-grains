@@ -490,16 +490,8 @@ update message model =
                     handleErrorString errString model
 
                 Firebase.AuthStateChanged authState ->
-                    let
-                        firebasePersistCmd =
-                            case authState of
-                                Firebase.AuthStateUser user ->
-                                    firePersistUnsavedGrainsCmd model.grainCache
-
-                                _ ->
-                                    Cmd.none
-                    in
-                    ( setAuthState authState model, firebasePersistCmd )
+                    setAuthState authState model
+                        |> Return.singleton
 
                 Firebase.GrainChanges changes ->
                     updateGrainCacheFromFirebaseChanges changes model
