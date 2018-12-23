@@ -355,6 +355,14 @@ setGrainCacheAndPersist grainCache model =
         |> Return.effect_ firePersistUnsavedGrainsEffect
 
 
+updateGrainWithNowCmd grain msg =
+    updateGrainIdWithNowCmd (Grain.id grain) msg
+
+
+updateGrainIdWithNowCmd gid msg =
+    Task.perform (UpdateGrainWithNow gid msg) Time.now
+
+
 
 -- UPDATE
 
@@ -516,14 +524,6 @@ update message model =
 
 performWithNow nowToMsg =
     Task.perform nowToMsg Time.now
-
-
-updateGrainWithNowCmd grain msg =
-    updateGrainIdWithNowCmd (Grain.id grain) msg
-
-
-updateGrainIdWithNowCmd gid msg =
-    Task.perform (UpdateGrainWithNow gid msg) Time.now
 
 
 view : Model -> Html Msg
