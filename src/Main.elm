@@ -327,9 +327,7 @@ updateGrainCacheWithNow message now model =
 
         AddGrain grain ->
             GrainCache.addNewGrain grain model.grainCache
-                |> Result.mapBoth handleErrorString setGrainCacheAndPersist
-                |> Result.merge
-                |> callWith model
+                |> handleResult
 
 
 firePersistUnsavedGrainsCmd grainCache =
