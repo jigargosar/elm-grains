@@ -13,6 +13,17 @@ import Html.Styled exposing (Html, text)
 import Html.Styled.Events exposing (onClick)
 
 
+type alias MoveGrainPopupView msg =
+    { grain : Grain
+    , otherGrains : List Grain
+    , isSelected : Grain -> Bool
+    , dismissMsg : msg
+    , setParentMsg : Grain.ParentId -> msg
+    , setParentToRootMsg : msg
+    }
+
+
+view : MoveGrainPopupView msg -> Html msg
 view vm =
     let
         viewGrainItem g =
