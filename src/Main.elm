@@ -172,15 +172,15 @@ type Msg
       NoOp
     | FocusResult (Result String ())
     | LoadGrainCache Value
-    | PopupSetDeletedGrain Grain Bool
-    | PopupRouteToGrain Grain
-    | ShowMoveToPopup Grain
+    | PopupSetDeletedGrain GrainId Bool
+    | PopupRouteToGrain GrainId
+    | ShowMoveToPopup GrainId
     | DismissPopup
     | UpdateGrainWithNow GrainId UpdateGrainMsg Posix
-    | PopupActionSetGrainParent Grain Grain.ParentId
-    | PopupActionMoveGrainUp Grain
-    | PopupActionMoveGrainDown Grain
-    | GrainMoreClicked Grain
+    | PopupActionSetGrainParent GrainId Grain.ParentId
+    | PopupActionMoveGrainUp GrainId
+    | PopupActionMoveGrainDown GrainId
+    | GrainMoreClicked GrainId
     | DragGrain Grain
     | CreateAndAddNewGrain
     | CreateAndAddNewGrainWithNow Posix
@@ -188,7 +188,7 @@ type Msg
     | BackPressed
     | InlineEditGrain Grain
     | InlineEditGrainSubmit Grain
-    | GrainContentChanged Grain String
+    | GrainContentChanged GrainId String
     | InlineEditGrainContentChanged Grain String
     | ToastDismiss
     | RouteTo Route
@@ -201,10 +201,6 @@ type Msg
 
 routeTo route =
     RouteTo route
-
-
-routeToGrainMsg grain =
-    routeToGrainIdMsg (Grain.id grain)
 
 
 routeToGrainIdMsg gid =
@@ -294,10 +290,6 @@ updateGrainCacheFromFirebaseChangesAndPersist changeList model =
     setGrainCacheAndPersist grainCache model
 
 
-updateGrainWithNowCmd grain msg =
-    updateGrainIdWithNowCmd (Grain.id grain) msg
-
-
 updateGrainIdWithNowCmd gid msg =
     Task.perform (UpdateGrainWithNow gid msg) Time.now
 
@@ -379,9 +371,9 @@ update message model =
         FocusResult (Err errorString) ->
             handleErrorString errorString model
 
-        GrainContentChanged grain content ->
+        GrainContentChanged gid content ->
             ( model
-            , updateGrainWithNowCmd grain (SetGrainContent content)
+            , updateGrainIdWithNowCmd gid (SetGrainContent content)
             )
 
         InlineEditGrainContentChanged grain content ->
@@ -417,38 +409,38 @@ update message model =
                         }
                         (updateGrainIdWithNowCmd gid (SetGrainContent content))
 
-        PopupSetDeletedGrain grain deleted ->
+        PopupSetDeletedGrain gid deleted ->
             ( dismissPopup model
-            , updateGrainWithNowCmd grain (SetGrainDeleted deleted)
+            , updateGrainIdWithNowCmd gid (SetGrainDeleted deleted)
             )
 
-        PopupRouteToGrain grain ->
-            update (routeToGrainMsg grain) (dismissPopup model)
+        PopupRouteToGrain gid ->
+            update (routeToGrainIdMsg gid) (dismissPopup model)
 
-        ShowMoveToPopup grain ->
-            Return.singleton { model | popup = MoveGrainPopup (Grain.id grain) }
+        ShowMoveToPopup gid ->
+            Return.singleton { model | popup = MoveGrainPopup gid }
 
-        PopupActionSetGrainParent grain parentId ->
+        PopupActionSetGrainParent gid parentId ->
             ( dismissPopup model
-            , updateGrainWithNowCmd grain (SetGrainParentId parentId)
+            , updateGrainIdWithNowCmd gid (SetGrainParentId parentId)
             )
 
-        PopupActionMoveGrainUp grain ->
+        PopupActionMoveGrainUp gid ->
             ( dismissPopup model
-            , updateGrainWithNowCmd grain (MoveGrainBy -1)
+            , updateGrainIdWithNowCmd gid (MoveGrainBy -1)
             )
 
-        PopupActionMoveGrainDown grain ->
+        PopupActionMoveGrainDown gid ->
             ( dismissPopup model
-            , updateGrainWithNowCmd grain (MoveGrainBy 1)
+            , updateGrainIdWithNowCmd gid (MoveGrainBy 1)
             )
 
         DismissPopup ->
             dismissPopup model
                 |> Return.singleton
 
-        GrainMoreClicked grain ->
-            Return.singleton { model | popup = GrainMorePopup (Grain.id grain) }
+        GrainMoreClicked gid ->
+            Return.singleton { model | popup = GrainMorePopup gid }
 
         DragGrain grain ->
             Return.singleton model
@@ -468,7 +460,7 @@ update message model =
         AddNewGrain grain ->
             model
                 |> addNewGrainToCache grain
-                |> Return.andThen (update (routeToGrainMsg grain))
+                |> Return.andThen (update (routeToGrainIdMsg (Grain.id grain)))
 
         LoadGrainCache encoded ->
             decodeValueAndHandleError
@@ -551,12 +543,15 @@ grainMorePopupViewModel model grain =
     let
         deleted =
             Grain.deleted grain
+
+        gid =
+            Grain.id grain
     in
-    { editMsg = PopupRouteToGrain grain
-    , moveUpMsg = PopupActionMoveGrainUp grain
-    , moveDownMsg = PopupActionMoveGrainDown grain
-    , moveToMsg = ShowMoveToPopup grain
-    , toggleDeleteMsg = PopupSetDeletedGrain grain (not deleted)
+    { editMsg = PopupRouteToGrain gid
+    , moveUpMsg = PopupActionMoveGrainUp gid
+    , moveDownMsg = PopupActionMoveGrainDown gid
+    , moveToMsg = ShowMoveToPopup gid
+    , toggleDeleteMsg = PopupSetDeletedGrain gid (not deleted)
     , dismissMsg = DismissPopup
     , deleted = deleted
     }
@@ -564,6 +559,10 @@ grainMorePopupViewModel model grain =
 
 moveGrainPopupViewModel : Model -> Grain -> MoveGrainPopupView Msg
 moveGrainPopupViewModel model grain =
+    let
+        gid =
+            Grain.id grain
+    in
     { grain = grain
     , otherGrains =
         model.grainCache
@@ -575,8 +574,8 @@ moveGrainPopupViewModel model grain =
                 )
     , isSelected = Grain.isParentOf grain
     , dismissMsg = DismissPopup
-    , setParentMsg = PopupActionSetGrainParent grain
-    , setParentToRootMsg = PopupActionSetGrainParent grain Grain.rootParentId
+    , setParentMsg = PopupActionSetGrainParent gid
+    , setParentToRootMsg = PopupActionSetGrainParent gid Grain.rootParentId
     }
 
 
@@ -646,7 +645,8 @@ viewRouteChildren model =
                 viewModel =
                     Maybe.map
                         (\grain ->
-                            { contentChangedMsg = GrainContentChanged grain
+                            { contentChangedMsg =
+                                GrainContentChanged (Grain.id grain)
                             , content = Grain.content grain
                             }
                         )
@@ -689,7 +689,7 @@ toGrainListView model =
     , inlineEditGrain = model.inlineEditGrain
     , addFabClicked = CreateAndAddNewGrain
     , grainMsg =
-        { grainMoreClicked = GrainMoreClicked
+        { grainMoreClicked = Grain.id >> GrainMoreClicked
         , inlineEditGrain = InlineEditGrain
         , dragGrain = DragGrain
         , inlineEditGrainContentChanged = InlineEditGrainContentChanged
