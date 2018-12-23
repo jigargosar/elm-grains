@@ -597,25 +597,6 @@ viewPopup model =
 
 
 grainMovePopupViewModel model grain =
-    let
-        allGrains =
-            model.grainStore |> GrainStore.allAsList
-
-        getAncestorIds g =
-            GrainStore.getAncestorIds g model.grainStore
-
-        gid =
-            Grain.id grain
-
-        isDescendent g =
-            getAncestorIds g
-                |> List.member gid
-
-        _ =
-            allGrains
-                |> List.map getAncestorIds
-                |> Debug.log "getAncestorIds"
-    in
     { grain = grain
     , otherGrains =
         model.grainCache
