@@ -7,6 +7,7 @@ module GrainCache exposing
     , encoder
     , get
     , isDescendent
+    , load
     , moveBy
     , remove
     , setSaved
@@ -253,3 +254,8 @@ updateFromFirebaseChangeList changeList model =
     in
     List.foldr handleChange model changeList
         |> Result.Ok
+
+
+load =
+    D.decodeValue decoder
+        >> Result.mapError D.errorToString

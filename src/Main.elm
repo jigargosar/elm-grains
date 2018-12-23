@@ -241,17 +241,6 @@ handleErrorString errString model =
         (Port.error errString)
 
 
-decodeValueAndHandleError { decoder, value, onOk } model =
-    D.decodeValue decoder value
-        |> Result.mapError
-            (D.errorToString
-                >> handleErrorString
-                >> callWith model
-            )
-        |> Result.map (onOk >> callWith model)
-        |> Result.merge
-
-
 
 -- GRAIN CACHE --
 
@@ -312,14 +301,7 @@ updateGrainCache message model =
                 |> handleResult
 
         LoadGrainCache encoded ->
-            decodeValueAndHandleError
-                { decoder = GrainCache.decoder
-                , value = encoded
-                , onOk =
-                    \grainCache ->
-                        setGrainCacheAndPersist grainCache
-                }
-                model
+            GrainCache.load encoded |> handleResult
 
 
 firePersistUnsavedGrainsCmd grainCache =
