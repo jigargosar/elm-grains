@@ -360,16 +360,6 @@ updateInlineEditGrain gid msg model =
             grainById gid model
                 |> Maybe.unwrap (Return.singleton model) inlineEdit
 
-        IE_Content content ->
-            InlineEditGrain.onContentChange content
-                model.inlineEditGrain
-                |> handleResult
-
-        IE_KeyboardFocus hasFocus ->
-            InlineEditGrain.onKeyboardFocusChange hasFocus
-                model.inlineEditGrain
-                |> handleResult
-
         IE_Submit ->
             case InlineEditGrain.endEditing model.inlineEditGrain of
                 Err errString ->
@@ -381,6 +371,16 @@ updateInlineEditGrain gid msg model =
                             | inlineEditGrain = inlineEditGrain
                         }
                         (performGrainUpdate gid_ (Grain.SetContent content))
+
+        IE_Content content ->
+            InlineEditGrain.onContentChange content
+                model.inlineEditGrain
+                |> handleResult
+
+        IE_KeyboardFocus hasFocus ->
+            InlineEditGrain.onKeyboardFocusChange hasFocus
+                model.inlineEditGrain
+                |> handleResult
 
 
 
@@ -770,6 +770,7 @@ toGrainListView model =
         , dragGrain = DragGrain
         , inlineEditGrainContentChanged =
             \gid -> UpdateInlineEditGrain gid << IE_Content
+        , inlineEditFocusChanged = \gid -> UpdateInlineEditGrain gid << IE_KeyboardFocus
         , inlineEditKeyDownPD =
             \gid ->
                 K.bindEachToMsg

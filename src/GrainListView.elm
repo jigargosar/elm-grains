@@ -22,7 +22,7 @@ import GrainId exposing (GrainId)
 import HotKey
 import Html.Styled exposing (Html, button, div, input, styled, text, textarea)
 import Html.Styled.Attributes exposing (autocomplete, class, css, id, value)
-import Html.Styled.Events exposing (onClick, onInput)
+import Html.Styled.Events exposing (onBlur, onClick, onFocus, onInput)
 import InlineEditGrain exposing (InlineEditGrain)
 import Json.Decode exposing (Decoder)
 import Maybe.Extra as Maybe
@@ -55,6 +55,7 @@ type alias GrainMessages msg =
     , inlineEditGrainContentChanged : GrainId -> String -> msg
     , inlineEditSubmit : GrainId -> msg
     , inlineEditKeyDownPD : GrainId -> Decoder ( msg, Bool )
+    , inlineEditFocusChanged : GrainId -> Bool -> msg
     }
 
 
@@ -78,6 +79,7 @@ type alias NodeModel msg =
     , inlineEditSubmit : msg
     , inlineEditKeyDownPD : Decoder ( msg, Bool )
     , inlineEditInputId : String
+    , inlineEditFocusChanged : Bool -> msg
     , canEdit : Bool
     , deleted : Bool
     }
@@ -117,6 +119,7 @@ createNode vm level g =
             , inlineEditSubmit = grainMsg.inlineEditSubmit gid
             , inlineEditKeyDownPD = grainMsg.inlineEditKeyDownPD gid
             , inlineEditInputId = inlineGrainEditInputDomId g
+            , inlineEditFocusChanged = grainMsg.inlineEditFocusChanged gid
             }
 
         children : Forest msg
@@ -270,6 +273,8 @@ viewEditingItem nModel content node =
             [ id <| nModel.inlineEditInputId
             , value <| content
             , onInput <| nModel.inlineEditContentChangedMsg
+            , onFocus (nModel.inlineEditFocusChanged True)
+            , onBlur (nModel.inlineEditFocusChanged False)
             , CssEventX.onKeyDownPD <|
                 nModel.inlineEditKeyDownPD
             , autocomplete False
