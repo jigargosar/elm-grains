@@ -263,7 +263,7 @@ dismissPopupMsg =
 
 openPopupMsg : Popup -> Msg
 openPopupMsg popup =
-    popupMsg popup
+    popupMsg <| PA_Open popup
 
 
 openGrainMovePopupMsg : GrainId -> Msg
