@@ -30,6 +30,12 @@ history.listen((location, action) => {
   sendToElmApp(app, 'urlChanged', document.URL)
 })
 
+window.addEventListener('keydown', () => {
+  if (document.activeElement === body) {
+    sendToElmApp(app, 'keyDownOnBody', null)
+  }
+})
+
 setElmAppPortSubscriptions(
   {
     pushUrl: pathname => {

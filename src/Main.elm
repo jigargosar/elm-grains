@@ -219,6 +219,8 @@ type Msg
     | SignOut
       -- FIREBASE SUB --
     | Firebase Value
+      -- EVENT SUB --
+    | KeyDownOnBody
 
 
 routeToMsg route =
@@ -254,6 +256,7 @@ subscriptions model =
     Sub.batch
         [ Port.urlChanged UrlChanged
         , Port.fire2Elm Firebase
+        , Port.keyDownOnBody <| \_ -> KeyDownOnBody
         ]
 
 
@@ -581,6 +584,10 @@ update message model =
 
         BackPressed ->
             Return.return model (Port.navigateBack ())
+
+        KeyDownOnBody ->
+            Return.singleton model
+                |> Debug.log "KeyDownOnBody"
 
 
 

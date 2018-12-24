@@ -2,6 +2,7 @@ port module Port exposing
     ( cacheGrains
     , error
     , fire2Elm
+    , keyDownOnBody
     , navigateBack
     , persistGrains
     , persistNewGrain
@@ -16,6 +17,9 @@ port module Port exposing
     )
 
 import Json.Encode exposing (Value)
+
+
+port keyDownOnBody : (() -> msg) -> Sub msg
 
 
 port persistSavedGrainList : Value -> Cmd msg
