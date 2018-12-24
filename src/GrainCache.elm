@@ -5,10 +5,10 @@ module GrainCache exposing
     , decoder
     , empty
     , encoder
-    , firstRootGid
+    , firstGid
     , get
     , isDescendent
-    , lastRootGid
+    , lastLeafGid
     , load
     , moveBy
     , moveOneLevelDown
@@ -65,9 +65,33 @@ empty =
     GrainIdLookup.empty
 
 
+firstGid : GrainCache -> Maybe GrainId
+firstGid =
+    firstRootGid
+
+
 firstRootGid : GrainCache -> Maybe GrainId
 firstRootGid =
     firstRoot >> Maybe.map id
+
+
+lastLeafGid : GrainCache -> Maybe GrainId
+lastLeafGid model =
+    lastRoot model |> Maybe.map id
+
+
+lastLeafOf : SavedGrain -> GrainCache -> SavedGrain
+lastLeafOf savedGrain model =
+    let
+        children =
+            getChildren (id savedGrain) model
+    in
+    if List.isEmpty children then
+        savedGrain
+
+    else
+        List.last children
+            |> Maybe.unwrap savedGrain (lastLeafOf >> callWith model)
 
 
 lastRootGid : GrainCache -> Maybe GrainId
@@ -308,6 +332,13 @@ getSiblings savedGrain model =
         |> List.sortWith defaultComparator
 
 
+getChildren : GrainId -> GrainCache -> List SavedGrain
+getChildren gid model =
+    toList model
+        |> List.filter (isChildOfGrainId gid)
+        |> List.sortWith defaultComparator
+
+
 defaultComparator =
     Compare.compose SavedGrain.value Grain.defaultComparator
 
@@ -362,3 +393,7 @@ isRoot =
 
 parentId =
     SavedGrain.value >> Grain.parentId
+
+
+isChildOfGrainId gid =
+    SavedGrain.value >> Grain.isChildOfGrainId gid

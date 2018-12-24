@@ -17,6 +17,7 @@ module Grain exposing
     , idAsString
     , idEq
     , isChildOf
+    , isChildOfGrainId
     , isParentOf
     , isRoot
     , listToEffectiveSortIndices
@@ -211,6 +212,10 @@ isParentOf child =
 
 isChildOf =
     flip isParentOf
+
+
+isChildOfGrainId gid =
+    parentIdEq (ParentId gid)
 
 
 parentIdAsGrainId grain =

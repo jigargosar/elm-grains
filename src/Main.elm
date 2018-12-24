@@ -614,15 +614,15 @@ update message model =
                     if K.isHotKey K.arrowDown ke then
                         ( model
                         , model.grainCache
-                            |> GrainCache.firstRootGid
+                            |> GrainCache.firstGid
                             |> unwrapMaybeCmd focusGrainCmd
                         )
 
                     else if K.isHotKey K.arrowUp ke then
                         ( model
                         , model.grainCache
-                            |> GrainCache.lastRootGid
-                            |> Debug.log "lastRootGid"
+                            |> GrainCache.lastLeafGid
+                            |> Debug.log "lastLeafGid"
                             |> unwrapMaybeCmd focusGrainCmd
                         )
 
