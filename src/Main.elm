@@ -468,11 +468,9 @@ updateGrainCache message model =
                 >> Return.effect_ localPersistGrainCacheEffect
                 >> Return.effect_ firePersistUnsavedGrainsEffect
 
-        handleResult result =
-            result
-                |> Result.mapBoth handleErrorString setGrainCacheAndPersist
-                |> Result.merge
-                |> callWith model
+        handleResult =
+            Result.map (setGrainCacheAndPersist >> callWith model)
+                >> handleStringErrorResult model
     in
     case message of
         GC_MoveBy grainId offset now ->
