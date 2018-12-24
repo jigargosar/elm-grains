@@ -266,6 +266,16 @@ handleErrorString errString model =
         (Port.error errString)
 
 
+handleStringErrorResult :
+    Model
+    -> Result String (Return Msg Model)
+    -> Return Msg Model
+handleStringErrorResult model =
+    Result.mapError
+        (handleErrorString >> callWith model)
+        >> Result.merge
+
+
 handleDecodeError : D.Error -> Model -> ( Model, Cmd Msg )
 handleDecodeError error =
     handleErrorString (D.errorToString error)
