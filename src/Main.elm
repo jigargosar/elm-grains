@@ -432,7 +432,7 @@ updateInlineEditGrain gid msg model =
 -- GRAIN CACHE --
 
 
-performUpdateGrainCache msg =
+updateGrainCacheCmd msg =
     Task.perform (UpdateGrainCache << msg) Time.now
 
 
@@ -580,11 +580,11 @@ update message model =
                 |> Return.command (focusIEGrainCmd gid)
 
         MoveGrainOneLevelUp gid ->
-            ( model, performUpdateGrainCache <| GC_MoveOneLevelUp gid )
+            ( model, updateGrainCacheCmd <| GC_MoveOneLevelUp gid )
                 |> Return.command (focusIEGrainCmd gid)
 
         MoveGrainOneLevelDown gid ->
-            ( model, performUpdateGrainCache <| GC_MoveOneLevelDown gid )
+            ( model, updateGrainCacheCmd <| GC_MoveOneLevelDown gid )
                 |> Return.command (focusIEGrainCmd gid)
 
         UpdatePopup msg ->
