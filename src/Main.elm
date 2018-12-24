@@ -185,7 +185,7 @@ type Msg
     = ---- INJECT MSG BELOW ----
       NoOp
     | FocusResult (Result String ())
-    | ShowMoveToPopup GrainId
+    | GrainMoveToClicked GrainId
     | UpdateGrainCache GrainCacheMsg
     | PopupAction PopupMsg Bool
     | DismissPopup
@@ -412,8 +412,11 @@ update message model =
         UpdateInlineEditGrain gid msg ->
             updateInlineEditGrain gid msg model
 
-        ShowMoveToPopup gid ->
+        GrainMoveToClicked gid ->
             Return.singleton { model | popup = MoveGrainPopup gid }
+
+        GrainMoreClicked gid ->
+            Return.singleton { model | popup = GrainMorePopup gid }
 
         PopupAction msg dismiss ->
             case msg of
@@ -437,9 +440,6 @@ update message model =
 
         DismissPopup ->
             dismissPopup model |> Return.singleton
-
-        GrainMoreClicked gid ->
-            Return.singleton { model | popup = GrainMorePopup gid }
 
         DragGrain gid ->
             Return.singleton model
@@ -539,7 +539,7 @@ grainMorePopupViewModel model grain =
     { editMsg = popupMsg <| PA_RouteToGrain gid
     , moveUpMsg = popupMsg <| PA_MoveGrain gid -1
     , moveDownMsg = popupMsg <| PA_MoveGrain gid 1
-    , moveToMsg = ShowMoveToPopup gid
+    , moveToMsg = GrainMoveToClicked gid
     , toggleDeleteMsg = popupMsg <| PA_SetGrainDeleted gid (not deleted)
     , dismissMsg = DismissPopup
     , deleted = deleted
