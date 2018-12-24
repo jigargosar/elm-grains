@@ -401,21 +401,25 @@ updateInlineEditGrain gid msg model =
                     , performGrainSetContent gid_ content
                     )
             in
-            InlineEditGrain.endEditing model.inlineEditGrain
+            InlineEditGrain.endEditing
+                model.inlineEditGrain
                 |> Result.map mapResult
                 |> handleStringErrorResult model
 
         IE_Discard ->
-            InlineEditGrain.discard model.inlineEditGrain
+            InlineEditGrain.discard
+                model.inlineEditGrain
                 |> handleResult
 
         IE_Content content ->
-            InlineEditGrain.onContentChange content
+            InlineEditGrain.onContentChange
+                content
                 model.inlineEditGrain
                 |> handleResult
 
         IE_KeyboardFocus hasFocus ->
-            InlineEditGrain.onKeyboardFocusChange hasFocus
+            InlineEditGrain.onKeyboardFocusChange
+                hasFocus
                 model.inlineEditGrain
                 |> handleResult
 
