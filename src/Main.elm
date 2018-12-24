@@ -174,6 +174,10 @@ type InlineEditGrainMsg
     | IE_Submit
 
 
+type PopupAction
+    = SetGrainParent GrainId Grain.ParentId
+
+
 type Msg
     = ---- INJECT MSG BELOW ----
       NoOp
@@ -183,6 +187,7 @@ type Msg
     | ShowMoveToPopup GrainId
     | DismissPopup
     | UpdateGrainCache GrainCacheMsg
+    | PopupAction PopupAction Bool
     | PopupActionSetGrainParent GrainId Grain.ParentId
     | PopupActionMoveGrainUp GrainId
     | PopupActionMoveGrainDown GrainId
@@ -243,6 +248,15 @@ handleErrorString : String -> Model -> ( Model, Cmd Msg )
 handleErrorString errString model =
     Return.return (mapToast (Toast.show errString) model)
         (Port.error errString)
+
+
+
+-- POPUP UPDATE
+
+
+popupAction : PopupAction -> Msg
+popupAction action =
+    PopupAction action False
 
 
 
@@ -411,6 +425,13 @@ update message model =
         ShowMoveToPopup gid ->
             Return.singleton { model | popup = MoveGrainPopup gid }
 
+        PopupAction msg dismiss ->
+            case msg of
+                SetGrainParent gid parentId ->
+                    ( dismissPopup model
+                    , performGrainUpdate gid (Grain.SetParentId parentId)
+                    )
+
         PopupActionSetGrainParent gid parentId ->
             ( dismissPopup model
             , performGrainUpdate gid (Grain.SetParentId parentId)
@@ -554,7 +575,7 @@ moveGrainPopupViewModel model grain =
                 )
     , isSelected = Grain.isParentOf grain
     , dismissMsg = DismissPopup
-    , setParentMsg = PopupActionSetGrainParent gid
+    , setParentMsg = popupAction << SetGrainParent gid
     , setParentToRootMsg = PopupActionSetGrainParent gid Grain.rootParentId
     }
 
