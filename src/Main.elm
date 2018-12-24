@@ -377,9 +377,7 @@ updateInlineEditGrain gid msg model =
                             Debug.log "content, gid" ( content, gid )
                     in
                     Return.return
-                        { model
-                            | inlineEditGrain = inlineEditGrain
-                        }
+                        (setInlineEditGrain inlineEditGrain model)
                         (performGrainUpdate gid_ (Grain.SetContent content))
 
         IE_Discard ->
