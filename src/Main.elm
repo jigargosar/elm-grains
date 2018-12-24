@@ -187,22 +187,29 @@ type Msg
     = ---- INJECT MSG BELOW ----
       NoOp
     | ErrorString String
-    | ToastDismiss
     | FocusResult (Result String ())
+      -- TOAST
+    | ToastDismiss
+      -- ADD GRAIN --
     | AddGrainClicked
     | CreateAndAddNewGrainWithNow Posix
     | AddGrainToCache Grain
+      -- UPDATE GRAIN --
     | UpdateGrainCache GrainCacheMsg
     | UpdateInlineEditGrain GrainId InlineEditGrainMsg
     | GrainContentChanged GrainId String
     | DragGrain GrainId
+      -- POPUP
     | UpdatePopup PopupMsg
+      -- NAVIGATION --
     | RouteTo Route
     | UrlChanged String
-    | Firebase Value
+    | BackPressed
+      -- AUTH --
     | SignIn
     | SignOut
-    | BackPressed
+      -- FIREBASE SUB --
+    | Firebase Value
 
 
 routeTo route =
