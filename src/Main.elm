@@ -25,7 +25,7 @@ import Grain exposing (Grain)
 import GrainCache exposing (GrainCache)
 import GrainChange exposing (GrainChange)
 import GrainId exposing (GrainId)
-import GrainListView exposing (GrainListView)
+import GrainListView as GLV exposing (GrainListView)
 import GrainMorePopupView exposing (GrainMorePopupView)
 import GrainView exposing (GrainView)
 import HotKey as K exposing (SoftKey(..))
@@ -298,7 +298,7 @@ performWithNow nowToMsg =
     Task.perform nowToMsg Time.now
 
 
-focusDomId =
+focusCmd =
     BrowserX.focus FocusResult
 
 
@@ -372,8 +372,7 @@ initInlineEdit grain =
 
 
 focusInlineEditGrainCmd gid =
-    focusDomId <|
-        GrainListView.grainId2InlineGrainEditInputDomId gid
+    focusCmd <| GLV.contentInputDomId gid
 
 
 updateInlineEditGrain gid msg model =
@@ -765,7 +764,7 @@ viewAppBar { title, showBackBtn } authState =
 viewRouteChildren model =
     case model.route of
         Route.GrainList ->
-            toGrainListView model |> GrainListView.view
+            toGrainListView model |> GLV.view
 
         Route.Grain gid ->
             let

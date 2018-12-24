@@ -1,7 +1,7 @@
 module GrainListView exposing
     ( GrainListView
+    , contentInputDomId
     , grainDomId
-    , grainId2InlineGrainEditInputDomId
     , inlineGrainEditInputDomId
     , view
     )
@@ -45,7 +45,7 @@ editInputPrefix =
     "grain-list-item-edit-input--"
 
 
-grainId2InlineGrainEditInputDomId =
+contentInputDomId =
     GrainId.toDomIdWithPrefix editInputPrefix
 
 
