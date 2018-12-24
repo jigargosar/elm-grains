@@ -97,6 +97,7 @@ type alias Model =
     , popup : Popup
     , inlineEditGrain : InlineEditGrain
     , grainCache : GrainCache
+    , selectedGid : Maybe GrainId
     , seed : Seed
     }
 
@@ -114,6 +115,7 @@ init flags =
                 |> Random.always NoPopup
                 |> Random.always InlineEditGrain.initialValue
                 |> Random.always GrainCache.empty
+                |> Random.always Nothing
                 |> Random.finish
     in
     model
