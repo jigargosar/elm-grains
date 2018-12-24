@@ -189,8 +189,6 @@ type Msg
     | UpdateGrainCache GrainCacheMsg
     | PopupAction PopupMsg Bool
     | DismissPopup
-    | PopupActionMoveGrainUp GrainId
-    | PopupActionMoveGrainDown GrainId
     | GrainMoreClicked GrainId
     | DragGrain GrainId
     | CreateAndAddNewGrain
@@ -437,16 +435,6 @@ update message model =
                     , performGrainMove gid offset
                     )
 
-        PopupActionMoveGrainUp gid ->
-            ( dismissPopup model
-            , performGrainMove gid -1
-            )
-
-        PopupActionMoveGrainDown gid ->
-            ( dismissPopup model
-            , performGrainMove gid 1
-            )
-
         DismissPopup ->
             dismissPopup model |> Return.singleton
 
@@ -549,8 +537,8 @@ grainMorePopupViewModel model grain =
             Grain.id grain
     in
     { editMsg = PopupRouteToGrain gid
-    , moveUpMsg = PopupActionMoveGrainUp gid
-    , moveDownMsg = PopupActionMoveGrainDown gid
+    , moveUpMsg = popupMsg <| PA_MoveGrain gid -1
+    , moveDownMsg = popupMsg <| PA_MoveGrain gid 1
     , moveToMsg = ShowMoveToPopup gid
     , toggleDeleteMsg = PopupSetDeletedGrain gid (not deleted)
     , dismissMsg = DismissPopup
