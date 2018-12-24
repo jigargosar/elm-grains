@@ -175,12 +175,12 @@ type InlineEditGrainMsg
 
 
 type PopupMsg
-    = PA_SetGrainParent GrainId Grain.ParentId
-    | PA_MoveGrain GrainId Int
-    | PA_SetGrainDeleted GrainId Bool
-    | PA_RouteToGrain GrainId
-    | PA_Dismiss
-    | PA_Open Popup
+    = PM_SetGrainParent GrainId Grain.ParentId
+    | PM_MoveGrain GrainId Int
+    | PM_SetGrainDeleted GrainId Bool
+    | PM_RouteToGrain GrainId
+    | PM_Dismiss
+    | PM_Open Popup
 
 
 type Msg
@@ -265,12 +265,12 @@ popupMsg =
 
 dismissPopupMsg : Msg
 dismissPopupMsg =
-    popupMsg PA_Dismiss
+    popupMsg PM_Dismiss
 
 
 openPopupMsg : Popup -> Msg
 openPopupMsg popup =
-    popupMsg <| PA_Open popup
+    popupMsg <| PM_Open popup
 
 
 openGrainMovePopupMsg : GrainId -> Msg
@@ -285,28 +285,28 @@ openGrainMorePopupMsg gid =
 
 updatePopup msg model =
     case msg of
-        PA_SetGrainParent gid parentId ->
+        PM_SetGrainParent gid parentId ->
             ( dismissPopup model
             , performGrainUpdate gid (Grain.SetParentId parentId)
             )
 
-        PA_MoveGrain gid offset ->
+        PM_MoveGrain gid offset ->
             ( dismissPopup model
             , performGrainMove gid offset
             )
 
-        PA_SetGrainDeleted gid deleted ->
+        PM_SetGrainDeleted gid deleted ->
             ( dismissPopup model
             , performGrainUpdate gid (Grain.SetDeleted deleted)
             )
 
-        PA_RouteToGrain gid ->
+        PM_RouteToGrain gid ->
             update (routeToGrainIdMsg gid) (dismissPopup model)
 
-        PA_Dismiss ->
+        PM_Dismiss ->
             dismissPopup model |> Return.singleton
 
-        PA_Open popup ->
+        PM_Open popup ->
             Return.singleton { model | popup = popup }
 
 
@@ -563,11 +563,11 @@ grainMorePopupViewModel model grain =
         gid =
             Grain.id grain
     in
-    { editMsg = popupMsg <| PA_RouteToGrain gid
-    , moveUpMsg = popupMsg <| PA_MoveGrain gid -1
-    , moveDownMsg = popupMsg <| PA_MoveGrain gid 1
+    { editMsg = popupMsg <| PM_RouteToGrain gid
+    , moveUpMsg = popupMsg <| PM_MoveGrain gid -1
+    , moveDownMsg = popupMsg <| PM_MoveGrain gid 1
     , moveToMsg = openGrainMovePopupMsg gid
-    , toggleDeleteMsg = popupMsg <| PA_SetGrainDeleted gid (not deleted)
+    , toggleDeleteMsg = popupMsg <| PM_SetGrainDeleted gid (not deleted)
     , dismissMsg = dismissPopupMsg
     , deleted = deleted
     }
@@ -590,8 +590,8 @@ moveGrainPopupViewModel model grain =
                 )
     , isSelected = Grain.isParentOf grain
     , dismissMsg = dismissPopupMsg
-    , setParentMsg = popupMsg << PA_SetGrainParent gid
-    , setParentToRootMsg = (popupMsg << PA_SetGrainParent gid) Grain.rootParentId
+    , setParentMsg = popupMsg << PM_SetGrainParent gid
+    , setParentToRootMsg = (popupMsg << PM_SetGrainParent gid) Grain.rootParentId
     }
 
 
