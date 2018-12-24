@@ -257,10 +257,11 @@ localPersistGrainCacheEffect model =
     Port.setGrainCache <| GrainCache.encoder model.grainCache
 
 
-firePersistUnsavedGrainsCmd grainCache =
+firePersistUnsavedGrainsEffect model =
     let
         dirtyGrains =
-            GrainCache.toList grainCache
+            model.grainCache
+                |> GrainCache.toList
                 |> List.filterNot SavedGrain.saved
     in
     if List.isEmpty dirtyGrains then
@@ -270,10 +271,6 @@ firePersistUnsavedGrainsCmd grainCache =
         dirtyGrains
             |> E.list SavedGrain.encoder
             |> Port.persistSavedGrainList
-
-
-firePersistUnsavedGrainsEffect =
-    .grainCache >> firePersistUnsavedGrainsCmd
 
 
 updateGrainCache :
