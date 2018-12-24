@@ -193,6 +193,8 @@ type Msg
     = ---- INJECT MSG BELOW ----
       NoOp
     | FocusResult (Result String ())
+    | FocusNext
+    | GrainFocused GrainId Bool
       -- TOAST
     | ToastDismiss
       -- ADD GRAIN --
@@ -535,6 +537,35 @@ update message model =
                 |> Result.map (\_ -> Return.singleton model)
                 |> handleStringResult model
 
+        FocusNext ->
+            ( model
+            , model.selectedGid
+                |> Maybe.andThen
+                    (\sid ->
+                        GrainCache.firstChildGid sid
+                            model.grainCache
+                            |> Maybe.orElseLazy
+                                (\_ -> GrainCache.nextSiblingGid sid model.grainCache)
+                    )
+                |> unwrapMaybeCmd focusGrainCmd
+            )
+
+        GrainFocused gid focused ->
+            Return.singleton <|
+                if focused then
+                    { model | selectedGid = Just gid }
+
+                else
+                    model.selectedGid
+                        |> Maybe.unwrap model
+                            (\oldGid ->
+                                if oldGid == gid then
+                                    { model | selectedGid = Nothing }
+
+                                else
+                                    model
+                            )
+
         AddGrainClicked ->
             ( model
             , performWithNow CreateAndAddNewGrainWithNow
@@ -824,6 +855,19 @@ toGrainListView model =
         { grainMoreClicked = openGrainMorePopupMsg
         , grainTitleClicked = updateIEG IE_Start
         , dragGrain = DragGrain
+        , grainFocus = GrainFocused
+        , keyDownCustom =
+            \gid ->
+                K.bindEachToMsg
+                    [ ( K.arrowDown, pd <| FocusNext )
+
+                    --, ( K.enter, pd <| updateIEG IE_Submit gid )
+                    --, ( K.esc, pd <| updateIEG IE_Discard gid )
+                    --, ( K.ctrlUp, pd <| MoveGrainBy gid -1 )
+                    --, ( K.ctrlDown, pd <| MoveGrainBy gid 1 )
+                    --, ( K.ctrlLeft, pd <| MoveGrainOneLevelUp gid )
+                    --, ( K.ctrlRight, pd <| MoveGrainOneLevelDown gid )
+                    ]
         , inlineEditGrainContentChanged =
             updateIEG2 IE_Content
         , inlineEditFocusChanged = updateIEG2 IE_KeyboardFocus

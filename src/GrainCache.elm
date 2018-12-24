@@ -5,6 +5,7 @@ module GrainCache exposing
     , decoder
     , empty
     , encoder
+    , firstChildGid
     , firstGid
     , get
     , isDescendent
@@ -13,6 +14,7 @@ module GrainCache exposing
     , moveBy
     , moveOneLevelDown
     , moveOneLevelUp
+    , nextSiblingGid
     , remove
     , setSaved
     , toList
@@ -78,6 +80,26 @@ firstRootGid =
 lastLeafGid : GrainCache -> Maybe GrainId
 lastLeafGid model =
     lastRoot model |> Maybe.map (lastLeafOf >> callWith model >> id)
+
+
+
+--previousSibling gid model =
+--    getSiblings gid model
+--      |> List.dropWhileRight
+
+
+firstChildGid : GrainId -> GrainCache -> Maybe GrainId
+firstChildGid gid model =
+    getChildren gid model |> List.head |> Maybe.map id
+
+
+nextSiblingGid : GrainId -> GrainCache -> Maybe GrainId
+nextSiblingGid gid model =
+    getSiblingsById gid model
+        |> List.dropWhile (idEq gid >> not)
+        |> List.drop 1
+        |> List.head
+        |> Maybe.map id
 
 
 lastLeafOf : SavedGrain -> GrainCache -> SavedGrain

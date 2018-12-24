@@ -53,10 +53,12 @@ type alias GrainMessages msg =
     { grainMoreClicked : GrainId -> msg
     , grainTitleClicked : GrainId -> msg
     , dragGrain : GrainId -> msg
+    , keyDownCustom : GrainId -> EventX.CustomDecoder msg
     , inlineEditGrainContentChanged : GrainId -> String -> msg
     , inlineEditSubmit : GrainId -> msg
     , inlineEditKeyDownCustom : GrainId -> EventX.CustomDecoder msg
     , inlineEditFocusChanged : GrainId -> Bool -> msg
+    , grainFocus : GrainId -> Bool -> msg
     }
 
 
@@ -75,7 +77,9 @@ type alias NodeModel msg =
     , level : Float
     , maybeEditContent : Maybe String
     , moreClickedMsg : msg
+    , keyDownCustom : EventX.CustomDecoder msg
     , grainTitleClicked : msg
+    , grainFocus : Bool -> msg
     , inlineEditContentChangedMsg : String -> msg
     , inlineEditSubmit : msg
     , inlineEditKeyDownCustom : EventX.CustomDecoder msg
@@ -114,6 +118,8 @@ createNode vm level g =
             , moreClickedMsg = grainMsg.grainMoreClicked gid
             , maybeEditContent =
                 InlineEditGrain.maybeContentFor gid inlineEditGrain
+            , keyDownCustom = grainMsg.keyDownCustom gid
+            , grainFocus = grainMsg.grainFocus gid
             , grainTitleClicked = grainMsg.grainTitleClicked gid
             , inlineEditContentChangedMsg =
                 grainMsg.inlineEditGrainContentChanged gid
@@ -247,6 +253,9 @@ viewDisplayItem nModel node =
     div
         [ id nModel.domId
         , tabindex -1
+        , CssEventX.onKeyDownCustom nModel.keyDownCustom
+        , onFocus <| nModel.grainFocus True
+        , onBlur <| nModel.grainFocus False
         , css
             [ CS.row
             , CS.max_w_full
