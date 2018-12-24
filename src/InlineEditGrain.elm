@@ -1,5 +1,6 @@
 module InlineEditGrain exposing
     ( InlineEditGrain
+    , discard
     , endEditing
     , initialValue
     , maybeContentFor
@@ -45,7 +46,11 @@ startEditing grain =
 onKeyboardFocusChange hasFocus model =
     case model of
         NotEditing ->
-            Result.Err "Error: onFocusChange. Not Editing"
+            if hasFocus then
+                Result.Err "Error: onFocusChange. Not Editing"
+
+            else
+                Result.Ok model
 
         Editing editModel ->
             Result.Ok <| Editing { editModel | hasKeyboardFocus = hasFocus }
@@ -80,3 +85,13 @@ maybeContentFor forGrainId model =
 
             else
                 Nothing
+
+
+discard : InlineEditGrain -> Result String InlineEditGrain
+discard model =
+    case model of
+        Editing { gid, content } ->
+            Result.Ok initialValue
+
+        NotEditing ->
+            Result.Err "Error: endEditing. Not Editing"

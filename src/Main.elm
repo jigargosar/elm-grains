@@ -176,6 +176,7 @@ type InlineEditGrainMsg
     = IE_Start
     | IE_Content String
     | IE_Submit
+    | IE_Discard
     | IE_KeyboardFocus Bool
 
 
@@ -371,6 +372,10 @@ updateInlineEditGrain gid msg model =
                             | inlineEditGrain = inlineEditGrain
                         }
                         (performGrainUpdate gid_ (Grain.SetContent content))
+
+        IE_Discard ->
+            InlineEditGrain.discard model.inlineEditGrain
+                |> handleResult
 
         IE_Content content ->
             InlineEditGrain.onContentChange content
@@ -775,6 +780,7 @@ toGrainListView model =
             \gid ->
                 K.bindEachToMsg
                     [ ( K.enter, ( updateIEG IE_Submit gid, True ) )
+                    , ( K.esc, ( updateIEG IE_Discard gid, True ) )
                     , ( K.ctrlUp, ( MoveGrainBy gid -1, True ) )
                     , ( K.ctrlDown, ( MoveGrainBy gid 1, True ) )
                     , ( K.ctrlLeft, ( MoveGrainOneLevelUp gid, True ) )
