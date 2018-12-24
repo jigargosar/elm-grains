@@ -404,13 +404,33 @@ update message model =
         FocusResult (Err errorString) ->
             handleErrorString errorString model
 
+        AddGrainClicked ->
+            ( model
+            , performWithNow CreateAndAddNewGrainWithNow
+            )
+
+        CreateAndAddNewGrainWithNow now ->
+            Return.return model
+                (Random.generate AddGrainToCache (Grain.generator now))
+
+        AddGrainToCache grain ->
+            updateGrainCache (AddGrain grain) model
+                |> Return.andThen
+                    (update <| routeToGrainIdMsg <| Grain.id grain)
+
+        UpdateGrainCache msg ->
+            updateGrainCache msg model
+
+        UpdateInlineEditGrain gid msg ->
+            updateInlineEditGrain gid msg model
+
+        DragGrain gid ->
+            Return.singleton model
+
         GrainContentChanged gid content ->
             ( model
             , performGrainUpdate gid (Grain.SetContent content)
             )
-
-        UpdateInlineEditGrain gid msg ->
-            updateInlineEditGrain gid msg model
 
         GrainMoveToClicked gid ->
             Return.singleton { model | popup = MoveGrainPopup gid }
@@ -440,26 +460,6 @@ update message model =
 
         DismissPopup ->
             dismissPopup model |> Return.singleton
-
-        DragGrain gid ->
-            Return.singleton model
-
-        UpdateGrainCache msg ->
-            updateGrainCache msg model
-
-        AddGrainClicked ->
-            ( model
-            , performWithNow CreateAndAddNewGrainWithNow
-            )
-
-        CreateAndAddNewGrainWithNow now ->
-            Return.return model
-                (Random.generate AddGrainToCache (Grain.generator now))
-
-        AddGrainToCache grain ->
-            updateGrainCache (AddGrain grain) model
-                |> Return.andThen
-                    (update <| routeToGrainIdMsg <| Grain.id grain)
 
         RouteTo route ->
             Return.singleton (setRoute route model)
