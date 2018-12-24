@@ -220,7 +220,7 @@ type Msg
       -- FIREBASE SUB --
     | Firebase Value
       -- EVENT SUB --
-    | KeyDownOnBody
+    | KeyDownOnBody Value
 
 
 routeToMsg route =
@@ -256,7 +256,7 @@ subscriptions model =
     Sub.batch
         [ Port.urlChanged UrlChanged
         , Port.fire2Elm Firebase
-        , Port.keyDownOnBody <| \_ -> KeyDownOnBody
+        , Port.keyDownOnBody <| KeyDownOnBody
         ]
 
 
@@ -586,9 +586,13 @@ update message model =
         BackPressed ->
             Return.return model (Port.navigateBack ())
 
-        KeyDownOnBody ->
+        KeyDownOnBody value ->
+            let
+                _ =
+                    D.decodeValue EventX.keyEventDecoder value
+                        |> Debug.log "ke"
+            in
             Return.singleton model
-                |> Debug.log "KeyDownOnBody"
 
 
 

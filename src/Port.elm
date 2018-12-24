@@ -19,7 +19,7 @@ port module Port exposing
 import Json.Encode exposing (Value)
 
 
-port keyDownOnBody : (() -> msg) -> Sub msg
+port keyDownOnBody : (Value -> msg) -> Sub msg
 
 
 port persistSavedGrainList : Value -> Cmd msg

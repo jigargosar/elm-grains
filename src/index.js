@@ -30,9 +30,9 @@ history.listen((location, action) => {
   sendToElmApp(app, 'urlChanged', document.URL)
 })
 
-window.addEventListener('keydown', () => {
+window.addEventListener('keydown', event => {
   if (document.activeElement === document.body) {
-    sendToElmApp(app, 'keyDownOnBody', null)
+    sendToElmApp(app, 'keyDownOnBody', event)
   }
 })
 
