@@ -395,13 +395,14 @@ updateInlineEditGrain gid msg model =
                 |> Maybe.unwrap (Return.singleton model) inlineEdit
 
         IE_Submit ->
-            InlineEditGrain.endEditing model.inlineEditGrain
-                |> Result.map
-                    (\( gid_, content, inlineEditGrain ) ->
-                        ( setInlineEditGrain inlineEditGrain model
-                        , performGrainSetContent gid_ content
-                        )
+            let
+                mapResult ( gid_, content, inlineEditGrain ) =
+                    ( setInlineEditGrain inlineEditGrain model
+                    , performGrainSetContent gid_ content
                     )
+            in
+            InlineEditGrain.endEditing model.inlineEditGrain
+                |> Result.map mapResult
                 |> handleStringErrorResult model
 
         IE_Discard ->
