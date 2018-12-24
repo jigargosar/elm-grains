@@ -395,15 +395,14 @@ updateInlineEditGrain gid msg model =
                 |> Maybe.unwrap (Return.singleton model) inlineEdit
 
         IE_Submit ->
-            case InlineEditGrain.endEditing model.inlineEditGrain of
-                Err errString ->
-                    handleErrorString errString model
-
-                Ok ( gid_, content, inlineEditGrain ) ->
-                    Return.singleton
-                        (setInlineEditGrain inlineEditGrain model)
-                        |> Return.command
-                            (performGrainUpdate gid_ (Grain.SetContent content))
+            InlineEditGrain.endEditing model.inlineEditGrain
+                |> Result.map
+                    (\( gid_, content, inlineEditGrain ) ->
+                        ( setInlineEditGrain inlineEditGrain model
+                        , performGrainSetContent gid_ content
+                        )
+                    )
+                |> handleStringErrorResult model
 
         IE_Discard ->
             InlineEditGrain.discard model.inlineEditGrain
@@ -430,6 +429,10 @@ performUpdateGrainCache msg =
 
 performGrainMove gid offset =
     Task.perform (UpdateGrainCache << GC_MoveBy gid offset) Time.now
+
+
+performGrainSetContent gid content =
+    performGrainUpdate gid <| Grain.SetContent content
 
 
 performGrainUpdate gid grainUpdate =
@@ -559,7 +562,7 @@ update message model =
 
         GrainContentChanged gid content ->
             ( model
-            , performGrainUpdate gid (Grain.SetContent content)
+            , performGrainSetContent gid content
             )
 
         MoveGrainBy gid offset ->
