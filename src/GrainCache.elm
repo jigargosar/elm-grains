@@ -9,6 +9,7 @@ module GrainCache exposing
     , isDescendent
     , load
     , moveBy
+    , moveOneLevelDown
     , moveOneLevelUp
     , remove
     , setSaved
@@ -65,6 +66,11 @@ empty =
 getGrainById : GrainId -> GrainCache -> Maybe Grain
 getGrainById gid =
     get gid >> Maybe.map SavedGrain.value
+
+
+getSiblingsById : GrainId -> GrainCache -> List SavedGrain
+getSiblingsById gid model =
+    get gid model |> Maybe.unwrap [] (getSiblings >> callWith model)
 
 
 get : GrainId -> GrainCache -> Maybe SavedGrain
@@ -199,6 +205,31 @@ moveOneLevelUp gid now model =
         |> Maybe.withDefault (Result.Err "Grain Not Found")
 
 
+moveOneLevelDown gid now model =
+    let
+        siblings =
+            getSiblingsById gid model
+
+        newParentIdx : Int
+        newParentIdx =
+            List.findIndex (idEq gid) siblings
+                |> Maybe.unwrap -1 ((+) -1)
+    in
+    List.getAt newParentIdx siblings
+        |> Maybe.map
+            (SavedGrain.value
+                >> Grain.parentId
+                >> (\pid ->
+                        updateWithGrainUpdate
+                            (Grain.SetParentId pid)
+                            gid
+                            now
+                            model
+                   )
+            )
+        |> Maybe.withDefault (Result.Err "Grain Not Found")
+
+
 moveOneLevelUpHelp now model grain =
     getParentOfGrain grain model
         |> Maybe.map (SavedGrain.value >> moveGrainBelow now model grain)
@@ -256,6 +287,10 @@ defaultComparator =
 eqByParentId savedGrain =
     SavedGrain.value
         >> Grain.eqByParentId (SavedGrain.value savedGrain)
+
+
+idEq gid =
+    SavedGrain.value >> Grain.idEq gid
 
 
 eqById savedGrain =

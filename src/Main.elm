@@ -164,6 +164,7 @@ type GrainCacheMsg
     = MoveGrainBy GrainId Int Posix
     | GrainUpdate GrainId Grain.Update Posix
     | GC_MoveGrainOneLevelUp GrainId Posix
+    | GC_MoveGrainOneLevelDown GrainId Posix
     | AddGrain Grain
     | FirebaseChanges (List GrainChange)
     | LoadGrainCache Value
@@ -198,6 +199,7 @@ type Msg
       -- UPDATE GRAIN --
     | MoveGrainBy_ GrainId Int
     | MoveGrainOneLevelUp GrainId
+    | MoveGrainOneLevelDown GrainId
     | UpdateGrainCache GrainCacheMsg
     | UpdateInlineEditGrain GrainId InlineEditGrainMsg
     | GrainContentChanged GrainId String
@@ -443,6 +445,12 @@ updateGrainCache message model =
                 model.grainCache
                 |> handleResult
 
+        GC_MoveGrainOneLevelDown gid now ->
+            GrainCache.moveOneLevelDown gid
+                now
+                model.grainCache
+                |> handleResult
+
         AddGrain grain ->
             GrainCache.addNewGrain grain
                 model.grainCache
@@ -516,6 +524,12 @@ update message model =
             Return.singleton model
                 |> Return.command
                     (performUpdateGrainCache <| GC_MoveGrainOneLevelUp gid)
+                |> Return.command (focusInlineEditGrainCmd gid)
+
+        MoveGrainOneLevelDown gid ->
+            Return.singleton model
+                |> Return.command
+                    (performUpdateGrainCache <| GC_MoveGrainOneLevelDown gid)
                 |> Return.command (focusInlineEditGrainCmd gid)
 
         UpdatePopup msg ->
@@ -750,6 +764,7 @@ toGrainListView model =
                     , ( K.ctrlUp, ( MoveGrainBy_ gid -1, True ) )
                     , ( K.ctrlDown, ( MoveGrainBy_ gid 1, True ) )
                     , ( K.ctrlLeft, ( MoveGrainOneLevelUp gid, True ) )
+                    , ( K.ctrlRight, ( MoveGrainOneLevelDown gid, True ) )
                     ]
         , inlineEditSubmit = \gid -> UpdateInlineEditGrain gid IE_Submit
         }
