@@ -212,12 +212,12 @@ type Msg
     | Firebase Value
 
 
-routeTo route =
+routeToMsg route =
     RouteTo route
 
 
 routeToGrainIdMsg gid =
-    routeTo <| Route.Grain gid
+    routeToMsg <| Route.Grain gid
 
 
 autoFocusRoute route =
@@ -252,6 +252,10 @@ handleErrorString : String -> Model -> ( Model, Cmd Msg )
 handleErrorString errString model =
     Return.return (mapToast (Toast.show errString) model)
         (Port.error errString)
+
+
+performWithNow nowToMsg =
+    Task.perform nowToMsg Time.now
 
 
 
@@ -518,8 +522,8 @@ update message model =
             Return.return model (Port.navigateBack ())
 
 
-performWithNow nowToMsg =
-    Task.perform nowToMsg Time.now
+
+-- VIEW --
 
 
 view : Model -> Html Msg
