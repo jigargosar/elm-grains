@@ -102,11 +102,23 @@ nextSiblingGidOfGid gid model =
         |> Maybe.map id
 
 
-nextSiblingOfParent : GrainId -> GrainCache -> Maybe GrainId
-nextSiblingOfParent gid model =
+nextSiblingOfParentOfGid : GrainId -> GrainCache -> Maybe GrainId
+nextSiblingOfParentOfGid gid model =
+    let
+        rec : SavedGrain -> Maybe GrainId
+        rec parent =
+            let
+                parentGid =
+                    id parent
+            in
+            nextSiblingGidOfGid parentGid model
+                |> Maybe.orElseLazy
+                    (\_ ->
+                        nextSiblingOfParentOfGid parentGid model
+                    )
+    in
     getParent gid model
-        |> Maybe.andThen
-            (id >> nextSiblingGidOfGid >> callWith model)
+        |> Maybe.andThen rec
 
 
 getParent : GrainId -> GrainCache -> Maybe SavedGrain
