@@ -98,6 +98,13 @@ function getFireSubscriptions(app) {
     },
     signOut: () => auth.signOut(),
     persistSavedGrainList: async savedGrains => {
+      if (!auth.currentUser) {
+        console.warn(
+          'persistSavedGrainList: User Not SignedIn. Ignoring',
+          savedGrains,
+        )
+        return
+      }
       console.log(`debouncing: fire: persistSavedGrainList`, savedGrains)
       debouncedPersistSavedGrainList(savedGrains)
     },
