@@ -265,11 +265,11 @@ handleError errString model =
         (Port.error errString)
 
 
-handleErrorResult :
+handleStringResult :
     Model
     -> Result String (Return Msg Model)
     -> Return Msg Model
-handleErrorResult model =
+handleStringResult model =
     Result.mapError
         (handleError >> callWith model)
         >> Result.merge
@@ -377,7 +377,7 @@ updateInlineEditGrain gid msg model =
                     >> callWith model
                     >> Return.singleton
                 )
-                >> handleErrorResult model
+                >> handleStringResult model
     in
     case msg of
         IE_Start ->
@@ -390,7 +390,7 @@ updateInlineEditGrain gid msg model =
             grainById gid model
                 |> Result.fromMaybe "IE_Start: Grain Not Found"
                 |> Result.map inlineEdit
-                |> handleErrorResult model
+                |> handleStringResult model
 
         IE_Submit ->
             let
@@ -401,7 +401,7 @@ updateInlineEditGrain gid msg model =
             in
             InlineEditGrain.endEditing model.inlineEditGrain
                 |> Result.map mapResult
-                |> handleErrorResult model
+                |> handleStringResult model
 
         IE_Discard ->
             InlineEditGrain.discard model.inlineEditGrain
@@ -470,7 +470,7 @@ updateGrainCache message model =
 
         handleResult =
             Result.map (setGrainCacheAndPersist >> callWith model)
-                >> handleErrorResult model
+                >> handleStringResult model
     in
     case message of
         GC_MoveBy grainId offset now ->
@@ -529,7 +529,7 @@ update message model =
         FocusResult result ->
             result
                 |> Result.map (\_ -> Return.singleton model)
-                |> handleErrorResult model
+                |> handleStringResult model
 
         AddGrainClicked ->
             ( model
