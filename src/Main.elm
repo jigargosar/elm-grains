@@ -771,7 +771,7 @@ toGrainListView model =
     , addFabClicked = AddGrainClicked
     , grainMsg =
         { grainMoreClicked = openGrainMorePopupMsg
-        , inlineEditGrain = updateIEG IE_Start
+        , grainTitleClicked = updateIEG IE_Start
         , dragGrain = DragGrain
         , inlineEditGrainContentChanged =
             updateIEG2 IE_Content

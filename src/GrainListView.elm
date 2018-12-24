@@ -51,7 +51,7 @@ grainId2InlineGrainEditInputDomId =
 
 type alias GrainMessages msg =
     { grainMoreClicked : GrainId -> msg
-    , inlineEditGrain : GrainId -> msg
+    , grainTitleClicked : GrainId -> msg
     , dragGrain : GrainId -> msg
     , inlineEditGrainContentChanged : GrainId -> String -> msg
     , inlineEditSubmit : GrainId -> msg
@@ -75,7 +75,7 @@ type alias NodeModel msg =
     , level : Float
     , maybeEditContent : Maybe String
     , moreClickedMsg : msg
-    , inlineEditMsg : msg
+    , grainTitleClicked : msg
     , inlineEditContentChangedMsg : String -> msg
     , inlineEditSubmit : msg
     , inlineEditKeyDownCustom : EventX.CustomDecoder msg
@@ -114,7 +114,7 @@ createNode vm level g =
             , moreClickedMsg = grainMsg.grainMoreClicked gid
             , maybeEditContent =
                 InlineEditGrain.maybeContentFor gid inlineEditGrain
-            , inlineEditMsg = grainMsg.inlineEditGrain gid
+            , grainTitleClicked = grainMsg.grainTitleClicked gid
             , inlineEditContentChangedMsg =
                 grainMsg.inlineEditGrainContentChanged gid
             , inlineEditSubmit = grainMsg.inlineEditSubmit gid
@@ -210,7 +210,7 @@ viewTitle nModel node =
         , CS.flex11Auto
         , CS.ellipsis
         ]
-        [ attrIf canEdit (onClick <| nModel.inlineEditMsg) ]
+        [ attrIf canEdit (onClick <| nModel.grainTitleClicked) ]
         [ text title ]
 
 
