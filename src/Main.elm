@@ -545,7 +545,7 @@ update message model =
                         GrainCache.firstChildGid sid
                             model.grainCache
                             |> Maybe.orElseLazy
-                                (\_ -> GrainCache.nextSiblingGid sid model.grainCache)
+                                (\_ -> GrainCache.nextSiblingGidOfGid sid model.grainCache)
                     )
                 |> unwrapMaybeCmd focusGrainCmd
             )
