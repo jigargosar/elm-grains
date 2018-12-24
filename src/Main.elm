@@ -764,6 +764,12 @@ toGrainListView model =
 
         updateIEG =
             \msgFn gid -> UpdateInlineEditGrain gid msgFn
+
+        sp msg =
+            ( msg, True )
+
+        noSP msg =
+            ( msg, False )
     in
     { grains = rootGrains
     , getChildren = \parent -> List.filter (Grain.isChildOf parent) allGrains
@@ -779,12 +785,12 @@ toGrainListView model =
         , inlineEditKeyDownPD =
             \gid ->
                 K.bindEachToMsg
-                    [ ( K.enter, ( updateIEG IE_Submit gid, True ) )
-                    , ( K.esc, ( updateIEG IE_Discard gid, True ) )
-                    , ( K.ctrlUp, ( MoveGrainBy gid -1, True ) )
-                    , ( K.ctrlDown, ( MoveGrainBy gid 1, True ) )
-                    , ( K.ctrlLeft, ( MoveGrainOneLevelUp gid, True ) )
-                    , ( K.ctrlRight, ( MoveGrainOneLevelDown gid, True ) )
+                    [ ( K.enter, sp <| updateIEG IE_Submit gid )
+                    , ( K.esc, sp <| updateIEG IE_Discard gid )
+                    , ( K.ctrlUp, sp <| MoveGrainBy gid -1 )
+                    , ( K.ctrlDown, sp <| MoveGrainBy gid 1 )
+                    , ( K.ctrlLeft, sp <| MoveGrainOneLevelUp gid )
+                    , ( K.ctrlRight, sp <| MoveGrainOneLevelDown gid )
                     ]
         , inlineEditSubmit = \gid -> UpdateInlineEditGrain gid IE_Submit
         }
