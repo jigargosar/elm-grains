@@ -753,12 +753,6 @@ toGrainListView model =
 
         rootGrains =
             allGrains |> List.filter (Grain.parentIdEq Grain.rootParentId)
-
-        modifiedAtDesc =
-            Grain.modifiedAt >> Time.posixToMillis >> negate
-
-        createdAtAtDesc =
-            Grain.createdAt >> Time.posixToMillis >> negate
     in
     { grains = rootGrains
     , getChildren = \parent -> List.filter (Grain.isChildOf parent) allGrains
@@ -770,7 +764,8 @@ toGrainListView model =
         , dragGrain = DragGrain
         , inlineEditGrainContentChanged =
             \gid -> UpdateInlineEditGrain gid << IE_Content
-        , inlineEditFocusChanged = \gid -> UpdateInlineEditGrain gid << IE_KeyboardFocus
+        , inlineEditFocusChanged =
+            \gid -> UpdateInlineEditGrain gid << IE_KeyboardFocus
         , inlineEditKeyDownPD =
             \gid ->
                 K.bindEachToMsg
