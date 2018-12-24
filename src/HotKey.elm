@@ -6,6 +6,10 @@ module HotKey exposing
     , bindEach
     , bindEachToMsg
     , char
+    , ctrlDown
+    , ctrlLeft
+    , ctrlRight
+    , ctrlUp
     , decoder
     , delete
     , enter
@@ -116,6 +120,26 @@ metaUp =
 metaDown : HotKey
 metaDown =
     ( [ Meta ], "ArrowDown" )
+
+
+ctrlDown : HotKey
+ctrlDown =
+    ( [ Ctrl ], "ArrowDown" )
+
+
+ctrlUp : HotKey
+ctrlUp =
+    ( [ Ctrl ], "ArrowUp" )
+
+
+ctrlLeft : HotKey
+ctrlLeft =
+    ( [ Ctrl ], "ArrowLeft" )
+
+
+ctrlRight : HotKey
+ctrlRight =
+    ( [ Ctrl ], "ArrowRight" )
 
 
 delete : HotKey

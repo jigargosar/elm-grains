@@ -9,6 +9,7 @@ module GrainCache exposing
     , isDescendent
     , load
     , moveBy
+    , moveOneLevelUp
     , remove
     , setSaved
     , toList
@@ -59,6 +60,11 @@ encoder =
 empty : GrainCache
 empty =
     GrainIdLookup.empty
+
+
+getGrainById : GrainId -> GrainCache -> Maybe Grain
+getGrainById gid =
+    get gid >> Maybe.map SavedGrain.value
 
 
 get : GrainId -> GrainCache -> Maybe SavedGrain
@@ -185,6 +191,28 @@ moveBy offset gid now model =
     get gid model
         |> Result.fromMaybe "Error: setSortIdx: Grain Not Found in Cache"
         |> Result.andThen (moveHelp now offset >> callWith model)
+
+
+moveOneLevelUp gid now model =
+    getGrainById gid model
+        |> Maybe.andThen (moveOneLevelUpHelp now model)
+        |> Maybe.withDefault (Result.Err "Grain Not Found")
+
+
+moveOneLevelUpHelp now model grain =
+    getParentOfGrain grain model
+        |> Maybe.map (SavedGrain.value >> moveGrainBelow now model grain)
+
+
+moveGrainBelow now model grain sibling =
+    let
+        gid =
+            Grain.id grain
+
+        parentId =
+            Grain.parentId sibling
+    in
+    updateWithGrainUpdate (Grain.SetParentId parentId) gid now model
 
 
 moveHelp : Posix -> Int -> SavedGrain -> GrainCache -> UpdateResult

@@ -20,6 +20,7 @@ module Grain exposing
     , isParentOf
     , listToEffectiveSortIndices
     , modifiedAt
+    , parentId
     , parentIdAsGrainId
     , parentIdEq
     , rootParentId

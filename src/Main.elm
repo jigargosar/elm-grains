@@ -163,6 +163,7 @@ setGrainCache grainCache model =
 type GrainCacheMsg
     = MoveGrainBy GrainId Int Posix
     | GrainUpdate GrainId Grain.Update Posix
+    | GC_MoveGrainOneLevelUp GrainId Posix
     | AddGrain Grain
     | FirebaseChanges (List GrainChange)
     | LoadGrainCache Value
@@ -196,6 +197,7 @@ type Msg
     | AddGrainToCache Grain
       -- UPDATE GRAIN --
     | MoveGrainBy_ GrainId Int
+    | MoveGrainOneLevelUp GrainId
     | UpdateGrainCache GrainCacheMsg
     | UpdateInlineEditGrain GrainId InlineEditGrainMsg
     | GrainContentChanged GrainId String
@@ -370,6 +372,10 @@ updateInlineEditGrain gid msg model =
 -- GRAIN CACHE --
 
 
+performUpdateGrainCache msg =
+    Task.perform (UpdateGrainCache << msg) Time.now
+
+
 performGrainMove gid offset =
     Task.perform (UpdateGrainCache << MoveGrainBy gid offset) Time.now
 
@@ -427,6 +433,12 @@ updateGrainCache message model =
         GrainUpdate grainId grainUpdate now ->
             GrainCache.updateWithGrainUpdate grainUpdate
                 grainId
+                now
+                model.grainCache
+                |> handleResult
+
+        GC_MoveGrainOneLevelUp gid now ->
+            GrainCache.moveOneLevelUp gid
                 now
                 model.grainCache
                 |> handleResult
@@ -499,6 +511,9 @@ update message model =
             ( model
             , Cmd.batch [ focusInlineEditGrainCmd gid, performGrainMove gid offset ]
             )
+
+        MoveGrainOneLevelUp gid ->
+            ( model, performUpdateGrainCache (GC_MoveGrainOneLevelUp gid) )
 
         UpdatePopup msg ->
             updatePopup msg model
@@ -729,8 +744,9 @@ toGrainListView model =
             \gid ->
                 K.bindEachToMsg
                     [ ( K.enter, ( UpdateInlineEditGrain gid IE_Submit, True ) )
-                    , ( K.metaUp, ( MoveGrainBy_ gid -1, True ) )
-                    , ( K.metaDown, ( MoveGrainBy_ gid 1, True ) )
+                    , ( K.ctrlUp, ( MoveGrainBy_ gid -1, True ) )
+                    , ( K.ctrlDown, ( MoveGrainBy_ gid 1, True ) )
+                    , ( K.ctrlRight, ( MoveGrainOneLevelUp gid, True ) )
                     ]
         , inlineEditSubmit = \gid -> UpdateInlineEditGrain gid IE_Submit
         }
