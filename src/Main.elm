@@ -192,10 +192,7 @@ type Msg
     | CreateAndAddNewGrainWithNow Posix
     | AddGrainToCache Grain
     | BackPressed
-    | InlineEditGrain GrainId
-    | InlineEditGrainSubmit GrainId
     | GrainContentChanged GrainId String
-    | InlineEditGrainContentChanged GrainId String
     | UpdateInlineEditGrain GrainId InlineEditGrainMsg
     | ToastDismiss
     | RouteTo Route
@@ -402,45 +399,6 @@ update message model =
 
         UpdateInlineEditGrain gid msg ->
             updateInlineEditGrain gid msg model
-
-        InlineEditGrainContentChanged grain content ->
-            case InlineEditGrain.onContentChange content model.inlineEditGrain of
-                Err errString ->
-                    handleErrorString errString model
-
-                Ok inlineEditGrain ->
-                    Return.singleton
-                        { model
-                            | inlineEditGrain = inlineEditGrain
-                        }
-
-        InlineEditGrain gid ->
-            let
-                inlineEdit grain =
-                    Return.singleton
-                        { model
-                            | inlineEditGrain = InlineEditGrain.startEditing grain
-                        }
-                        |> Return.command
-                            (BrowserX.focus FocusResult <|
-                                GrainListView.inlineGrainEditInputDomId grain
-                            )
-            in
-            grainById gid model
-                |> Maybe.unwrap (Return.singleton model)
-                    inlineEdit
-
-        InlineEditGrainSubmit grain ->
-            case InlineEditGrain.endEditing model.inlineEditGrain of
-                Err errString ->
-                    handleErrorString errString model
-
-                Ok ( gid, content, inlineEditGrain ) ->
-                    Return.return
-                        { model
-                            | inlineEditGrain = inlineEditGrain
-                        }
-                        (performGrainUpdate gid (Grain.SetContent content))
 
         PopupSetDeletedGrain gid deleted ->
             ( dismissPopup model
@@ -712,10 +670,11 @@ toGrainListView model =
     , addFabClicked = CreateAndAddNewGrain
     , grainMsg =
         { grainMoreClicked = GrainMoreClicked
-        , inlineEditGrain = InlineEditGrain
+        , inlineEditGrain = \gid -> UpdateInlineEditGrain gid IE_Start
         , dragGrain = DragGrain
-        , inlineEditGrainContentChanged = InlineEditGrainContentChanged
-        , inlineEditSubmit = InlineEditGrainSubmit
+        , inlineEditGrainContentChanged =
+            \gid -> UpdateInlineEditGrain gid << IE_Content
+        , inlineEditSubmit = \gid -> UpdateInlineEditGrain gid IE_Submit
         }
     }
 
