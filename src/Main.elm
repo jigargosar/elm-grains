@@ -176,6 +176,7 @@ type InlineEditGrainMsg
     = IE_Start
     | IE_Content String
     | IE_Submit
+    | IE_KeyboardFocus Bool
 
 
 type PopupMsg
@@ -331,6 +332,18 @@ focusInlineEditGrainCmd gid =
 
 
 updateInlineEditGrain gid msg model =
+    let
+        handleResult result =
+            case result of
+                Err errString ->
+                    handleErrorString errString model
+
+                Ok inlineEditGrain ->
+                    Return.singleton
+                        { model
+                            | inlineEditGrain = inlineEditGrain
+                        }
+    in
     case msg of
         IE_Start ->
             let
@@ -345,19 +358,17 @@ updateInlineEditGrain gid msg model =
                             )
             in
             grainById gid model
-                |> Maybe.unwrap (Return.singleton model)
-                    inlineEdit
+                |> Maybe.unwrap (Return.singleton model) inlineEdit
 
         IE_Content content ->
-            case InlineEditGrain.onContentChange content model.inlineEditGrain of
-                Err errString ->
-                    handleErrorString errString model
+            InlineEditGrain.onContentChange content
+                model.inlineEditGrain
+                |> handleResult
 
-                Ok inlineEditGrain ->
-                    Return.singleton
-                        { model
-                            | inlineEditGrain = inlineEditGrain
-                        }
+        IE_KeyboardFocus hasFocus ->
+            InlineEditGrain.onKeyboardFocusChange hasFocus
+                model.inlineEditGrain
+                |> handleResult
 
         IE_Submit ->
             case InlineEditGrain.endEditing model.inlineEditGrain of

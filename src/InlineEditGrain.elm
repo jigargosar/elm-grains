@@ -4,6 +4,7 @@ module InlineEditGrain exposing
     , initialValue
     , maybeContentFor
     , onContentChange
+    , onKeyboardFocusChange
     , startEditing
     )
 
@@ -16,6 +17,7 @@ import Maybe.Extra as Maybe
 type alias EditingModel =
     { gid : GrainId
     , content : String
+    , hasKeyboardFocus : Bool
     }
 
 
@@ -28,6 +30,7 @@ init gid content =
     Editing
         { gid = gid
         , content = content
+        , hasKeyboardFocus = False
         }
 
 
@@ -37,6 +40,15 @@ initialValue =
 
 startEditing grain =
     init (Grain.id grain) (Grain.content grain)
+
+
+onKeyboardFocusChange hasFocus model =
+    case model of
+        NotEditing ->
+            Result.Err "Error: onFocusChange. Not Editing"
+
+        Editing editModel ->
+            Result.Ok <| Editing { editModel | hasKeyboardFocus = hasFocus }
 
 
 onContentChange content model =
