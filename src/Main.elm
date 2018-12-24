@@ -160,12 +160,18 @@ setGrainCache grainCache model =
 ---- UPDATE ----
 
 
-type UpdateGrainCacheMsg
+type GrainCacheMsg
     = MoveGrainBy GrainId Int Posix
     | GrainUpdate GrainId Grain.Update Posix
     | AddGrain Grain
     | FirebaseChanges (List GrainChange)
     | LoadGrainCache Value
+
+
+type InlineEditGrainMsg
+    = IE_Start
+    | IE_Content String
+    | IE_Submit
 
 
 type Msg
@@ -176,7 +182,7 @@ type Msg
     | PopupRouteToGrain GrainId
     | ShowMoveToPopup GrainId
     | DismissPopup
-    | UpdateGrainCache UpdateGrainCacheMsg
+    | UpdateGrainCache GrainCacheMsg
     | PopupActionSetGrainParent GrainId Grain.ParentId
     | PopupActionMoveGrainUp GrainId
     | PopupActionMoveGrainDown GrainId
@@ -190,6 +196,7 @@ type Msg
     | InlineEditGrainSubmit GrainId
     | GrainContentChanged GrainId String
     | InlineEditGrainContentChanged GrainId String
+    | UpdateInlineEditGrain GrainId InlineEditGrainMsg
     | ToastDismiss
     | RouteTo Route
     | UrlChanged String
@@ -242,6 +249,52 @@ handleErrorString errString model =
 
 
 
+-- UPDATE InlineEditGrain --
+
+
+updateInlineEditGrain gid msg model =
+    case msg of
+        IE_Start ->
+            let
+                inlineEdit grain =
+                    Return.singleton
+                        { model
+                            | inlineEditGrain = InlineEditGrain.startEditing grain
+                        }
+                        |> Return.command
+                            (BrowserX.focus FocusResult <|
+                                GrainListView.inlineGrainEditInputDomId grain
+                            )
+            in
+            grainById gid model
+                |> Maybe.unwrap (Return.singleton model)
+                    inlineEdit
+
+        IE_Content content ->
+            case InlineEditGrain.onContentChange content model.inlineEditGrain of
+                Err errString ->
+                    handleErrorString errString model
+
+                Ok inlineEditGrain ->
+                    Return.singleton
+                        { model
+                            | inlineEditGrain = inlineEditGrain
+                        }
+
+        IE_Submit ->
+            case InlineEditGrain.endEditing model.inlineEditGrain of
+                Err errString ->
+                    handleErrorString errString model
+
+                Ok ( gid_, content, inlineEditGrain ) ->
+                    Return.return
+                        { model
+                            | inlineEditGrain = inlineEditGrain
+                        }
+                        (performGrainUpdate gid_ (Grain.SetContent content))
+
+
+
 -- GRAIN CACHE --
 
 
@@ -274,7 +327,7 @@ firePersistUnsavedGrainsEffect model =
 
 
 updateGrainCache :
-    UpdateGrainCacheMsg
+    GrainCacheMsg
     -> Model
     -> ( Model, Cmd Msg )
 updateGrainCache message model =
@@ -346,6 +399,9 @@ update message model =
             ( model
             , performGrainUpdate gid (Grain.SetContent content)
             )
+
+        UpdateInlineEditGrain gid msg ->
+            updateInlineEditGrain gid msg model
 
         InlineEditGrainContentChanged grain content ->
             case InlineEditGrain.onContentChange content model.inlineEditGrain of
