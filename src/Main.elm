@@ -588,11 +588,17 @@ update message model =
 
         KeyDownOnBody value ->
             let
-                _ =
-                    D.decodeValue EventX.keyEventDecoder value
-                        |> Debug.log "ke"
+                handleErrorResult =
+                    Result.mapError
+                        (D.errorToString
+                            >> handleErrorString
+                            >> callWith model
+                        )
+                        >> Result.merge
             in
-            Return.singleton model
+            D.decodeValue EventX.keyEventDecoder value
+                |> Result.map (\_ -> Return.singleton model)
+                |> handleErrorResult
 
 
 
