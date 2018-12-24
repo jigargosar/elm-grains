@@ -177,21 +177,21 @@ type InlineEditGrainMsg
 type PopupMsg
     = PA_SetGrainParent GrainId Grain.ParentId
     | PA_MoveGrain GrainId Int
+    | PA_SetGrainDeleted GrainId Bool
+    | PA_RouteToGrain GrainId
 
 
 type Msg
     = ---- INJECT MSG BELOW ----
       NoOp
     | FocusResult (Result String ())
-    | PopupSetDeletedGrain GrainId Bool
-    | PopupRouteToGrain GrainId
     | ShowMoveToPopup GrainId
     | UpdateGrainCache GrainCacheMsg
     | PopupAction PopupMsg Bool
     | DismissPopup
     | GrainMoreClicked GrainId
     | DragGrain GrainId
-    | CreateAndAddNewGrain
+    | AddGrainClicked
     | CreateAndAddNewGrainWithNow Posix
     | AddGrainToCache Grain
     | BackPressed
@@ -412,14 +412,6 @@ update message model =
         UpdateInlineEditGrain gid msg ->
             updateInlineEditGrain gid msg model
 
-        PopupSetDeletedGrain gid deleted ->
-            ( dismissPopup model
-            , performGrainUpdate gid (Grain.SetDeleted deleted)
-            )
-
-        PopupRouteToGrain gid ->
-            update (routeToGrainIdMsg gid) (dismissPopup model)
-
         ShowMoveToPopup gid ->
             Return.singleton { model | popup = MoveGrainPopup gid }
 
@@ -435,6 +427,14 @@ update message model =
                     , performGrainMove gid offset
                     )
 
+                PA_SetGrainDeleted gid deleted ->
+                    ( dismissPopup model
+                    , performGrainUpdate gid (Grain.SetDeleted deleted)
+                    )
+
+                PA_RouteToGrain gid ->
+                    update (routeToGrainIdMsg gid) (dismissPopup model)
+
         DismissPopup ->
             dismissPopup model |> Return.singleton
 
@@ -447,7 +447,7 @@ update message model =
         UpdateGrainCache msg ->
             updateGrainCache msg model
 
-        CreateAndAddNewGrain ->
+        AddGrainClicked ->
             ( model
             , performWithNow CreateAndAddNewGrainWithNow
             )
@@ -536,11 +536,11 @@ grainMorePopupViewModel model grain =
         gid =
             Grain.id grain
     in
-    { editMsg = PopupRouteToGrain gid
+    { editMsg = popupMsg <| PA_RouteToGrain gid
     , moveUpMsg = popupMsg <| PA_MoveGrain gid -1
     , moveDownMsg = popupMsg <| PA_MoveGrain gid 1
     , moveToMsg = ShowMoveToPopup gid
-    , toggleDeleteMsg = PopupSetDeletedGrain gid (not deleted)
+    , toggleDeleteMsg = popupMsg <| PA_SetGrainDeleted gid (not deleted)
     , dismissMsg = DismissPopup
     , deleted = deleted
     }
@@ -676,7 +676,7 @@ toGrainListView model =
     { grains = rootGrains
     , getChildren = \parent -> List.filter (Grain.isChildOf parent) allGrains
     , inlineEditGrain = model.inlineEditGrain
-    , addFabClicked = CreateAndAddNewGrain
+    , addFabClicked = AddGrainClicked
     , grainMsg =
         { grainMoreClicked = GrainMoreClicked
         , inlineEditGrain = \gid -> UpdateInlineEditGrain gid IE_Start
