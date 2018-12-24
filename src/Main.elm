@@ -258,11 +258,18 @@ localPersistGrainCacheEffect model =
 
 
 firePersistUnsavedGrainsCmd grainCache =
-    GrainCache.toList grainCache
-        |> List.filterNot SavedGrain.saved
-        |> Debug.log "dirtyGrains"
-        |> E.list SavedGrain.encoder
-        |> Port.persistSavedGrainList
+    let
+        dirtyGrains =
+            GrainCache.toList grainCache
+                |> List.filterNot SavedGrain.saved
+    in
+    if List.isEmpty dirtyGrains then
+        Cmd.none
+
+    else
+        dirtyGrains
+            |> E.list SavedGrain.encoder
+            |> Port.persistSavedGrainList
 
 
 firePersistUnsavedGrainsEffect =
