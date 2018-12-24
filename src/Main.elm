@@ -187,7 +187,7 @@ type Msg
     | FocusResult (Result String ())
     | GrainMoveToClicked GrainId
     | UpdateGrainCache GrainCacheMsg
-    | PopupAction PopupMsg Bool
+    | UpdatePopup PopupMsg
     | DismissPopup
     | GrainMoreClicked GrainId
     | DragGrain GrainId
@@ -253,8 +253,29 @@ handleErrorString errString model =
 
 
 popupMsg : PopupMsg -> Msg
-popupMsg action =
-    PopupAction action False
+popupMsg =
+    UpdatePopup
+
+
+updatePopup msg model =
+    case msg of
+        PA_SetGrainParent gid parentId ->
+            ( dismissPopup model
+            , performGrainUpdate gid (Grain.SetParentId parentId)
+            )
+
+        PA_MoveGrain gid offset ->
+            ( dismissPopup model
+            , performGrainMove gid offset
+            )
+
+        PA_SetGrainDeleted gid deleted ->
+            ( dismissPopup model
+            , performGrainUpdate gid (Grain.SetDeleted deleted)
+            )
+
+        PA_RouteToGrain gid ->
+            update (routeToGrainIdMsg gid) (dismissPopup model)
 
 
 
@@ -438,25 +459,8 @@ update message model =
         GrainMoreClicked gid ->
             Return.singleton { model | popup = GrainMorePopup gid }
 
-        PopupAction msg dismiss ->
-            case msg of
-                PA_SetGrainParent gid parentId ->
-                    ( dismissPopup model
-                    , performGrainUpdate gid (Grain.SetParentId parentId)
-                    )
-
-                PA_MoveGrain gid offset ->
-                    ( dismissPopup model
-                    , performGrainMove gid offset
-                    )
-
-                PA_SetGrainDeleted gid deleted ->
-                    ( dismissPopup model
-                    , performGrainUpdate gid (Grain.SetDeleted deleted)
-                    )
-
-                PA_RouteToGrain gid ->
-                    update (routeToGrainIdMsg gid) (dismissPopup model)
+        UpdatePopup msg ->
+            updatePopup msg model
 
         DismissPopup ->
             dismissPopup model |> Return.singleton
