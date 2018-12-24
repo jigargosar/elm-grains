@@ -604,8 +604,17 @@ update message model =
             Return.return model (Port.navigateBack ())
 
         KeyDownOnBody value ->
+            let
+                handleKE : EventX.KeyEvent -> Return Msg Model
+                handleKE ke =
+                    if K.isHotKey K.arrowDown ke then
+                        Return.singleton model
+
+                    else
+                        Return.singleton model
+            in
             D.decodeValue EventX.keyEventDecoder value
-                |> Result.map (\_ -> Return.singleton model)
+                |> Result.map handleKE
                 |> handleDecodeResult model
 
 

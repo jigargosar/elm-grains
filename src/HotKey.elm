@@ -14,6 +14,7 @@ module HotKey exposing
     , delete
     , enter
     , esc
+    , isHotKey
     , metaDown
     , metaUp
     , shiftEnter
@@ -70,6 +71,11 @@ fromKeyEvent { shiftKey, altKey, ctrlKey, metaKey, key } =
 matchesKeyEvent : KeyEvent -> HotKey -> Bool
 matchesKeyEvent ke =
     eq (fromKeyEvent ke)
+
+
+isHotKey : HotKey -> KeyEvent -> Bool
+isHotKey =
+    flip matchesKeyEvent
 
 
 decoder : Decoder HotKey

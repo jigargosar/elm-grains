@@ -18,6 +18,7 @@ module Grain exposing
     , idEq
     , isChildOf
     , isParentOf
+    , isRoot
     , listToEffectiveSortIndices
     , modifiedAt
     , parentId
@@ -169,6 +170,10 @@ content =
 
 id =
     unwrap >> .id
+
+
+isRoot =
+    parentId >> eqs rootParentId
 
 
 idEq gid =

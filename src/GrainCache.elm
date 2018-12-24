@@ -5,6 +5,7 @@ module GrainCache exposing
     , decoder
     , empty
     , encoder
+    , firstRootGid
     , get
     , isDescendent
     , load
@@ -19,7 +20,7 @@ module GrainCache exposing
     )
 
 import ActorId exposing (ActorId)
-import BasicsX exposing (callWith, callWith2, ifElse, unwrapMaybe)
+import BasicsX exposing (callWith, callWith2, eqs, ifElse, unwrapMaybe)
 import Compare
 import DecodeX exposing (Encoder)
 import Firebase
@@ -61,6 +62,20 @@ encoder =
 empty : GrainCache
 empty =
     GrainIdLookup.empty
+
+
+firstRootGid : GrainCache -> Maybe GrainId
+firstRootGid =
+    firstRoot >> Maybe.map id
+
+
+firstRoot : GrainCache -> Maybe SavedGrain
+firstRoot =
+    rootList >> List.head
+
+
+rootList =
+    toList >> List.filter isRoot
 
 
 getGrainById : GrainId -> GrainCache -> Maybe Grain
@@ -242,10 +257,10 @@ moveGrainBelow now model grain sibling =
         gid =
             Grain.id grain
 
-        parentId =
+        newParentId =
             Grain.parentId sibling
     in
-    updateWithGrainUpdate (Grain.SetParentId parentId) gid now model
+    updateWithGrainUpdate (Grain.SetParentId newParentId) gid now model
 
 
 moveHelp : Posix -> Int -> SavedGrain -> GrainCache -> UpdateResult
@@ -324,3 +339,15 @@ updateFromFirebaseChangeList changeList model =
 load =
     D.decodeValue decoder
         >> Result.mapError D.errorToString
+
+
+id =
+    SavedGrain.id
+
+
+isRoot =
+    SavedGrain.value >> Grain.isRoot
+
+
+parentId =
+    SavedGrain.value >> Grain.parentId
