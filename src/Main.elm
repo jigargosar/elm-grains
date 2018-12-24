@@ -372,10 +372,6 @@ updateInlineEditGrain gid msg model =
                     handleErrorString errString model
 
                 Ok ( gid_, content, inlineEditGrain ) ->
-                    let
-                        _ =
-                            Debug.log "content, gid" ( content, gid_ )
-                    in
                     Return.singleton
                         (setInlineEditGrain inlineEditGrain model)
                         |> Return.command
@@ -385,7 +381,6 @@ updateInlineEditGrain gid msg model =
             InlineEditGrain.discard model.inlineEditGrain
                 |> handleResult
 
-        --            Return.singleton model
         IE_Content content ->
             InlineEditGrain.onContentChange content
                 model.inlineEditGrain
@@ -398,7 +393,6 @@ updateInlineEditGrain gid msg model =
 
 
 
---            Return.singleton model
 -- GRAIN CACHE --
 
 
