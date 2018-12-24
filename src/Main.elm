@@ -257,6 +257,18 @@ localPersistGrainCacheEffect model =
     Port.setGrainCache <| GrainCache.encoder model.grainCache
 
 
+firePersistUnsavedGrainsCmd grainCache =
+    GrainCache.toList grainCache
+        |> List.filterNot SavedGrain.saved
+        |> Debug.log "dirtyGrains"
+        |> E.list SavedGrain.encoder
+        |> Port.persistSavedGrainList
+
+
+firePersistUnsavedGrainsEffect =
+    .grainCache >> firePersistUnsavedGrainsCmd
+
+
 updateGrainCache :
     UpdateGrainCacheMsg
     -> Model
@@ -302,18 +314,6 @@ updateGrainCache message model =
 
         LoadGrainCache encoded ->
             GrainCache.load encoded |> handleResult
-
-
-firePersistUnsavedGrainsCmd grainCache =
-    GrainCache.toList grainCache
-        |> List.filterNot SavedGrain.saved
-        |> Debug.log "dirtyGrains"
-        |> E.list SavedGrain.encoder
-        |> Port.persistSavedGrainList
-
-
-firePersistUnsavedGrainsEffect =
-    .grainCache >> firePersistUnsavedGrainsCmd
 
 
 
