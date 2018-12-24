@@ -192,7 +192,6 @@ type PopupMsg
 type Msg
     = ---- INJECT MSG BELOW ----
       NoOp
-    | ErrorString String
     | FocusResult (Result String ())
       -- TOAST
     | ToastDismiss
@@ -274,11 +273,6 @@ handleStringErrorResult model =
     Result.mapError
         (handleErrorString >> callWith model)
         >> Result.merge
-
-
-handleDecodeError : D.Error -> Model -> ( Model, Cmd Msg )
-handleDecodeError error =
-    handleErrorString (D.errorToString error)
 
 
 handleDecodeResult :
@@ -534,9 +528,6 @@ update message model =
     case message of
         NoOp ->
             Return.singleton model
-
-        ErrorString errString ->
-            handleErrorString errString model
 
         ToastDismiss ->
             Return.singleton (mapToast Toast.dismiss model)
