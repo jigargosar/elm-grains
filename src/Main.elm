@@ -586,9 +586,7 @@ update message model =
                 |> Return.command (focusInlineEditGrainCmd gid)
 
         MoveGrainOneLevelDown gid ->
-            Return.singleton model
-                |> Return.command
-                    (performUpdateGrainCache <| GC_MoveOneLevelDown gid)
+            ( model, performUpdateGrainCache <| GC_MoveOneLevelDown gid )
                 |> Return.command (focusInlineEditGrainCmd gid)
 
         UpdatePopup msg ->
