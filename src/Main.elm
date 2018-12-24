@@ -575,8 +575,7 @@ update message model =
             )
 
         MoveGrainBy gid offset ->
-            Return.singleton model
-                |> Return.command (performGrainMove gid offset)
+            ( model, performGrainMove gid offset )
                 |> Return.command (focusIEGrainCmd gid)
 
         MoveGrainOneLevelUp gid ->
