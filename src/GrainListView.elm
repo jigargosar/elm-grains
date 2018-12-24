@@ -37,11 +37,15 @@ grainDomId =
 
 
 inlineGrainEditInputDomId =
-    Grain.toDomIdWithPrefix "grain-list-item-edit-input--"
+    Grain.toDomIdWithPrefix editInputPrefix
+
+
+editInputPrefix =
+    "grain-list-item-edit-input--"
 
 
 grainId2InlineGrainEditInputDomId =
-    GrainId.toDomIdWithPrefix "grain-list-item-edit-input--"
+    GrainId.toDomIdWithPrefix editInputPrefix
 
 
 type alias GrainMessages msg =
