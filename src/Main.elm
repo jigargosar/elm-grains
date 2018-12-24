@@ -259,19 +259,19 @@ subscriptions model =
         ]
 
 
-handleErrorString : String -> Model -> ( Model, Cmd Msg )
-handleErrorString errString model =
+handleError : String -> Model -> ( Model, Cmd Msg )
+handleError errString model =
     Return.return (mapToast (Toast.show errString) model)
         (Port.error errString)
 
 
-handleStringErrorResult :
+handleErrorResult :
     Model
     -> Result String (Return Msg Model)
     -> Return Msg Model
-handleStringErrorResult model =
+handleErrorResult model =
     Result.mapError
-        (handleErrorString >> callWith model)
+        (handleError >> callWith model)
         >> Result.merge
 
 
@@ -282,7 +282,7 @@ handleDecodeResult :
 handleDecodeResult model =
     Result.mapError
         (D.errorToString
-            >> handleErrorString
+            >> handleError
             >> callWith model
         )
         >> Result.merge
@@ -377,7 +377,7 @@ updateInlineEditGrain gid msg model =
                     >> callWith model
                     >> Return.singleton
                 )
-                >> handleStringErrorResult model
+                >> handleErrorResult model
     in
     case msg of
         IE_Start ->
@@ -390,7 +390,7 @@ updateInlineEditGrain gid msg model =
             grainById gid model
                 |> Result.fromMaybe "IE_Start: Grain Not Found"
                 |> Result.map inlineEdit
-                |> handleStringErrorResult model
+                |> handleErrorResult model
 
         IE_Submit ->
             let
@@ -402,7 +402,7 @@ updateInlineEditGrain gid msg model =
             InlineEditGrain.endEditing
                 model.inlineEditGrain
                 |> Result.map mapResult
-                |> handleStringErrorResult model
+                |> handleErrorResult model
 
         IE_Discard ->
             InlineEditGrain.discard
@@ -476,7 +476,7 @@ updateGrainCache message model =
 
         handleResult =
             Result.map (setGrainCacheAndPersist >> callWith model)
-                >> handleStringErrorResult model
+                >> handleErrorResult model
     in
     case message of
         GC_MoveBy grainId offset now ->
@@ -535,7 +535,7 @@ update message model =
         FocusResult result ->
             result
                 |> Result.map (\_ -> Return.singleton model)
-                |> handleStringErrorResult model
+                |> handleErrorResult model
 
         AddGrainClicked ->
             ( model
@@ -591,7 +591,7 @@ update message model =
         Firebase encodedMsg ->
             case Firebase.decodeInbound encodedMsg of
                 Firebase.Error errString ->
-                    handleErrorString errString model
+                    handleError errString model
 
                 Firebase.AuthStateChanged authState ->
                     setAuthState authState model
