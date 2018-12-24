@@ -298,6 +298,10 @@ performWithNow nowToMsg =
     Task.perform nowToMsg Time.now
 
 
+focusDomId =
+    BrowserX.focus FocusResult
+
+
 
 -- POPUP UPDATE
 
@@ -363,8 +367,12 @@ setInlineEditGrain inlineEditGrain model =
     { model | inlineEditGrain = inlineEditGrain }
 
 
+initInlineEdit grain =
+    setInlineEditGrain <| InlineEditGrain.startEditing grain
+
+
 focusInlineEditGrainCmd gid =
-    BrowserX.focus FocusResult <|
+    focusDomId <|
         GrainListView.grainId2InlineGrainEditInputDomId gid
 
 
@@ -382,17 +390,14 @@ updateInlineEditGrain gid msg model =
         IE_Start ->
             let
                 inlineEdit grain =
-                    Return.singleton
-                        { model
-                            | inlineEditGrain = InlineEditGrain.startEditing grain
-                        }
-                        |> Return.command
-                            (BrowserX.focus FocusResult <|
-                                GrainListView.inlineGrainEditInputDomId grain
-                            )
+                    ( initInlineEdit grain model
+                    , focusInlineEditGrainCmd gid
+                    )
             in
             grainById gid model
-                |> Maybe.unwrap (Return.singleton model) inlineEdit
+                |> Result.fromMaybe "IE_Start: Grain Not Found"
+                |> Result.map inlineEdit
+                |> handleStringErrorResult model
 
         IE_Submit ->
             let
