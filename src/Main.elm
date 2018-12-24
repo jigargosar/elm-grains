@@ -371,7 +371,7 @@ initInlineEdit grain =
     setInlineEditGrain <| InlineEditGrain.startEditing grain
 
 
-focusInlineEditGrainCmd gid =
+focusIEGrainCmd gid =
     focusCmd <| GLV.contentInputDomId gid
 
 
@@ -390,7 +390,7 @@ updateInlineEditGrain gid msg model =
             let
                 inlineEdit grain =
                     ( initInlineEdit grain model
-                    , focusInlineEditGrainCmd gid
+                    , focusIEGrainCmd gid
                     )
             in
             grainById gid model
@@ -577,17 +577,15 @@ update message model =
         MoveGrainBy gid offset ->
             Return.singleton model
                 |> Return.command (performGrainMove gid offset)
-                |> Return.command (focusInlineEditGrainCmd gid)
+                |> Return.command (focusIEGrainCmd gid)
 
         MoveGrainOneLevelUp gid ->
-            Return.singleton model
-                |> Return.command
-                    (performUpdateGrainCache <| GC_MoveOneLevelUp gid)
-                |> Return.command (focusInlineEditGrainCmd gid)
+            ( model, performUpdateGrainCache <| GC_MoveOneLevelUp gid )
+                |> Return.command (focusIEGrainCmd gid)
 
         MoveGrainOneLevelDown gid ->
             ( model, performUpdateGrainCache <| GC_MoveOneLevelDown gid )
-                |> Return.command (focusInlineEditGrainCmd gid)
+                |> Return.command (focusIEGrainCmd gid)
 
         UpdatePopup msg ->
             updatePopup msg model
