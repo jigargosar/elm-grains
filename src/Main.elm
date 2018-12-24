@@ -369,6 +369,10 @@ focusIEGrainCmd gid =
     focusCmd <| GLV.contentInputDomId gid
 
 
+focusGrainCmd gid =
+    focusCmd <| GLV.grainDomId gid
+
+
 updateInlineEditGrain gid msg model =
     let
         handleResult =
@@ -608,7 +612,11 @@ update message model =
                 handleKE : EventX.KeyEvent -> Return Msg Model
                 handleKE ke =
                     if K.isHotKey K.arrowDown ke then
-                        Return.singleton model
+                        ( model
+                        , model.grainCache
+                            |> GrainCache.firstRootGid
+                            |> unwrapMaybeCmd focusGrainCmd
+                        )
 
                     else
                         Return.singleton model

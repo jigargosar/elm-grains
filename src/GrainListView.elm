@@ -22,7 +22,7 @@ import Grain exposing (Grain)
 import GrainId exposing (GrainId)
 import HotKey
 import Html.Styled exposing (Html, button, div, input, styled, text, textarea)
-import Html.Styled.Attributes exposing (autocomplete, class, css, id, value)
+import Html.Styled.Attributes exposing (autocomplete, class, css, id, tabindex, value)
 import Html.Styled.Events exposing (onBlur, onClick, onFocus, onInput)
 import InlineEditGrain exposing (InlineEditGrain)
 import Json.Decode exposing (Decoder)
@@ -32,9 +32,9 @@ import Skeleton
 import Task exposing (Task)
 
 
-grainDomId : Grain -> String
+grainDomId : GrainId -> String
 grainDomId =
-    Grain.toDomIdWithPrefix "grain-list-item--"
+    GrainId.toDomIdWithPrefix "grain-list-item--"
 
 
 inlineGrainEditInputDomId =
@@ -106,7 +106,7 @@ createNode vm level g =
                 gid =
                     Grain.id g
             in
-            { domId = grainDomId g
+            { domId = grainDomId gid
             , title = Grain.titleOrEmpty g
             , deleted = Grain.deleted g
             , canEdit = Grain.deleted g |> not
@@ -244,14 +244,16 @@ viewDisplayItem nModel node =
         opacityValue =
             ter deleted 0.7 1
     in
-    styled div
-        [ Css.displayFlex
-        , Css.flexDirection Css.row
-        , Css.maxWidth <| pct 100
-        , Css.opacity <| num opacityValue
-        , Css.paddingLeft <| px (level * 16)
+    div
+        [ id nModel.domId
+        , tabindex -1
+        , css
+            [ CS.row
+            , CS.max_w_full
+            , Css.opacity <| num opacityValue
+            , Css.paddingLeft <| px (level * 16)
+            ]
         ]
-        []
         [ {- viewDragHandle node
              ,
           -}
