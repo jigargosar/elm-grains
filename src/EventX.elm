@@ -1,10 +1,16 @@
 module EventX exposing
-    ( KeyEvent
+    ( Custom
+    , CustomDecoder
+    , KeyEvent
     , keyEventDecoder
     , onFocusIn
     , onFocusOut
     , onKeyDown
     , onKeyDownPD
+    , pAll
+    , pNone
+    , pd
+    , sp
     )
 
 import Html.Events as HE
@@ -19,6 +25,34 @@ onKeyDown decoder =
 
 onKeyDownPD =
     HE.preventDefaultOn "keydown"
+
+
+onKeyDownCustom =
+    HE.custom "keydown"
+
+
+type alias CustomDecoder msg =
+    Decoder (Custom msg)
+
+
+type alias Custom msg =
+    { message : msg, stopPropagation : Bool, preventDefault : Bool }
+
+
+pAll msg =
+    Custom msg True True
+
+
+pNone msg =
+    Custom msg False False
+
+
+sp msg =
+    Custom msg True False
+
+
+pd msg =
+    Custom msg False True
 
 
 onFocusIn tagger =

@@ -18,7 +18,7 @@ import CssShorthand as CS
 import CssTheme exposing (black80, blackAlpha, space2, space4, white)
 import DecodeX exposing (DecodeResult)
 import Either exposing (Either(..))
-import EventX exposing (onKeyDownPD)
+import EventX exposing (onKeyDownPD, sp)
 import FireUser exposing (FireUser)
 import Firebase
 import Grain exposing (Grain)
@@ -764,12 +764,6 @@ toGrainListView model =
 
         updateIEG =
             \msgFn gid -> UpdateInlineEditGrain gid msgFn
-
-        sp msg =
-            ( msg, True )
-
-        noSP msg =
-            ( msg, False )
     in
     { grains = rootGrains
     , getChildren = \parent -> List.filter (Grain.isChildOf parent) allGrains
@@ -782,7 +776,7 @@ toGrainListView model =
         , inlineEditGrainContentChanged =
             updateIEG2 IE_Content
         , inlineEditFocusChanged = updateIEG2 IE_KeyboardFocus
-        , inlineEditKeyDownPD =
+        , inlineEditKeyDownCustom =
             \gid ->
                 K.bindEachToMsg
                     [ ( K.enter, sp <| updateIEG IE_Submit gid )

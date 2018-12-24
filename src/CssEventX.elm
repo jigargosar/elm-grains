@@ -4,6 +4,7 @@ module CssEventX exposing
     , onFocusIn
     , onFocusOut
     , onKeyDown
+    , onKeyDownCustom
     , onKeyDownPD
     )
 
@@ -19,6 +20,10 @@ onKeyDown decoder =
 
 onKeyDownPD =
     SE.preventDefaultOn "keydown"
+
+
+onKeyDownCustom =
+    SE.custom "keydown"
 
 
 onFocusIn tagger =

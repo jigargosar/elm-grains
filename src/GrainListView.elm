@@ -17,6 +17,7 @@ import CssIcons
 import CssLayout exposing (flexCol, flexRow)
 import CssShorthand as CS
 import CssTheme exposing (black80, blackAlpha, space1, space2, space4, white)
+import EventX
 import Grain exposing (Grain)
 import GrainId exposing (GrainId)
 import HotKey
@@ -54,7 +55,7 @@ type alias GrainMessages msg =
     , dragGrain : GrainId -> msg
     , inlineEditGrainContentChanged : GrainId -> String -> msg
     , inlineEditSubmit : GrainId -> msg
-    , inlineEditKeyDownPD : GrainId -> Decoder ( msg, Bool )
+    , inlineEditKeyDownCustom : GrainId -> EventX.CustomDecoder msg
     , inlineEditFocusChanged : GrainId -> Bool -> msg
     }
 
@@ -77,7 +78,7 @@ type alias NodeModel msg =
     , inlineEditMsg : msg
     , inlineEditContentChangedMsg : String -> msg
     , inlineEditSubmit : msg
-    , inlineEditKeyDownPD : Decoder ( msg, Bool )
+    , inlineEditKeyDownCustom : EventX.CustomDecoder msg
     , inlineEditInputId : String
     , inlineEditFocusChanged : Bool -> msg
     , canEdit : Bool
@@ -117,7 +118,7 @@ createNode vm level g =
             , inlineEditContentChangedMsg =
                 grainMsg.inlineEditGrainContentChanged gid
             , inlineEditSubmit = grainMsg.inlineEditSubmit gid
-            , inlineEditKeyDownPD = grainMsg.inlineEditKeyDownPD gid
+            , inlineEditKeyDownCustom = grainMsg.inlineEditKeyDownCustom gid
             , inlineEditInputId = inlineGrainEditInputDomId g
             , inlineEditFocusChanged = grainMsg.inlineEditFocusChanged gid
             }
@@ -275,8 +276,7 @@ viewEditingItem nModel content node =
             , onInput <| nModel.inlineEditContentChangedMsg
             , onFocus (nModel.inlineEditFocusChanged True)
             , onBlur (nModel.inlineEditFocusChanged False)
-            , CssEventX.onKeyDownPD <|
-                nModel.inlineEditKeyDownPD
+            , CssEventX.onKeyDownCustom nModel.inlineEditKeyDownCustom
             , autocomplete False
             , css
                 [ CS.w_full
