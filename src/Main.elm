@@ -754,10 +754,10 @@ toGrainListView model =
         rootGrains =
             allGrains |> List.filter (Grain.parentIdEq Grain.rootParentId)
 
-        updateInlineEdit2 =
+        updateIEG2 =
             \msgFn gid -> UpdateInlineEditGrain gid << msgFn
 
-        updateInlineEdit =
+        updateIEG =
             \msgFn gid -> UpdateInlineEditGrain gid msgFn
     in
     { grains = rootGrains
@@ -766,15 +766,15 @@ toGrainListView model =
     , addFabClicked = AddGrainClicked
     , grainMsg =
         { grainMoreClicked = openGrainMorePopupMsg
-        , inlineEditGrain = updateInlineEdit IE_Start
+        , inlineEditGrain = updateIEG IE_Start
         , dragGrain = DragGrain
         , inlineEditGrainContentChanged =
-            updateInlineEdit2 IE_Content
-        , inlineEditFocusChanged = updateInlineEdit2 IE_KeyboardFocus
+            updateIEG2 IE_Content
+        , inlineEditFocusChanged = updateIEG2 IE_KeyboardFocus
         , inlineEditKeyDownPD =
             \gid ->
                 K.bindEachToMsg
-                    [ ( K.enter, ( updateInlineEdit IE_Submit gid, True ) )
+                    [ ( K.enter, ( updateIEG IE_Submit gid, True ) )
                     , ( K.ctrlUp, ( MoveGrainBy gid -1, True ) )
                     , ( K.ctrlDown, ( MoveGrainBy gid 1, True ) )
                     , ( K.ctrlLeft, ( MoveGrainOneLevelUp gid, True ) )
