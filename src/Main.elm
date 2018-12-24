@@ -174,8 +174,9 @@ type InlineEditGrainMsg
     | IE_Submit
 
 
-type PopupAction
-    = SetGrainParent GrainId Grain.ParentId
+type PopupMsg
+    = PA_SetGrainParent GrainId Grain.ParentId
+    | PA_MoveGrain GrainId Int
 
 
 type Msg
@@ -185,10 +186,9 @@ type Msg
     | PopupSetDeletedGrain GrainId Bool
     | PopupRouteToGrain GrainId
     | ShowMoveToPopup GrainId
-    | DismissPopup
     | UpdateGrainCache GrainCacheMsg
-    | PopupAction PopupAction Bool
-    | PopupActionSetGrainParent GrainId Grain.ParentId
+    | PopupAction PopupMsg Bool
+    | DismissPopup
     | PopupActionMoveGrainUp GrainId
     | PopupActionMoveGrainDown GrainId
     | GrainMoreClicked GrainId
@@ -254,8 +254,8 @@ handleErrorString errString model =
 -- POPUP UPDATE
 
 
-popupAction : PopupAction -> Msg
-popupAction action =
+popupMsg : PopupMsg -> Msg
+popupMsg action =
     PopupAction action False
 
 
@@ -427,15 +427,15 @@ update message model =
 
         PopupAction msg dismiss ->
             case msg of
-                SetGrainParent gid parentId ->
+                PA_SetGrainParent gid parentId ->
                     ( dismissPopup model
                     , performGrainUpdate gid (Grain.SetParentId parentId)
                     )
 
-        PopupActionSetGrainParent gid parentId ->
-            ( dismissPopup model
-            , performGrainUpdate gid (Grain.SetParentId parentId)
-            )
+                PA_MoveGrain gid offset ->
+                    ( dismissPopup model
+                    , performGrainMove gid offset
+                    )
 
         PopupActionMoveGrainUp gid ->
             ( dismissPopup model
@@ -575,8 +575,8 @@ moveGrainPopupViewModel model grain =
                 )
     , isSelected = Grain.isParentOf grain
     , dismissMsg = DismissPopup
-    , setParentMsg = popupAction << SetGrainParent gid
-    , setParentToRootMsg = PopupActionSetGrainParent gid Grain.rootParentId
+    , setParentMsg = popupMsg << PA_SetGrainParent gid
+    , setParentToRootMsg = (popupMsg << PA_SetGrainParent gid) Grain.rootParentId
     }
 
 
