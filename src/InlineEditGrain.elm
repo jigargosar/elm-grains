@@ -5,7 +5,7 @@ module InlineEditGrain exposing
     , initialValue
     , maybeContentFor
     , onContentChange
-    , onKeyboardFocusChange
+    , setFocused
     , startEditing
     )
 
@@ -43,7 +43,7 @@ startEditing grain =
     init (Grain.id grain) (Grain.content grain)
 
 
-onKeyboardFocusChange hasFocus model =
+setFocused hasFocus model =
     case model of
         NotEditing ->
             if hasFocus then

@@ -399,26 +399,20 @@ updateInlineEditGrain gid msg model =
                     , performGrainSetContent gid_ content
                     )
             in
-            InlineEditGrain.endEditing
-                model.inlineEditGrain
+            InlineEditGrain.endEditing model.inlineEditGrain
                 |> Result.map mapResult
                 |> handleErrorResult model
 
         IE_Discard ->
-            InlineEditGrain.discard
-                model.inlineEditGrain
+            InlineEditGrain.discard model.inlineEditGrain
                 |> handleResult
 
         IE_Content content ->
-            InlineEditGrain.onContentChange
-                content
-                model.inlineEditGrain
+            InlineEditGrain.onContentChange content model.inlineEditGrain
                 |> handleResult
 
-        IE_KeyboardFocus hasFocus ->
-            InlineEditGrain.onKeyboardFocusChange
-                hasFocus
-                model.inlineEditGrain
+        IE_KeyboardFocus focused ->
+            InlineEditGrain.setFocused focused model.inlineEditGrain
                 |> handleResult
 
 
