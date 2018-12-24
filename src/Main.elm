@@ -266,6 +266,24 @@ handleErrorString errString model =
         (Port.error errString)
 
 
+handleDecodeError : D.Error -> Model -> ( Model, Cmd Msg )
+handleDecodeError error =
+    handleErrorString (D.errorToString error)
+
+
+handleDecodeResult :
+    Model
+    -> Result D.Error (Return Msg Model)
+    -> Return Msg Model
+handleDecodeResult model =
+    Result.mapError
+        (D.errorToString
+            >> handleErrorString
+            >> callWith model
+        )
+        >> Result.merge
+
+
 performWithNow nowToMsg =
     Task.perform nowToMsg Time.now
 
@@ -587,18 +605,9 @@ update message model =
             Return.return model (Port.navigateBack ())
 
         KeyDownOnBody value ->
-            let
-                handleErrorResult =
-                    Result.mapError
-                        (D.errorToString
-                            >> handleErrorString
-                            >> callWith model
-                        )
-                        >> Result.merge
-            in
             D.decodeValue EventX.keyEventDecoder value
                 |> Result.map (\_ -> Return.singleton model)
-                |> handleErrorResult
+                |> handleDecodeResult model
 
 
 
