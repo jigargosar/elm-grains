@@ -370,13 +370,13 @@ focusInlineEditGrainCmd gid =
 
 updateInlineEditGrain gid msg model =
     let
-        handleResult result =
-            case result of
-                Err errString ->
-                    handleErrorString errString model
-
-                Ok inlineEditGrain ->
-                    Return.singleton <| setInlineEditGrain inlineEditGrain model
+        handleResult =
+            Result.map
+                (setInlineEditGrain
+                    >> callWith model
+                    >> Return.singleton
+                )
+                >> handleStringErrorResult model
     in
     case msg of
         IE_Start ->
