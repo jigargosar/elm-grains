@@ -1,6 +1,7 @@
 module GrainListView exposing
     ( GrainListView
     , grainDomId
+    , grainId2InlineGrainEditInputDomId
     , inlineGrainEditInputDomId
     , view
     )
@@ -37,6 +38,10 @@ grainDomId =
 
 inlineGrainEditInputDomId =
     Grain.toDomIdWithPrefix "grain-list-item-edit-input--"
+
+
+grainId2InlineGrainEditInputDomId =
+    GrainId.toDomIdWithPrefix "grain-list-item-edit-input--"
 
 
 type alias GrainMessages msg =

@@ -195,6 +195,7 @@ type Msg
     | CreateAndAddNewGrainWithNow Posix
     | AddGrainToCache Grain
       -- UPDATE GRAIN --
+    | MoveGrainBy_ GrainId Int
     | UpdateGrainCache GrainCacheMsg
     | UpdateInlineEditGrain GrainId InlineEditGrainMsg
     | GrainContentChanged GrainId String
@@ -316,6 +317,11 @@ updatePopup msg model =
 
 
 -- UPDATE InlineEditGrain --
+
+
+focusInlineEditGrainCmd gid =
+    BrowserX.focus FocusResult <|
+        GrainListView.grainId2InlineGrainEditInputDomId gid
 
 
 updateInlineEditGrain gid msg model =
@@ -487,6 +493,11 @@ update message model =
         GrainContentChanged gid content ->
             ( model
             , performGrainUpdate gid (Grain.SetContent content)
+            )
+
+        MoveGrainBy_ gid offset ->
+            ( model
+            , Cmd.batch [ focusInlineEditGrainCmd gid, performGrainMove gid offset ]
             )
 
         UpdatePopup msg ->
@@ -718,6 +729,8 @@ toGrainListView model =
             \gid ->
                 K.bindEachToMsg
                     [ ( K.enter, ( UpdateInlineEditGrain gid IE_Submit, True ) )
+                    , ( K.metaUp, ( MoveGrainBy_ gid -1, True ) )
+                    , ( K.metaDown, ( MoveGrainBy_ gid 1, True ) )
                     ]
         , inlineEditSubmit = \gid -> UpdateInlineEditGrain gid IE_Submit
         }

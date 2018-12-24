@@ -10,6 +10,8 @@ module HotKey exposing
     , delete
     , enter
     , esc
+    , metaDown
+    , metaUp
     , shiftEnter
     , space
     )
@@ -104,6 +106,16 @@ enter =
 shiftEnter : HotKey
 shiftEnter =
     ( [ Shift ], "Enter" )
+
+
+metaUp : HotKey
+metaUp =
+    ( [ Meta ], "ArrowUp" )
+
+
+metaDown : HotKey
+metaDown =
+    ( [ Meta ], "ArrowDown" )
 
 
 delete : HotKey
