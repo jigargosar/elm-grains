@@ -15,6 +15,7 @@ module GrainCache exposing
     , moveOneLevelDown
     , moveOneLevelUp
     , nextSiblingGidOfGid
+    , nextSiblingOfParentOfGid
     , remove
     , setSaved
     , toList
