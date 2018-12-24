@@ -508,12 +508,15 @@ update message model =
             )
 
         MoveGrainBy_ gid offset ->
-            ( model
-            , Cmd.batch [ focusInlineEditGrainCmd gid, performGrainMove gid offset ]
-            )
+            Return.singleton model
+                |> Return.command (performGrainMove gid offset)
+                |> Return.command (focusInlineEditGrainCmd gid)
 
         MoveGrainOneLevelUp gid ->
-            ( model, performUpdateGrainCache (GC_MoveGrainOneLevelUp gid) )
+            Return.singleton model
+                |> Return.command
+                    (performUpdateGrainCache <| GC_MoveGrainOneLevelUp gid)
+                |> Return.command (focusInlineEditGrainCmd gid)
 
         UpdatePopup msg ->
             updatePopup msg model
@@ -746,7 +749,7 @@ toGrainListView model =
                     [ ( K.enter, ( UpdateInlineEditGrain gid IE_Submit, True ) )
                     , ( K.ctrlUp, ( MoveGrainBy_ gid -1, True ) )
                     , ( K.ctrlDown, ( MoveGrainBy_ gid 1, True ) )
-                    , ( K.ctrlRight, ( MoveGrainOneLevelUp gid, True ) )
+                    , ( K.ctrlLeft, ( MoveGrainOneLevelUp gid, True ) )
                     ]
         , inlineEditSubmit = \gid -> UpdateInlineEditGrain gid IE_Submit
         }
