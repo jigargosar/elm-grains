@@ -531,11 +531,10 @@ update message model =
         ToastDismiss ->
             Return.singleton (mapToast Toast.dismiss model)
 
-        FocusResult (Ok ()) ->
-            Return.singleton model
-
-        FocusResult (Err errorString) ->
-            handleErrorString errorString model
+        FocusResult result ->
+            result
+                |> Result.map (\_ -> Return.singleton model)
+                |> handleStringErrorResult model
 
         AddGrainClicked ->
             ( model
