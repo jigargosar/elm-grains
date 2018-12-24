@@ -18,7 +18,7 @@ import CssShorthand as CS
 import CssTheme exposing (black80, blackAlpha, space2, space4, white)
 import DecodeX exposing (DecodeResult)
 import Either exposing (Either(..))
-import EventX exposing (onKeyDownPD, sp)
+import EventX exposing (onKeyDownPD, pNone, pd, sp)
 import FireUser exposing (FireUser)
 import Firebase
 import Grain exposing (Grain)
@@ -374,29 +374,31 @@ updateInlineEditGrain gid msg model =
                 Ok ( gid_, content, inlineEditGrain ) ->
                     let
                         _ =
-                            Debug.log "content, gid" ( content, gid )
+                            Debug.log "content, gid" ( content, gid_ )
                     in
-                    Return.return
+                    Return.singleton
                         (setInlineEditGrain inlineEditGrain model)
-                        (performGrainUpdate gid_ (Grain.SetContent content))
+                        |> Return.command
+                            (performGrainUpdate gid_ (Grain.SetContent content))
 
         IE_Discard ->
             InlineEditGrain.discard model.inlineEditGrain
                 |> handleResult
 
+        --            Return.singleton model
         IE_Content content ->
             InlineEditGrain.onContentChange content
                 model.inlineEditGrain
                 |> handleResult
 
         IE_KeyboardFocus hasFocus ->
-            --            InlineEditGrain.onKeyboardFocusChange hasFocus
-            --                model.inlineEditGrain
-            --                |> handleResult
-            Return.singleton model
+            InlineEditGrain.onKeyboardFocusChange hasFocus
+                model.inlineEditGrain
+                |> handleResult
 
 
 
+--            Return.singleton model
 -- GRAIN CACHE --
 
 
@@ -791,12 +793,12 @@ toGrainListView model =
         , inlineEditKeyDownCustom =
             \gid ->
                 K.bindEachToMsg
-                    [ ( K.enter, sp <| updateIEG IE_Submit gid )
-                    , ( K.esc, sp <| updateIEG IE_Discard gid )
-                    , ( K.ctrlUp, sp <| MoveGrainBy gid -1 )
-                    , ( K.ctrlDown, sp <| MoveGrainBy gid 1 )
-                    , ( K.ctrlLeft, sp <| MoveGrainOneLevelUp gid )
-                    , ( K.ctrlRight, sp <| MoveGrainOneLevelDown gid )
+                    [ ( K.enter, pd <| updateIEG IE_Submit gid )
+                    , ( K.esc, pd <| updateIEG IE_Discard gid )
+                    , ( K.ctrlUp, pd <| MoveGrainBy gid -1 )
+                    , ( K.ctrlDown, pd <| MoveGrainBy gid 1 )
+                    , ( K.ctrlLeft, pd <| MoveGrainOneLevelUp gid )
+                    , ( K.ctrlRight, pd <| MoveGrainOneLevelDown gid )
                     ]
         , inlineEditSubmit = \gid -> UpdateInlineEditGrain gid IE_Submit
         }

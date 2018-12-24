@@ -83,7 +83,9 @@ bindEachToMsg mappings =
         |> D.andThen
             (firstEq
                 >> findIn mappings
-                >> unwrapMaybe (D.fail "No Handler found") (Tuple.second >> D.succeed)
+                >> unwrapMaybe
+                    (D.fail "No Handler found")
+                    (Tuple.second >> D.succeed)
             )
 
 
