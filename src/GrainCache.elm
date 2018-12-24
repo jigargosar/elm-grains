@@ -214,11 +214,13 @@ moveOneLevelDown gid now model =
         newParentIdx =
             List.findIndex (idEq gid) siblings
                 |> Maybe.unwrap -1 ((+) -1)
+                |> Debug.log "newParentIdx"
     in
     List.getAt newParentIdx siblings
         |> Maybe.map
             (SavedGrain.value
-                >> Grain.parentId
+                >> Grain.idAsParentId
+                >> Debug.log "pid"
                 >> (\pid ->
                         updateWithGrainUpdate
                             (Grain.SetParentId pid)
