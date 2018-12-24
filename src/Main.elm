@@ -117,7 +117,7 @@ init flags =
                 |> Random.finish
     in
     model
-        |> update (UpdateGrainCache <| LoadGrainCache flags.grainCache)
+        |> update (UpdateGrainCache <| GC_Load flags.grainCache)
 
 
 setRoute route model =
@@ -161,13 +161,13 @@ setGrainCache grainCache model =
 
 
 type GrainCacheMsg
-    = MoveGrainBy GrainId Int Posix
+    = GC_MoveBy GrainId Int Posix
     | GrainUpdate GrainId Grain.Update Posix
-    | GC_MoveGrainOneLevelUp GrainId Posix
-    | GC_MoveGrainOneLevelDown GrainId Posix
-    | AddGrain Grain
-    | FirebaseChanges (List GrainChange)
-    | LoadGrainCache Value
+    | GC_MoveOneLevelUp GrainId Posix
+    | GC_MoveOneLevelDown GrainId Posix
+    | GC_AddGrain Grain
+    | GC_FirebaseChanges (List GrainChange)
+    | GC_Load Value
 
 
 type InlineEditGrainMsg
@@ -197,7 +197,7 @@ type Msg
     | CreateAndAddNewGrainWithNow Posix
     | AddGrainToCache Grain
       -- UPDATE GRAIN --
-    | MoveGrainBy_ GrainId Int
+    | MoveGrainBy GrainId Int
     | MoveGrainOneLevelUp GrainId
     | MoveGrainOneLevelDown GrainId
     | UpdateGrainCache GrainCacheMsg
@@ -379,7 +379,7 @@ performUpdateGrainCache msg =
 
 
 performGrainMove gid offset =
-    Task.perform (UpdateGrainCache << MoveGrainBy gid offset) Time.now
+    Task.perform (UpdateGrainCache << GC_MoveBy gid offset) Time.now
 
 
 performGrainUpdate gid grainUpdate =
@@ -425,7 +425,7 @@ updateGrainCache message model =
                 |> callWith model
     in
     case message of
-        MoveGrainBy grainId offset now ->
+        GC_MoveBy grainId offset now ->
             GrainCache.moveBy offset
                 grainId
                 now
@@ -439,29 +439,29 @@ updateGrainCache message model =
                 model.grainCache
                 |> handleResult
 
-        GC_MoveGrainOneLevelUp gid now ->
+        GC_MoveOneLevelUp gid now ->
             GrainCache.moveOneLevelUp gid
                 now
                 model.grainCache
                 |> handleResult
 
-        GC_MoveGrainOneLevelDown gid now ->
+        GC_MoveOneLevelDown gid now ->
             GrainCache.moveOneLevelDown gid
                 now
                 model.grainCache
                 |> handleResult
 
-        AddGrain grain ->
+        GC_AddGrain grain ->
             GrainCache.addNewGrain grain
                 model.grainCache
                 |> handleResult
 
-        FirebaseChanges changeList ->
+        GC_FirebaseChanges changeList ->
             GrainCache.updateFromFirebaseChangeList changeList
                 model.grainCache
                 |> handleResult
 
-        LoadGrainCache encoded ->
+        GC_Load encoded ->
             GrainCache.load encoded |> handleResult
 
 
@@ -497,7 +497,7 @@ update message model =
                 (Random.generate AddGrainToCache (Grain.generator now))
 
         AddGrainToCache grain ->
-            updateGrainCache (AddGrain grain) model
+            updateGrainCache (GC_AddGrain grain) model
                 |> Return.andThen
                     (update <| routeToGrainIdMsg <| Grain.id grain)
 
@@ -515,7 +515,7 @@ update message model =
             , performGrainUpdate gid (Grain.SetContent content)
             )
 
-        MoveGrainBy_ gid offset ->
+        MoveGrainBy gid offset ->
             Return.singleton model
                 |> Return.command (performGrainMove gid offset)
                 |> Return.command (focusInlineEditGrainCmd gid)
@@ -523,13 +523,13 @@ update message model =
         MoveGrainOneLevelUp gid ->
             Return.singleton model
                 |> Return.command
-                    (performUpdateGrainCache <| GC_MoveGrainOneLevelUp gid)
+                    (performUpdateGrainCache <| GC_MoveOneLevelUp gid)
                 |> Return.command (focusInlineEditGrainCmd gid)
 
         MoveGrainOneLevelDown gid ->
             Return.singleton model
                 |> Return.command
-                    (performUpdateGrainCache <| GC_MoveGrainOneLevelDown gid)
+                    (performUpdateGrainCache <| GC_MoveOneLevelDown gid)
                 |> Return.command (focusInlineEditGrainCmd gid)
 
         UpdatePopup msg ->
@@ -553,7 +553,7 @@ update message model =
                         |> Return.singleton
 
                 Firebase.GrainChanges changes ->
-                    updateGrainCache (FirebaseChanges changes) model
+                    updateGrainCache (GC_FirebaseChanges changes) model
 
         SignIn ->
             Return.return model (Firebase.signIn ())
@@ -761,8 +761,8 @@ toGrainListView model =
             \gid ->
                 K.bindEachToMsg
                     [ ( K.enter, ( UpdateInlineEditGrain gid IE_Submit, True ) )
-                    , ( K.ctrlUp, ( MoveGrainBy_ gid -1, True ) )
-                    , ( K.ctrlDown, ( MoveGrainBy_ gid 1, True ) )
+                    , ( K.ctrlUp, ( MoveGrainBy gid -1, True ) )
+                    , ( K.ctrlDown, ( MoveGrainBy gid 1, True ) )
                     , ( K.ctrlLeft, ( MoveGrainOneLevelUp gid, True ) )
                     , ( K.ctrlRight, ( MoveGrainOneLevelDown gid, True ) )
                     ]
