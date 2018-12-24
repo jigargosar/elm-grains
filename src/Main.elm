@@ -330,6 +330,11 @@ updatePopup msg model =
 -- UPDATE InlineEditGrain --
 
 
+setInlineEditGrain : InlineEditGrain -> Model -> Model
+setInlineEditGrain inlineEditGrain model =
+    { model | inlineEditGrain = inlineEditGrain }
+
+
 focusInlineEditGrainCmd gid =
     BrowserX.focus FocusResult <|
         GrainListView.grainId2InlineGrainEditInputDomId gid
@@ -343,10 +348,7 @@ updateInlineEditGrain gid msg model =
                     handleErrorString errString model
 
                 Ok inlineEditGrain ->
-                    Return.singleton
-                        { model
-                            | inlineEditGrain = inlineEditGrain
-                        }
+                    Return.singleton <| setInlineEditGrain inlineEditGrain model
     in
     case msg of
         IE_Start ->
@@ -370,6 +372,10 @@ updateInlineEditGrain gid msg model =
                     handleErrorString errString model
 
                 Ok ( gid_, content, inlineEditGrain ) ->
+                    let
+                        _ =
+                            Debug.log "content, gid" ( content, gid )
+                    in
                     Return.return
                         { model
                             | inlineEditGrain = inlineEditGrain
@@ -386,9 +392,10 @@ updateInlineEditGrain gid msg model =
                 |> handleResult
 
         IE_KeyboardFocus hasFocus ->
-            InlineEditGrain.onKeyboardFocusChange hasFocus
-                model.inlineEditGrain
-                |> handleResult
+            --            InlineEditGrain.onKeyboardFocusChange hasFocus
+            --                model.inlineEditGrain
+            --                |> handleResult
+            Return.singleton model
 
 
 
