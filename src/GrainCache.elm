@@ -77,7 +77,7 @@ firstRootGid =
 
 lastLeafGid : GrainCache -> Maybe GrainId
 lastLeafGid model =
-    lastRoot model |> Maybe.map id
+    lastRoot model |> Maybe.map (lastLeafOf >> callWith model >> id)
 
 
 lastLeafOf : SavedGrain -> GrainCache -> SavedGrain
