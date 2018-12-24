@@ -714,6 +714,11 @@ toGrainListView model =
         , dragGrain = DragGrain
         , inlineEditGrainContentChanged =
             \gid -> UpdateInlineEditGrain gid << IE_Content
+        , inlineEditKeyDownPD =
+            \gid ->
+                K.bindEachToMsg
+                    [ ( K.enter, ( UpdateInlineEditGrain gid IE_Submit, True ) )
+                    ]
         , inlineEditSubmit = \gid -> UpdateInlineEditGrain gid IE_Submit
         }
     }

@@ -23,6 +23,7 @@ import Html.Styled exposing (Html, button, div, input, styled, text, textarea)
 import Html.Styled.Attributes exposing (autocomplete, class, css, id, value)
 import Html.Styled.Events exposing (onClick, onInput)
 import InlineEditGrain exposing (InlineEditGrain)
+import Json.Decode exposing (Decoder)
 import Maybe.Extra as Maybe
 import Route
 import Skeleton
@@ -44,6 +45,7 @@ type alias GrainMessages msg =
     , dragGrain : GrainId -> msg
     , inlineEditGrainContentChanged : GrainId -> String -> msg
     , inlineEditSubmit : GrainId -> msg
+    , inlineEditKeyDownPD : GrainId -> Decoder ( msg, Bool )
     }
 
 
@@ -65,6 +67,7 @@ type alias NodeModel msg =
     , inlineEditMsg : msg
     , inlineEditContentChangedMsg : String -> msg
     , inlineEditSubmit : msg
+    , inlineEditKeyDownPD : Decoder ( msg, Bool )
     , inlineEditInputId : String
     , canEdit : Bool
     , deleted : Bool
@@ -103,6 +106,7 @@ createNode vm level g =
             , inlineEditContentChangedMsg =
                 grainMsg.inlineEditGrainContentChanged gid
             , inlineEditSubmit = grainMsg.inlineEditSubmit gid
+            , inlineEditKeyDownPD = grainMsg.inlineEditKeyDownPD gid
             , inlineEditInputId = inlineGrainEditInputDomId g
             }
 
@@ -245,20 +249,12 @@ viewDisplayItem nModel node =
 
 viewEditingItem : NodeModel msg -> String -> Node msg -> Html msg
 viewEditingItem nModel content node =
-    let
-        bindings =
-            [ ( HotKey.enter, ( nModel.inlineEditSubmit, True ) )
-            ]
-
-        level =
-            nModel.level
-    in
     styled div
         [ Css.displayFlex
         , Css.flexDirection Css.row
         , Css.maxWidth <| pct 100
         , CS.pv space2
-        , Css.paddingLeft <| px (level * 16)
+        , Css.paddingLeft <| px (nModel.level * 16)
         ]
         []
         [ textarea
@@ -266,7 +262,7 @@ viewEditingItem nModel content node =
             , value <| content
             , onInput <| nModel.inlineEditContentChangedMsg
             , CssEventX.onKeyDownPD <|
-                HotKey.bindEachToMsg bindings
+                nModel.inlineEditKeyDownPD
             , autocomplete False
             , css
                 [ CS.w_full
