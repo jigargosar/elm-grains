@@ -186,23 +186,23 @@ type PopupMsg
 type Msg
     = ---- INJECT MSG BELOW ----
       NoOp
+    | ErrorString String
+    | ToastDismiss
     | FocusResult (Result String ())
-    | UpdateGrainCache GrainCacheMsg
-    | UpdatePopup PopupMsg
-    | DragGrain GrainId
     | AddGrainClicked
     | CreateAndAddNewGrainWithNow Posix
     | AddGrainToCache Grain
-    | BackPressed
-    | GrainContentChanged GrainId String
+    | UpdateGrainCache GrainCacheMsg
     | UpdateInlineEditGrain GrainId InlineEditGrainMsg
-    | ToastDismiss
+    | GrainContentChanged GrainId String
+    | DragGrain GrainId
+    | UpdatePopup PopupMsg
     | RouteTo Route
     | UrlChanged String
     | Firebase Value
-    | ErrorString String
     | SignIn
     | SignOut
+    | BackPressed
 
 
 routeTo route =
