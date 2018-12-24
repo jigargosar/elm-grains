@@ -618,6 +618,14 @@ update message model =
                             |> unwrapMaybeCmd focusGrainCmd
                         )
 
+                    else if K.isHotKey K.arrowUp ke then
+                        ( model
+                        , model.grainCache
+                            |> GrainCache.lastRootGid
+                            |> Debug.log "lastRootGid"
+                            |> unwrapMaybeCmd focusGrainCmd
+                        )
+
                     else
                         Return.singleton model
             in

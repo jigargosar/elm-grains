@@ -8,6 +8,7 @@ module GrainCache exposing
     , firstRootGid
     , get
     , isDescendent
+    , lastRootGid
     , load
     , moveBy
     , moveOneLevelDown
@@ -69,9 +70,19 @@ firstRootGid =
     firstRoot >> Maybe.map id
 
 
+lastRootGid : GrainCache -> Maybe GrainId
+lastRootGid =
+    lastRoot >> Maybe.map id
+
+
 firstRoot : GrainCache -> Maybe SavedGrain
 firstRoot =
     rootList >> List.head
+
+
+lastRoot : GrainCache -> Maybe SavedGrain
+lastRoot =
+    rootList >> List.last
 
 
 rootList =
