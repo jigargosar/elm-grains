@@ -1,4 +1,4 @@
-module GrainTree exposing (Forest, GrainTree(..))
+module GrainTree exposing (Forest, GrainTree)
 
 import Grain exposing (Grain)
 import GrainCache exposing (GrainCache)
@@ -24,8 +24,8 @@ forest grainCache =
 tree : GrainCache -> Grain -> GrainTree
 tree grainCache grain =
     let
-        forest =
+        newForest =
             GrainCache.childGrains grain grainCache
                 |> List.map (tree grainCache)
     in
-    Tree grain forest
+    Tree grain newForest
