@@ -2,6 +2,7 @@ module GrainTree exposing (Forest, GrainTree, forest, tree)
 
 import Grain exposing (Grain)
 import GrainCache exposing (GrainCache)
+import GrainId exposing (GrainId)
 
 
 type alias Forest =
@@ -10,6 +11,10 @@ type alias Forest =
 
 type GrainTree
     = Tree Grain Forest
+
+
+type alias Path =
+    List GrainId
 
 
 forest : GrainCache -> Forest

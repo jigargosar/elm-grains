@@ -90,12 +90,6 @@ lastLeafGid model =
     lastRoot model |> Maybe.map (lastLeafOf >> callWith model >> id)
 
 
-
---previousSibling gid model =
---    getSiblings gid model
---      |> List.dropWhileRight
-
-
 firstChildGid : GrainId -> GrainCache -> Maybe GrainId
 firstChildGid gid model =
     getChildren gid model |> List.head |> Maybe.map id
