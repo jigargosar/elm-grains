@@ -8,7 +8,6 @@ module GrainCache exposing
     , decoder
     , empty
     , encoder
-    , firstChildGid
     , firstRootGid
     , get
     , isDescendent
@@ -89,6 +88,10 @@ lastLeafGid =
     lastLeaf >> Maybe.map Grain.id
 
 
+
+-- ABSOLUTE GRAIN HELPERS --
+
+
 lastLeaf : GrainCache -> Maybe Grain
 lastLeaf model =
     lastRoot model |> Maybe.map (lastLeafOf >> callWith model)
@@ -102,6 +105,10 @@ firstRoot =
 lastRoot : GrainCache -> Maybe Grain
 lastRoot =
     rootGrains >> List.last
+
+
+
+-- RELATIVE GRAIN HELPERS --
 
 
 firstChildGid : GrainId -> GrainCache -> Maybe GrainId
