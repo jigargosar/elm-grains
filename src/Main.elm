@@ -415,10 +415,6 @@ initInlineEdit grain =
     setInlineEditGrain <| InlineEditGrain.startEditing grain
 
 
-focusIEGrainCmd gid =
-    focusCmd <| GLV.contentInputDomId gid
-
-
 updateInlineEditGrain gid msg model =
     let
         handleResult =
@@ -433,8 +429,15 @@ updateInlineEditGrain gid msg model =
         IE_Start ->
             let
                 inlineEdit grain =
+                    let
+                        ieDomId =
+                            GLV.contentInputDomId gid
+                    in
                     ( initInlineEdit grain model
-                    , focusIEGrainCmd gid
+                    , Cmd.batch
+                        [ focusCmd ieDomId
+                        , Port.autoSize ieDomId
+                        ]
                     )
             in
             grainById gid model

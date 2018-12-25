@@ -7,6 +7,7 @@ import createHistory from 'history/createBrowserHistory'
 import { sendToElmApp, setElmAppPortSubscriptions } from './elm-app'
 import { jsonCacheGetOr, jsonCacheSet } from './json-cache'
 import getFireSubscriptions from './fire'
+import autoSize from 'autosize'
 
 const history = createHistory()
 
@@ -35,6 +36,8 @@ window.addEventListener('keydown', event => {
     sendToElmApp(app, 'keyDownOnBody', event)
   }
 })
+window.autoSize = autoSize
+autoSize(document.querySelectorAll('textarea'))
 
 setElmAppPortSubscriptions(
   {
@@ -44,7 +47,9 @@ setElmAppPortSubscriptions(
         history.push(pathname, { some: 'state' })
       }
     },
-
+    autoSize: domId => {
+      autoSize(document.getElementById(domId))
+    },
     error: data => {
       console.error(data)
     },

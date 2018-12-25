@@ -1,5 +1,6 @@
 port module Port exposing
-    ( cacheGrains
+    ( autoSize
+    , cacheGrains
     , error
     , fire2Elm
     , keyDownOnBody
@@ -20,6 +21,9 @@ import Json.Encode exposing (Value)
 
 
 port keyDownOnBody : (Value -> msg) -> Sub msg
+
+
+port autoSize : String -> Cmd msg
 
 
 port persistSavedGrainList : Value -> Cmd msg
