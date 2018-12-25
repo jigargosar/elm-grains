@@ -990,8 +990,7 @@ toGrainListView model =
                     --, ( K.ctrlLeft, pd <| MoveGrainOneLevelUp gid )
                     --, ( K.ctrlRight, pd <| MoveGrainOneLevelDown gid )
                     ]
-        , inlineEditGrainContentChanged =
-            updateIEG2 IE_Content
+        , inlineEditGrainContentChanged = updateIEG2 IE_Content
         , inlineEditFocusChanged = updateIEG2 IE_KeyboardFocus
         , inlineEditKeyDownCustom =
             \gid ->
