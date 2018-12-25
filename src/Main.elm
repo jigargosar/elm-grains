@@ -664,10 +664,10 @@ update message model =
             , performWithNow (CreateAndAddNewGrainWithNow GCAdd_NoOp)
             )
 
-        CreateAndAddNewGrainWithNow msg now ->
+        CreateAndAddNewGrainWithNow afterAddMsg now ->
             let
                 generateTag =
-                    AddGrainToCache msg
+                    AddGrainToCache afterAddMsg
             in
             Return.return model
                 (Random.generate generateTag (Grain.generator now))
