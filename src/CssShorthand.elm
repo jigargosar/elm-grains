@@ -23,7 +23,7 @@ module CssShorthand exposing
     , itemsCenter
     , justifyCenter
     , ma0
-    , maxHeight100VH
+    , max_h_screen
     , max_w_full
     , max_w_screen
     , max_w_sm
@@ -193,7 +193,7 @@ min_w_screen =
     Css.minWidth <| vw 100
 
 
-maxHeight100VH =
+max_h_screen =
     Css.maxHeight <| vh 100
 
 

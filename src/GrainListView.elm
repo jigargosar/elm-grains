@@ -22,7 +22,7 @@ import Grain exposing (Grain)
 import GrainId exposing (GrainId)
 import HotKey
 import Html.Styled exposing (Html, button, div, input, styled, text, textarea)
-import Html.Styled.Attributes exposing (autocomplete, class, css, id, tabindex, value)
+import Html.Styled.Attributes exposing (autocomplete, class, css, id, rows, tabindex, value)
 import Html.Styled.Events exposing (onBlur, onClick, onFocus, onInput)
 import InlineEditGrain exposing (InlineEditGrain)
 import Json.Decode exposing (Decoder)
@@ -289,8 +289,11 @@ viewEditingItem nModel content node =
             , onBlur (nModel.inlineEditFocusChanged False)
             , CssEventX.onKeyDownCustom nModel.inlineEditKeyDownCustom
             , autocomplete False
+            , rows 1
             , css
                 [ CS.w_full
+                , CS.max_h_screen
+                , Css.resize Css.none
                 , Css.borderWidth zero
                 , Css.borderBottom3 (px 1.5) Css.solid CS.black20
                 , CS.p2 space1 space2
