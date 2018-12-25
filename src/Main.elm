@@ -320,6 +320,11 @@ setSelectedGid selectedGid model =
     { model | selectedGid = selectedGid, lastSelectedGid = model.selectedGid }
 
 
+getSelectedOrLastSelectedGid model =
+    model.selectedGid
+        |> Maybe.orElseLazy (\_ -> model.lastSelectedGid)
+
+
 
 -- POPUP UPDATE
 
@@ -582,7 +587,7 @@ update message model =
 
         FocusNext ->
             ( model
-            , model.selectedGid
+            , getSelectedOrLastSelectedGid model
                 |> Maybe.andThen
                     (GrainCache.nextGid
                         >> callWith model.grainCache
@@ -592,7 +597,7 @@ update message model =
 
         FocusPrev ->
             ( model
-            , model.selectedGid
+            , getSelectedOrLastSelectedGid model
                 |> Maybe.andThen
                     (GrainCache.prevGid
                         >> callWith model.grainCache
@@ -690,19 +695,24 @@ update message model =
 
         KeyDownOnBody value ->
             let
+                maybeLastSelected =
+                    getSelectedOrLastSelectedGid model
+
                 handleKE : EventX.KeyEvent -> Return Msg Model
                 handleKE ke =
                     if K.isHotKey K.arrowDown ke then
                         ( model
-                        , model.grainCache
-                            |> GrainCache.firstGid
+                        , maybeLastSelected
+                            |> Maybe.orElseLazy
+                                (\_ -> GrainCache.firstGid model.grainCache)
                             |> focusMaybeGidCmd
                         )
 
                     else if K.isHotKey K.arrowUp ke then
                         ( model
-                        , model.grainCache
-                            |> GrainCache.lastLeafGid
+                        , maybeLastSelected
+                            |> Maybe.orElseLazy
+                                (\_ -> GrainCache.lastLeafGid model.grainCache)
                             |> focusMaybeGidCmd
                         )
 
