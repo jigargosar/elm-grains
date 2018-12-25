@@ -222,6 +222,7 @@ type Msg
       -- GRAIN FOCUS NAVIGATION
     | FocusNext
     | FocusPrev
+    | FocusParent
       -- POPUP
     | UpdatePopup PopupMsg
       -- NAVIGATION --
@@ -643,6 +644,16 @@ update message model =
                 |> focusMaybeGidCmd
             )
 
+        FocusParent ->
+            ( model
+            , getSelectedOrLastSelectedGid model
+                |> Maybe.andThen
+                    (GrainCache.parentGidOfGid
+                        >> callWith model.grainCache
+                    )
+                |> focusMaybeGidCmd
+            )
+
         GrainFocused gid focused ->
             Return.singleton <|
                 if focused then
@@ -983,6 +994,7 @@ toGrainListView model =
                 K.bindEachToMsg
                     [ ( K.arrowDown, pd <| FocusNext )
                     , ( K.arrowUp, pd <| FocusPrev )
+                    , ( K.arrowLeft, pd <| FocusParent )
                     , ( K.enter, pd <| updateIEG IE_Start gid )
                     , ( K.shiftEnter, pd <| AppendNewSibling gid )
                     , ( K.shiftMetaEnter, pd <| PrependNewSibling gid )

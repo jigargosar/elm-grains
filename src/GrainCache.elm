@@ -19,6 +19,7 @@ module GrainCache exposing
     , nextGid
     , nextSiblingGidOfGid
     , nextSiblingOfParentOfGid
+    , parentGidOfGid
     , prevGid
     , remove
     , setSaved

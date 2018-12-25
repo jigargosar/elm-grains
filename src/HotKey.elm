@@ -2,6 +2,7 @@ module HotKey exposing
     ( Event
     , SoftKey(..)
     , arrowDown
+    , arrowLeft
     , arrowUp
     , bindEach
     , bindEachToMsg
@@ -174,6 +175,11 @@ arrowDown =
 arrowUp : HotKey
 arrowUp =
     ( [], "ArrowUp" )
+
+
+arrowLeft : HotKey
+arrowLeft =
+    ( [], "ArrowLeft" )
 
 
 space : HotKey
