@@ -983,6 +983,10 @@ toGrainListView model =
                     , ( K.enter, pd <| updateIEG IE_Start gid )
                     , ( K.shiftEnter, pd <| AppendNewSibling gid )
                     , ( K.shiftMetaEnter, pd <| PrependNewSibling gid )
+                    , ( K.ctrlUp, pd <| MoveGrainBy gid -1 )
+                    , ( K.ctrlDown, pd <| MoveGrainBy gid 1 )
+                    , ( K.ctrlLeft, pd <| MoveGrainOneLevelUp gid )
+                    , ( K.ctrlRight, pd <| MoveGrainOneLevelDown gid )
 
                     --, ( K.esc, pd <| updateIEG IE_Discard gid )
                     --, ( K.ctrlUp, pd <| MoveGrainBy gid -1 )
