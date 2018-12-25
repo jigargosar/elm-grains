@@ -165,12 +165,18 @@ setGrainCache grainCache model =
 ---- UPDATE ----
 
 
+type GrainCacheAddMsg
+    = GCAdd_After GrainId
+    | GCAdd_NoOp
+
+
 type GrainCacheMsg
     = GC_MoveBy GrainId Int Posix
     | GrainUpdate GrainId Grain.Update Posix
     | GC_MoveOneLevelUp GrainId Posix
     | GC_MoveOneLevelDown GrainId Posix
     | GC_AddGrain Grain
+    | GC_AddGrainAnd Grain GrainCacheAddMsg
     | GC_FirebaseChanges (List GrainChange)
     | GC_Load Value
 
@@ -201,8 +207,8 @@ type Msg
     | ToastDismiss
       -- ADD GRAIN --
     | AddGrainClicked
-    | CreateAndAddNewGrainWithNow Posix
-    | AddGrainToCache Grain
+    | CreateAndAddNewGrainWithNow GrainCacheAddMsg Posix
+    | AddGrainToCache GrainCacheAddMsg Grain
     | AppendNewSibling GrainId
       -- UPDATE GRAIN --
     | MoveGrainBy GrainId Int
@@ -555,6 +561,19 @@ updateGrainCache message model =
                 model.grainCache
                 |> handleResult
 
+        GC_AddGrainAnd grain msg ->
+            case msg of
+                GCAdd_After siblingGid ->
+                    GrainCache.addNewGrainAfter siblingGid
+                        grain
+                        model.grainCache
+                        |> handleResult
+
+                GCAdd_NoOp ->
+                    GrainCache.addNewGrain grain
+                        model.grainCache
+                        |> handleResult
+
         GC_FirebaseChanges changeList ->
             GrainCache.updateFromFirebaseChangeList changeList
                 model.grainCache
@@ -637,19 +656,23 @@ update message model =
 
         AppendNewSibling gid ->
             ( model
-            , performWithNow CreateAndAddNewGrainWithNow
+            , performWithNow (CreateAndAddNewGrainWithNow <| GCAdd_After gid)
             )
 
         AddGrainClicked ->
             ( model
-            , performWithNow CreateAndAddNewGrainWithNow
+            , performWithNow (CreateAndAddNewGrainWithNow GCAdd_NoOp)
             )
 
-        CreateAndAddNewGrainWithNow now ->
+        CreateAndAddNewGrainWithNow msg now ->
+            let
+                generateTag =
+                    AddGrainToCache msg
+            in
             Return.return model
-                (Random.generate AddGrainToCache (Grain.generator now))
+                (Random.generate generateTag (Grain.generator now))
 
-        AddGrainToCache grain ->
+        AddGrainToCache msg grain ->
             let
                 gid =
                     Grain.id grain
