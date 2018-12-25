@@ -230,7 +230,7 @@ moveHelp now offset grain model =
 getSiblings : Grain -> GrainStore -> List Grain
 getSiblings grain model =
     allAsList model
-        |> List.filter (Grain.eqByParentId grain)
+        |> List.filter (Grain.isSibling grain)
         |> List.sortWith Grain.defaultComparator
 
 

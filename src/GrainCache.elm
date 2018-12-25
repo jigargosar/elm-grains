@@ -150,9 +150,25 @@ nextSiblingOf grain model =
         |> List.head
 
 
+rootGrains =
+    allGrains >> List.filter Grain.isRoot
+
+
+allGrains : GrainCache -> List Grain
+allGrains =
+    toList
+        >> List.map SavedGrain.value
+        >> List.sortWith Grain.defaultComparator
+
+
+childGrains : Grain -> GrainCache -> List Grain
+childGrains grain =
+    allGrains >> List.filter (Grain.isChildOf grain)
+
+
 siblingsOf : Grain -> GrainCache -> List Grain
-siblingsOf grain model =
-    allGrains
+siblingsOf grain =
+    allGrains >> List.filter (Grain.isSibling grain)
 
 
 prevGid : GrainId -> GrainCache -> Maybe GrainId
@@ -279,21 +295,6 @@ isDescendent descendent ancestor model =
                     >> isDescendent
                     >> callWith2 ancestor model
                 )
-
-
-rootGrains =
-    allGrains >> List.filter Grain.isRoot
-
-
-allGrains =
-    toList
-        >> List.map SavedGrain.value
-        >> List.sortWith Grain.defaultComparator
-
-
-childGrains : Grain -> GrainCache -> List Grain
-childGrains grain =
-    allGrains >> List.filter (Grain.isChildOf grain)
 
 
 getAncestorIdsOfGrain grain model =
@@ -605,7 +606,7 @@ defaultComparator =
 
 eqByParentId savedGrain =
     SavedGrain.value
-        >> Grain.eqByParentId (SavedGrain.value savedGrain)
+        >> Grain.isSibling (SavedGrain.value savedGrain)
 
 
 idEq gid =

@@ -10,7 +10,6 @@ module Grain exposing
     , deleted
     , encoder
     , eqById
-    , eqByParentId
     , generator
     , id
     , idAsParentId
@@ -20,6 +19,7 @@ module Grain exposing
     , isChildOfGrainId
     , isParentOf
     , isRoot
+    , isSibling
     , listToEffectiveSortIndices
     , modifiedAt
     , parentId
@@ -185,8 +185,8 @@ parentIdEq pid =
     parentId >> eqs pid
 
 
-eqByParentId : Grain -> Grain -> Bool
-eqByParentId g2 =
+isSibling : Grain -> Grain -> Bool
+isSibling g2 =
     parentIdEq (parentId g2)
 
 
