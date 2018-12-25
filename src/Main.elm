@@ -698,22 +698,23 @@ update message model =
                 maybeLastFocused =
                     getSelectedOrLastSelectedGid model
 
+                focusLastOrLazy fn =
+                    maybeLastFocused
+                        |> Maybe.orElseLazy fn
+                        |> focusMaybeGidCmd
+
                 handleKE : EventX.KeyEvent -> Return Msg Model
                 handleKE ke =
                     if K.isHotKey K.arrowDown ke then
                         ( model
-                        , maybeLastFocused
-                            |> Maybe.orElseLazy
-                                (\_ -> GrainCache.firstGid model.grainCache)
-                            |> focusMaybeGidCmd
+                        , focusLastOrLazy
+                            (\_ -> GrainCache.firstGid model.grainCache)
                         )
 
                     else if K.isHotKey K.arrowUp ke then
                         ( model
-                        , maybeLastFocused
-                            |> Maybe.orElseLazy
-                                (\_ -> GrainCache.lastLeafGid model.grainCache)
-                            |> focusMaybeGidCmd
+                        , focusLastOrLazy
+                            (\_ -> GrainCache.lastLeafGid model.grainCache)
                         )
 
                     else
