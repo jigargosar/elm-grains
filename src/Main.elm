@@ -695,14 +695,14 @@ update message model =
 
         KeyDownOnBody value ->
             let
-                maybeLastSelected =
+                maybeLastFocused =
                     getSelectedOrLastSelectedGid model
 
                 handleKE : EventX.KeyEvent -> Return Msg Model
                 handleKE ke =
                     if K.isHotKey K.arrowDown ke then
                         ( model
-                        , maybeLastSelected
+                        , maybeLastFocused
                             |> Maybe.orElseLazy
                                 (\_ -> GrainCache.firstGid model.grainCache)
                             |> focusMaybeGidCmd
@@ -710,7 +710,7 @@ update message model =
 
                     else if K.isHotKey K.arrowUp ke then
                         ( model
-                        , maybeLastSelected
+                        , maybeLastFocused
                             |> Maybe.orElseLazy
                                 (\_ -> GrainCache.lastLeafGid model.grainCache)
                             |> focusMaybeGidCmd
