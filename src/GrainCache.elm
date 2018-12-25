@@ -246,8 +246,8 @@ parentGidOfGid gid =
     get gid >> Maybe.andThen parentIdAsGrainId
 
 
-getParentId : GrainId -> GrainCache -> Maybe Grain.ParentId
-getParentId gid =
+getParentIdOfGid : GrainId -> GrainCache -> Maybe Grain.ParentId
+getParentIdOfGid gid =
     get gid >> Maybe.map parentId
 
 
@@ -315,20 +315,56 @@ addNewGrainAfter siblingGid =
     ifCanAddGrainThen <|
         \grain model ->
             let
-                ca =
+                now =
                     Grain.createdAt grain
+
+                maybeNewParentId =
+                    getParentIdOfGid siblingGid model
 
                 siblings =
                     getSiblingsById siblingGid model
 
                 newIdx =
                     List.findIndex (idEq siblingGid) siblings
-                        |> Maybe.unwrap -1 ((+) 1)
+                        |> Maybe.map ((+) 1)
+
+                insertGrainBetween ( left, right ) =
+                    left ++ [ grain ] ++ right
+
+                maybeSortIndexUpdaters =
+                    newIdx
+                        |> Maybe.map
+                            (List.splitAt
+                                >> callWith (List.map SavedGrain.value siblings)
+                                >> insertGrainBetween
+                                >> Grain.listToEffectiveSortIndices
+                                >> List.map
+                                    (Tuple.mapBoth
+                                        (Grain.SetSortIdx >> Grain.update now)
+                                        Grain.id
+                                    )
+                            )
             in
-            Result.Ok <|
-                insertBlind grain model
+            Maybe.map2
+                (\pid updaters ->
+                    let
+                        gid =
+                            Grain.id grain
+                    in
+                    insertBlind grain model
+                        |> updateWithGrainUpdate (Grain.SetParentId pid) gid now
+                        |> Result.andThen (batchUpdate updaters)
+                )
+                maybeNewParentId
+                maybeSortIndexUpdaters
+                |> Maybe.withDefault (Result.Err "Err: addNewGrainAfter")
 
 
+ifCanAddGrainThen :
+    (Grain -> GrainCache -> UpdateResult)
+    -> Grain
+    -> GrainCache
+    -> UpdateResult
 ifCanAddGrainThen fn grain model =
     if idExists (Grain.id grain) model then
         Result.Err "Error: Add Grain. GrainId exists"
@@ -428,10 +464,10 @@ moveOneLevelDown gid now model =
 
 moveOneLevelUpHelp now model grain =
     getParentOfGrain grain model
-        |> Maybe.map (SavedGrain.value >> moveGrainBelow now model grain)
+        |> Maybe.map (SavedGrain.value >> moveGrainAfter now model grain)
 
 
-moveGrainBelow now model grain sibling =
+moveGrainAfter now model grain sibling =
     let
         gid =
             Grain.id grain
