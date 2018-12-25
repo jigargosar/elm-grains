@@ -306,14 +306,16 @@ addNewGrain : Grain -> GrainCache -> UpdateResult
 addNewGrain =
     ifCanAddGrainThen <|
         \grain model ->
-            insertBlind grain model
+            Result.Ok <|
+                insertBlind grain model
 
 
 addNewGrainAfter : GrainId -> Grain -> GrainCache -> UpdateResult
 addNewGrainAfter siblingGid =
     ifCanAddGrainThen <|
         \grain model ->
-            insertBlind grain model
+            Result.Ok <|
+                insertBlind grain model
 
 
 ifCanAddGrainThen fn grain model =
@@ -321,7 +323,7 @@ ifCanAddGrainThen fn grain model =
         Result.Err "Error: Add Grain. GrainId exists"
 
     else
-        fn grain model |> Result.Ok
+        fn grain model
 
 
 idExists gid =
