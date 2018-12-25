@@ -325,6 +325,12 @@ getSelectedOrLastSelectedGid model =
         |> Maybe.orElseLazy (\_ -> model.lastSelectedGid)
 
 
+focusLastSelectedEffect : Model -> Cmd Msg
+focusLastSelectedEffect =
+    getSelectedOrLastSelectedGid
+        >> focusMaybeGidCmd
+
+
 
 -- POPUP UPDATE
 
@@ -439,10 +445,12 @@ updateInlineEditGrain gid msg model =
             InlineEditGrain.endEditing model.inlineEditGrain
                 |> Result.map mapResult
                 |> handleStringResult model
+                |> Return.effect_ focusLastSelectedEffect
 
         IE_Discard ->
             InlineEditGrain.discard model.inlineEditGrain
                 |> handleResult
+                |> Return.effect_ focusLastSelectedEffect
 
         IE_Content content ->
             InlineEditGrain.onContentChange content model.inlineEditGrain
@@ -926,7 +934,7 @@ toGrainListView model =
                 K.bindEachToMsg
                     [ ( K.arrowDown, pd <| FocusNext )
                     , ( K.arrowUp, pd <| FocusPrev )
-                    , ( K.enter, pd <| updateIEG IE_Start gid )
+                    , ( K.space, pd <| updateIEG IE_Start gid )
 
                     --, ( K.esc, pd <| updateIEG IE_Discard gid )
                     --, ( K.ctrlUp, pd <| MoveGrainBy gid -1 )
