@@ -150,6 +150,17 @@ nextSiblingOf grain model =
         |> List.head
 
 
+nextSiblingOfParentOf : Grain -> GrainCache -> Maybe Grain
+nextSiblingOfParentOf grain model =
+    let
+        rec : Grain -> Maybe Grain
+        rec parent =
+            nextSiblingOf parent model
+                |> Maybe.orElseLazy (\_ -> nextSiblingOfParentOf parent model)
+    in
+    parentGrain grain model |> Maybe.andThen rec
+
+
 rootGrains =
     allGrains >> List.filter Grain.isRoot
 
@@ -169,6 +180,16 @@ childGrains grain =
 siblingsOf : Grain -> GrainCache -> List Grain
 siblingsOf grain =
     allGrains >> List.filter (Grain.isSibling grain)
+
+
+parentGrain : Grain -> GrainCache -> Maybe Grain
+parentGrain grain model =
+    Grain.parentIdAsGrainId grain model
+        |> Maybe.andThen (getGrainById >> callWith model)
+
+
+
+--- OLD CODE ---
 
 
 prevGid : GrainId -> GrainCache -> Maybe GrainId
