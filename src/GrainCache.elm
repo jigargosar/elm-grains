@@ -302,36 +302,34 @@ type alias UpdateResult =
     Result String GrainCache
 
 
-addNewGrain grain model =
-    let
-        gid =
-            Grain.id grain
+addNewGrain : Grain -> GrainCache -> UpdateResult
+addNewGrain =
+    ifCanAddGrainThen <|
+        \grain model ->
+            insertBlind grain model
 
-        alreadyExists =
-            GrainIdLookup.member gid model
-    in
-    if alreadyExists then
+
+addNewGrainAfter : GrainId -> Grain -> GrainCache -> UpdateResult
+addNewGrainAfter siblingGid =
+    ifCanAddGrainThen <|
+        \grain model ->
+            insertBlind grain model
+
+
+ifCanAddGrainThen fn grain model =
+    if idExists (Grain.id grain) model then
         Result.Err "Error: Add Grain. GrainId exists"
 
     else
-        GrainIdLookup.insert gid (SavedGrain.new grain) model
-            |> Result.Ok
+        fn grain model |> Result.Ok
 
 
-addNewGrainAfter siblingGid grain model =
-    let
-        gid =
-            Grain.id grain
+idExists gid =
+    GrainIdLookup.member gid
 
-        alreadyExists =
-            GrainIdLookup.member gid model
-    in
-    if alreadyExists then
-        Result.Err "Error: Add Grain. GrainId exists"
 
-    else
-        GrainIdLookup.insert gid (SavedGrain.new grain) model
-            |> Result.Ok
+insertBlind grain model =
+    GrainIdLookup.insert (Grain.id grain) (SavedGrain.new grain) model
 
 
 update :
