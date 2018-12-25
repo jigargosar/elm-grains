@@ -939,7 +939,7 @@ viewRouteChildren model =
             toGrainListView model |> GLV.view
 
         Route.GrainTree gid ->
-            toGrainListView model |> GLV.view
+            toGrainTreeView gid model |> GLV.view
 
         Route.Grain gid ->
             let
@@ -967,6 +967,74 @@ viewToast toast =
 
 toGrainListView : Model -> GrainListView Msg
 toGrainListView model =
+    let
+        sort =
+            List.sortWith Grain.defaultComparator
+
+        allGrains =
+            model.grainCache
+                |> GrainCache.toList
+                |> List.map SavedGrain.value
+                |> sort
+
+        rootGrains =
+            allGrains |> List.filter (Grain.parentIdEq Grain.rootParentId)
+
+        updateIEG2 =
+            \msgFn gid -> UpdateInlineEditGrain gid << msgFn
+
+        updateIEG =
+            \msgFn gid -> UpdateInlineEditGrain gid msgFn
+    in
+    { grains = rootGrains
+    , getChildren = \parent -> List.filter (Grain.isChildOf parent) allGrains
+    , inlineEditGrain = model.inlineEditGrain
+    , addFabClicked = AddGrainClicked
+    , grainMsg =
+        { grainMoreClicked = openGrainMorePopupMsg
+        , grainTitleClicked = updateIEG IE_Start
+        , dragGrain = DragGrain
+        , grainFocus = GrainFocused
+        , keyDownCustom =
+            \gid ->
+                K.bindEachToMsg
+                    [ ( K.arrowDown, pd <| FocusNext )
+                    , ( K.arrowUp, pd <| FocusPrev )
+                    , ( K.arrowLeft, pd <| FocusParent )
+                    , ( K.enter, pd <| updateIEG IE_Start gid )
+                    , ( K.shiftEnter, pd <| AppendNewSibling gid )
+                    , ( K.shiftMetaEnter, pd <| PrependNewSibling gid )
+                    , ( K.ctrlUp, pd <| MoveGrainBy gid -1 )
+                    , ( K.ctrlDown, pd <| MoveGrainBy gid 1 )
+                    , ( K.ctrlLeft, pd <| MoveGrainOneLevelUp gid )
+                    , ( K.ctrlRight, pd <| MoveGrainOneLevelDown gid )
+
+                    --, ( K.esc, pd <| updateIEG IE_Discard gid )
+                    --, ( K.ctrlUp, pd <| MoveGrainBy gid -1 )
+                    --, ( K.ctrlDown, pd <| MoveGrainBy gid 1 )
+                    --, ( K.ctrlLeft, pd <| MoveGrainOneLevelUp gid )
+                    --, ( K.ctrlRight, pd <| MoveGrainOneLevelDown gid )
+                    ]
+        , inlineEditGrainContentChanged = updateIEG2 IE_Content
+        , inlineEditFocusChanged = updateIEG2 IE_KeyboardFocus
+        , inlineEditKeyDownCustom =
+            \gid ->
+                K.bindEachToMsg
+                    [ ( K.enter, pd <| updateIEG IE_Submit gid )
+                    , ( K.esc, pd <| updateIEG IE_Discard gid )
+
+                    --                    , ( K.ctrlUp, pd <| MoveGrainBy gid -1 )
+                    --                    , ( K.ctrlDown, pd <| MoveGrainBy gid 1 )
+                    --                    , ( K.ctrlLeft, pd <| MoveGrainOneLevelUp gid )
+                    --                    , ( K.ctrlRight, pd <| MoveGrainOneLevelDown gid )
+                    ]
+        , inlineEditSubmit = \gid -> UpdateInlineEditGrain gid IE_Submit
+        }
+    }
+
+
+toGrainTreeView : GrainId -> Model -> GrainListView Msg
+toGrainTreeView parentGid model =
     let
         sort =
             List.sortWith Grain.defaultComparator
