@@ -80,14 +80,14 @@ firstRootGid =
     firstRoot >> Maybe.map Grain.id
 
 
-firstRoot : GrainCache -> Maybe Grain
-firstRoot =
-    rootGrains >> List.head
-
-
 lastLeafGid : GrainCache -> Maybe GrainId
 lastLeafGid model =
     lastRoot model |> Maybe.map (lastLeafOf >> callWith model >> Grain.id)
+
+
+firstRoot : GrainCache -> Maybe Grain
+firstRoot =
+    rootGrains >> List.head
 
 
 lastRoot : GrainCache -> Maybe Grain
