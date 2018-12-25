@@ -314,6 +314,17 @@ addNewGrainAfter : GrainId -> Grain -> GrainCache -> UpdateResult
 addNewGrainAfter siblingGid =
     ifCanAddGrainThen <|
         \grain model ->
+            let
+                ca =
+                    Grain.createdAt grain
+
+                siblings =
+                    getSiblingsById siblingGid model
+
+                newIdx =
+                    List.findIndex (idEq siblingGid) siblings
+                        |> Maybe.unwrap -1 ((+) 1)
+            in
             Result.Ok <|
                 insertBlind grain model
 
