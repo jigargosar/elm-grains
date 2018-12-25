@@ -48,7 +48,9 @@ setElmAppPortSubscriptions(
       }
     },
     autoSize: domId => {
-      autoSize(document.getElementById(domId))
+      requestAnimationFrame(() => {
+        autoSize(document.getElementById(domId))
+      })
     },
     error: data => {
       console.error(data)
