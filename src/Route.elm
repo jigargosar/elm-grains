@@ -13,6 +13,7 @@ type Route
     = GrainList
     | Grain GrainId
     | NotFound String
+    | GrainTree GrainId
 
 
 route : Parser (Route -> a) a
@@ -20,6 +21,7 @@ route =
     oneOf
         [ map GrainList top
         , map Grain (s "grain" </> grainId_)
+        , map GrainTree (s "grain-tree" </> grainId_)
         ]
 
 
@@ -48,6 +50,9 @@ toString r =
     case r of
         GrainList ->
             "/"
+
+        GrainTree gid ->
+            "/grain-tree/" ++ GrainId.toString gid
 
         Grain gid ->
             "/grain/" ++ GrainId.toString gid

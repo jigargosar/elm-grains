@@ -885,6 +885,9 @@ toRouteView route =
         Route.GrainList ->
             { title = "Grain List", showBackBtn = False, children = [] }
 
+        Route.GrainTree _ ->
+            { title = "Grain Tree", showBackBtn = True, children = [] }
+
         Route.Grain _ ->
             { title = "Grain", showBackBtn = True, children = [] }
 
@@ -933,6 +936,9 @@ viewAppBar { title, showBackBtn } authState =
 viewRouteChildren model =
     case model.route of
         Route.GrainList ->
+            toGrainListView model |> GLV.view
+
+        Route.GrainTree gid ->
             toGrainListView model |> GLV.view
 
         Route.Grain gid ->
