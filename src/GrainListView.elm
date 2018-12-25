@@ -292,7 +292,7 @@ viewEditingItem nModel content node =
             , rows 1
             , css
                 [ CS.w_full
-                , CS.max_h_screen
+                , Css.maxHeight <| vh 50
                 , Css.resize Css.none
                 , Css.borderWidth zero
                 , Css.borderBottom3 (px 1.5) Css.solid CS.black20
