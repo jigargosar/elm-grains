@@ -328,8 +328,15 @@ getSelectedOrLastSelectedGid model =
 
 focusLastSelectedEffect : Model -> Cmd Msg
 focusLastSelectedEffect =
-    getSelectedOrLastSelectedGid
-        >> focusMaybeGidCmd
+    getSelectedOrLastSelectedGid >> focusMaybeGidCmd
+
+
+focusGidCmd gid =
+    focusCmd <| GLV.grainDomId gid
+
+
+focusMaybeGidCmd =
+    unwrapMaybeCmd focusGidCmd
 
 
 
@@ -405,14 +412,6 @@ focusIEGrainCmd gid =
     focusCmd <| GLV.contentInputDomId gid
 
 
-focusGidCmd gid =
-    focusCmd <| GLV.grainDomId gid
-
-
-focusMaybeGidCmd =
-    unwrapMaybeCmd focusGidCmd
-
-
 updateInlineEditGrain gid msg model =
     let
         handleResult =
@@ -439,14 +438,20 @@ updateInlineEditGrain gid msg model =
         IE_Submit ->
             let
                 mapResult ( gid_, content, inlineEditGrain ) =
+                    let
+                        focusEditedGidCmd =
+                            focusGidCmd gid_
+
+                        setContentCmd =
+                            performGrainSetContent gid_ content
+                    in
                     ( setInlineEditGrain inlineEditGrain model
-                    , performGrainSetContent gid_ content
+                    , Cmd.batch [ setContentCmd, focusEditedGidCmd ]
                     )
             in
             InlineEditGrain.endEditing model.inlineEditGrain
                 |> Result.map mapResult
                 |> handleStringResult model
-                |> Return.effect_ focusLastSelectedEffect
 
         IE_Discard ->
             InlineEditGrain.discard model.inlineEditGrain
