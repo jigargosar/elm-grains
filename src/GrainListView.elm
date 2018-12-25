@@ -252,7 +252,7 @@ viewDisplayItem nModel node =
     in
     div
         [ id nModel.domId
-        , tabindex -1
+        , tabindex 0
         , CssEventX.onKeyDownCustom nModel.keyDownCustom
         , onFocus <| nModel.grainFocus True
         , onBlur <| nModel.grainFocus False
