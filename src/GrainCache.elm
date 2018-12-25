@@ -135,9 +135,7 @@ nextGrainOrSame grain model =
             )
         |> Maybe.orElseLazy
             (\_ ->
-                nextSiblingOfParentOfGid
-                    grain
-                    model
+                nextSiblingOfParentOf grain model
             )
         |> Maybe.withDefault grain
 
@@ -184,7 +182,7 @@ siblingsOf grain =
 
 parentGrain : Grain -> GrainCache -> Maybe Grain
 parentGrain grain model =
-    Grain.parentIdAsGrainId grain model
+    Grain.parentIdAsGrainId grain
         |> Maybe.andThen (getGrainById >> callWith model)
 
 
