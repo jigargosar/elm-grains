@@ -1001,10 +1001,11 @@ toGrainListView model =
                 K.bindEachToMsg
                     [ ( K.enter, pd <| updateIEG IE_Submit gid )
                     , ( K.esc, pd <| updateIEG IE_Discard gid )
-                    , ( K.ctrlUp, pd <| MoveGrainBy gid -1 )
-                    , ( K.ctrlDown, pd <| MoveGrainBy gid 1 )
-                    , ( K.ctrlLeft, pd <| MoveGrainOneLevelUp gid )
-                    , ( K.ctrlRight, pd <| MoveGrainOneLevelDown gid )
+
+                    --                    , ( K.ctrlUp, pd <| MoveGrainBy gid -1 )
+                    --                    , ( K.ctrlDown, pd <| MoveGrainBy gid 1 )
+                    --                    , ( K.ctrlLeft, pd <| MoveGrainOneLevelUp gid )
+                    --                    , ( K.ctrlRight, pd <| MoveGrainOneLevelDown gid )
                     ]
         , inlineEditSubmit = \gid -> UpdateInlineEditGrain gid IE_Submit
         }
