@@ -1,4 +1,4 @@
-module GrainTree exposing (Forest, GrainTree)
+module GrainTree exposing (Forest, GrainTree, forest, tree)
 
 import Grain exposing (Grain)
 import GrainCache exposing (GrainCache)
