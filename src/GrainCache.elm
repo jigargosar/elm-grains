@@ -87,6 +87,12 @@ lastLeafGid =
     lastLeaf >> Maybe.map Grain.id
 
 
+nextGid : GrainId -> GrainCache -> Maybe GrainId
+nextGid gid model =
+    getGrainById gid model
+        |> Maybe.map (nextGrainOrSame >> callWith model >> Grain.id)
+
+
 
 -- ABSOLUTE GRAIN HELPERS --
 
@@ -118,12 +124,6 @@ firstChildOf grain =
 lastChildOf : Grain -> GrainCache -> Maybe Grain
 lastChildOf grain =
     childGrains grain >> List.last
-
-
-nextGid : GrainId -> GrainCache -> Maybe GrainId
-nextGid gid model =
-    getGrainById gid model
-        |> Maybe.map (nextGrainOrSame >> callWith model >> Grain.id)
 
 
 nextGrainOrSame : Grain -> GrainCache -> Grain
