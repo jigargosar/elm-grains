@@ -96,6 +96,11 @@ firstChildGid gid model =
     getChildren gid model |> List.head |> Maybe.map id
 
 
+lastChildGid : GrainId -> GrainCache -> Maybe GrainId
+lastChildGid gid model =
+    getChildren gid model |> List.last |> Maybe.map id
+
+
 nextGid : GrainId -> GrainCache -> Maybe GrainId
 nextGid gid model =
     firstChildGid gid
@@ -116,17 +121,11 @@ nextGid gid model =
 
 prevGid : GrainId -> GrainCache -> Maybe GrainId
 prevGid gid model =
-    firstChildGid gid
-        model
+    prevSiblingGidOfGid gid model
+        |> Maybe.map (lastLeafGidOfGid >> callWith model)
         |> Maybe.orElseLazy
             (\_ ->
-                nextSiblingGidOfGid
-                    gid
-                    model
-            )
-        |> Maybe.orElseLazy
-            (\_ ->
-                nextSiblingOfParentOfGid
+                parentGidOfGid
                     gid
                     model
             )
@@ -138,6 +137,14 @@ nextSiblingGidOfGid gid model =
         |> List.dropWhile (idEq gid >> not)
         |> List.drop 1
         |> List.head
+        |> Maybe.map id
+
+
+prevSiblingGidOfGid : GrainId -> GrainCache -> Maybe GrainId
+prevSiblingGidOfGid gid model =
+    getSiblingsById gid model
+        |> List.takeWhile (idEq gid >> not)
+        |> List.last
         |> Maybe.map id
 
 
@@ -164,6 +171,13 @@ getParent : GrainId -> GrainCache -> Maybe SavedGrain
 getParent gid model =
     get gid model
         |> Maybe.andThen (getParentOf >> callWith model)
+
+
+lastLeafGidOfGid : GrainId -> GrainCache -> GrainId
+lastLeafGidOfGid gid model =
+    get gid model
+        |> Maybe.map (lastLeafOf >> callWith model)
+        |> Maybe.unwrap gid id
 
 
 lastLeafOf : SavedGrain -> GrainCache -> SavedGrain
@@ -224,6 +238,11 @@ getParentOf : SavedGrain -> GrainCache -> Maybe SavedGrain
 getParentOf savedGrain model =
     parentIdAsGrainId savedGrain
         |> Maybe.andThen (GrainIdLookup.get >> callWith model)
+
+
+parentGidOfGid : GrainId -> GrainCache -> Maybe GrainId
+parentGidOfGid gid =
+    get gid >> Maybe.andThen parentIdAsGrainId
 
 
 getParentId : GrainId -> GrainCache -> Maybe Grain.ParentId
