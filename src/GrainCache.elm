@@ -2,6 +2,7 @@ module GrainCache exposing
     ( GrainCache
     , addNewGrain
     , addNewGrainAfter
+    , addNewGrainBefore
     , batchUpdate
     , decoder
     , empty
@@ -327,6 +328,56 @@ addNewGrainAfter siblingGid =
                 newIdx =
                     List.findIndex (idEq siblingGid) siblings
                         |> Maybe.map ((+) 1)
+
+                insertGrainBetween ( left, right ) =
+                    left ++ [ grain ] ++ right
+
+                maybeSortIndexUpdaters =
+                    newIdx
+                        |> Maybe.map
+                            (List.splitAt
+                                >> callWith (List.map SavedGrain.value siblings)
+                                >> insertGrainBetween
+                                >> Grain.listToEffectiveSortIndices
+                                >> List.map
+                                    (Tuple.mapBoth
+                                        (Grain.SetSortIdx >> Grain.update now)
+                                        Grain.id
+                                    )
+                            )
+            in
+            Maybe.map2
+                (\pid updaters ->
+                    let
+                        gid =
+                            Grain.id grain
+                    in
+                    insertBlind grain model
+                        |> updateWithGrainUpdate (Grain.SetParentId pid) gid now
+                        |> Result.andThen (batchUpdate updaters)
+                )
+                maybeNewParentId
+                maybeSortIndexUpdaters
+                |> Maybe.withDefault (Result.Err "Err: addNewGrainAfter")
+
+
+addNewGrainBefore : GrainId -> Grain -> GrainCache -> UpdateResult
+addNewGrainBefore siblingGid =
+    ifCanAddGrainThen <|
+        \grain model ->
+            let
+                now =
+                    Grain.createdAt grain
+
+                maybeNewParentId =
+                    getParentIdOfGid siblingGid model
+
+                siblings =
+                    getSiblingsById siblingGid model
+
+                newIdx =
+                    List.findIndex (idEq siblingGid) siblings
+                        |> Maybe.map ((+) 0)
 
                 insertGrainBetween ( left, right ) =
                     left ++ [ grain ] ++ right

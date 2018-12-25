@@ -18,6 +18,7 @@ module HotKey exposing
     , metaDown
     , metaUp
     , shiftEnter
+    , shiftMetaEnter
     , space
     )
 
@@ -118,6 +119,11 @@ enter =
 shiftEnter : HotKey
 shiftEnter =
     ( [ Shift ], "Enter" )
+
+
+shiftMetaEnter : HotKey
+shiftMetaEnter =
+    ( [ Shift, Meta ], "Enter" )
 
 
 metaUp : HotKey

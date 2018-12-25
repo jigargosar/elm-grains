@@ -167,6 +167,7 @@ setGrainCache grainCache model =
 
 type GrainCacheAddMsg
     = GCAdd_After GrainId
+    | GCAdd_Before GrainId
     | GCAdd_NoOp
 
 
@@ -209,6 +210,7 @@ type Msg
     | CreateAndAddNewGrainWithNow GrainCacheAddMsg Posix
     | AddGrainToCache GrainCacheAddMsg Grain
     | AppendNewSibling GrainId
+    | PrependNewSibling GrainId
       -- UPDATE GRAIN --
     | MoveGrainBy GrainId Int
     | MoveGrainOneLevelUp GrainId
@@ -557,6 +559,12 @@ updateGrainCache message model =
 
         GC_AddGrainAnd grain msg ->
             case msg of
+                GCAdd_Before siblingGid ->
+                    GrainCache.addNewGrainBefore siblingGid
+                        grain
+                        model.grainCache
+                        |> handleResult
+
                 GCAdd_After siblingGid ->
                     GrainCache.addNewGrainAfter siblingGid
                         grain
@@ -651,6 +659,11 @@ update message model =
         AppendNewSibling gid ->
             ( model
             , performWithNow (CreateAndAddNewGrainWithNow <| GCAdd_After gid)
+            )
+
+        PrependNewSibling gid ->
+            ( model
+            , performWithNow (CreateAndAddNewGrainWithNow <| GCAdd_Before gid)
             )
 
         AddGrainClicked ->
@@ -969,6 +982,7 @@ toGrainListView model =
                     , ( K.arrowUp, pd <| FocusPrev )
                     , ( K.enter, pd <| updateIEG IE_Start gid )
                     , ( K.shiftEnter, pd <| AppendNewSibling gid )
+                    , ( K.shiftMetaEnter, pd <| PrependNewSibling gid )
 
                     --, ( K.esc, pd <| updateIEG IE_Discard gid )
                     --, ( K.ctrlUp, pd <| MoveGrainBy gid -1 )
