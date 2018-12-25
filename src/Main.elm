@@ -456,7 +456,7 @@ updateInlineEditGrain gid msg model =
         IE_Discard ->
             InlineEditGrain.discard model.inlineEditGrain
                 |> handleResult
-                |> Return.effect_ focusLastSelectedEffect
+                |> Return.command (focusGidCmd gid)
 
         IE_Content content ->
             InlineEditGrain.onContentChange content model.inlineEditGrain
