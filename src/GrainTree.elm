@@ -16,12 +16,11 @@ type GrainTree
 forestFromGrainCache : GrainCache -> Forest
 forestFromGrainCache grainCache =
     let
-        allGrains =
-            grainCache
-                |> GrainCache.toList
+        allSaved =
+            GrainCache.toList grainCache
 
         rootGrains =
-            allGrains
+            allSaved
                 |> List.filter (SavedGrain.parentIdEq Grain.rootParentId)
                 |> SavedGrain.defaultSort
     in
@@ -32,9 +31,11 @@ treeFromGrainCache : GrainCache -> SavedGrain -> GrainTree
 treeFromGrainCache grainCache savedGrain =
     let
         allSaved =
-            grainCache |> GrainCache.toList
+            GrainCache.toList grainCache
 
         directChildren =
-            allSaved |> List.filter (SavedGrain.isChildOf savedGrain)
+            allSaved
+                |> List.filter (SavedGrain.isChildOf savedGrain)
+                |> SavedGrain.defaultSort
     in
     Tree savedGrain (directChildren |> List.map (treeFromGrainCache grainCache))
