@@ -695,11 +695,8 @@ update message model =
 
         KeyDownOnBody value ->
             let
-                maybeLastFocused =
-                    getSelectedOrLastSelectedGid model
-
                 focusLastOrLazy fn =
-                    maybeLastFocused
+                    getSelectedOrLastSelectedGid model
                         |> Maybe.orElseLazy fn
                         |> focusMaybeGidCmd
 
