@@ -705,15 +705,15 @@ update message model =
 
         MoveGrainBy gid offset ->
             ( model, performGrainMove gid offset )
-                |> Return.command (focusIEGrainCmd gid)
+                |> Return.command (focusGidCmd gid)
 
         MoveGrainOneLevelUp gid ->
             ( model, updateGrainCacheCmd <| GC_MoveOneLevelUp gid )
-                |> Return.command (focusIEGrainCmd gid)
+                |> Return.command (focusGidCmd gid)
 
         MoveGrainOneLevelDown gid ->
             ( model, updateGrainCacheCmd <| GC_MoveOneLevelDown gid )
-                |> Return.command (focusIEGrainCmd gid)
+                |> Return.command (focusGidCmd gid)
 
         UpdatePopup msg ->
             updatePopup msg model
