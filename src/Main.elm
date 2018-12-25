@@ -203,6 +203,7 @@ type Msg
     | AddGrainClicked
     | CreateAndAddNewGrainWithNow Posix
     | AddGrainToCache Grain
+    | AppendNewSibling GrainId
       -- UPDATE GRAIN --
     | MoveGrainBy GrainId Int
     | MoveGrainOneLevelUp GrainId
@@ -629,6 +630,11 @@ update message model =
                                     model
                             )
 
+        AppendNewSibling gid ->
+            ( model
+            , performWithNow CreateAndAddNewGrainWithNow
+            )
+
         AddGrainClicked ->
             ( model
             , performWithNow CreateAndAddNewGrainWithNow
@@ -639,9 +645,14 @@ update message model =
                 (Random.generate AddGrainToCache (Grain.generator now))
 
         AddGrainToCache grain ->
+            let
+                gid =
+                    Grain.id grain
+            in
             updateGrainCache (GC_AddGrain grain) model
-                |> Return.andThen
-                    (update <| routeToGrainIdMsg <| Grain.id grain)
+                --                |> Return.andThen
+                --                    (update <| routeToGrainIdMsg <| Grain.id grain)
+                |> Return.andThen (updateInlineEditGrain gid IE_Start)
 
         UpdateGrainCache msg ->
             updateGrainCache msg model
@@ -935,6 +946,7 @@ toGrainListView model =
                     [ ( K.arrowDown, pd <| FocusNext )
                     , ( K.arrowUp, pd <| FocusPrev )
                     , ( K.space, pd <| updateIEG IE_Start gid )
+                    , ( K.enter, pd <| AppendNewSibling gid )
 
                     --, ( K.esc, pd <| updateIEG IE_Discard gid )
                     --, ( K.ctrlUp, pd <| MoveGrainBy gid -1 )
