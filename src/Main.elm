@@ -175,7 +175,6 @@ type GrainCacheMsg
     | GrainUpdate GrainId Grain.Update Posix
     | GC_MoveOneLevelUp GrainId Posix
     | GC_MoveOneLevelDown GrainId Posix
-    | GC_AddGrain Grain
     | GC_AddGrainAnd Grain GrainCacheAddMsg
     | GC_FirebaseChanges (List GrainChange)
     | GC_Load Value
@@ -556,11 +555,6 @@ updateGrainCache message model =
                 model.grainCache
                 |> handleResult
 
-        GC_AddGrain grain ->
-            GrainCache.addNewGrain grain
-                model.grainCache
-                |> handleResult
-
         GC_AddGrainAnd grain msg ->
             case msg of
                 GCAdd_After siblingGid ->
@@ -677,7 +671,7 @@ update message model =
                 gid =
                     Grain.id grain
             in
-            updateGrainCache (GC_AddGrain grain) model
+            updateGrainCache (GC_AddGrainAnd grain msg) model
                 --                |> Return.andThen
                 --                    (update <| routeToGrainIdMsg <| Grain.id grain)
                 |> Return.andThen (updateInlineEditGrain gid IE_Start)
