@@ -1,8 +1,7 @@
 module GrainTree exposing (Forest, GrainTree(..))
 
-import Grain
+import Grain exposing (Grain)
 import GrainCache exposing (GrainCache)
-import SavedGrain exposing (SavedGrain)
 
 
 type alias Forest =
@@ -10,32 +9,22 @@ type alias Forest =
 
 
 type GrainTree
-    = Tree SavedGrain Forest
+    = Tree Grain Forest
 
 
 forestFromGrainCache : GrainCache -> Forest
 forestFromGrainCache grainCache =
     let
-        allSaved =
-            GrainCache.toList grainCache
-
         rootGrains =
-            allSaved
-                |> List.filter (SavedGrain.parentIdEq Grain.rootParentId)
-                |> SavedGrain.defaultSort
+            GrainCache.rootGrains grainCache
     in
     rootGrains |> List.map (treeFromGrainCache grainCache)
 
 
-treeFromGrainCache : GrainCache -> SavedGrain -> GrainTree
-treeFromGrainCache grainCache savedGrain =
+treeFromGrainCache : GrainCache -> Grain -> GrainTree
+treeFromGrainCache grainCache grain =
     let
-        allSaved =
-            GrainCache.toList grainCache
-
-        directChildren =
-            allSaved
-                |> List.filter (SavedGrain.isChildOf savedGrain)
-                |> SavedGrain.defaultSort
+        children =
+            GrainCache.childGrains grain
     in
-    Tree savedGrain (directChildren |> List.map (treeFromGrainCache grainCache))
+    Tree grain (children |> List.map (treeFromGrainCache grainCache))

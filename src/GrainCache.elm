@@ -4,6 +4,7 @@ module GrainCache exposing
     , addNewGrainAfter
     , addNewGrainBefore
     , batchUpdate
+    , childGrains
     , decoder
     , empty
     , encoder
@@ -22,6 +23,7 @@ module GrainCache exposing
     , parentGidOfGid
     , prevGid
     , remove
+    , rootGrains
     , setSaved
     , toList
     , updateFromFirebaseChangeList
@@ -265,6 +267,18 @@ isDescendent descendent ancestor model =
                     >> isDescendent
                     >> callWith2 ancestor model
                 )
+
+
+rootGrains =
+    allGrains >> List.filter Grain.isRoot
+
+
+allGrains =
+    toList >> List.map SavedGrain.value
+
+
+childGrains grain =
+    allGrains >> List.filter (Grain.isChildOf grain)
 
 
 getAncestorIdsOfGrain grain model =
