@@ -9,7 +9,7 @@ module GrainCache exposing
     , empty
     , encoder
     , firstChildGid
-    , firstGid
+    , firstRootGid
     , get
     , isDescendent
     , lastLeafGid
@@ -75,19 +75,29 @@ empty =
     GrainIdLookup.empty
 
 
-firstGid : GrainCache -> Maybe GrainId
-firstGid =
-    firstRootGid
-
-
 firstRootGid : GrainCache -> Maybe GrainId
 firstRootGid =
-    firstRoot >> Maybe.map id
+    firstRoot >> Maybe.map Grain.id
+
+
+firstRoot : GrainCache -> Maybe Grain
+firstRoot =
+    rootGrains >> List.head
 
 
 lastLeafGid : GrainCache -> Maybe GrainId
 lastLeafGid model =
-    lastRoot model |> Maybe.map (lastLeafOf >> callWith model >> id)
+    lastRoot model |> Maybe.map (lastLeafOf >> callWith model >> Grain.id)
+
+
+lastRoot : GrainCache -> Maybe Grain
+lastRoot =
+    rootGrains >> List.last
+
+
+lastRootGid : GrainCache -> Maybe GrainId
+lastRootGid =
+    lastRoot >> Maybe.map Grain.id
 
 
 firstChildGid : GrainId -> GrainCache -> Maybe GrainId
@@ -174,42 +184,23 @@ getParent gid model =
 
 lastLeafGidOfGid : GrainId -> GrainCache -> GrainId
 lastLeafGidOfGid gid model =
-    get gid model
+    getGrainById gid model
         |> Maybe.map (lastLeafOf >> callWith model)
-        |> Maybe.unwrap gid id
+        |> Maybe.unwrap gid Grain.id
 
 
-lastLeafOf : SavedGrain -> GrainCache -> SavedGrain
-lastLeafOf savedGrain model =
+lastLeafOf : Grain -> GrainCache -> Grain
+lastLeafOf grain model =
     let
         children =
-            getChildren (id savedGrain) model
+            childGrains grain model
     in
     if List.isEmpty children then
-        savedGrain
+        grain
 
     else
         List.last children
-            |> Maybe.unwrap savedGrain (lastLeafOf >> callWith model)
-
-
-lastRootGid : GrainCache -> Maybe GrainId
-lastRootGid =
-    lastRoot >> Maybe.map id
-
-
-firstRoot : GrainCache -> Maybe SavedGrain
-firstRoot =
-    rootList >> List.head
-
-
-lastRoot : GrainCache -> Maybe SavedGrain
-lastRoot =
-    rootList >> List.last
-
-
-rootList =
-    toList >> List.filter isRoot
+            |> Maybe.unwrap grain (lastLeafOf >> callWith model)
 
 
 getGrainById : GrainId -> GrainCache -> Maybe Grain
