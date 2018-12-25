@@ -17,6 +17,7 @@ module CssShorthand exposing
     , flexGrow1
     , flexShrink0
     , fromMaterialColor
+    , h_full
     , h_screen
     , inlineRow
     , itemsCenter
@@ -142,6 +143,10 @@ full =
 
 w_full =
     Css.width full
+
+
+h_full =
+    Css.height full
 
 
 max_w_full =
