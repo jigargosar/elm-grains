@@ -685,15 +685,14 @@ update message model =
                         ( model
                         , model.grainCache
                             |> GrainCache.firstGid
-                            |> unwrapMaybeCmd focusGidCmd
+                            |> focusMaybeGidCmd
                         )
 
                     else if K.isHotKey K.arrowUp ke then
                         ( model
                         , model.grainCache
                             |> GrainCache.lastLeafGid
-                            |> Debug.log "lastLeafGid"
-                            |> unwrapMaybeCmd focusGidCmd
+                            |> focusMaybeGidCmd
                         )
 
                     else
