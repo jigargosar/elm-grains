@@ -75,14 +75,23 @@ empty =
     GrainIdLookup.empty
 
 
+
+-- EXPOSED GID NAV HELPERS --
+
+
 firstRootGid : GrainCache -> Maybe GrainId
 firstRootGid =
     firstRoot >> Maybe.map Grain.id
 
 
 lastLeafGid : GrainCache -> Maybe GrainId
-lastLeafGid model =
-    lastRoot model |> Maybe.map (lastLeafOf >> callWith model >> Grain.id)
+lastLeafGid =
+    lastLeaf >> Maybe.map Grain.id
+
+
+lastLeaf : GrainCache -> Maybe Grain
+lastLeaf model =
+    lastRoot model |> Maybe.map (lastLeafOf >> callWith model)
 
 
 firstRoot : GrainCache -> Maybe Grain
@@ -93,11 +102,6 @@ firstRoot =
 lastRoot : GrainCache -> Maybe Grain
 lastRoot =
     rootGrains >> List.last
-
-
-lastRootGid : GrainCache -> Maybe GrainId
-lastRootGid =
-    lastRoot >> Maybe.map Grain.id
 
 
 firstChildGid : GrainId -> GrainCache -> Maybe GrainId
