@@ -99,6 +99,7 @@ type alias Model =
     , inlineEditGrain : InlineEditGrain
     , grainCache : GrainCache
     , selectedGid : Maybe GrainId
+    , lastSelectedGid : Maybe GrainId
     , seed : Seed
     }
 
@@ -116,6 +117,7 @@ init flags =
                 |> Random.always NoPopup
                 |> Random.always InlineEditGrain.initialValue
                 |> Random.always GrainCache.empty
+                |> Random.always Nothing
                 |> Random.always Nothing
                 |> Random.finish
     in
@@ -307,6 +309,15 @@ focusCmd =
 
 focusMaybe =
     unwrapMaybeCmd focusCmd
+
+
+
+-- SELECTED GID UPDATE --
+
+
+setSelectedGid : Maybe GrainId -> Model -> Model
+setSelectedGid selectedGid model =
+    { model | selectedGid = selectedGid, lastSelectedGid = model.selectedGid }
 
 
 
@@ -592,14 +603,14 @@ update message model =
         GrainFocused gid focused ->
             Return.singleton <|
                 if focused then
-                    { model | selectedGid = Just gid }
+                    setSelectedGid (Just gid) model
 
                 else
                     model.selectedGid
                         |> Maybe.unwrap model
                             (\oldGid ->
                                 if oldGid == gid then
-                                    { model | selectedGid = Nothing }
+                                    setSelectedGid Nothing model
 
                                 else
                                     model
@@ -907,8 +918,8 @@ toGrainListView model =
                 K.bindEachToMsg
                     [ ( K.arrowDown, pd <| FocusNext )
                     , ( K.arrowUp, pd <| FocusPrev )
+                    , ( K.enter, pd <| updateIEG IE_Start gid )
 
-                    --, ( K.enter, pd <| updateIEG IE_Submit gid )
                     --, ( K.esc, pd <| updateIEG IE_Discard gid )
                     --, ( K.ctrlUp, pd <| MoveGrainBy gid -1 )
                     --, ( K.ctrlDown, pd <| MoveGrainBy gid 1 )
