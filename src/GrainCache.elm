@@ -17,7 +17,6 @@ module GrainCache exposing
     , moveOneLevelDown
     , moveOneLevelUp
     , nextGid
-    , nextSiblingGidOfGid
     , nextSiblingOfParentOfGid
     , parentGidOfGid
     , prevGid
@@ -124,17 +123,15 @@ lastChildOf grain =
 nextGid : GrainId -> GrainCache -> Maybe GrainId
 nextGid gid model =
     getGrainById gid model
-        |> Maybe.map (nextGrain >> callWith model >> Grain.id)
+        |> Maybe.map (nextGrainOrSame >> callWith model >> Grain.id)
 
 
-nextGrain : Grain -> GrainCache -> Grain
-nextGrain grain model =
+nextGrainOrSame : Grain -> GrainCache -> Grain
+nextGrainOrSame grain model =
     firstChildOf grain model
         |> Maybe.orElseLazy
             (\_ ->
-                nextSiblingGidOfGid
-                    grain
-                    model
+                nextSiblingOf grain model
             )
         |> Maybe.orElseLazy
             (\_ ->
@@ -143,6 +140,19 @@ nextGrain grain model =
                     model
             )
         |> Maybe.withDefault grain
+
+
+nextSiblingOf : Grain -> GrainCache -> Maybe Grain
+nextSiblingOf grain model =
+    siblingsOf grain model
+        |> List.dropWhile (Grain.eqById grain >> not)
+        |> List.drop 1
+        |> List.head
+
+
+siblingsOf : Grain -> GrainCache -> List Grain
+siblingsOf grain model =
+    allGrains
 
 
 prevGid : GrainId -> GrainCache -> Maybe GrainId
@@ -227,7 +237,7 @@ getGrainById gid =
 
 getSiblingsById : GrainId -> GrainCache -> List SavedGrain
 getSiblingsById gid model =
-    get gid model |> Maybe.unwrap [] (getSiblingsOf >> callWith model)
+    get gid model |> Maybe.unwrap [] (getSiblingsOf__ >> callWith model)
 
 
 get : GrainId -> GrainCache -> Maybe SavedGrain
@@ -276,7 +286,9 @@ rootGrains =
 
 
 allGrains =
-    toList >> List.map SavedGrain.value
+    toList
+        >> List.map SavedGrain.value
+        >> List.sortWith Grain.defaultComparator
 
 
 childGrains : Grain -> GrainCache -> List Grain
@@ -552,7 +564,7 @@ moveHelp now offset savedGrain model =
     let
         siblings : List SavedGrain
         siblings =
-            getSiblingsOf savedGrain model
+            getSiblingsOf__ savedGrain model
 
         gIdx : Int
         gIdx =
@@ -574,8 +586,8 @@ moveHelp now offset savedGrain model =
     batchUpdate updaters model
 
 
-getSiblingsOf : SavedGrain -> GrainCache -> List SavedGrain
-getSiblingsOf savedGrain model =
+getSiblingsOf__ : SavedGrain -> GrainCache -> List SavedGrain
+getSiblingsOf__ savedGrain model =
     toList model
         |> List.filter (eqByParentId savedGrain)
         |> List.sortWith defaultComparator
