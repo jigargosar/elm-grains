@@ -12,19 +12,20 @@ type GrainTree
     = Tree Grain Forest
 
 
-forestFromGrainCache : GrainCache -> Forest
-forestFromGrainCache grainCache =
+forest : GrainCache -> Forest
+forest grainCache =
     let
         rootGrains =
             GrainCache.rootGrains grainCache
     in
-    rootGrains |> List.map (treeFromGrainCache grainCache)
+    rootGrains |> List.map (tree grainCache)
 
 
-treeFromGrainCache : GrainCache -> Grain -> GrainTree
-treeFromGrainCache grainCache grain =
+tree : GrainCache -> Grain -> GrainTree
+tree grainCache grain =
     let
-        children =
-            GrainCache.childGrains grain
+        forest =
+            GrainCache.childGrains grain grainCache
+                |> List.map (tree grainCache)
     in
-    Tree grain (children |> List.map (treeFromGrainCache grainCache))
+    Tree grain forest
