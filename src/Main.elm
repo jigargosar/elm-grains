@@ -194,7 +194,6 @@ type Msg
     = ---- INJECT MSG BELOW ----
       NoOp
     | FocusResult (Result String ())
-    | FocusNext
     | GrainFocused GrainId Bool
       -- TOAST
     | ToastDismiss
@@ -210,6 +209,9 @@ type Msg
     | UpdateInlineEditGrain GrainId InlineEditGrainMsg
     | GrainContentChanged GrainId String
     | DragGrain GrainId
+      -- GRAIN FOCUS NAVIGATION
+    | FocusNext
+    | FocusPrev
       -- POPUP
     | UpdatePopup PopupMsg
       -- NAVIGATION --
@@ -248,6 +250,10 @@ autoFocusRoute route =
 
 unwrapMaybeCmd cmdFn =
     Maybe.unwrap Cmd.none cmdFn
+
+
+maybeCmd =
+    Maybe.withDefault Cmd.none
 
 
 globalKeyBinding model =
@@ -297,6 +303,10 @@ performWithNow nowToMsg =
 
 focusCmd =
     BrowserX.focus FocusResult
+
+
+focusMaybe =
+    unwrapMaybeCmd focusCmd
 
 
 
@@ -372,8 +382,12 @@ focusIEGrainCmd gid =
     focusCmd <| GLV.contentInputDomId gid
 
 
-focusGrainCmd gid =
+focusGidCmd gid =
     focusCmd <| GLV.grainDomId gid
+
+
+focusMaybeGidCmd =
+    unwrapMaybeCmd focusGidCmd
 
 
 updateInlineEditGrain gid msg model =
@@ -559,23 +573,20 @@ update message model =
             ( model
             , model.selectedGid
                 |> Maybe.andThen
-                    (\sid ->
-                        GrainCache.firstChildGid sid
-                            model.grainCache
-                            |> Maybe.orElseLazy
-                                (\_ ->
-                                    GrainCache.nextSiblingGidOfGid
-                                        sid
-                                        model.grainCache
-                                )
-                            |> Maybe.orElseLazy
-                                (\_ ->
-                                    GrainCache.nextSiblingOfParentOfGid
-                                        sid
-                                        model.grainCache
-                                )
+                    (GrainCache.nextGid
+                        >> callWith model.grainCache
                     )
-                |> unwrapMaybeCmd focusGrainCmd
+                |> focusMaybeGidCmd
+            )
+
+        FocusPrev ->
+            ( model
+            , model.selectedGid
+                |> Maybe.andThen
+                    (GrainCache.prevGid
+                        >> callWith model.grainCache
+                    )
+                |> focusMaybeGidCmd
             )
 
         GrainFocused gid focused ->
@@ -674,7 +685,7 @@ update message model =
                         ( model
                         , model.grainCache
                             |> GrainCache.firstGid
-                            |> unwrapMaybeCmd focusGrainCmd
+                            |> unwrapMaybeCmd focusGidCmd
                         )
 
                     else if K.isHotKey K.arrowUp ke then
@@ -682,7 +693,7 @@ update message model =
                         , model.grainCache
                             |> GrainCache.lastLeafGid
                             |> Debug.log "lastLeafGid"
-                            |> unwrapMaybeCmd focusGrainCmd
+                            |> unwrapMaybeCmd focusGidCmd
                         )
 
                     else

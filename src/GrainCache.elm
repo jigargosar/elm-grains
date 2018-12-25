@@ -14,8 +14,10 @@ module GrainCache exposing
     , moveBy
     , moveOneLevelDown
     , moveOneLevelUp
+    , nextGid
     , nextSiblingGidOfGid
     , nextSiblingOfParentOfGid
+    , prevGid
     , remove
     , setSaved
     , toList
@@ -92,6 +94,42 @@ lastLeafGid model =
 firstChildGid : GrainId -> GrainCache -> Maybe GrainId
 firstChildGid gid model =
     getChildren gid model |> List.head |> Maybe.map id
+
+
+nextGid : GrainId -> GrainCache -> Maybe GrainId
+nextGid gid model =
+    firstChildGid gid
+        model
+        |> Maybe.orElseLazy
+            (\_ ->
+                nextSiblingGidOfGid
+                    gid
+                    model
+            )
+        |> Maybe.orElseLazy
+            (\_ ->
+                nextSiblingOfParentOfGid
+                    gid
+                    model
+            )
+
+
+prevGid : GrainId -> GrainCache -> Maybe GrainId
+prevGid gid model =
+    firstChildGid gid
+        model
+        |> Maybe.orElseLazy
+            (\_ ->
+                nextSiblingGidOfGid
+                    gid
+                    model
+            )
+        |> Maybe.orElseLazy
+            (\_ ->
+                nextSiblingOfParentOfGid
+                    gid
+                    model
+            )
 
 
 nextSiblingGidOfGid : GrainId -> GrainCache -> Maybe GrainId
