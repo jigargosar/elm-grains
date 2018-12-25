@@ -111,32 +111,38 @@ lastRoot =
 -- RELATIVE GRAIN HELPERS --
 
 
-firstChildGid : GrainId -> GrainCache -> Maybe GrainId
-firstChildGid gid model =
-    getChildren gid model |> List.head |> Maybe.map id
+firstChildOf : Grain -> GrainCache -> Maybe Grain
+firstChildOf grain =
+    childGrains grain >> List.head
 
 
-lastChildGid : GrainId -> GrainCache -> Maybe GrainId
-lastChildGid gid model =
-    getChildren gid model |> List.last |> Maybe.map id
+lastChildOf : Grain -> GrainCache -> Maybe Grain
+lastChildOf grain =
+    childGrains grain >> List.last
 
 
 nextGid : GrainId -> GrainCache -> Maybe GrainId
 nextGid gid model =
-    firstChildGid gid
-        model
+    getGrainById gid model
+        |> Maybe.map (nextGrain >> callWith model >> Grain.id)
+
+
+nextGrain : Grain -> GrainCache -> Grain
+nextGrain grain model =
+    firstChildOf grain model
         |> Maybe.orElseLazy
             (\_ ->
                 nextSiblingGidOfGid
-                    gid
+                    grain
                     model
             )
         |> Maybe.orElseLazy
             (\_ ->
                 nextSiblingOfParentOfGid
-                    gid
+                    grain
                     model
             )
+        |> Maybe.withDefault grain
 
 
 prevGid : GrainId -> GrainCache -> Maybe GrainId
@@ -273,6 +279,7 @@ allGrains =
     toList >> List.map SavedGrain.value
 
 
+childGrains : Grain -> GrainCache -> List Grain
 childGrains grain =
     allGrains >> List.filter (Grain.isChildOf grain)
 
@@ -571,13 +578,6 @@ getSiblingsOf : SavedGrain -> GrainCache -> List SavedGrain
 getSiblingsOf savedGrain model =
     toList model
         |> List.filter (eqByParentId savedGrain)
-        |> List.sortWith defaultComparator
-
-
-getChildren : GrainId -> GrainCache -> List SavedGrain
-getChildren gid model =
-    toList model
-        |> List.filter (isChildOfGrainId gid)
         |> List.sortWith defaultComparator
 
 
