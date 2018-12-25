@@ -907,6 +907,7 @@ toGrainListView model =
             \gid ->
                 K.bindEachToMsg
                     [ ( K.arrowDown, pd <| FocusNext )
+                    , ( K.arrowUp, pd <| FocusPrev )
 
                     --, ( K.enter, pd <| updateIEG IE_Submit gid )
                     --, ( K.esc, pd <| updateIEG IE_Discard gid )
