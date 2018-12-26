@@ -6,7 +6,6 @@ module GrainCache exposing
     , batchUpdate
     , decoder
     , encoder
-    , firstRootGid
     , get
     , init
     , lastLeafGid
@@ -18,6 +17,7 @@ module GrainCache exposing
     , parentByGid
     , prevByGid
     , rejectSubTreeAndFlatten
+    , rootGid
     , rootGrains
     , toRawList
     , updateFromFirebaseChangeList
@@ -167,9 +167,13 @@ getGrainById gid =
 -- EXPOSED GID NAV HELPERS --
 
 
-firstRootGid : GrainCache -> Maybe GrainId
-firstRootGid =
-    firstRoot >> Maybe.map Grain.id
+rootGid : GrainCache -> GrainId
+rootGid =
+    rootGrain >> Grain.id
+
+
+
+-- OLD CODE:  CURRENT PASS --
 
 
 lastLeafGid : GrainCache -> Maybe GrainId
@@ -555,10 +559,6 @@ remove grain =
     GrainIdLookup.remove (Grain.id grain)
 
 
-
---- OLD CODE : CHECK IN NEXT PASS ---
-
-
 getSiblingsById : GrainId -> GrainCache -> List SavedGrain
 getSiblingsById gid model =
     get gid model |> Maybe.unwrap [] (getSiblingsOf__ >> callWith model)
@@ -582,10 +582,6 @@ getParentIdOfGid gid =
 
 toRawList =
     GrainIdLookup.toList
-
-
-
--- OLD CODE:  CURRENT PASS --
 
 
 idExists gid =
