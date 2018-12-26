@@ -273,8 +273,33 @@ load =
         >> Result.mapError D.errorToString
 
 
+type alias UpdateResult =
+    Result String GrainCache
+
+
+update :
+    (Grain -> Grain)
+    -> GrainId
+    -> GrainCache
+    -> UpdateResult
+update changeFn gid model =
+    if GrainIdLookup.member gid model then
+        let
+            updateFn =
+                SavedGrain.change changeFn
+        in
+        Result.Ok <| GrainIdLookup.updateIfExists gid updateFn model
+
+    else
+        Result.Err "GrainNotFound"
+
+
 
 -- UPDATE HELPERS
+
+
+insertBlind grain model =
+    GrainIdLookup.insert (Grain.id grain) (SavedGrain.new grain) model
 
 
 setSaved : Grain -> GrainCache -> GrainCache
@@ -325,10 +350,6 @@ getParentIdOfGid gid =
 
 toRawList =
     GrainIdLookup.toList
-
-
-type alias UpdateResult =
-    Result String GrainCache
 
 
 addNewGrain : Grain -> GrainCache -> UpdateResult
@@ -454,27 +475,6 @@ ifCanAddGrainThen fn grain model =
 
 idExists gid =
     GrainIdLookup.member gid
-
-
-insertBlind grain model =
-    GrainIdLookup.insert (Grain.id grain) (SavedGrain.new grain) model
-
-
-update :
-    (Grain -> Grain)
-    -> GrainId
-    -> GrainCache
-    -> UpdateResult
-update changeFn gid model =
-    if GrainIdLookup.member gid model then
-        let
-            updateFn =
-                SavedGrain.change changeFn
-        in
-        Result.Ok <| GrainIdLookup.updateIfExists gid updateFn model
-
-    else
-        Result.Err "GrainNotFound"
 
 
 batchUpdate : List ( Grain -> Grain, GrainId ) -> GrainCache -> UpdateResult
