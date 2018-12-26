@@ -224,16 +224,6 @@ lastRoot =
 -- RELATIVE GRAIN HELPERS --
 
 
-firstChildOf : Grain -> GrainCache -> Maybe Grain
-firstChildOf grain =
-    childGrains grain >> List.head
-
-
-lastChildOf : Grain -> GrainCache -> Maybe Grain
-lastChildOf grain =
-    childGrains grain >> List.last
-
-
 nextGrainOrSame : Grain -> GrainCache -> Grain
 nextGrainOrSame grain =
     rootTreeZipper
