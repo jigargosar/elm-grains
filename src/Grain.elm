@@ -25,6 +25,7 @@ module Grain exposing
     , parentId
     , parentIdAsGrainId
     , parentIdEq
+    , root
     , rootParentId
     , titleOrEmpty
     , toDomIdWithPrefix
@@ -182,7 +183,7 @@ id =
 
 
 isRoot =
-    parentId >> eqs rootParentId
+    idEq GrainId.root
 
 
 idEq gid =
