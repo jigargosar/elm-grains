@@ -10,7 +10,6 @@ module GrainCache exposing
     , encoder
     , firstRootGid
     , get
-    , isDescendent
     , lastLeafGid
     , load
     , moveBy
@@ -136,17 +135,6 @@ rejectSubTreeOf grain model =
 rejectSubTreeAndFlatten : Grain -> GrainCache -> List Grain
 rejectSubTreeAndFlatten grain =
     rejectSubTreeOf grain >> flattenZippers
-
-
-isDescendent : Grain -> Grain -> GrainCache -> Bool
-isDescendent descendent ancestor model =
-    if Grain.isParentOf descendent ancestor then
-        True
-
-    else
-        parentGrain descendent model
-            |> Maybe.unwrap False
-                (isDescendent >> callWith2 ancestor model)
 
 
 
