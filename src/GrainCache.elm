@@ -443,15 +443,6 @@ moveBy :
     -> GrainCache
     -> UpdateResult
 moveBy offset gid now model =
-    let
-        maybeZipper =
-            rootTreeZipper model
-                |> TZ.findFromRoot (Grain.idEq gid)
-
-        _ =
-            maybeZipper
-                |> Maybe.map TZ.children
-    in
     get__ gid model
         |> Result.fromMaybe "Error: setSortIdx: Grain Not Found in Cache"
         |> Result.andThen (moveHelp now offset >> callWith model)
