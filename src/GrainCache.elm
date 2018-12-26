@@ -49,6 +49,8 @@ import Return exposing (Return)
 import Return3 as R3 exposing (Return3F)
 import SavedGrain exposing (SavedGrain)
 import Time exposing (Posix)
+import Tree
+import Tree.Zipper
 
 
 type alias GrainCache =
@@ -73,6 +75,55 @@ empty =
 
 
 -- EXPOSED QUERY
+
+
+type alias Forest =
+    List GrainTree
+
+
+type alias GrainTree =
+    Tree.Tree Grain
+
+
+
+--type alias Path =
+--    List GrainId
+--
+--
+
+
+forest : GrainCache -> Forest
+forest grainCache =
+    rootGrains grainCache |> List.map (tree grainCache)
+
+
+tree : GrainCache -> Grain -> GrainTree
+tree grainCache grain =
+    let
+        newForest : Forest
+        newForest =
+            childGrains grain grainCache
+                |> List.map (tree grainCache)
+    in
+    Tree.tree grain newForest
+
+
+rejectSubTreeOf grain model =
+    let
+        forestZippers =
+            forest model
+                |> List.map Tree.Zipper.fromTree
+
+        _ =
+            forestZippers
+                |> List.map
+                    (\z ->
+                        Tree.Zipper.findFromRoot (Grain.eqById grain) z
+                            |> Maybe.andThen Tree.Zipper.removeTree
+                            |> Maybe.withDefault z
+                    )
+    in
+    1
 
 
 isDescendent : Grain -> Grain -> GrainCache -> Bool
