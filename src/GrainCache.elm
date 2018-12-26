@@ -230,15 +230,6 @@ lastLeafOf grain model =
 --- OLD CODE ---
 
 
-nextSiblingGidOfGid : GrainId -> GrainCache -> Maybe GrainId
-nextSiblingGidOfGid gid model =
-    getSiblingsById gid model
-        |> List.dropWhile (idEq gid >> not)
-        |> List.drop 1
-        |> List.head
-        |> Maybe.map id
-
-
 getSiblingsById : GrainId -> GrainCache -> List SavedGrain
 getSiblingsById gid model =
     get gid model |> Maybe.unwrap [] (getSiblingsOf__ >> callWith model)
