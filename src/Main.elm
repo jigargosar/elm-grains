@@ -783,7 +783,7 @@ update message model =
                     else if K.isHotKey K.arrowUp ke then
                         ( model
                         , focusLastOrLazy
-                            (\_ -> GrainCache.lastLeafGid model.grainCache)
+                            (\_ -> Just <| GrainCache.lastLeafGid model.grainCache)
                         )
 
                     else

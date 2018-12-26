@@ -176,9 +176,16 @@ rootGid =
 -- OLD CODE:  CURRENT PASS --
 
 
-lastLeafGid : GrainCache -> Maybe GrainId
+lastLeafGid : GrainCache -> GrainId
 lastLeafGid =
-    lastLeaf >> Maybe.map Grain.id
+    lastLeaf >> Grain.id
+
+
+lastLeaf : GrainCache -> Grain
+lastLeaf =
+    rootTreeZipper
+        >> TZ.lastDescendant
+        >> TZ.label
 
 
 nextByGid : GrainId -> GrainCache -> Maybe Grain
@@ -199,28 +206,9 @@ parentByGid gid model =
         |> Maybe.andThen (parentGrain >> callWith model)
 
 
-
--- ABSOLUTE GRAIN HELPERS --
-
-
-lastLeaf : GrainCache -> Maybe Grain
-lastLeaf model =
-    lastRoot model
-        |> Maybe.map
-            (treeFromCache model
-                >> TZ.fromTree
-                >> TZ.lastDescendant
-                >> TZ.label
-            )
-
-
 lastRoot : GrainCache -> Maybe Grain
 lastRoot =
     rootGrains >> List.last
-
-
-
--- RELATIVE GRAIN HELPERS --
 
 
 nextGrainOrSame : Grain -> GrainCache -> Grain
