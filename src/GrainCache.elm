@@ -96,11 +96,6 @@ type alias GrainZipper =
     TZ.Zipper Grain
 
 
-forestFromCache : GrainCache -> Forest
-forestFromCache grainCache =
-    rootGrains grainCache |> List.map (treeFromCache grainCache)
-
-
 treeFromCache : GrainCache -> Grain -> GrainTree
 treeFromCache grainCache grain =
     let
@@ -110,10 +105,6 @@ treeFromCache grainCache grain =
                 |> List.map (treeFromCache grainCache)
     in
     Tree.tree grain newForest
-
-
-zippersFromCache =
-    forestFromCache >> List.map TZ.fromTree
 
 
 rootGrain : GrainCache -> Grain
@@ -245,10 +236,6 @@ lastLeafOf grain model =
             |> Maybe.unwrap grain (lastLeafOf >> callWith model)
 
 
-
--- EXPOSED ADDERS --
-
-
 addNew : Grain -> GrainCache -> UpdateResult
 addNew =
     ifCanAddGrainThen <|
@@ -356,9 +343,6 @@ insertGrainThenBatchUpdate updaters grain model =
 
 addNewAfterBatchUpdaters siblingGid now grain model =
     let
-        zippers =
-            zippersFromCache model
-
         maybeSortIndexUpdaters : Maybe (List GrainUpdater)
         maybeSortIndexUpdaters =
             rootTreeZipper model
