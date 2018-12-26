@@ -289,6 +289,28 @@ addNewAfterBatchUpdaters siblingGid now grain =
             )
 
 
+updatePidAndSortIndices now grain =
+    TZ.parent
+        >> Maybe.map
+            (\pz ->
+                let
+                    childUpdaters =
+                        pz
+                            |> TZ.children
+                            >> List.map Tree.label
+                            >> listToSortIdxUpdaters now
+
+                    pidUpdater =
+                        pz
+                            |> TZ.label
+                            >> Grain.idAsParentId
+                            >> parentIdUpdater
+                            >> callWith2 now (Grain.id grain)
+                in
+                pidUpdater :: childUpdaters
+            )
+
+
 addNewBeforeBatchUpdaters siblingGid now grain model =
     let
         maybeSortIndexUpdaters : Maybe (List GrainUpdater)
