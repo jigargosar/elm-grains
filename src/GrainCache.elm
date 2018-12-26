@@ -40,6 +40,7 @@ import Json.Decode.Pipeline exposing (hardcoded, required)
 import Json.Encode as E exposing (Value)
 import List.Extra as List
 import Maybe.Extra as Maybe
+import Pivot exposing (Pivot)
 import Port
 import Random exposing (Generator, Seed)
 import Random.Pipeline as Random
@@ -277,6 +278,16 @@ insertAfter afterItem item list =
                     )
     in
     1
+
+
+type alias SiblingsPivot =
+    Pivot Grain
+
+
+siblingsPivotOf : Grain -> GrainCache -> Maybe SiblingsPivot
+siblingsPivotOf grain model =
+    Pivot.fromList (siblingsOf grain model)
+        |> Maybe.andThen (Pivot.firstWith (Grain.eqById grain))
 
 
 addNewAfterHelp siblingGid grain model =
