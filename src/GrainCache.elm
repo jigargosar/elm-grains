@@ -70,6 +70,25 @@ empty =
     GrainIdLookup.empty
 
 
+
+-- EXPOSED QUERY
+
+
+isDescendent : Grain -> Grain -> GrainCache -> Bool
+isDescendent descendent ancestor model =
+    if Grain.isParentOf descendent ancestor then
+        True
+
+    else
+        parentGrain descendent model
+            |> Maybe.unwrap False
+                (isDescendent >> callWith2 ancestor model)
+
+
+
+-- QUERY HELPERS
+
+
 getGrainById : GrainId -> GrainCache -> Maybe Grain
 getGrainById gid =
     get gid >> Maybe.map SavedGrain.value
@@ -271,7 +290,7 @@ remove grain =
 
 
 
---- OLD CODE ---
+--- OLD CODE : CHECK IN NEXT PASS ---
 
 
 getSiblingsById : GrainId -> GrainCache -> List SavedGrain
@@ -282,6 +301,10 @@ getSiblingsById gid model =
 get : GrainId -> GrainCache -> Maybe SavedGrain
 get gid =
     GrainIdLookup.get gid
+
+
+
+-- OLD CODE:  CURRENT PASS --
 
 
 getParentOfGrain : Grain -> GrainCache -> Maybe SavedGrain
@@ -304,20 +327,6 @@ parentGidOfGid gid =
 getParentIdOfGid : GrainId -> GrainCache -> Maybe Grain.ParentId
 getParentIdOfGid gid =
     get gid >> Maybe.map parentId
-
-
-isDescendent : Grain -> Grain -> GrainCache -> Bool
-isDescendent descendent ancestor model =
-    if Grain.isParentOf descendent ancestor then
-        True
-
-    else
-        getParentOfGrain descendent model
-            |> Maybe.unwrap False
-                (SavedGrain.value
-                    >> isDescendent
-                    >> callWith2 ancestor model
-                )
 
 
 toRawList =
