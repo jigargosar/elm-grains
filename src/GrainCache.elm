@@ -171,6 +171,12 @@ prevByGid gid model =
         |> Maybe.map (prevGrainOrSame >> callWith model)
 
 
+parentByGid : GrainId -> GrainCache -> Maybe Grain
+parentByGid gid model =
+    getGrainById gid model
+        |> Maybe.andThen (parentGrain >> callWith model)
+
+
 
 -- ABSOLUTE GRAIN HELPERS --
 
@@ -553,12 +559,6 @@ getParentOfGrain : Grain -> GrainCache -> Maybe SavedGrain
 getParentOfGrain grain model =
     Grain.parentIdAsGrainId grain
         |> Maybe.andThen (GrainIdLookup.get >> callWith model)
-
-
-parentByGid : GrainId -> GrainCache -> Maybe Grain
-parentByGid gid model =
-    getGrainById gid model
-        |> Maybe.andThen (parentGrain >> callWith model)
 
 
 getParentIdOfGid : GrainId -> GrainCache -> Maybe Grain.ParentId
