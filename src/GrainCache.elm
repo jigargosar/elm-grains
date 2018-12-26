@@ -124,12 +124,11 @@ flattenZippers =
 rejectSubTreeOf : Grain -> GrainCache -> List GrainZipper
 rejectSubTreeOf grain model =
     zippersFromCache model
-        |> List.map
+        |> List.filterMap
             (\z ->
                 Tree.Zipper.findFromRoot (Grain.eqById grain) z
                     |> Maybe.unwrap (Just z) Tree.Zipper.removeTree
             )
-        |> List.filterMap identity
 
 
 rejectSubTreeAndFlatten : Grain -> GrainCache -> List Grain
