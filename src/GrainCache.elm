@@ -454,13 +454,6 @@ addNewAfterBatchUpdaters siblingGid now grain model =
         maybeSetParentUpdater =
             getParentIdOfGid siblingGid model
                 |> Maybe.map (parentIdUpdater >> callWith2 now gid)
-
-        maybeSortIndexUpdaters_ =
-            model
-                |> mapSiblingsOfGrainWithId siblingGid
-                    (Pivot.appendR grain
-                        >> siblingsToSortIdxUpdaters now
-                    )
     in
     Maybe.map2 (::)
         maybeSetParentUpdater
