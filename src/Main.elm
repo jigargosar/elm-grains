@@ -979,7 +979,7 @@ toGrainListView model =
                 |> sort
 
         rootGrains =
-            allGrains |> List.filter (Grain.parentIdEq Grain.rootIdAsParentId)
+            GrainCache.rootGrains model.grainCache
 
         updateIEG2 =
             \msgFn gid -> UpdateInlineEditGrain gid << msgFn

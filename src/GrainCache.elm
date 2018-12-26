@@ -18,6 +18,7 @@ module GrainCache exposing
     , parentByGid
     , prevByGid
     , rejectSubTreeAndFlatten
+    , rootGrains
     , toRawList
     , updateFromFirebaseChangeList
     , updateWithGrainUpdate
