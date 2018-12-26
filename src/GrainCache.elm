@@ -93,6 +93,12 @@ nextGid gid model =
         |> Maybe.map (nextGrainOrSame >> callWith model >> Grain.id)
 
 
+prevGid : GrainId -> GrainCache -> Maybe GrainId
+prevGid gid model =
+    getGrainById gid model
+        |> Maybe.map (prevGrainOrSame >> callWith model >> Grain.id)
+
+
 
 -- ABSOLUTE GRAIN HELPERS --
 
@@ -138,6 +144,22 @@ nextGrainOrSame grain model =
                 nextSiblingOfParentOf grain model
             )
         |> Maybe.withDefault grain
+
+
+prevGrainOrSame : Grain -> GrainCache -> Grain
+prevGrainOrSame grain model =
+    prevSiblingOf grain model
+        |> Maybe.map (lastLeafOf >> callWith model)
+        |> Maybe.orElseLazy
+            (\_ -> parentGrain grain model)
+        |> Maybe.withDefault grain
+
+
+prevSiblingOf : Grain -> GrainCache -> Maybe Grain
+prevSiblingOf grain model =
+    siblingsOf grain model
+        |> List.takeWhile (Grain.eqById grain >> not)
+        |> List.last
 
 
 nextSiblingOf : Grain -> GrainCache -> Maybe Grain
@@ -186,20 +208,22 @@ parentGrain grain model =
         |> Maybe.andThen (getGrainById >> callWith model)
 
 
+lastLeafOf : Grain -> GrainCache -> Grain
+lastLeafOf grain model =
+    let
+        children =
+            childGrains grain model
+    in
+    if List.isEmpty children then
+        grain
+
+    else
+        List.last children
+            |> Maybe.unwrap grain (lastLeafOf >> callWith model)
+
+
 
 --- OLD CODE ---
-
-
-prevGid : GrainId -> GrainCache -> Maybe GrainId
-prevGid gid model =
-    prevSiblingGidOfGid gid model
-        |> Maybe.map (lastLeafGidOfGid >> callWith model)
-        |> Maybe.orElseLazy
-            (\_ ->
-                parentGidOfGid
-                    gid
-                    model
-            )
 
 
 nextSiblingGidOfGid : GrainId -> GrainCache -> Maybe GrainId
@@ -208,14 +232,6 @@ nextSiblingGidOfGid gid model =
         |> List.dropWhile (idEq gid >> not)
         |> List.drop 1
         |> List.head
-        |> Maybe.map id
-
-
-prevSiblingGidOfGid : GrainId -> GrainCache -> Maybe GrainId
-prevSiblingGidOfGid gid model =
-    getSiblingsById gid model
-        |> List.takeWhile (idEq gid >> not)
-        |> List.last
         |> Maybe.map id
 
 
@@ -249,20 +265,6 @@ lastLeafGidOfGid gid model =
     getGrainById gid model
         |> Maybe.map (lastLeafOf >> callWith model)
         |> Maybe.unwrap gid Grain.id
-
-
-lastLeafOf : Grain -> GrainCache -> Grain
-lastLeafOf grain model =
-    let
-        children =
-            childGrains grain model
-    in
-    if List.isEmpty children then
-        grain
-
-    else
-        List.last children
-            |> Maybe.unwrap grain (lastLeafOf >> callWith model)
 
 
 getGrainById : GrainId -> GrainCache -> Maybe Grain
