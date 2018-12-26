@@ -19,20 +19,23 @@ type alias GrainTree =
 --    List GrainId
 --
 --
---forest : GrainCache -> Forest
---forest grainCache =
---    let
---        rootGrains =
---            GrainCache.rootGrains grainCache
---    in
---    rootGrains |> List.map (tree grainCache)
---
---
---tree : GrainCache -> Grain -> GrainTree
---tree grainCache grain =
---    let
---        newForest =
---            GrainCache.childGrains grain grainCache
---                |> List.map (tree grainCache)
---    in
---    Tree grain newForest
+
+
+forest : GrainCache -> Forest
+forest grainCache =
+    let
+        rootGrains =
+            GrainCache.rootGrains grainCache
+    in
+    rootGrains |> List.map (tree grainCache)
+
+
+tree : GrainCache -> Grain -> GrainTree
+tree grainCache grain =
+    let
+        newForest : Forest
+        newForest =
+            GrainCache.childGrains grain grainCache
+                |> List.map (tree grainCache)
+    in
+    Tree.tree grain newForest
