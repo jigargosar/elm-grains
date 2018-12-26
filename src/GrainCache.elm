@@ -253,7 +253,7 @@ addNew =
     ifCanAddGrainThen <|
         \grain model ->
             Result.Ok <|
-                insertBlind grain model
+                blindInsertGrain grain model
 
 
 addNewAfter : GrainId -> Grain -> GrainCache -> UpdateResult
@@ -287,19 +287,6 @@ mapSiblingsOfGrainWithId gid fn model =
         |> Maybe.join
 
 
-insertAfter afterItem item list =
-    let
-        insertIdx =
-            List.elemIndex afterItem list
-                |> Maybe.map
-                    ((+) 1
-                        >> List.splitAt
-                        >> callWith list
-                    )
-    in
-    1
-
-
 type alias SiblingsPivot =
     Pivot Grain
 
@@ -315,65 +302,34 @@ addNewAfterHelp siblingGid grain model =
         now =
             Grain.createdAt grain
 
-        maybeNewParentId =
+        maybeSetParentUpdater =
             getParentIdOfGid siblingGid model
-
-        --        _ =
-        --            model
-        --                |> mapGrainWithId siblingGid
-        --                    (siblingsPivotOf
-        --                        >> callWith model
-        --                        >> Maybe.map(\siblingsPivot ->
-        --                                let
-        --                                    allSiblings =
-        --                                        siblingsOf siblingGrain model
-        --
-        --                                    splitIndex =
-        --                                        siblings
-        --                                            |> List.findIndex (Grain.idEq siblingGid)
-        --                                            |> Maybe.map ((+) 1)
-        --                                in
-        --                                1
-        --                           )
-        --                    )
-        siblings =
-            getGrainById siblingGid model
-                |> Maybe.unwrap [] (siblingsOf >> callWith model)
-
-        newIdx =
-            siblings
-                |> List.findIndex (Grain.idEq siblingGid)
-                |> Maybe.map ((+) 1)
-
-        insertGrainBetween ( left, right ) =
-            left ++ [ grain ] ++ right
+                |> Maybe.map
+                    (\pid ->
+                        ( Grain.update now (Grain.SetParentId pid), Grain.id grain )
+                    )
 
         maybeSortIndexUpdaters =
-            newIdx
-                |> Maybe.map
-                    (List.splitAt
-                        >> callWith siblings
-                        >> insertGrainBetween
-                        >> Grain.listToEffectiveSortIndices
-                        >> List.map
+            model
+                |> mapSiblingsOfGrainWithId siblingGid
+                    (Pivot.appendGoR grain
+                        >> Pivot.indexAbsolute
+                        >> Pivot.mapA
                             (Tuple.mapBoth
                                 (Grain.SetSortIdx >> Grain.update now)
                                 Grain.id
                             )
+                        >> Pivot.toList
                     )
     in
-    Maybe.map2
-        (\pid updaters ->
-            let
-                gid =
-                    Grain.id grain
-            in
-            insertBlind grain model
-                |> updateWithGrainUpdate (Grain.SetParentId pid) gid now
-                |> Result.andThen (batchUpdate updaters)
-        )
-        maybeNewParentId
+    Maybe.map2 (::)
+        maybeSetParentUpdater
         maybeSortIndexUpdaters
+        |> Maybe.map
+            (\updaters ->
+                blindInsertGrain grain model
+                    |> batchUpdate updaters
+            )
         |> Maybe.withDefault (Result.Err "Err: addNewGrainAfter")
 
 
@@ -418,7 +374,7 @@ addNewGrainBefore siblingGid =
                         gid =
                             Grain.id grain
                     in
-                    insertBlind grain model
+                    blindInsertGrain grain model
                         |> updateWithGrainUpdate (Grain.SetParentId pid) gid now
                         |> Result.andThen (batchUpdate updaters)
                 )
@@ -482,7 +438,7 @@ update changeFn gid model =
 -- UPDATE HELPERS
 
 
-insertBlind grain model =
+blindInsertGrain grain model =
     GrainIdLookup.insert (Grain.id grain) (SavedGrain.new grain) model
 
 
