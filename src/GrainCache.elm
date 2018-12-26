@@ -6,7 +6,7 @@ module GrainCache exposing
     , batchUpdate
     , decoder
     , encoder
-    , get
+    , get__
     , init
     , lastLeafGid
     , load
@@ -148,7 +148,7 @@ rejectSubTreeAndFlatten grain =
 
 getGrainById : GrainId -> GrainCache -> Maybe Grain
 getGrainById gid =
-    get gid >> Maybe.map SavedGrain.value
+    get__ gid >> Maybe.map SavedGrain.value
 
 
 rootGid : GrainCache -> GrainId
@@ -255,6 +255,11 @@ parentIdUpdater pid now gid =
     ( Grain.update now (Grain.SetParentId pid)
     , gid
     )
+
+
+getParentIdOfGid : GrainId -> GrainCache -> Maybe Grain.ParentId
+getParentIdOfGid gid =
+    get__ gid >> Maybe.map parentId
 
 
 addNewAfterBatchUpdaters siblingGid now grain model =
@@ -386,11 +391,11 @@ remove grain =
 
 getSiblingsById : GrainId -> GrainCache -> List SavedGrain
 getSiblingsById gid model =
-    get gid model |> Maybe.unwrap [] (getSiblingsOf__ >> callWith model)
+    get__ gid model |> Maybe.unwrap [] (getSiblingsOf__ >> callWith model)
 
 
-get : GrainId -> GrainCache -> Maybe SavedGrain
-get gid =
+get__ : GrainId -> GrainCache -> Maybe SavedGrain
+get__ gid =
     GrainIdLookup.get gid
 
 
@@ -398,11 +403,6 @@ getParentOfGrain : Grain -> GrainCache -> Maybe SavedGrain
 getParentOfGrain grain model =
     Grain.parentIdAsGrainId grain
         |> Maybe.andThen (GrainIdLookup.get >> callWith model)
-
-
-getParentIdOfGid : GrainId -> GrainCache -> Maybe Grain.ParentId
-getParentIdOfGid gid =
-    get gid >> Maybe.map parentId
 
 
 toRawList =
@@ -443,7 +443,7 @@ moveBy :
     -> GrainCache
     -> UpdateResult
 moveBy offset gid now model =
-    get gid model
+    get__ gid model
         |> Result.fromMaybe "Error: setSortIdx: Grain Not Found in Cache"
         |> Result.andThen (moveHelp now offset >> callWith model)
 

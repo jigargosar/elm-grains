@@ -146,7 +146,7 @@ grainById gid =
 
 
 savedGrainById gid =
-    .grainCache >> GrainCache.get gid
+    .grainCache >> GrainCache.get__ gid
 
 
 setNewSeed newSeed model =
