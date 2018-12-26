@@ -979,7 +979,7 @@ toGrainListView model =
                 |> sort
 
         rootGrains =
-            GrainCache.rootGrains model.grainCache
+            GrainCache.rootGrains__ model.grainCache
 
         updateIEG2 =
             \msgFn gid -> UpdateInlineEditGrain gid << msgFn

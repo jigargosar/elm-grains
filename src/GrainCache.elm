@@ -18,7 +18,7 @@ module GrainCache exposing
     , prevByGid
     , rejectSubTreeAndFlatten
     , rootGid
-    , rootGrains
+    , rootGrains__
     , toRawList
     , updateFromFirebaseChangeList
     , updateWithGrainUpdate
@@ -188,7 +188,7 @@ parentByGid gid =
         >> Maybe.unwrap gid (TZ.label >> Grain.id)
 
 
-rootGrains =
+rootGrains__ =
     allGrains >> List.filter Grain.isRoot
 
 
