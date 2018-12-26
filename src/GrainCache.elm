@@ -448,6 +448,33 @@ moveBy offset gid now model =
         |> Result.andThen (moveHelp now offset >> callWith model)
 
 
+moveHelp : Posix -> Int -> SavedGrain -> GrainCache -> UpdateResult
+moveHelp now offset savedGrain model =
+    let
+        siblings : List SavedGrain
+        siblings =
+            getSiblingsOf__ savedGrain model
+
+        gIdx : Int
+        gIdx =
+            List.findIndex (eqById savedGrain)
+                siblings
+                |> Maybe.withDefault -1
+
+        updaters : List ( Grain -> Grain, GrainId )
+        updaters =
+            List.swapAt gIdx (gIdx + offset) siblings
+                |> List.map SavedGrain.value
+                |> Grain.listToEffectiveSortIndices
+                |> List.map
+                    (Tuple.mapBoth
+                        (Grain.SetSortIdx >> Grain.update now)
+                        Grain.id
+                    )
+    in
+    batchUpdate updaters model
+
+
 moveOneLevelUp gid now model =
     getGrainById gid model
         |> Maybe.andThen (moveOneLevelUpHelp now model)
@@ -495,33 +522,6 @@ moveGrainAfter now model grain sibling =
             Grain.parentId sibling
     in
     updateWithGrainUpdate (Grain.SetParentId newParentId) gid now model
-
-
-moveHelp : Posix -> Int -> SavedGrain -> GrainCache -> UpdateResult
-moveHelp now offset savedGrain model =
-    let
-        siblings : List SavedGrain
-        siblings =
-            getSiblingsOf__ savedGrain model
-
-        gIdx : Int
-        gIdx =
-            List.findIndex (eqById savedGrain)
-                siblings
-                |> Maybe.withDefault -1
-
-        updaters : List ( Grain -> Grain, GrainId )
-        updaters =
-            List.swapAt gIdx (gIdx + offset) siblings
-                |> List.map SavedGrain.value
-                |> Grain.listToEffectiveSortIndices
-                |> List.map
-                    (Tuple.mapBoth
-                        (Grain.SetSortIdx >> Grain.update now)
-                        Grain.id
-                    )
-    in
-    batchUpdate updaters model
 
 
 getSiblingsOf__ : SavedGrain -> GrainCache -> List SavedGrain
