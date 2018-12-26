@@ -257,11 +257,6 @@ parentIdUpdater pid now gid =
     )
 
 
-getParentIdOfGid : GrainId -> GrainCache -> Maybe Grain.ParentId
-getParentIdOfGid gid =
-    get__ gid >> Maybe.map parentId
-
-
 addNewAfterBatchUpdaters siblingGid now grain =
     rootTreeZipper
         >> TZ.findFromRoot (Grain.idEq siblingGid)
