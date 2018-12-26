@@ -19,9 +19,7 @@ module GrainCache exposing
     , nextGid
     , parentGidOfGid
     , prevGid
-    , remove
     , rootGrains
-    , setSaved
     , toRawList
     , updateFromFirebaseChangeList
     , updateWithGrainUpdate
@@ -257,6 +255,22 @@ load =
 
 
 
+-- UPDATE HELPERS
+
+
+setSaved : Grain -> GrainCache -> GrainCache
+setSaved grain =
+    GrainIdLookup.update (Grain.id grain)
+        (Maybe.map (SavedGrain.setSaved grain)
+            >> Maybe.orElseLazy (\_ -> Just <| SavedGrain.new grain)
+        )
+
+
+remove grain =
+    GrainIdLookup.remove (Grain.id grain)
+
+
+
 --- OLD CODE ---
 
 
@@ -308,18 +322,6 @@ isDescendent descendent ancestor model =
 
 toRawList =
     GrainIdLookup.toList
-
-
-setSaved : Grain -> GrainCache -> GrainCache
-setSaved grain =
-    GrainIdLookup.update (Grain.id grain)
-        (Maybe.map (SavedGrain.setSaved grain)
-            >> Maybe.orElseLazy (\_ -> Just <| SavedGrain.new grain)
-        )
-
-
-remove grain =
-    GrainIdLookup.remove (Grain.id grain)
 
 
 type alias UpdateResult =
