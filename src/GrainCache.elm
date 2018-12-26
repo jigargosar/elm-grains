@@ -241,42 +241,6 @@ addNewAndThenBatchUpdate fn grain model =
                 (insertGrainThenBatchUpdate >> callWith2 grain model)
 
 
-mapGrainWithId :
-    GrainId
-    -> (Grain -> a)
-    -> GrainCache
-    -> Maybe a
-mapGrainWithId gid fn model =
-    getGrainById gid model
-        |> Maybe.map fn
-
-
-mapSiblingsOfGrainWithId :
-    GrainId
-    -> (SiblingsPivot -> a)
-    -> GrainCache
-    -> Maybe a
-mapSiblingsOfGrainWithId gid fn model =
-    mapGrainWithId gid
-        (\grain ->
-            siblingsPivotOf grain model
-                |> Maybe.map fn
-        )
-        model
-        |> Maybe.join
-
-
-siblingsToSortIdxUpdaters : Posix -> SiblingsPivot -> List GrainUpdater
-siblingsToSortIdxUpdaters now =
-    Pivot.toList
-        >> List.indexedMap
-            (\idx g ->
-                ( Grain.update now <| Grain.SetSortIdx idx
-                , Grain.id g
-                )
-            )
-
-
 listToSortIdxUpdaters : Posix -> List Grain -> List GrainUpdater
 listToSortIdxUpdaters now =
     List.indexedMap
