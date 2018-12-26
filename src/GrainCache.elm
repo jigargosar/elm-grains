@@ -251,16 +251,6 @@ listToSortIdxUpdaters now =
         )
 
 
-type alias SiblingsPivot =
-    Pivot Grain
-
-
-siblingsPivotOf : Grain -> GrainCache -> Maybe SiblingsPivot
-siblingsPivotOf grain model =
-    Pivot.fromList (siblingsOf grain model)
-        |> Maybe.andThen (Pivot.firstWith (Grain.eqById grain))
-
-
 parentIdUpdater pid now gid =
     ( Grain.update now (Grain.SetParentId pid)
     , gid
