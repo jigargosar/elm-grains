@@ -332,9 +332,9 @@ siblingsPivotOf grain model =
         |> Maybe.andThen (Pivot.firstWith (Grain.eqById grain))
 
 
-parentIdUpdater pid now grain =
+parentIdUpdater pid now gid =
     ( Grain.update now (Grain.SetParentId pid)
-    , Grain.id grain
+    , gid
     )
 
 
@@ -345,9 +345,12 @@ insertGrainThenBatchUpdate updaters grain model =
 
 addNewAfterBatchUpdaters siblingGid now grain model =
     let
+        gid =
+            Grain.id grain
+
         maybeSetParentUpdater =
             getParentIdOfGid siblingGid model
-                |> Maybe.map (parentIdUpdater >> callWith2 now grain)
+                |> Maybe.map (parentIdUpdater >> callWith2 now gid)
 
         maybeSortIndexUpdaters =
             model
