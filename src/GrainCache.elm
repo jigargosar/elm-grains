@@ -15,9 +15,9 @@ module GrainCache exposing
     , moveBy
     , moveOneLevelDown
     , moveOneLevelUp
-    , nextGid
-    , parentGidOfGid
-    , prevGid
+    , nextByGid
+    , parentByGid
+    , prevByGid
     , rejectSubTreeAndFlatten
     , rootGrains
     , toRawList
@@ -159,16 +159,16 @@ lastLeafGid =
     lastLeaf >> Maybe.map Grain.id
 
 
-nextGid : GrainId -> GrainCache -> Maybe GrainId
-nextGid gid model =
+nextByGid : GrainId -> GrainCache -> Maybe Grain
+nextByGid gid model =
     getGrainById gid model
-        |> Maybe.map (nextGrainOrSame >> callWith model >> Grain.id)
+        |> Maybe.map (nextGrainOrSame >> callWith model)
 
 
-prevGid : GrainId -> GrainCache -> Maybe GrainId
-prevGid gid model =
+prevByGid : GrainId -> GrainCache -> Maybe Grain
+prevByGid gid model =
     getGrainById gid model
-        |> Maybe.map (prevGrainOrSame >> callWith model >> Grain.id)
+        |> Maybe.map (prevGrainOrSame >> callWith model)
 
 
 
@@ -555,9 +555,10 @@ getParentOfGrain grain model =
         |> Maybe.andThen (GrainIdLookup.get >> callWith model)
 
 
-parentGidOfGid : GrainId -> GrainCache -> Maybe GrainId
-parentGidOfGid gid =
-    get gid >> Maybe.andThen parentIdAsGrainId
+parentByGid : GrainId -> GrainCache -> Maybe Grain
+parentByGid gid model =
+    getGrainById gid model
+        |> Maybe.andThen (parentGrain >> callWith model)
 
 
 getParentIdOfGid : GrainId -> GrainCache -> Maybe Grain.ParentId

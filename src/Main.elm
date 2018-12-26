@@ -347,6 +347,10 @@ focusMaybeGidCmd =
     unwrapMaybeCmd focusGidCmd
 
 
+focusMaybeGrainCmd =
+    unwrapMaybeCmd (Grain.id >> focusGidCmd)
+
+
 
 -- POPUP UPDATE
 
@@ -628,30 +632,30 @@ update message model =
             ( model
             , getSelectedOrLastSelectedGid model
                 |> Maybe.andThen
-                    (GrainCache.nextGid
+                    (GrainCache.nextByGid
                         >> callWith model.grainCache
                     )
-                |> focusMaybeGidCmd
+                |> focusMaybeGrainCmd
             )
 
         FocusPrev ->
             ( model
             , getSelectedOrLastSelectedGid model
                 |> Maybe.andThen
-                    (GrainCache.prevGid
+                    (GrainCache.prevByGid
                         >> callWith model.grainCache
                     )
-                |> focusMaybeGidCmd
+                |> focusMaybeGrainCmd
             )
 
         FocusParent ->
             ( model
             , getSelectedOrLastSelectedGid model
                 |> Maybe.andThen
-                    (GrainCache.parentGidOfGid
+                    (GrainCache.parentByGid
                         >> callWith model.grainCache
                     )
-                |> focusMaybeGidCmd
+                |> focusMaybeGrainCmd
             )
 
         GrainFocused gid focused ->
