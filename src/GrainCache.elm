@@ -85,6 +85,10 @@ type alias GrainTree =
     Tree.Tree Grain
 
 
+type alias GrainZipper =
+    Tree.Zipper.Zipper GrainTree
+
+
 
 --type alias Path =
 --    List GrainId
@@ -92,35 +96,43 @@ type alias GrainTree =
 --
 
 
-forest : GrainCache -> Forest
-forest grainCache =
-    rootGrains grainCache |> List.map (tree grainCache)
+forestFromCache : GrainCache -> Forest
+forestFromCache grainCache =
+    rootGrains grainCache |> List.map (treeFromCache grainCache)
 
 
-tree : GrainCache -> Grain -> GrainTree
-tree grainCache grain =
+treeFromCache : GrainCache -> Grain -> GrainTree
+treeFromCache grainCache grain =
     let
         newForest : Forest
         newForest =
             childGrains grain grainCache
-                |> List.map (tree grainCache)
+                |> List.map (treeFromCache grainCache)
     in
     Tree.tree grain newForest
 
 
+zippersFromCache =
+    forestFromCache >> List.map Tree.Zipper.fromTree
+
+
+flattenZippers =
+    List.concatMap (Tree.Zipper.toTree >> Tree.flatten)
+
+
 rejectSubTreeOf grain model =
     let
-        forestZippers =
-            forest model
-                |> List.map Tree.Zipper.fromTree
+        zippers =
+            zippersFromCache model
     in
-    forestZippers
+    zippers
         |> List.map
             (\z ->
                 Tree.Zipper.findFromRoot (Grain.eqById grain) z
                     |> Maybe.andThen Tree.Zipper.removeTree
                     |> Maybe.withDefault z
             )
+        |> flattenZippers
 
 
 isDescendent : Grain -> Grain -> GrainCache -> Bool
