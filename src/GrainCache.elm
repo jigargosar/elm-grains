@@ -217,6 +217,12 @@ addNewAfter siblingGid =
         addNewAfterBatchUpdaters siblingGid
 
 
+addNewGrainBefore : GrainId -> Grain -> GrainCache -> UpdateResult
+addNewGrainBefore siblingGid =
+    addNewAndThenBatchUpdate <|
+        addNewBeforeBatchUpdaters siblingGid
+
+
 ifCanAddGrainThen :
     (Grain -> GrainCache -> UpdateResult)
     -> Grain
@@ -290,54 +296,32 @@ addNewAfterBatchUpdaters siblingGid now grain model =
         maybeSortIndexUpdaters
 
 
-addNewGrainBefore : GrainId -> Grain -> GrainCache -> UpdateResult
-addNewGrainBefore siblingGid =
-    ifCanAddGrainThen <|
-        \grain model ->
-            let
-                now =
-                    Grain.createdAt grain
-
-                maybeNewParentId =
-                    getParentIdOfGid siblingGid model
-
-                siblings =
-                    getSiblingsById siblingGid model
-
-                newIdx =
-                    List.findIndex (idEq siblingGid) siblings
-                        |> Maybe.map ((+) 0)
-
-                insertGrainBetween ( left, right ) =
-                    left ++ [ grain ] ++ right
-
-                maybeSortIndexUpdaters =
-                    newIdx
-                        |> Maybe.map
-                            (List.splitAt
-                                >> callWith (List.map SavedGrain.value siblings)
-                                >> insertGrainBetween
-                                >> Grain.listToEffectiveSortIndices
-                                >> List.map
-                                    (Tuple.mapBoth
-                                        (Grain.SetSortIdx >> Grain.update now)
-                                        Grain.id
-                                    )
+addNewBeforeBatchUpdaters siblingGid now grain model =
+    let
+        maybeSortIndexUpdaters : Maybe (List GrainUpdater)
+        maybeSortIndexUpdaters =
+            rootTreeZipper model
+                |> TZ.findFromRoot (Grain.idEq siblingGid)
+                |> Maybe.andThen
+                    (TZ.prepend (Tree.tree grain [])
+                        >> TZ.parent
+                        >> Maybe.map
+                            (TZ.children
+                                >> List.map Tree.label
+                                >> listToSortIdxUpdaters now
                             )
-            in
-            Maybe.map2
-                (\pid updaters ->
-                    let
-                        gid =
-                            Grain.id grain
-                    in
-                    blindInsertGrain grain model
-                        |> updateWithGrainUpdate (Grain.SetParentId pid) gid now
-                        |> Result.andThen (batchUpdate updaters)
-                )
-                maybeNewParentId
-                maybeSortIndexUpdaters
-                |> Maybe.withDefault (Result.Err "Err: addNewGrainAfter")
+                    )
+
+        gid =
+            Grain.id grain
+
+        maybeSetParentUpdater =
+            getParentIdOfGid siblingGid model
+                |> Maybe.map (parentIdUpdater >> callWith2 now gid)
+    in
+    Maybe.map2 (::)
+        maybeSetParentUpdater
+        maybeSortIndexUpdaters
 
 
 
