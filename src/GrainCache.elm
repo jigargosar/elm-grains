@@ -244,112 +244,7 @@ lastLeafOf grain model =
 
 
 
--- EXPOSED UPDATERS
-
-
-updateFromFirebaseChangeList changeList model =
-    let
-        handleChange change =
-            let
-                grain =
-                    GrainChange.grain change
-            in
-            case GrainChange.type_ change of
-                GrainChange.Added ->
-                    setSaved grain
-
-                GrainChange.Modified ->
-                    setSaved grain
-
-                GrainChange.Removed ->
-                    remove grain
-    in
-    List.foldr handleChange model changeList
-        |> Result.Ok
-
-
-load =
-    D.decodeValue decoder
-        >> Result.mapError D.errorToString
-
-
-type alias UpdateResult =
-    Result String GrainCache
-
-
-update :
-    (Grain -> Grain)
-    -> GrainId
-    -> GrainCache
-    -> UpdateResult
-update changeFn gid model =
-    if GrainIdLookup.member gid model then
-        let
-            updateFn =
-                SavedGrain.change changeFn
-        in
-        Result.Ok <| GrainIdLookup.updateIfExists gid updateFn model
-
-    else
-        Result.Err "GrainNotFound"
-
-
-
--- UPDATE HELPERS
-
-
-insertBlind grain model =
-    GrainIdLookup.insert (Grain.id grain) (SavedGrain.new grain) model
-
-
-setSaved : Grain -> GrainCache -> GrainCache
-setSaved grain =
-    GrainIdLookup.update (Grain.id grain)
-        (Maybe.map (SavedGrain.setSaved grain)
-            >> Maybe.orElseLazy (\_ -> Just <| SavedGrain.new grain)
-        )
-
-
-remove grain =
-    GrainIdLookup.remove (Grain.id grain)
-
-
-
---- OLD CODE : CHECK IN NEXT PASS ---
-
-
-getSiblingsById : GrainId -> GrainCache -> List SavedGrain
-getSiblingsById gid model =
-    get gid model |> Maybe.unwrap [] (getSiblingsOf__ >> callWith model)
-
-
-get : GrainId -> GrainCache -> Maybe SavedGrain
-get gid =
-    GrainIdLookup.get gid
-
-
-
--- OLD CODE:  CURRENT PASS --
-
-
-getParentOfGrain : Grain -> GrainCache -> Maybe SavedGrain
-getParentOfGrain grain model =
-    Grain.parentIdAsGrainId grain
-        |> Maybe.andThen (GrainIdLookup.get >> callWith model)
-
-
-parentGidOfGid : GrainId -> GrainCache -> Maybe GrainId
-parentGidOfGid gid =
-    get gid >> Maybe.andThen parentIdAsGrainId
-
-
-getParentIdOfGid : GrainId -> GrainCache -> Maybe Grain.ParentId
-getParentIdOfGid gid =
-    get gid >> Maybe.map parentId
-
-
-toRawList =
-    GrainIdLookup.toList
+-- EXPOSED ADDERS --
 
 
 addNewGrain : Grain -> GrainCache -> UpdateResult
@@ -458,6 +353,115 @@ addNewGrainBefore siblingGid =
                 maybeNewParentId
                 maybeSortIndexUpdaters
                 |> Maybe.withDefault (Result.Err "Err: addNewGrainAfter")
+
+
+
+-- EXPOSED UPDATERS
+
+
+updateFromFirebaseChangeList changeList model =
+    let
+        handleChange change =
+            let
+                grain =
+                    GrainChange.grain change
+            in
+            case GrainChange.type_ change of
+                GrainChange.Added ->
+                    setSaved grain
+
+                GrainChange.Modified ->
+                    setSaved grain
+
+                GrainChange.Removed ->
+                    remove grain
+    in
+    List.foldr handleChange model changeList
+        |> Result.Ok
+
+
+load =
+    D.decodeValue decoder
+        >> Result.mapError D.errorToString
+
+
+type alias UpdateResult =
+    Result String GrainCache
+
+
+update :
+    (Grain -> Grain)
+    -> GrainId
+    -> GrainCache
+    -> UpdateResult
+update changeFn gid model =
+    if GrainIdLookup.member gid model then
+        let
+            updateFn =
+                SavedGrain.change changeFn
+        in
+        Result.Ok <| GrainIdLookup.updateIfExists gid updateFn model
+
+    else
+        Result.Err "GrainNotFound"
+
+
+
+-- UPDATE HELPERS
+
+
+insertBlind grain model =
+    GrainIdLookup.insert (Grain.id grain) (SavedGrain.new grain) model
+
+
+setSaved : Grain -> GrainCache -> GrainCache
+setSaved grain =
+    GrainIdLookup.update (Grain.id grain)
+        (Maybe.map (SavedGrain.setSaved grain)
+            >> Maybe.orElseLazy (\_ -> Just <| SavedGrain.new grain)
+        )
+
+
+remove grain =
+    GrainIdLookup.remove (Grain.id grain)
+
+
+
+--- OLD CODE : CHECK IN NEXT PASS ---
+
+
+getSiblingsById : GrainId -> GrainCache -> List SavedGrain
+getSiblingsById gid model =
+    get gid model |> Maybe.unwrap [] (getSiblingsOf__ >> callWith model)
+
+
+get : GrainId -> GrainCache -> Maybe SavedGrain
+get gid =
+    GrainIdLookup.get gid
+
+
+getParentOfGrain : Grain -> GrainCache -> Maybe SavedGrain
+getParentOfGrain grain model =
+    Grain.parentIdAsGrainId grain
+        |> Maybe.andThen (GrainIdLookup.get >> callWith model)
+
+
+parentGidOfGid : GrainId -> GrainCache -> Maybe GrainId
+parentGidOfGid gid =
+    get gid >> Maybe.andThen parentIdAsGrainId
+
+
+getParentIdOfGid : GrainId -> GrainCache -> Maybe Grain.ParentId
+getParentIdOfGid gid =
+    get gid >> Maybe.map parentId
+
+
+toRawList =
+    GrainIdLookup.toList
+
+
+
+-- OLD CODE:  CURRENT PASS --
 
 
 ifCanAddGrainThen :
