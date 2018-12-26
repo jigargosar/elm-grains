@@ -17,7 +17,6 @@ module GrainCache exposing
     , moveOneLevelDown
     , moveOneLevelUp
     , nextGid
-    , nextSiblingOfParentOfGid
     , parentGidOfGid
     , prevGid
     , remove
@@ -71,6 +70,11 @@ encoder =
 empty : GrainCache
 empty =
     GrainIdLookup.empty
+
+
+getGrainById : GrainId -> GrainCache -> Maybe Grain
+getGrainById gid =
+    get gid >> Maybe.map SavedGrain.value
 
 
 
@@ -233,43 +237,6 @@ nextSiblingGidOfGid gid model =
         |> List.drop 1
         |> List.head
         |> Maybe.map id
-
-
-nextSiblingOfParentOfGid : GrainId -> GrainCache -> Maybe GrainId
-nextSiblingOfParentOfGid gid model =
-    let
-        rec : SavedGrain -> Maybe GrainId
-        rec parent =
-            let
-                parentGid =
-                    id parent
-            in
-            nextSiblingGidOfGid parentGid model
-                |> Maybe.orElseLazy
-                    (\_ ->
-                        nextSiblingOfParentOfGid parentGid model
-                    )
-    in
-    getParent gid model
-        |> Maybe.andThen rec
-
-
-getParent : GrainId -> GrainCache -> Maybe SavedGrain
-getParent gid model =
-    get gid model
-        |> Maybe.andThen (getParentOf >> callWith model)
-
-
-lastLeafGidOfGid : GrainId -> GrainCache -> GrainId
-lastLeafGidOfGid gid model =
-    getGrainById gid model
-        |> Maybe.map (lastLeafOf >> callWith model)
-        |> Maybe.unwrap gid Grain.id
-
-
-getGrainById : GrainId -> GrainCache -> Maybe Grain
-getGrainById gid =
-    get gid >> Maybe.map SavedGrain.value
 
 
 getSiblingsById : GrainId -> GrainCache -> List SavedGrain
