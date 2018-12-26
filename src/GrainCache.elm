@@ -113,17 +113,14 @@ rejectSubTreeOf grain model =
         forestZippers =
             forest model
                 |> List.map Tree.Zipper.fromTree
-
-        _ =
-            forestZippers
-                |> List.map
-                    (\z ->
-                        Tree.Zipper.findFromRoot (Grain.eqById grain) z
-                            |> Maybe.andThen Tree.Zipper.removeTree
-                            |> Maybe.withDefault z
-                    )
     in
-    1
+    forestZippers
+        |> List.map
+            (\z ->
+                Tree.Zipper.findFromRoot (Grain.eqById grain) z
+                    |> Maybe.andThen Tree.Zipper.removeTree
+                    |> Maybe.withDefault z
+            )
 
 
 isDescendent : Grain -> Grain -> GrainCache -> Bool
