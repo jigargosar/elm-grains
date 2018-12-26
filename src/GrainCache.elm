@@ -183,7 +183,13 @@ parentByGid gid model =
 
 lastLeaf : GrainCache -> Maybe Grain
 lastLeaf model =
-    lastRoot model |> Maybe.map (lastLeafOf >> callWith model)
+    lastRoot model
+        |> Maybe.map
+            (treeFromCache model
+                >> Tree.Zipper.fromTree
+                >> Tree.Zipper.lastDescendant
+                >> Tree.Zipper.label
+            )
 
 
 firstRoot : GrainCache -> Maybe Grain
