@@ -262,32 +262,30 @@ getParentIdOfGid gid =
     get__ gid >> Maybe.map parentId
 
 
-addNewAfterBatchUpdaters siblingGid now grain model =
-    rootTreeZipper model
-        |> TZ.findFromRoot (Grain.idEq siblingGid)
-        |> Maybe.andThen
-            (\z ->
-                z
-                    |> TZ.append (Tree.tree grain [])
-                    |> TZ.parent
-                    |> Maybe.map
-                        (\pz ->
-                            let
-                                childUpdaters =
-                                    pz
-                                        |> TZ.children
-                                        >> List.map Tree.label
-                                        >> listToSortIdxUpdaters now
+addNewAfterBatchUpdaters siblingGid now grain =
+    rootTreeZipper
+        >> TZ.findFromRoot (Grain.idEq siblingGid)
+        >> Maybe.andThen
+            (TZ.append (Tree.tree grain [])
+                >> TZ.parent
+                >> Maybe.map
+                    (\pz ->
+                        let
+                            childUpdaters =
+                                pz
+                                    |> TZ.children
+                                    >> List.map Tree.label
+                                    >> listToSortIdxUpdaters now
 
-                                pidUpdater =
-                                    pz
-                                        |> TZ.label
-                                        >> Grain.idAsParentId
-                                        >> parentIdUpdater
-                                        >> callWith2 now (Grain.id grain)
-                            in
-                            pidUpdater :: childUpdaters
-                        )
+                            pidUpdater =
+                                pz
+                                    |> TZ.label
+                                    >> Grain.idAsParentId
+                                    >> parentIdUpdater
+                                    >> callWith2 now (Grain.id grain)
+                        in
+                        pidUpdater :: childUpdaters
+                    )
             )
 
 
