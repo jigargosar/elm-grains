@@ -4,6 +4,7 @@ module GrainId exposing
     , encoder
     , fromString
     , generator
+    , root
     , toDomIdWithPrefix
     , toString
     )
@@ -22,6 +23,13 @@ type alias Model =
 
 type GrainId
     = GrainId Model
+
+
+root : GrainId
+root =
+    prefix
+        ++ "__ROOT__"
+        |> GrainId
 
 
 prefix =
@@ -46,7 +54,7 @@ decoder =
 
 fromString : String -> Maybe GrainId
 fromString string =
-    if RandomId.isValidWithPrefix prefix string then
+    if GrainId string == root || RandomId.isValidWithPrefix prefix string then
         Just <| GrainId string
 
     else

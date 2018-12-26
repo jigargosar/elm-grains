@@ -63,17 +63,16 @@ sortIdxDecoder =
 
 type ParentId
     = ParentId GrainId
-    | RootId
 
 
 rootParentId : ParentId
 rootParentId =
-    RootId
+    ParentId GrainId.root
 
 
 defaultParentId : ParentId
 defaultParentId =
-    RootId
+    rootParentId
 
 
 parentIdEncoder : ParentId -> Value
@@ -82,13 +81,10 @@ parentIdEncoder model =
         ParentId gid ->
             GrainId.encoder gid
 
-        RootId ->
-            E.null
-
 
 parentIdDecoder : Decoder ParentId
 parentIdDecoder =
-    D.oneOf [ GrainId.decoder |> D.map ParentId, D.succeed RootId ]
+    D.oneOf [ GrainId.decoder |> D.map ParentId, D.succeed defaultParentId ]
 
 
 type alias Model =
@@ -104,6 +100,18 @@ type alias Model =
 
 type Grain
     = Grain Model
+
+
+root =
+    Grain
+        { id = GrainId.root
+        , parentId = defaultParentId
+        , sortIdx = defaultSortIdx
+        , content = "Home"
+        , deleted = False
+        , createdAt = Time.millisToPosix 0
+        , modifiedAt = Time.millisToPosix 0
+        }
 
 
 new : Posix -> GrainId -> Grain
@@ -222,9 +230,6 @@ parentIdAsGrainId grain =
     case parentId grain of
         ParentId gid ->
             Just gid
-
-        RootId ->
-            Nothing
 
 
 parentId =
