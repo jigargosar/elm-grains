@@ -116,7 +116,7 @@ init flags =
                 |> Random.with ActorId.generator
                 |> Random.always NoPopup
                 |> Random.always InlineEditGrain.initialValue
-                |> Random.always GrainCache.empty
+                |> Random.always GrainCache.init
                 |> Random.always Nothing
                 |> Random.always Nothing
                 |> Random.finish

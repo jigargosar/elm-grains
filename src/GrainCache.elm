@@ -5,10 +5,10 @@ module GrainCache exposing
     , addNewGrainBefore
     , batchUpdate
     , decoder
-    , empty
     , encoder
     , firstRootGid
     , get
+    , init
     , lastLeafGid
     , load
     , moveBy
@@ -58,7 +58,10 @@ type alias GrainCache =
 decoder : Decoder GrainCache
 decoder =
     D.list SavedGrain.decoder
-        |> D.map (GrainIdLookup.fromList SavedGrain.id)
+        |> D.map
+            (GrainIdLookup.fromList SavedGrain.id
+                >> addRootIfAbsent
+            )
 
 
 encoder : GrainCache -> Value
@@ -66,9 +69,18 @@ encoder =
     GrainIdLookup.toList >> E.list SavedGrain.encoder
 
 
-empty : GrainCache
-empty =
+init : GrainCache
+init =
     GrainIdLookup.empty
+        |> addRootIfAbsent
+
+
+addRootIfAbsent model =
+    if idExists GrainId.root model then
+        model
+
+    else
+        blindInsertGrain Grain.root model
 
 
 
