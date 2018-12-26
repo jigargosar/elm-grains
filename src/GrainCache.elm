@@ -266,6 +266,19 @@ mapGrainWithId gid fn model =
         |> Maybe.map fn
 
 
+insertAfter afterItem item list =
+    let
+        insertIdx =
+            List.elemIndex afterItem list
+                |> Maybe.map
+                    ((+) 1
+                        >> List.splitAt
+                        >> callWith list
+                    )
+    in
+    1
+
+
 addNewAfterHelp siblingGid grain model =
     let
         now =
@@ -279,7 +292,7 @@ addNewAfterHelp siblingGid grain model =
                 |> mapGrainWithId siblingGid
                     (\siblingGrain ->
                         let
-                            sibs =
+                            allSiblings =
                                 siblingsOf siblingGrain model
 
                             splitIndex =
