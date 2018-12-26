@@ -506,7 +506,7 @@ firePersistUnsavedGrainsEffect model =
     let
         dirtyGrains =
             model.grainCache
-                |> GrainCache.toList
+                |> GrainCache.toRawList
                 |> List.filterNot SavedGrain.saved
     in
     if List.isEmpty dirtyGrains then
@@ -862,7 +862,7 @@ moveGrainPopupViewModel model grain =
     { grain = grain
     , otherGrains =
         model.grainCache
-            |> GrainCache.toList
+            |> GrainCache.toRawList
             |> List.map SavedGrain.value
             |> List.filterNot
                 (GrainCache.isDescendent
@@ -973,7 +973,7 @@ toGrainListView model =
 
         allGrains =
             model.grainCache
-                |> GrainCache.toList
+                |> GrainCache.toRawList
                 |> List.map SavedGrain.value
                 |> sort
 
@@ -1041,7 +1041,7 @@ toGrainTreeView parentGid model =
 
         allGrains =
             model.grainCache
-                |> GrainCache.toList
+                |> GrainCache.toRawList
                 |> List.map SavedGrain.value
                 |> sort
 

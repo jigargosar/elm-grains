@@ -22,7 +22,7 @@ module GrainCache exposing
     , remove
     , rootGrains
     , setSaved
-    , toList
+    , toRawList
     , updateFromFirebaseChangeList
     , updateWithGrainUpdate
     )
@@ -191,7 +191,7 @@ rootGrains =
 
 allGrains : GrainCache -> List Grain
 allGrains =
-    toList
+    toRawList
         >> List.map SavedGrain.value
         >> List.sortWith Grain.defaultComparator
 
@@ -306,7 +306,7 @@ isDescendent descendent ancestor model =
                 )
 
 
-toList =
+toRawList =
     GrainIdLookup.toList
 
 
@@ -581,13 +581,13 @@ moveHelp now offset savedGrain model =
 
 getSiblingsOf__ : SavedGrain -> GrainCache -> List SavedGrain
 getSiblingsOf__ savedGrain model =
-    toList model
+    toRawList model
         |> List.filter (eqByParentId savedGrain)
         |> List.sortWith defaultComparator
 
 
 getChildrenWithParentId pid model =
-    toList model
+    toRawList model
         |> List.filter (eqByParentId pid)
         |> List.sortWith defaultComparator
 
