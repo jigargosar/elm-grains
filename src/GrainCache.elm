@@ -143,14 +143,10 @@ rootTreeZipper =
 
 
 rejectSubTreeOf : Grain -> GrainCache -> Maybe GrainZipper
-rejectSubTreeOf grain model =
-    let
-        zipper =
-            rootTreeZipper model
-    in
-    zipper
-        |> TZ.findFromRoot (Grain.eqById grain)
-        |> Maybe.andThen TZ.removeTree
+rejectSubTreeOf grain =
+    rootTreeZipper
+        >> TZ.findFromRoot (Grain.eqById grain)
+        >> Maybe.andThen TZ.removeTree
 
 
 rejectSubTreeAndFlatten : Grain -> GrainCache -> List Grain
@@ -239,55 +235,19 @@ lastChildOf grain =
 
 
 nextGrainOrSame : Grain -> GrainCache -> Grain
-nextGrainOrSame grain model =
-    let
-        zippers =
-            zippersFromCache model
-    in
-    zippers
-        |> List.indexedMap Tuple.pair
-        |> List.filterMap
-            (\( idx, z ) ->
-                TZ.findFromRoot (Grain.eqById grain) z
-                    |> Maybe.map (\nz -> ( idx, nz ))
-            )
-        |> List.head
-        |> Maybe.andThen
-            (\( idx, z ) ->
-                TZ.forward z
-                    |> Maybe.orElseLazy
-                        (\_ ->
-                            List.getAt (idx + 1) zippers
-                        )
-                    |> Maybe.map TZ.label
-            )
-        |> Maybe.withDefault grain
+nextGrainOrSame grain =
+    rootTreeZipper
+        >> TZ.findFromRoot (Grain.eqById grain)
+        >> Maybe.andThen TZ.forward
+        >> Maybe.unwrap grain TZ.label
 
 
 prevGrainOrSame : Grain -> GrainCache -> Grain
-prevGrainOrSame grain model =
-    let
-        zippers =
-            zippersFromCache model
-    in
-    zippers
-        |> List.indexedMap Tuple.pair
-        |> List.filterMap
-            (\( idx, z ) ->
-                TZ.findFromRoot (Grain.eqById grain) z
-                    |> Maybe.map (\nz -> ( idx, nz ))
-            )
-        |> List.head
-        |> Maybe.andThen
-            (\( idx, z ) ->
-                TZ.backward z
-                    |> Maybe.orElseLazy
-                        (\_ ->
-                            List.getAt (idx - 1) zippers
-                        )
-                    |> Maybe.map TZ.label
-            )
-        |> Maybe.withDefault grain
+prevGrainOrSame grain =
+    rootTreeZipper
+        >> TZ.findFromRoot (Grain.eqById grain)
+        >> Maybe.andThen TZ.backward
+        >> Maybe.unwrap grain TZ.label
 
 
 rootGrains =
