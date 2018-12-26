@@ -146,14 +146,10 @@ rootGid =
 
 lastLeafGid : GrainCache -> GrainId
 lastLeafGid =
-    lastLeaf >> Grain.id
-
-
-lastLeaf : GrainCache -> Grain
-lastLeaf =
     rootTreeZipper
         >> TZ.lastDescendant
         >> TZ.label
+        >> Grain.id
 
 
 nextByGid : GrainId -> GrainCache -> Maybe Grain
