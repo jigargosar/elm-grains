@@ -267,10 +267,12 @@ addNewAfter siblingGid =
                     getParentIdOfGid siblingGid model
 
                 siblings =
-                    getSiblingsById siblingGid model
+                    getGrainById siblingGid model
+                        |> Maybe.unwrap [] (siblingsOf >> callWith model)
 
                 newIdx =
-                    List.findIndex (idEq siblingGid) siblings
+                    siblings
+                        |> List.findIndex (Grain.idEq siblingGid)
                         |> Maybe.map ((+) 1)
 
                 insertGrainBetween ( left, right ) =
@@ -280,7 +282,7 @@ addNewAfter siblingGid =
                     newIdx
                         |> Maybe.map
                             (List.splitAt
-                                >> callWith (List.map SavedGrain.value siblings)
+                                >> callWith siblings
                                 >> insertGrainBetween
                                 >> Grain.listToEffectiveSortIndices
                                 >> List.map
