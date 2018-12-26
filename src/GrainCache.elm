@@ -314,6 +314,11 @@ parentIdUpdater pid now grain =
     )
 
 
+insertGrainThenBatchUpdate updaters grain model =
+    blindInsertGrain grain model
+        |> batchUpdate updaters
+
+
 addNewAfterHelp siblingGid grain model =
     let
         now =
@@ -329,17 +334,13 @@ addNewAfterHelp siblingGid grain model =
                     (Pivot.appendR grain
                         >> siblingsToSortIdxUpdaters now
                     )
-
-        insertGrainAndBatchUpdate updaters =
-            blindInsertGrain grain model
-                |> batchUpdate updaters
     in
     Maybe.map2 (::)
         maybeSetParentUpdater
         maybeSortIndexUpdaters
         |> Maybe.unwrap
             (Result.Err "Err: addNewGrainAfter")
-            insertGrainAndBatchUpdate
+            (insertGrainThenBatchUpdate >> callWith2 grain model)
 
 
 addNewGrainBefore : GrainId -> Grain -> GrainCache -> UpdateResult
