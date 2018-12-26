@@ -132,19 +132,35 @@ flattenZippers =
     List.concatMap (TZ.toTree >> Tree.flatten)
 
 
-rejectSubTreeOf : Grain -> GrainCache -> List GrainZipper
+rootGrain : GrainCache -> Grain
+rootGrain =
+    getGrainById GrainId.root >> Maybe.withDefault Grain.root
+
+
+rootTree : GrainCache -> GrainTree
+rootTree model =
+    treeFromCache model (rootGrain model)
+
+
+rootTreeZipper : GrainCache -> GrainZipper
+rootTreeZipper =
+    rootTree >> TZ.fromTree
+
+
+rejectSubTreeOf : Grain -> GrainCache -> Maybe GrainZipper
 rejectSubTreeOf grain model =
-    zippersFromCache model
-        |> List.filterMap
-            (\z ->
-                TZ.findFromRoot (Grain.eqById grain) z
-                    |> Maybe.unwrap (Just z) TZ.removeTree
-            )
+    let
+        zipper =
+            rootTreeZipper model
+    in
+    zipper
+        |> TZ.findFromRoot (Grain.eqById grain)
+        |> Maybe.andThen TZ.removeTree
 
 
 rejectSubTreeAndFlatten : Grain -> GrainCache -> List Grain
 rejectSubTreeAndFlatten grain =
-    rejectSubTreeOf grain >> flattenZippers
+    rejectSubTreeOf grain >> Maybe.unwrap [] (TZ.toTree >> Tree.flatten)
 
 
 
