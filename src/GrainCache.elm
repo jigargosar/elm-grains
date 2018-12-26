@@ -227,6 +227,36 @@ lastLeafOf grain model =
 
 
 
+-- EXPOSED UPDATERS
+
+
+updateFromFirebaseChangeList changeList model =
+    let
+        handleChange change =
+            let
+                grain =
+                    GrainChange.grain change
+            in
+            case GrainChange.type_ change of
+                GrainChange.Added ->
+                    setSaved grain
+
+                GrainChange.Modified ->
+                    setSaved grain
+
+                GrainChange.Removed ->
+                    remove grain
+    in
+    List.foldr handleChange model changeList
+        |> Result.Ok
+
+
+load =
+    D.decodeValue decoder
+        >> Result.mapError D.errorToString
+
+
+
 --- OLD CODE ---
 
 
@@ -274,23 +304,6 @@ isDescendent descendent ancestor model =
                     >> isDescendent
                     >> callWith2 ancestor model
                 )
-
-
-getAncestorIdsOfGrain grain model =
-    getAncestorIdsHelp [] grain model
-
-
-getAncestorIdsHelp ids grain model =
-    let
-        gid =
-            Grain.id grain
-
-        newIds =
-            gid :: ids
-    in
-    Grain.parentIdAsGrainId grain
-        |> Maybe.andThen (get >> callWith model >> Maybe.map SavedGrain.value)
-        |> Maybe.unwrap newIds (getAncestorIdsHelp newIds >> callWith model)
 
 
 toList =
@@ -595,32 +608,6 @@ idEq gid =
 eqById savedGrain =
     SavedGrain.value
         >> Grain.eqById (SavedGrain.value savedGrain)
-
-
-updateFromFirebaseChangeList changeList model =
-    let
-        handleChange change =
-            let
-                grain =
-                    GrainChange.grain change
-            in
-            case GrainChange.type_ change of
-                GrainChange.Added ->
-                    setSaved grain
-
-                GrainChange.Modified ->
-                    setSaved grain
-
-                GrainChange.Removed ->
-                    remove grain
-    in
-    List.foldr handleChange model changeList
-        |> Result.Ok
-
-
-load =
-    D.decodeValue decoder
-        >> Result.mapError D.errorToString
 
 
 id =
