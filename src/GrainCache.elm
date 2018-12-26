@@ -385,6 +385,16 @@ siblingsToSortIdxUpdaters now =
             )
 
 
+listToSortIdxUpdaters : Posix -> List Grain -> List GrainUpdater
+listToSortIdxUpdaters now =
+    List.indexedMap
+        (\idx g ->
+            ( Grain.update now <| Grain.SetSortIdx idx
+            , Grain.id g
+            )
+        )
+
+
 type alias SiblingsPivot =
     Pivot Grain
 
@@ -411,10 +421,32 @@ addNewAfterBatchUpdaters siblingGid now grain model =
         zippers =
             zippersFromCache model
 
-        _ =
+        maybeSortIndexUpdaters : Maybe (List GrainUpdater)
+        maybeSortIndexUpdaters =
             zippers
                 |> List.filterMap (TZ.findFromRoot <| Grain.idEq siblingGid)
                 |> List.head
+                |> Maybe.andThen
+                    (\z ->
+                        if TZ.root z == z then
+                            Pivot.fromList zippers
+                                |> Maybe.andThen (Pivot.firstWith ((==) z))
+                                |> Maybe.map
+                                    (Pivot.mapA
+                                        (TZ.toTree >> Tree.label)
+                                    )
+                                |> Maybe.map (Pivot.appendR grain)
+                                |> Maybe.map (siblingsToSortIdxUpdaters now)
+
+                        else
+                            TZ.append (Tree.tree grain []) z
+                                |> TZ.parent
+                                |> Maybe.map
+                                    (TZ.children
+                                        >> List.map Tree.label
+                                        >> listToSortIdxUpdaters now
+                                    )
+                    )
 
         gid =
             Grain.id grain
@@ -423,7 +455,7 @@ addNewAfterBatchUpdaters siblingGid now grain model =
             getParentIdOfGid siblingGid model
                 |> Maybe.map (parentIdUpdater >> callWith2 now gid)
 
-        maybeSortIndexUpdaters =
+        maybeSortIndexUpdaters_ =
             model
                 |> mapSiblingsOfGrainWithId siblingGid
                     (Pivot.appendR grain
