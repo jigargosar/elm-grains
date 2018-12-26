@@ -651,11 +651,11 @@ update message model =
         FocusParent ->
             ( model
             , getSelectedOrLastSelectedGid model
-                |> Maybe.andThen
+                |> Maybe.map
                     (GrainCache.parentByGid
                         >> callWith model.grainCache
                     )
-                |> focusMaybeGrainCmd
+                |> focusMaybeGidCmd
             )
 
         GrainFocused gid focused ->
