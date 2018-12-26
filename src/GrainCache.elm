@@ -127,11 +127,6 @@ zippersFromCache =
     forestFromCache >> List.map TZ.fromTree
 
 
-flattenZippers : List GrainZipper -> List Grain
-flattenZippers =
-    List.concatMap (TZ.toTree >> Tree.flatten)
-
-
 rootGrain : GrainCache -> Grain
 rootGrain =
     getGrainById GrainId.root >> Maybe.withDefault Grain.root
