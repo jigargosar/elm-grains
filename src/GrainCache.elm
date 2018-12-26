@@ -258,53 +258,77 @@ addNew =
 addNewAfter : GrainId -> Grain -> GrainCache -> UpdateResult
 addNewAfter siblingGid =
     ifCanAddGrainThen <|
-        \grain model ->
-            let
-                now =
-                    Grain.createdAt grain
+        addNewAfterHelp siblingGid
 
-                maybeNewParentId =
-                    getParentIdOfGid siblingGid model
 
-                siblings =
-                    getGrainById siblingGid model
-                        |> Maybe.unwrap [] (siblingsOf >> callWith model)
+mapGrainWithId gid fn model =
+    getGrainById gid model
+        |> Maybe.map fn
 
-                newIdx =
-                    siblings
-                        |> List.findIndex (Grain.idEq siblingGid)
-                        |> Maybe.map ((+) 1)
 
-                insertGrainBetween ( left, right ) =
-                    left ++ [ grain ] ++ right
+addNewAfterHelp siblingGid grain model =
+    let
+        now =
+            Grain.createdAt grain
 
-                maybeSortIndexUpdaters =
-                    newIdx
-                        |> Maybe.map
-                            (List.splitAt
-                                >> callWith siblings
-                                >> insertGrainBetween
-                                >> Grain.listToEffectiveSortIndices
-                                >> List.map
-                                    (Tuple.mapBoth
-                                        (Grain.SetSortIdx >> Grain.update now)
-                                        Grain.id
-                                    )
+        maybeNewParentId =
+            getParentIdOfGid siblingGid model
+
+        _ =
+            model
+                |> mapGrainWithId siblingGid
+                    (\siblingGrain ->
+                        let
+                            sibs =
+                                siblingsOf siblingGrain model
+
+                            splitIndex =
+                                siblings
+                                    |> List.findIndex (Grain.idEq siblingGid)
+                                    |> Maybe.map ((+) 1)
+                        in
+                        1
+                    )
+
+        siblings =
+            getGrainById siblingGid model
+                |> Maybe.unwrap [] (siblingsOf >> callWith model)
+
+        newIdx =
+            siblings
+                |> List.findIndex (Grain.idEq siblingGid)
+                |> Maybe.map ((+) 1)
+
+        insertGrainBetween ( left, right ) =
+            left ++ [ grain ] ++ right
+
+        maybeSortIndexUpdaters =
+            newIdx
+                |> Maybe.map
+                    (List.splitAt
+                        >> callWith siblings
+                        >> insertGrainBetween
+                        >> Grain.listToEffectiveSortIndices
+                        >> List.map
+                            (Tuple.mapBoth
+                                (Grain.SetSortIdx >> Grain.update now)
+                                Grain.id
                             )
+                    )
+    in
+    Maybe.map2
+        (\pid updaters ->
+            let
+                gid =
+                    Grain.id grain
             in
-            Maybe.map2
-                (\pid updaters ->
-                    let
-                        gid =
-                            Grain.id grain
-                    in
-                    insertBlind grain model
-                        |> updateWithGrainUpdate (Grain.SetParentId pid) gid now
-                        |> Result.andThen (batchUpdate updaters)
-                )
-                maybeNewParentId
-                maybeSortIndexUpdaters
-                |> Maybe.withDefault (Result.Err "Err: addNewGrainAfter")
+            insertBlind grain model
+                |> updateWithGrainUpdate (Grain.SetParentId pid) gid now
+                |> Result.andThen (batchUpdate updaters)
+        )
+        maybeNewParentId
+        maybeSortIndexUpdaters
+        |> Maybe.withDefault (Result.Err "Err: addNewGrainAfter")
 
 
 addNewGrainBefore : GrainId -> Grain -> GrainCache -> UpdateResult
