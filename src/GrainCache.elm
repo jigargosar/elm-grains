@@ -96,6 +96,18 @@ type alias GrainZipper =
     TZ.Zipper Grain
 
 
+allGrains : GrainCache -> List Grain
+allGrains =
+    toRawList
+        >> List.map SavedGrain.value
+        >> List.sortWith Grain.defaultComparator
+
+
+childGrains : Grain -> GrainCache -> List Grain
+childGrains grain =
+    allGrains >> List.filter (Grain.isChildOf grain)
+
+
 treeFromCache : GrainCache -> Grain -> GrainTree
 treeFromCache grainCache grain =
     let
@@ -180,18 +192,6 @@ rootGrains =
     allGrains >> List.filter Grain.isRoot
 
 
-allGrains : GrainCache -> List Grain
-allGrains =
-    toRawList
-        >> List.map SavedGrain.value
-        >> List.sortWith Grain.defaultComparator
-
-
-childGrains : Grain -> GrainCache -> List Grain
-childGrains grain =
-    allGrains >> List.filter (Grain.isChildOf grain)
-
-
 siblingsOf : Grain -> GrainCache -> List Grain
 siblingsOf grain =
     allGrains >> List.filter (Grain.isSibling grain)
@@ -201,20 +201,6 @@ parentGrain : Grain -> GrainCache -> Maybe Grain
 parentGrain grain model =
     Grain.parentIdAsGrainId grain
         |> Maybe.andThen (getGrainById >> callWith model)
-
-
-lastLeafOf : Grain -> GrainCache -> Grain
-lastLeafOf grain model =
-    let
-        children =
-            childGrains grain model
-    in
-    if List.isEmpty children then
-        grain
-
-    else
-        List.last children
-            |> Maybe.unwrap grain (lastLeafOf >> callWith model)
 
 
 addNew : Grain -> GrainCache -> UpdateResult
