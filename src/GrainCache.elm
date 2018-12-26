@@ -258,8 +258,32 @@ addNew =
 
 addNewAfter : GrainId -> Grain -> GrainCache -> UpdateResult
 addNewAfter siblingGid =
-    ifCanAddGrainThen <|
-        addNewAfterHelp siblingGid
+    addNewAndThenBatchUpdate <|
+        addNewAfterBatchUpdaters siblingGid
+
+
+ifCanAddGrainThen :
+    (Grain -> GrainCache -> UpdateResult)
+    -> Grain
+    -> GrainCache
+    -> UpdateResult
+ifCanAddGrainThen fn grain model =
+    if idExists (Grain.id grain) model then
+        Result.Err "Error: Add Grain. GrainId exists"
+
+    else
+        fn grain model
+
+
+addNewAndThenBatchUpdate fn grain model =
+    if idExists (Grain.id grain) model then
+        Result.Err "Error: Add Grain. GrainId exists"
+
+    else
+        fn (Grain.createdAt grain) grain model
+            |> Maybe.unwrap
+                (Result.Err "Err: addNewGrainAfter")
+                (insertGrainThenBatchUpdate >> callWith2 grain model)
 
 
 mapGrainWithId :
@@ -319,11 +343,8 @@ insertGrainThenBatchUpdate updaters grain model =
         |> batchUpdate updaters
 
 
-addNewAfterHelp siblingGid grain model =
+addNewAfterBatchUpdaters siblingGid now grain model =
     let
-        now =
-            Grain.createdAt grain
-
         maybeSetParentUpdater =
             getParentIdOfGid siblingGid model
                 |> Maybe.map (parentIdUpdater >> callWith2 now grain)
@@ -338,9 +359,6 @@ addNewAfterHelp siblingGid grain model =
     Maybe.map2 (::)
         maybeSetParentUpdater
         maybeSortIndexUpdaters
-        |> Maybe.unwrap
-            (Result.Err "Err: addNewGrainAfter")
-            (insertGrainThenBatchUpdate >> callWith2 grain model)
 
 
 addNewGrainBefore : GrainId -> Grain -> GrainCache -> UpdateResult
@@ -500,19 +518,6 @@ toRawList =
 
 
 -- OLD CODE:  CURRENT PASS --
-
-
-ifCanAddGrainThen :
-    (Grain -> GrainCache -> UpdateResult)
-    -> Grain
-    -> GrainCache
-    -> UpdateResult
-ifCanAddGrainThen fn grain model =
-    if idExists (Grain.id grain) model then
-        Result.Err "Error: Add Grain. GrainId exists"
-
-    else
-        fn grain model
 
 
 idExists gid =
