@@ -313,12 +313,6 @@ getParentOfGrain grain model =
         |> Maybe.andThen (GrainIdLookup.get >> callWith model)
 
 
-getParentOf : SavedGrain -> GrainCache -> Maybe SavedGrain
-getParentOf savedGrain model =
-    parentIdAsGrainId savedGrain
-        |> Maybe.andThen (GrainIdLookup.get >> callWith model)
-
-
 parentGidOfGid : GrainId -> GrainCache -> Maybe GrainId
 parentGidOfGid gid =
     get gid >> Maybe.andThen parentIdAsGrainId
