@@ -284,7 +284,12 @@ addNewAfterBatchUpdaters siblingGid now grain model =
                                         (\pz ->
                                             let
                                                 children =
-                                                    TZ.children pz
+                                                    pz |> TZ.children
+
+                                                pid =
+                                                    pz
+                                                        |> TZ.label
+                                                        >> Grain.idAsParentId
                                             in
                                             1
                                         )
