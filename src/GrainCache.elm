@@ -287,6 +287,17 @@ mapSiblingsOfGrainWithId gid fn model =
         |> Maybe.join
 
 
+siblingsToSortIdxUpdaters : Posix -> SiblingsPivot -> List GrainUpdater
+siblingsToSortIdxUpdaters now =
+    Pivot.toList
+        >> List.indexedMap
+            (\idx g ->
+                ( Grain.update now <| Grain.SetSortIdx idx
+                , Grain.id g
+                )
+            )
+
+
 type alias SiblingsPivot =
     Pivot Grain
 
@@ -315,13 +326,7 @@ addNewAfterHelp siblingGid grain model =
             model
                 |> mapSiblingsOfGrainWithId siblingGid
                     (Pivot.appendR grain
-                        >> Pivot.toList
-                        >> List.indexedMap
-                            (\idx g ->
-                                ( Grain.update now <| Grain.SetSortIdx idx
-                                , Grain.id g
-                                )
-                            )
+                        >> siblingsToSortIdxUpdaters now
                     )
 
         insertGrainAndBatchUpdate updaters =
@@ -512,7 +517,11 @@ idExists gid =
     GrainIdLookup.member gid
 
 
-batchUpdate : List ( Grain -> Grain, GrainId ) -> GrainCache -> UpdateResult
+type alias GrainUpdater =
+    ( Grain -> Grain, GrainId )
+
+
+batchUpdate : List GrainUpdater -> GrainCache -> UpdateResult
 batchUpdate list model =
     let
         reducer ( changeFn, gid ) =
