@@ -268,32 +268,6 @@ prevGrainOrSame grain model =
         |> Maybe.withDefault grain
 
 
-prevSiblingOf : Grain -> GrainCache -> Maybe Grain
-prevSiblingOf grain model =
-    siblingsOf grain model
-        |> List.takeWhile (Grain.eqById grain >> not)
-        |> List.last
-
-
-nextSiblingOf : Grain -> GrainCache -> Maybe Grain
-nextSiblingOf grain model =
-    siblingsOf grain model
-        |> List.dropWhile (Grain.eqById grain >> not)
-        |> List.drop 1
-        |> List.head
-
-
-nextSiblingOfParentOf : Grain -> GrainCache -> Maybe Grain
-nextSiblingOfParentOf grain model =
-    let
-        rec : Grain -> Maybe Grain
-        rec parent =
-            nextSiblingOf parent model
-                |> Maybe.orElseLazy (\_ -> nextSiblingOfParentOf parent model)
-    in
-    parentGrain grain model |> Maybe.andThen rec
-
-
 rootGrains =
     allGrains >> List.filter Grain.isRoot
 
