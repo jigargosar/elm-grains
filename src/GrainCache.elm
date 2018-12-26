@@ -408,6 +408,14 @@ insertGrainThenBatchUpdate updaters grain model =
 
 addNewAfterBatchUpdaters siblingGid now grain model =
     let
+        zippers =
+            zippersFromCache model
+
+        _ =
+            zippers
+                |> List.filterMap (TZ.findFromRoot <| Grain.idEq siblingGid)
+                |> List.head
+
         gid =
             Grain.id grain
 
