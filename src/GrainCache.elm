@@ -323,16 +323,17 @@ addNewAfterHelp siblingGid grain model =
                             )
                         >> Pivot.toList
                     )
+
+        insertGrainAndBatchUpdate updaters =
+            blindInsertGrain grain model
+                |> batchUpdate updaters
     in
     Maybe.map2 (::)
         maybeSetParentUpdater
         maybeSortIndexUpdaters
-        |> Maybe.map
-            (\updaters ->
-                blindInsertGrain grain model
-                    |> batchUpdate updaters
-            )
-        |> Maybe.withDefault (Result.Err "Err: addNewGrainAfter")
+        |> Maybe.unwrap
+            (Result.Err "Err: addNewGrainAfter")
+            insertGrainAndBatchUpdate
 
 
 addNewGrainBefore : GrainId -> Grain -> GrainCache -> UpdateResult
