@@ -361,29 +361,16 @@ addNewAfterBatchUpdaters siblingGid now grain model =
 
         maybeSortIndexUpdaters : Maybe (List GrainUpdater)
         maybeSortIndexUpdaters =
-            zippers
-                |> List.filterMap (TZ.findFromRoot <| Grain.idEq siblingGid)
-                |> List.head
+            rootTreeZipper model
+                |> TZ.findFromRoot (Grain.idEq siblingGid)
                 |> Maybe.andThen
-                    (\z ->
-                        if TZ.root z == z then
-                            Pivot.fromList zippers
-                                |> Maybe.andThen (Pivot.firstWith ((==) z))
-                                |> Maybe.map
-                                    (Pivot.mapA
-                                        (TZ.toTree >> Tree.label)
-                                    )
-                                |> Maybe.map (Pivot.appendR grain)
-                                |> Maybe.map (siblingsToSortIdxUpdaters now)
-
-                        else
-                            TZ.append (Tree.tree grain []) z
-                                |> TZ.parent
-                                |> Maybe.map
-                                    (TZ.children
-                                        >> List.map Tree.label
-                                        >> listToSortIdxUpdaters now
-                                    )
+                    (TZ.append (Tree.tree grain [])
+                        >> TZ.parent
+                        >> Maybe.map
+                            (TZ.children
+                                >> List.map Tree.label
+                                >> listToSortIdxUpdaters now
+                            )
                     )
 
         gid =
