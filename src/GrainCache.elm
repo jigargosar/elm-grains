@@ -306,7 +306,9 @@ addNewAfterHelp siblingGid grain model =
             getParentIdOfGid siblingGid model
                 |> Maybe.map
                     (\pid ->
-                        ( Grain.update now (Grain.SetParentId pid), Grain.id grain )
+                        ( Grain.update now (Grain.SetParentId pid)
+                        , Grain.id grain
+                        )
                     )
 
         maybeSortIndexUpdaters =
