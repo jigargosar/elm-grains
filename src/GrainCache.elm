@@ -84,10 +84,6 @@ addRootIfAbsent model =
         blindInsertGrain Grain.root model
 
 
-
--- EXPOSED QUERY
-
-
 type alias Forest =
     List GrainTree
 
@@ -98,13 +94,6 @@ type alias GrainTree =
 
 type alias GrainZipper =
     TZ.Zipper Grain
-
-
-
---type alias Path =
---    List GrainId
---
---
 
 
 forestFromCache : GrainCache -> Forest
@@ -154,26 +143,14 @@ rejectSubTreeAndFlatten grain =
     rejectSubTreeOf grain >> Maybe.unwrap [] (TZ.toTree >> Tree.flatten)
 
 
-
--- QUERY HELPERS
-
-
 getGrainById : GrainId -> GrainCache -> Maybe Grain
 getGrainById gid =
     get gid >> Maybe.map SavedGrain.value
 
 
-
--- EXPOSED GID NAV HELPERS --
-
-
 rootGid : GrainCache -> GrainId
 rootGid =
     rootGrain >> Grain.id
-
-
-
--- OLD CODE:  CURRENT PASS --
 
 
 lastLeafGid : GrainCache -> GrainId
