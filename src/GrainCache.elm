@@ -128,9 +128,9 @@ rejectSubTreeOf grain model =
         |> List.map
             (\z ->
                 Tree.Zipper.findFromRoot (Grain.eqById grain) z
-                    |> Maybe.andThen Tree.Zipper.removeTree
-                    |> Maybe.withDefault z
+                    |> Maybe.unwrap (Just z) Tree.Zipper.removeTree
             )
+        |> List.filterMap identity
 
 
 rejectSubTreeAndFlatten : Grain -> GrainCache -> List Grain

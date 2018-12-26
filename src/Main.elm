@@ -858,10 +858,13 @@ moveGrainPopupViewModel model grain =
     let
         gid =
             Grain.id grain
+
+        otherGrains =
+            GrainCache.rejectSubTreeAndFlatten grain model.grainCache
+                |> Debug.log "otherGrains"
     in
     { grain = grain
-    , otherGrains =
-        GrainCache.rejectSubTreeAndFlatten grain model.grainCache
+    , otherGrains = otherGrains
     , isSelected = Grain.isParentOf grain
     , dismissMsg = dismissPopupMsg
     , setParentMsg = popupMsg << PM_SetGrainParent gid
