@@ -631,11 +631,11 @@ update message model =
         FocusNext ->
             ( model
             , getSelectedOrLastSelectedGid model
-                |> Maybe.andThen
+                |> Maybe.map
                     (GrainCache.nextByGid
                         >> callWith model.grainCache
                     )
-                |> focusMaybeGrainCmd
+                |> focusMaybeGidCmd
             )
 
         FocusPrev ->

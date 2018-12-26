@@ -152,10 +152,12 @@ lastLeafGid =
         >> Grain.id
 
 
-nextByGid : GrainId -> GrainCache -> Maybe Grain
-nextByGid gid model =
-    getGrainById gid model
-        |> Maybe.map (nextGrainOrSame >> callWith model)
+nextByGid : GrainId -> GrainCache -> GrainId
+nextByGid gid =
+    rootTreeZipper
+        >> TZ.findFromRoot (Grain.idEq gid)
+        >> Maybe.andThen TZ.forward
+        >> Maybe.unwrap gid (TZ.label >> Grain.id)
 
 
 prevByGid : GrainId -> GrainCache -> Maybe Grain
@@ -173,14 +175,6 @@ parentByGid gid model =
 lastRoot : GrainCache -> Maybe Grain
 lastRoot =
     rootGrains >> List.last
-
-
-nextGrainOrSame : Grain -> GrainCache -> Grain
-nextGrainOrSame grain =
-    rootTreeZipper
-        >> TZ.findFromRoot (Grain.eqById grain)
-        >> Maybe.andThen TZ.forward
-        >> Maybe.unwrap grain TZ.label
 
 
 prevGrainOrSame : Grain -> GrainCache -> Grain
