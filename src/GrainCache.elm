@@ -192,17 +192,6 @@ rootGrains =
     allGrains >> List.filter Grain.isRoot
 
 
-siblingsOf : Grain -> GrainCache -> List Grain
-siblingsOf grain =
-    allGrains >> List.filter (Grain.isSibling grain)
-
-
-parentGrain : Grain -> GrainCache -> Maybe Grain
-parentGrain grain model =
-    Grain.parentIdAsGrainId grain
-        |> Maybe.andThen (getGrainById >> callWith model)
-
-
 addNew : Grain -> GrainCache -> UpdateResult
 addNew =
     ifCanAddGrainThen <|
