@@ -872,7 +872,7 @@ moveGrainPopupViewModel model grain =
     , isSelected = Grain.isParentOf grain
     , dismissMsg = dismissPopupMsg
     , setParentMsg = popupMsg << PM_SetGrainParent gid
-    , setParentToRootMsg = (popupMsg << PM_SetGrainParent gid) Grain.rootParentId
+    , setParentToRootMsg = (popupMsg << PM_SetGrainParent gid) Grain.rootIdAsParentId
     }
 
 
@@ -979,7 +979,7 @@ toGrainListView model =
                 |> sort
 
         rootGrains =
-            allGrains |> List.filter (Grain.parentIdEq Grain.rootParentId)
+            allGrains |> List.filter (Grain.parentIdEq Grain.rootIdAsParentId)
 
         updateIEG2 =
             \msgFn gid -> UpdateInlineEditGrain gid << msgFn
@@ -1047,7 +1047,7 @@ toGrainTreeView parentGid model =
                 |> sort
 
         rootGrains =
-            allGrains |> List.filter (Grain.parentIdEq Grain.rootParentId)
+            allGrains |> List.filter (Grain.parentIdEq Grain.rootIdAsParentId)
 
         updateIEG2 =
             \msgFn gid -> UpdateInlineEditGrain gid << msgFn

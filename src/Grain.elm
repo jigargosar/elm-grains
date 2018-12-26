@@ -26,7 +26,7 @@ module Grain exposing
     , parentIdAsGrainId
     , parentIdEq
     , root
-    , rootParentId
+    , rootIdAsParentId
     , titleOrEmpty
     , toDomIdWithPrefix
     , update
@@ -64,16 +64,17 @@ sortIdxDecoder =
 
 type ParentId
     = ParentId GrainId
+    | NoParentId
 
 
-rootParentId : ParentId
-rootParentId =
+rootIdAsParentId : ParentId
+rootIdAsParentId =
     ParentId GrainId.root
 
 
 defaultParentId : ParentId
 defaultParentId =
-    rootParentId
+    rootIdAsParentId
 
 
 parentIdEncoder : ParentId -> Value
@@ -82,10 +83,13 @@ parentIdEncoder model =
         ParentId gid ->
             GrainId.encoder gid
 
+        NoParentId ->
+            E.null
+
 
 parentIdDecoder : Decoder ParentId
 parentIdDecoder =
-    D.oneOf [ GrainId.decoder |> D.map ParentId, D.succeed defaultParentId ]
+    D.oneOf [ GrainId.decoder |> D.map ParentId, D.succeed NoParentId ]
 
 
 type alias Model =
@@ -106,7 +110,7 @@ type Grain
 root =
     Grain
         { id = GrainId.root
-        , parentId = defaultParentId
+        , parentId = NoParentId
         , sortIdx = defaultSortIdx
         , content = "Home"
         , deleted = False
@@ -231,6 +235,9 @@ parentIdAsGrainId grain =
     case parentId grain of
         ParentId gid ->
             Just gid
+
+        NoParentId ->
+            Nothing
 
 
 parentId =

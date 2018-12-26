@@ -46,7 +46,7 @@ view vm =
         viewRootItem =
             let
                 isRoot =
-                    Grain.parentIdEq Grain.rootParentId vm.grain
+                    Grain.parentIdEq Grain.rootIdAsParentId vm.grain
             in
             flexCol
                 [ CS.pointer
