@@ -1,7 +1,7 @@
 module GrainCache exposing
     ( GrainCache
-    , addNewGrain
-    , addNewGrainAfter
+    , addNew
+    , addNewAfter
     , addNewGrainBefore
     , batchUpdate
     , childGrains
@@ -247,16 +247,16 @@ lastLeafOf grain model =
 -- EXPOSED ADDERS --
 
 
-addNewGrain : Grain -> GrainCache -> UpdateResult
-addNewGrain =
+addNew : Grain -> GrainCache -> UpdateResult
+addNew =
     ifCanAddGrainThen <|
         \grain model ->
             Result.Ok <|
                 insertBlind grain model
 
 
-addNewGrainAfter : GrainId -> Grain -> GrainCache -> UpdateResult
-addNewGrainAfter siblingGid =
+addNewAfter : GrainId -> Grain -> GrainCache -> UpdateResult
+addNewAfter siblingGid =
     ifCanAddGrainThen <|
         \grain model ->
             let

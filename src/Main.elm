@@ -570,13 +570,13 @@ updateGrainCache message model =
                         |> handleResult
 
                 GCAdd_After siblingGid ->
-                    GrainCache.addNewGrainAfter siblingGid
+                    GrainCache.addNewAfter siblingGid
                         grain
                         model.grainCache
                         |> handleResult
 
                 GCAdd_NoOp ->
-                    GrainCache.addNewGrain grain
+                    GrainCache.addNew grain
                         model.grainCache
                         |> handleResult
 
