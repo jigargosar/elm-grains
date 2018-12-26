@@ -293,7 +293,7 @@ updatePidAndSortIndices now grain =
             )
 
 
-addNewBeforeBatchUpdaters siblingGid now grain model =
+addNewBeforeBatchUpdaters siblingGid now grain =
     rootTreeZipper
         >> TZ.findFromRoot (Grain.idEq siblingGid)
         >> Maybe.andThen
