@@ -19,6 +19,7 @@ module GrainCache exposing
     , nextGid
     , parentGidOfGid
     , prevGid
+    , rejectSubTreeAndFlatten
     , rootGrains
     , toRawList
     , updateFromFirebaseChangeList
@@ -86,7 +87,7 @@ type alias GrainTree =
 
 
 type alias GrainZipper =
-    Tree.Zipper.Zipper GrainTree
+    Tree.Zipper.Zipper Grain
 
 
 
@@ -116,23 +117,25 @@ zippersFromCache =
     forestFromCache >> List.map Tree.Zipper.fromTree
 
 
+flattenZippers : List GrainZipper -> List Grain
 flattenZippers =
     List.concatMap (Tree.Zipper.toTree >> Tree.flatten)
 
 
+rejectSubTreeOf : Grain -> GrainCache -> List GrainZipper
 rejectSubTreeOf grain model =
-    let
-        zippers =
-            zippersFromCache model
-    in
-    zippers
+    zippersFromCache model
         |> List.map
             (\z ->
                 Tree.Zipper.findFromRoot (Grain.eqById grain) z
                     |> Maybe.andThen Tree.Zipper.removeTree
                     |> Maybe.withDefault z
             )
-        |> flattenZippers
+
+
+rejectSubTreeAndFlatten : Grain -> GrainCache -> List Grain
+rejectSubTreeAndFlatten grain =
+    rejectSubTreeOf grain >> flattenZippers
 
 
 isDescendent : Grain -> Grain -> GrainCache -> Bool

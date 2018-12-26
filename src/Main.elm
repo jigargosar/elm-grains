@@ -861,13 +861,7 @@ moveGrainPopupViewModel model grain =
     in
     { grain = grain
     , otherGrains =
-        model.grainCache
-            |> GrainCache.toRawList
-            |> List.map SavedGrain.value
-            |> List.filterNot
-                (GrainCache.isDescendent
-                    >> callWith2 grain model.grainCache
-                )
+        GrainCache.rejectSubTreeAndFlatten grain model.grainCache
     , isSelected = Grain.isParentOf grain
     , dismissMsg = dismissPopupMsg
     , setParentMsg = popupMsg << PM_SetGrainParent gid
