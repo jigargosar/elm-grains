@@ -269,13 +269,42 @@ addNewAfterBatchUpdaters siblingGid now grain model =
             rootTreeZipper model
                 |> TZ.findFromRoot (Grain.idEq siblingGid)
                 |> Maybe.andThen
-                    (TZ.append (Tree.tree grain [])
-                        >> TZ.parent
-                        >> Maybe.map
-                            (TZ.children
-                                >> List.map Tree.label
-                                >> listToSortIdxUpdaters now
-                            )
+                    (\z ->
+                        let
+                            gz =
+                                TZ.append (Tree.tree grain []) z
+
+                            maybePZ =
+                                TZ.parent gz
+
+                            _ =
+                                TZ.append (Tree.tree grain []) z
+                                    |> TZ.parent
+                                    |> Maybe.map
+                                        (\pz ->
+                                            let
+                                                children =
+                                                    TZ.children pz
+                                            in
+                                            1
+                                        )
+
+                            maybeChildren =
+                                maybePZ |> Maybe.map TZ.children
+
+                            maybeParentId =
+                                maybePZ
+                                    |> Maybe.map
+                                        (TZ.label >> Grain.idAsParentId)
+                        in
+                        z
+                            |> TZ.append (Tree.tree grain [])
+                            >> TZ.parent
+                            >> Maybe.map
+                                (TZ.children
+                                    >> List.map Tree.label
+                                    >> listToSortIdxUpdaters now
+                                )
                     )
 
         gid =
