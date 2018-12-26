@@ -247,6 +247,11 @@ addNewAndThenBatchUpdate fn grain model =
                 (insertGrainThenBatchUpdate >> callWith2 grain model)
 
 
+insertGrainThenBatchUpdate updaters grain model =
+    blindInsertGrain grain model
+        |> batchUpdate updaters
+
+
 listToSortIdxUpdaters : Posix -> List Grain -> List GrainUpdater
 listToSortIdxUpdaters now =
     List.indexedMap
@@ -261,11 +266,6 @@ parentIdUpdater pid now gid =
     ( Grain.update now (Grain.SetParentId pid)
     , gid
     )
-
-
-insertGrainThenBatchUpdate updaters grain model =
-    blindInsertGrain grain model
-        |> batchUpdate updaters
 
 
 addNewAfterBatchUpdaters siblingGid now grain model =
