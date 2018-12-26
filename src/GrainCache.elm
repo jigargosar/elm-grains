@@ -4,7 +4,6 @@ module GrainCache exposing
     , addNewAfter
     , addNewGrainBefore
     , batchUpdate
-    , childGrains
     , decoder
     , empty
     , encoder
@@ -19,7 +18,6 @@ module GrainCache exposing
     , parentByGid
     , prevByGid
     , rejectSubTreeAndFlatten
-    , rootGrains
     , toRawList
     , updateFromFirebaseChangeList
     , updateWithGrainUpdate
