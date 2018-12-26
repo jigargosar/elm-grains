@@ -50,7 +50,7 @@ import Return3 as R3 exposing (Return3F)
 import SavedGrain exposing (SavedGrain)
 import Time exposing (Posix)
 import Tree
-import Tree.Zipper
+import Tree.Zipper as TZ
 
 
 type alias GrainCache =
@@ -86,7 +86,7 @@ type alias GrainTree =
 
 
 type alias GrainZipper =
-    Tree.Zipper.Zipper Grain
+    TZ.Zipper Grain
 
 
 
@@ -113,12 +113,12 @@ treeFromCache grainCache grain =
 
 
 zippersFromCache =
-    forestFromCache >> List.map Tree.Zipper.fromTree
+    forestFromCache >> List.map TZ.fromTree
 
 
 flattenZippers : List GrainZipper -> List Grain
 flattenZippers =
-    List.concatMap (Tree.Zipper.toTree >> Tree.flatten)
+    List.concatMap (TZ.toTree >> Tree.flatten)
 
 
 rejectSubTreeOf : Grain -> GrainCache -> List GrainZipper
@@ -126,8 +126,8 @@ rejectSubTreeOf grain model =
     zippersFromCache model
         |> List.filterMap
             (\z ->
-                Tree.Zipper.findFromRoot (Grain.eqById grain) z
-                    |> Maybe.unwrap (Just z) Tree.Zipper.removeTree
+                TZ.findFromRoot (Grain.eqById grain) z
+                    |> Maybe.unwrap (Just z) TZ.removeTree
             )
 
 
@@ -186,9 +186,9 @@ lastLeaf model =
     lastRoot model
         |> Maybe.map
             (treeFromCache model
-                >> Tree.Zipper.fromTree
-                >> Tree.Zipper.lastDescendant
-                >> Tree.Zipper.label
+                >> TZ.fromTree
+                >> TZ.lastDescendant
+                >> TZ.label
             )
 
 
@@ -218,14 +218,26 @@ lastChildOf grain =
 
 nextGrainOrSame : Grain -> GrainCache -> Grain
 nextGrainOrSame grain model =
-    firstChildOf grain model
-        |> Maybe.orElseLazy
-            (\_ ->
-                nextSiblingOf grain model
+    let
+        zippers =
+            zippersFromCache model
+    in
+    zippers
+        |> List.indexedMap Tuple.pair
+        |> List.filterMap
+            (\( idx, z ) ->
+                TZ.findFromRoot (Grain.eqById grain) z
+                    |> Maybe.map (\nz -> ( idx, nz ))
             )
-        |> Maybe.orElseLazy
-            (\_ ->
-                nextSiblingOfParentOf grain model
+        |> List.head
+        |> Maybe.andThen
+            (\( idx, z ) ->
+                TZ.forward z
+                    |> Maybe.orElseLazy
+                        (\_ ->
+                            List.getAt (idx + 1) zippers
+                        )
+                    |> Maybe.map TZ.label
             )
         |> Maybe.withDefault grain
 
