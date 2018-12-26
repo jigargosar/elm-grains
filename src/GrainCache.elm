@@ -214,11 +214,6 @@ lastLeaf model =
             )
 
 
-firstRoot : GrainCache -> Maybe Grain
-firstRoot =
-    rootGrains >> List.head
-
-
 lastRoot : GrainCache -> Maybe Grain
 lastRoot =
     rootGrains >> List.last
