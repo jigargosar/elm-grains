@@ -263,46 +263,32 @@ getParentIdOfGid gid =
 
 
 addNewAfterBatchUpdaters siblingGid now grain model =
-    let
-        maybeSortIndexUpdaters : Maybe (List GrainUpdater)
-        maybeSortIndexUpdaters =
-            rootTreeZipper model
-                |> TZ.findFromRoot (Grain.idEq siblingGid)
-                |> Maybe.andThen
-                    (\z ->
-                        z
-                            |> TZ.append (Tree.tree grain [])
-                            |> TZ.parent
-                            |> Maybe.map
-                                (\pz ->
-                                    let
-                                        childUpdaters =
-                                            pz
-                                                |> TZ.children
-                                                >> List.map Tree.label
-                                                >> listToSortIdxUpdaters now
+    rootTreeZipper model
+        |> TZ.findFromRoot (Grain.idEq siblingGid)
+        |> Maybe.andThen
+            (\z ->
+                z
+                    |> TZ.append (Tree.tree grain [])
+                    |> TZ.parent
+                    |> Maybe.map
+                        (\pz ->
+                            let
+                                childUpdaters =
+                                    pz
+                                        |> TZ.children
+                                        >> List.map Tree.label
+                                        >> listToSortIdxUpdaters now
 
-                                        pidUpdater =
-                                            pz
-                                                |> TZ.label
-                                                >> Grain.idAsParentId
-                                                >> parentIdUpdater
-                                                >> callWith2 now gid
-                                    in
-                                    pidUpdater :: childUpdaters
-                                )
-                    )
-
-        gid =
-            Grain.id grain
-
-        maybeSetParentUpdater =
-            getParentIdOfGid siblingGid model
-                |> Maybe.map (parentIdUpdater >> callWith2 now gid)
-    in
-    Maybe.map2 (::)
-        maybeSetParentUpdater
-        maybeSortIndexUpdaters
+                                pidUpdater =
+                                    pz
+                                        |> TZ.label
+                                        >> Grain.idAsParentId
+                                        >> parentIdUpdater
+                                        >> callWith2 now (Grain.id grain)
+                            in
+                            pidUpdater :: childUpdaters
+                        )
+            )
 
 
 addNewBeforeBatchUpdaters siblingGid now grain model =
