@@ -314,14 +314,14 @@ addNewAfterHelp siblingGid grain model =
         maybeSortIndexUpdaters =
             model
                 |> mapSiblingsOfGrainWithId siblingGid
-                    (Pivot.appendGoR grain
-                        >> Pivot.indexAbsolute
-                        >> Pivot.mapA
-                            (Tuple.mapBoth
-                                (Grain.SetSortIdx >> Grain.update now)
-                                Grain.id
-                            )
+                    (Pivot.appendR grain
                         >> Pivot.toList
+                        >> List.indexedMap
+                            (\idx g ->
+                                ( Grain.update now <| Grain.SetSortIdx idx
+                                , Grain.id g
+                                )
+                            )
                     )
 
         insertGrainAndBatchUpdate updaters =
