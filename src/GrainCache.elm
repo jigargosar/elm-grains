@@ -244,10 +244,27 @@ nextGrainOrSame grain model =
 
 prevGrainOrSame : Grain -> GrainCache -> Grain
 prevGrainOrSame grain model =
-    prevSiblingOf grain model
-        |> Maybe.map (lastLeafOf >> callWith model)
-        |> Maybe.orElseLazy
-            (\_ -> parentGrain grain model)
+    let
+        zippers =
+            zippersFromCache model
+    in
+    zippers
+        |> List.indexedMap Tuple.pair
+        |> List.filterMap
+            (\( idx, z ) ->
+                TZ.findFromRoot (Grain.eqById grain) z
+                    |> Maybe.map (\nz -> ( idx, nz ))
+            )
+        |> List.head
+        |> Maybe.andThen
+            (\( idx, z ) ->
+                TZ.backward z
+                    |> Maybe.orElseLazy
+                        (\_ ->
+                            List.getAt (idx - 1) zippers
+                        )
+                    |> Maybe.map TZ.label
+            )
         |> Maybe.withDefault grain
 
 
