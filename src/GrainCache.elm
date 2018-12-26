@@ -176,19 +176,6 @@ parentByGid gid =
         >> Maybe.unwrap gid (TZ.label >> Grain.id)
 
 
-lastRoot : GrainCache -> Maybe Grain
-lastRoot =
-    rootGrains >> List.last
-
-
-prevGrainOrSame : Grain -> GrainCache -> Grain
-prevGrainOrSame grain =
-    rootTreeZipper
-        >> TZ.findFromRoot (Grain.eqById grain)
-        >> Maybe.andThen TZ.backward
-        >> Maybe.unwrap grain TZ.label
-
-
 rootGrains =
     allGrains >> List.filter Grain.isRoot
 
