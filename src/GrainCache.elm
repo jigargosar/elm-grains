@@ -262,9 +262,29 @@ addNewAfter siblingGid =
         addNewAfterHelp siblingGid
 
 
+mapGrainWithId :
+    GrainId
+    -> (Grain -> a)
+    -> GrainCache
+    -> Maybe a
 mapGrainWithId gid fn model =
     getGrainById gid model
         |> Maybe.map fn
+
+
+mapSiblingsOfGrainWithId :
+    GrainId
+    -> (SiblingsPivot -> a)
+    -> GrainCache
+    -> Maybe a
+mapSiblingsOfGrainWithId gid fn model =
+    mapGrainWithId gid
+        (\grain ->
+            siblingsPivotOf grain model
+                |> Maybe.map fn
+        )
+        model
+        |> Maybe.join
 
 
 insertAfter afterItem item list =
@@ -298,22 +318,24 @@ addNewAfterHelp siblingGid grain model =
         maybeNewParentId =
             getParentIdOfGid siblingGid model
 
-        _ =
-            model
-                |> mapGrainWithId siblingGid
-                    (\siblingGrain ->
-                        let
-                            allSiblings =
-                                siblingsOf siblingGrain model
-
-                            splitIndex =
-                                siblings
-                                    |> List.findIndex (Grain.idEq siblingGid)
-                                    |> Maybe.map ((+) 1)
-                        in
-                        1
-                    )
-
+        --        _ =
+        --            model
+        --                |> mapGrainWithId siblingGid
+        --                    (siblingsPivotOf
+        --                        >> callWith model
+        --                        >> Maybe.map(\siblingsPivot ->
+        --                                let
+        --                                    allSiblings =
+        --                                        siblingsOf siblingGrain model
+        --
+        --                                    splitIndex =
+        --                                        siblings
+        --                                            |> List.findIndex (Grain.idEq siblingGid)
+        --                                            |> Maybe.map ((+) 1)
+        --                                in
+        --                                1
+        --                           )
+        --                    )
         siblings =
             getGrainById siblingGid model
                 |> Maybe.unwrap [] (siblingsOf >> callWith model)
