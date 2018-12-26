@@ -270,45 +270,26 @@ addNewAfterBatchUpdaters siblingGid now grain model =
                 |> TZ.findFromRoot (Grain.idEq siblingGid)
                 |> Maybe.andThen
                     (\z ->
-                        let
-                            gz =
-                                TZ.append (Tree.tree grain []) z
-
-                            maybePZ =
-                                TZ.parent gz
-
-                            _ =
-                                TZ.append (Tree.tree grain []) z
-                                    |> TZ.parent
-                                    |> Maybe.map
-                                        (\pz ->
-                                            let
-                                                children =
-                                                    pz |> TZ.children
-
-                                                pid =
-                                                    pz
-                                                        |> TZ.label
-                                                        >> Grain.idAsParentId
-                                            in
-                                            1
-                                        )
-
-                            maybeChildren =
-                                maybePZ |> Maybe.map TZ.children
-
-                            maybeParentId =
-                                maybePZ
-                                    |> Maybe.map
-                                        (TZ.label >> Grain.idAsParentId)
-                        in
                         z
                             |> TZ.append (Tree.tree grain [])
-                            >> TZ.parent
-                            >> Maybe.map
-                                (TZ.children
-                                    >> List.map Tree.label
-                                    >> listToSortIdxUpdaters now
+                            |> TZ.parent
+                            |> Maybe.map
+                                (\pz ->
+                                    let
+                                        childUpdaters =
+                                            pz
+                                                |> TZ.children
+                                                >> List.map Tree.label
+                                                >> listToSortIdxUpdaters now
+
+                                        pidUpdater =
+                                            pz
+                                                |> TZ.label
+                                                >> Grain.idAsParentId
+                                                >> parentIdUpdater
+                                                >> callWith2 now gid
+                                    in
+                                    pidUpdater :: childUpdaters
                                 )
                     )
 
