@@ -641,11 +641,11 @@ update message model =
         FocusPrev ->
             ( model
             , getSelectedOrLastSelectedGid model
-                |> Maybe.andThen
+                |> Maybe.map
                     (GrainCache.prevByGid
                         >> callWith model.grainCache
                     )
-                |> focusMaybeGrainCmd
+                |> focusMaybeGidCmd
             )
 
         FocusParent ->

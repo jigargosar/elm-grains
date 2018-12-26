@@ -160,10 +160,12 @@ nextByGid gid =
         >> Maybe.unwrap gid (TZ.label >> Grain.id)
 
 
-prevByGid : GrainId -> GrainCache -> Maybe Grain
-prevByGid gid model =
-    getGrainById gid model
-        |> Maybe.map (prevGrainOrSame >> callWith model)
+prevByGid : GrainId -> GrainCache -> GrainId
+prevByGid gid =
+    rootTreeZipper
+        >> TZ.findFromRoot (Grain.idEq gid)
+        >> Maybe.andThen TZ.backward
+        >> Maybe.unwrap gid (TZ.label >> Grain.id)
 
 
 parentByGid : GrainId -> GrainCache -> Maybe Grain
