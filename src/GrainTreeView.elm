@@ -27,7 +27,14 @@ import Html.Styled
         , textarea
         )
 import Html.Styled.Attributes exposing (autocomplete, class, css, id, rows, tabindex, value)
-import Html.Styled.Events exposing (onBlur, onClick, onFocus, onInput)
+import Html.Styled.Events
+    exposing
+        ( onBlur
+        , onClick
+        , onDoubleClick
+        , onFocus
+        , onInput
+        )
 import Tree
 
 
@@ -102,7 +109,7 @@ viewTree config level tree =
         , tabindex 0
         , CssEventX.onKeyDownCustom (config.keyDownCustom node.gid)
         , css nodeStyles
-        , onClick (config.focusRouteTo node.gid)
+        , onDoubleClick (config.focusRouteTo node.gid)
         ]
         [ text node.title ]
         :: viewForest config (level + 1) tree
