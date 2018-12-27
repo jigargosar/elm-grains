@@ -959,6 +959,7 @@ grainTreeViewConfig tree =
                 [ ( K.arrowDown, frPD FR_Forward )
                 , ( K.arrowUp, frPD FR_Backward )
                 , ( K.arrowLeft, frPD FR_Parent )
+                , ( K.arrowRight, pd <| routeToGrainTreeMsg gid )
                 ]
     }
 
