@@ -224,9 +224,7 @@ type Msg
     | AppendNewSibling GrainId
     | PrependNewSibling GrainId
       -- UPDATE GRAIN --
-    | MoveGrainBy GrainId Int
-    | MoveGrainOneLevelUp GrainId
-    | MoveGrainOneLevelDown GrainId
+    | MoveGrain Direction GrainId
     | UpdateGrainCache GrainCacheMsg
     | UpdateInlineEditGrain GrainId InlineEditGrainMsg
     | DragGrain GrainId
@@ -572,7 +570,7 @@ performGrainMove gid offset =
     Task.perform (UpdateGrainCache << GC_MoveBy gid offset) Time.now
 
 
-performGrainMoveInDirection gid direction =
+performGrainMoveInDirection direction gid =
     Task.perform (UpdateGrainCache << GC_Move direction gid) Time.now
 
 
@@ -820,17 +818,8 @@ update message model =
         DragGrain gid ->
             Return.singleton model
 
-        MoveGrainBy gid offset ->
-            ( model, performGrainMove gid offset )
-                |> Return.command (focusGidCmd gid)
-
-        MoveGrainOneLevelUp gid ->
-            ( model, updateGrainCacheCmd <| GC_MoveOneLevelUp gid )
-                |> Return.command (focusGidCmd gid)
-
-        MoveGrainOneLevelDown gid ->
-            ( model, updateGrainCacheCmd <| GC_MoveOneLevelDown gid )
-                |> Return.command (focusGidCmd gid)
+        MoveGrain direction gid ->
+            ( model, performGrainMoveInDirection direction gid )
 
         UpdatePopup msg ->
             updatePopup msg model
@@ -1033,19 +1022,25 @@ grainTreeViewConfig tree =
                 fr =
                     FocusRelative tree gid
 
-                frPD =
-                    pd << fr
+                moveGrain direction =
+                    MoveGrain direction gid
+
+                moveGrainPD direction =
+                    pd <| moveGrain direction
+
+                bindings =
+                    [ ( K.arrowDown, fr FR_Forward )
+                    , ( K.arrowUp, fr FR_Backward )
+                    , ( K.arrowLeft, arrowLeftMsg gid )
+                    , ( K.arrowRight, routeToGrainTreeMsg gid )
+                    , ( K.metaDown, moveGrain Direction.Down )
+                    , ( K.metaUp, moveGrain Direction.Up )
+                    , ( K.metaRight, moveGrain Direction.Right )
+                    , ( K.metaLeft, moveGrain Direction.Left )
+                    ]
+                        |> List.map (Tuple.mapSecond pd)
             in
-            K.bindEachToMsg
-                [ ( K.arrowDown, frPD FR_Forward )
-                , ( K.arrowUp, frPD FR_Backward )
-                , ( K.arrowLeft, pd <| arrowLeftMsg gid )
-                , ( K.arrowRight, pd <| routeToGrainTreeMsg gid )
-                , ( K.metaDown, pd <| MoveGrainBy gid 1 )
-                , ( K.metaUp, pd <| MoveGrainBy gid -1 )
-                , ( K.metaRight, pd <| MoveGrainOneLevelDown gid )
-                , ( K.metaLeft, pd <| MoveGrainOneLevelUp gid )
-                ]
+            K.bindEachToMsg bindings
     }
 
 
