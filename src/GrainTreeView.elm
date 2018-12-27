@@ -43,7 +43,7 @@ simpleIndentedStringEl level string =
     div
         [ css
             [ CS.pa1
-            , Css.paddingLeft <| px <| 4 + (level * 8)
+            , Css.paddingLeft <| px <| 4 + (level * 16)
             ]
         ]
         [ text string ]
