@@ -1032,7 +1032,7 @@ grainTreeViewConfig tree =
                     Direction.list
                         |> List.map
                             (\d ->
-                                ( K.metaArrow d, moveGrainPD d )
+                                ( K.metaArrow d, moveGrain d )
                             )
 
                 bindings =
