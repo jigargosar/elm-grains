@@ -1002,13 +1002,19 @@ grainTreeViewConfig tree =
     , keyDownCustom =
         \gid ->
             let
+                fr =
+                    FocusRelative gid tree
+
+                frParentMsg =
+                    fr FR_Parent
+
                 frPD =
-                    pd << FocusRelative gid tree
+                    pd << fr
             in
             K.bindEachToMsg
                 [ ( K.arrowDown, frPD FR_Forward )
                 , ( K.arrowUp, frPD FR_Backward )
-                , ( K.arrowLeft, frPD FR_Parent )
+                , ( K.arrowLeft, pd <| frParentMsg )
                 , ( K.arrowRight, pd <| routeToGrainTreeMsg gid )
                 ]
     }
