@@ -53,8 +53,8 @@ viewRootGrain grain =
     div [ css [ CS.pv1, CS.ph2, CS.bold ] ] [ text title ]
 
 
-viewForest level =
-    Tree.children >> List.concatMap (viewTree level)
+viewForest level tree =
+    tree |> Tree.children >> List.concatMap (viewTree level)
 
 
 viewTree level tree =
