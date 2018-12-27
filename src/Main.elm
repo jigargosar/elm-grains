@@ -957,13 +957,11 @@ grainTreeViewConfig tree =
 
 viewGrainTreeById gid model =
     let
-        maybeGrainTree =
-            GrainCache.treeFromGid GrainId.root model.grainCache
-
         treeView grainTree =
             GrainTreeView.view (grainTreeViewConfig grainTree) grainTree
     in
-    maybeGrainTree
+    model.grainCache
+        |> GrainCache.treeFromGid GrainId.root
         |> Maybe.unwrap NotFoundView.view treeView
 
 
