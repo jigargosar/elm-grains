@@ -261,35 +261,15 @@ afterAddGrainUpdaters now gid pc =
         |> Tuple2.uncurry (::)
 
 
-updatePidAndSortIndices now grain =
-    TZ.parent
-        >> Maybe.map
-            (\pz ->
-                let
-                    childUpdaters =
-                        pz
-                            |> TZ.children
-                            >> List.map Tree.label
-                            >> listToSortIdxUpdaters now
-
-                    pidUpdater =
-                        pz
-                            |> TZ.label
-                            >> Grain.idAsParentId
-                            >> parentIdUpdater
-                            >> callWith2 now (Grain.id grain)
-                in
-                pidUpdater :: childUpdaters
-            )
-
-
 addNewBeforeBatchUpdaters siblingGid now grain =
+    let
+        gid =
+            Grain.id grain
+    in
     rootTreeZipper
-        >> TZ.findFromRoot (Grain.idEq siblingGid)
-        >> Maybe.andThen
-            (TZ.prepend (Tree.tree grain [])
-                >> updatePidAndSortIndices now grain
-            )
+        >> Z.prependWhenIdEqAndGetParentAndChildGrains siblingGid grain
+        >> Maybe.map
+            (afterAddGrainUpdaters now gid)
 
 
 

@@ -5,6 +5,7 @@ module GrainZipper exposing
     , appendWhenIdEqAndGetParentAndChildGrains
     , fromTree
     , lastDescendentGrain
+    , prependWhenIdEqAndGetParentAndChildGrains
     , removeEqByIdThenFlatten
     )
 
@@ -107,12 +108,28 @@ appendWhenIdEq gid grain =
         >> Maybe.map (appendGrain grain)
 
 
+prependWhenIdEq : GrainId -> Grain -> GrainZipper -> Maybe GrainZipper
+prependWhenIdEq gid grain =
+    findFromRootIdEq gid
+        >> Maybe.map (appendGrain grain)
+
+
 appendWhenIdEqAndGetParentAndChildGrains :
     GrainId
     -> Grain
     -> GrainZipper
     -> Maybe ( Grain, List Grain )
 appendWhenIdEqAndGetParentAndChildGrains gid grain =
+    appendWhenIdEq gid grain
+        >> Maybe.andThen toParentChildrenLabelsTuple
+
+
+prependWhenIdEqAndGetParentAndChildGrains :
+    GrainId
+    -> Grain
+    -> GrainZipper
+    -> Maybe ( Grain, List Grain )
+prependWhenIdEqAndGetParentAndChildGrains gid grain =
     appendWhenIdEq gid grain
         >> Maybe.andThen toParentChildrenLabelsTuple
 
