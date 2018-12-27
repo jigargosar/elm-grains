@@ -3,9 +3,11 @@ module GrainCache exposing
     , addNew
     , addNewAfter
     , addNewGrainBefore
+    , backwardFromGidOrSelf
     , batchUpdate
     , decoder
     , encoder
+    , forwardFromGidOrSelf
     , get__
     , init
     , lastLeafGid
@@ -13,9 +15,7 @@ module GrainCache exposing
     , moveBy
     , moveOneLevelDown
     , moveOneLevelUp
-    , nextByGid
-    , parentByGid
-    , prevByGid
+    , parentFromGidOrSelf
     , rejectSubTreeAndFlatten
     , rootGid
     , rootGrains__
@@ -147,22 +147,22 @@ lastLeafGid =
         >> Grain.id
 
 
-nextByGid : GrainId -> GrainCache -> GrainId
-nextByGid gid =
+forwardFromGidOrSelf : GrainId -> GrainCache -> GrainId
+forwardFromGidOrSelf gid =
     rootTreeZipper
         >> Z.forwardFromRootWhenIdEq gid
         >> Maybe.unwrap gid Grain.id
 
 
-prevByGid : GrainId -> GrainCache -> GrainId
-prevByGid gid =
+backwardFromGidOrSelf : GrainId -> GrainCache -> GrainId
+backwardFromGidOrSelf gid =
     rootTreeZipper
         >> Z.backwardFromRootWhenIdEq gid
         >> Maybe.unwrap gid Grain.id
 
 
-parentByGid : GrainId -> GrainCache -> GrainId
-parentByGid gid =
+parentFromGidOrSelf : GrainId -> GrainCache -> GrainId
+parentFromGidOrSelf gid =
     rootTreeZipper
         >> Z.parentWhenIdEq gid
         >> Maybe.unwrap gid Grain.id

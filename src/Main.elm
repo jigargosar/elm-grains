@@ -201,6 +201,12 @@ type PopupMsg
     | PM_Open Popup
 
 
+type FocusRelativeMsg
+    = FR_Forward
+    | FR_Backward
+    | FR_Parent
+
+
 type Msg
     = ---- INJECT MSG BELOW ----
       NoOp
@@ -223,6 +229,7 @@ type Msg
     | GrainContentChanged GrainId String
     | DragGrain GrainId
       -- GRAIN FOCUS NAVIGATION
+    | FocusRelative GrainId FocusRelativeMsg
     | FocusNext
     | FocusPrev
     | FocusParent
@@ -352,6 +359,34 @@ focusMaybeGidCmd =
 
 focusMaybeGrainCmd =
     unwrapMaybeCmd (Grain.id >> focusGidCmd)
+
+
+
+-- FOCUS RELATIVE
+
+
+focusRelative :
+    GrainId
+    -> FocusRelativeMsg
+    -> Model
+    -> Return Msg Model
+focusRelative gid message model =
+    let
+        fn =
+            case message of
+                FR_Backward ->
+                    GrainCache.backwardFromGidOrSelf
+
+                FR_Forward ->
+                    GrainCache.forwardFromGidOrSelf
+
+                FR_Parent ->
+                    GrainCache.parentFromGidOrSelf
+    in
+    ( model
+    , fn gid model.grainCache
+        |> focusGidCmd
+    )
 
 
 
@@ -631,11 +666,14 @@ update message model =
                 |> Result.map (\_ -> Return.singleton model)
                 |> handleStringResult model
 
+        FocusRelative gid msg ->
+            focusRelative gid msg model
+
         FocusNext ->
             ( model
             , getSelectedOrLastSelectedGid model
                 |> Maybe.map
-                    (GrainCache.nextByGid
+                    (GrainCache.forwardFromGidOrSelf
                         >> callWith model.grainCache
                     )
                 |> focusMaybeGidCmd
@@ -645,7 +683,7 @@ update message model =
             ( model
             , getSelectedOrLastSelectedGid model
                 |> Maybe.map
-                    (GrainCache.prevByGid
+                    (GrainCache.backwardFromGidOrSelf
                         >> callWith model.grainCache
                     )
                 |> focusMaybeGidCmd
@@ -655,7 +693,7 @@ update message model =
             ( model
             , getSelectedOrLastSelectedGid model
                 |> Maybe.map
-                    (GrainCache.parentByGid
+                    (GrainCache.parentFromGidOrSelf
                         >> callWith model.grainCache
                     )
                 |> focusMaybeGidCmd
