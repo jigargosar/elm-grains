@@ -3,6 +3,8 @@ module GrainZipper exposing
     , GrainTree
     , GrainZipper
     , appendWhenIdEqAndGetParentAndChildGrains
+    , backwardFromRootWhenIdEq
+    , forwardFromRootWhenIdEq
     , fromTree
     , lastDescendentGrain
     , prependWhenIdEqAndGetParentAndChildGrains
@@ -151,7 +153,18 @@ forward =
         |> mapMaybe
 
 
+backward =
+    Z.backward
+        |> mapMaybe
+
+
 forwardFromRootWhenIdEq gid =
-    findFromRootEqById gid
+    findFromRootIdEq gid
         >> Maybe.andThen forward
+        >> Maybe.map label
+
+
+backwardFromRootWhenIdEq gid =
+    findFromRootIdEq gid
+        >> Maybe.andThen backward
         >> Maybe.map label

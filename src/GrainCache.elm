@@ -149,17 +149,15 @@ lastLeafGid =
 nextByGid : GrainId -> GrainCache -> GrainId
 nextByGid gid =
     rootTreeZipper
-        >> TZ.findFromRoot (Grain.idEq gid)
-        >> Maybe.andThen TZ.forward
-        >> Maybe.unwrap gid (TZ.label >> Grain.id)
+        >> Z.forwardFromRootWhenIdEq gid
+        >> Maybe.unwrap gid Grain.id
 
 
 prevByGid : GrainId -> GrainCache -> GrainId
 prevByGid gid =
     rootTreeZipper
-        >> TZ.findFromRoot (Grain.idEq gid)
-        >> Maybe.andThen TZ.backward
-        >> Maybe.unwrap gid (TZ.label >> Grain.id)
+        >> Z.backwardFromRootWhenIdEq gid
+        >> Maybe.unwrap gid Grain.id
 
 
 parentByGid : GrainId -> GrainCache -> GrainId
