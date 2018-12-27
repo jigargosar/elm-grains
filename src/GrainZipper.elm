@@ -144,3 +144,14 @@ toParentChildrenLabelsTuple =
                 Z.parent z
                     |> Maybe.map (Z.label >> (\p -> ( p, children )))
            )
+
+
+forward =
+    Z.forward
+        |> mapMaybe
+
+
+forwardFromRootWhenIdEq gid =
+    findFromRootEqById gid
+        >> Maybe.andThen forward
+        >> Maybe.map label
