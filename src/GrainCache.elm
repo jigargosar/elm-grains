@@ -34,6 +34,7 @@ import GrainChange exposing (GrainChange)
 import GrainDict exposing (GrainDict)
 import GrainId exposing (GrainId)
 import GrainIdLookup exposing (GrainIdLookup)
+import GrainZipper as Z exposing (GrainForest, GrainTree, GrainZipper)
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline exposing (hardcoded, required)
 import Json.Encode as E exposing (Value)
@@ -84,18 +85,6 @@ addRootIfAbsent model =
         blindInsertGrain Grain.root model
 
 
-type alias Forest =
-    List GrainTree
-
-
-type alias GrainTree =
-    Tree.Tree Grain
-
-
-type alias GrainZipper =
-    TZ.Zipper Grain
-
-
 allGrains : GrainCache -> List Grain
 allGrains =
     toRawList
@@ -111,7 +100,7 @@ childGrains grain =
 treeFromCache : GrainCache -> Grain -> GrainTree
 treeFromCache grainCache grain =
     let
-        newForest : Forest
+        newForest : GrainForest
         newForest =
             childGrains grain grainCache
                 |> List.map (treeFromCache grainCache)
@@ -131,7 +120,7 @@ rootTree model =
 
 rootTreeZipper : GrainCache -> GrainZipper
 rootTreeZipper =
-    rootTree >> TZ.fromTree
+    rootTree >> Z.fromTree
 
 
 rejectSubTreeOf : Grain -> GrainCache -> Maybe GrainZipper
