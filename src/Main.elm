@@ -257,23 +257,25 @@ routeToGrainTreeMsg gid =
     routeToMsg <| Route.GrainTree gid
 
 
-autoFocusRoute route =
-    let
-        maybeDomId =
-            case route of
-                Route.Grain _ ->
-                    Just GrainView.autoFocusId
+autoFocusRouteCmd : Route -> Cmd Msg
+autoFocusRouteCmd =
+    maybeAutoFocusRouteDomId >> unwrapMaybeCmd (BrowserX.focus FocusResult)
 
-                Route.GrainTree gid ->
-                    Just <| GrainTreeView.grainDomId gid
 
-                Route.GrainList ->
-                    Just <| GrainTreeView.grainDomId GrainId.root
+maybeAutoFocusRouteDomId : Route -> Maybe String
+maybeAutoFocusRouteDomId route =
+    case route of
+        Route.Grain _ ->
+            Just GrainView.autoFocusId
 
-                Route.NotFound _ ->
-                    Nothing
-    in
-    maybeDomId |> unwrapMaybeCmd (BrowserX.focus FocusResult)
+        Route.GrainTree gid ->
+            Just <| GrainTreeView.grainDomId gid
+
+        Route.GrainList ->
+            Just <| GrainTreeView.grainDomId GrainId.root
+
+        Route.NotFound _ ->
+            Nothing
 
 
 unwrapMaybeCmd cmdFn =
@@ -656,10 +658,31 @@ updateUrlChanged event model =
         oldRoute =
             model.route
                 |> Debug.log "oldRoute"
+
+        maybeOldGid : Maybe GrainId
+        maybeOldGid =
+            case oldRoute of
+                Route.GrainTree gid ->
+                    Just gid
+
+                Route.Grain gid ->
+                    Just gid
+
+                _ ->
+                    Nothing
+
+        focusEffect newModel =
+            maybeOldGid
+                |> Maybe.map GrainTreeView.grainDomId
+                |> Maybe.orElseLazy
+                    (\_ ->
+                        maybeAutoFocusRouteDomId newModel.route
+                    )
+                |> focusMaybe
     in
     if action == UrlChange.Pop then
         Return.singleton (setRouteFromString url model)
-            |> Return.effect_ (.route >> autoFocusRoute)
+            |> Return.effect_ focusEffect
 
     else
         Return.singleton model
@@ -784,7 +807,7 @@ update message model =
         RouteTo route ->
             Return.singleton (setRoute route model)
                 |> Return.effect_ (.route >> Route.toString >> Port.pushUrl)
-                |> Return.effect_ (.route >> autoFocusRoute)
+                |> Return.effect_ (.route >> autoFocusRouteCmd)
 
         UrlChanged encoded ->
             D.decodeValue UrlChange.decoder encoded
