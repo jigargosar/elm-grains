@@ -19,7 +19,7 @@ type Route
 route : Parser (Route -> a) a
 route =
     oneOf
-        [ map GrainList top
+        [ map (GrainTree GrainId.root) top
         , map Grain (s "grain" </> grainId_)
         , map GrainTree (s "grain-tree" </> grainId_)
         ]
