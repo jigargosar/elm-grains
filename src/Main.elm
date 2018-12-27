@@ -965,12 +965,12 @@ grainTreeViewConfig tree =
 
 viewGrainTreeById gid model =
     let
-        treeView grainTree =
+        viewTree grainTree =
             GrainTreeView.view (grainTreeViewConfig grainTree) grainTree
     in
     model.grainCache
         |> GrainCache.treeFromGid gid
-        |> Maybe.unwrap NotFoundView.view treeView
+        |> Maybe.unwrap NotFoundView.view viewTree
 
 
 viewRouteChildren model =
