@@ -271,9 +271,6 @@ maybeAutoFocusRouteDomId route =
         Route.GrainTree gid ->
             Just <| GrainTreeView.grainDomId gid
 
-        Route.GrainList ->
-            Just <| GrainTreeView.grainDomId GrainId.root
-
         Route.NotFound _ ->
             Nothing
 
@@ -953,9 +950,6 @@ type alias RouteView =
 toRouteView : Route -> RouteView
 toRouteView route =
     case route of
-        Route.GrainList ->
-            { title = "Grain List", showBackBtn = False, children = [] }
-
         Route.GrainTree _ ->
             { title = "Grain Tree", showBackBtn = True, children = [] }
 
@@ -1033,9 +1027,6 @@ viewGrainTreeById gid model =
 
 viewRouteChildren model =
     case model.route of
-        Route.GrainList ->
-            viewGrainTreeById GrainId.root model
-
         Route.GrainTree gid ->
             viewGrainTreeById gid model
 

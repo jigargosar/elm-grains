@@ -10,8 +10,7 @@ import Url.Parser exposing ((</>), Parser, custom, int, map, oneOf, parse, s, st
 
 
 type Route
-    = GrainList
-    | Grain GrainId
+    = Grain GrainId
     | NotFound String
     | GrainTree GrainId
 
@@ -48,11 +47,12 @@ fromString string =
 
 toString r =
     case r of
-        GrainList ->
-            "/"
-
         GrainTree gid ->
-            "/grain-tree/" ++ GrainId.toString gid
+            if gid == GrainId.root then
+                "/"
+
+            else
+                "/grain-tree/" ++ GrainId.toString gid
 
         Grain gid ->
             "/grain/" ++ GrainId.toString gid
