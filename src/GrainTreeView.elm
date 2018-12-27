@@ -11,6 +11,7 @@ import CssShorthand as CS
 import CssTheme exposing (black80, blackAlpha, space1, space2, space4, white)
 import EventX
 import Grain
+import GrainId exposing (GrainId)
 import Html.Styled
     exposing
         ( Html
@@ -28,11 +29,22 @@ import Tree
 
 type alias Node =
     { title : String
+    , domId : String
     }
 
 
+grainDomId : GrainId -> String
+grainDomId =
+    GrainId.toDomIdWithPrefix "grain-list-item--"
+
+
 grainToNode grain =
+    let
+        gid =
+            Grain.id grain
+    in
     { title = Grain.titleOrEmpty grain
+    , domId = grainDomId gid
     }
 
 
@@ -46,10 +58,10 @@ view grainTree =
 
 viewRootTree tree =
     let
-        title =
-            Tree.label tree |> .title
+        node =
+            Tree.label tree
     in
-    div [ css [ CS.pv1, CS.ph2, CS.bold ] ] [ text title ]
+    div [ css [ CS.pv1, CS.ph2, CS.bold ] ] [ text node.title ]
         :: viewForest 1 tree
 
 
@@ -69,8 +81,8 @@ viewForest level tree =
 
 viewTree level tree =
     let
-        title =
-            Tree.label tree |> .title
+        node =
+            Tree.label tree
     in
-    simpleIndentedStringEl level title
+    simpleIndentedStringEl level node.title
         :: viewForest (level + 1) tree
