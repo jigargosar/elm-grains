@@ -341,16 +341,10 @@ handleKeyDownWhenNothingIsFocused ke model =
                         |> Maybe.orElseLazy fn
                         |> focusMaybeGidCmd
             in
-            if K.isHotKey K.arrowDown ke then
+            if K.isArrowKey ke then
                 ( model
                 , focusLastOrLazy
-                    (\_ -> Just <| GrainCache.rootGid model.grainCache)
-                )
-
-            else if K.isHotKey K.arrowUp ke then
-                ( model
-                , focusLastOrLazy
-                    (\_ -> Just <| GrainCache.lastLeafGid model.grainCache)
+                    (\_ -> gid)
                 )
 
             else

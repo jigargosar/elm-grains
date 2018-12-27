@@ -16,6 +16,7 @@ module HotKey exposing
     , delete
     , enter
     , esc
+    , isArrowKey
     , isHotKey
     , metaDown
     , metaUp
@@ -79,6 +80,11 @@ matchesKeyEvent ke =
 isHotKey : HotKey -> KeyEvent -> Bool
 isHotKey =
     flip matchesKeyEvent
+
+
+isArrowKey ke =
+    [ arrowUp, arrowDown, arrowLeft, arrowRight ]
+        |> List.any (isHotKey ke)
 
 
 decoder : Decoder HotKey
