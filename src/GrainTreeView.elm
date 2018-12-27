@@ -49,7 +49,12 @@ grainToNode grain =
     }
 
 
-view grainTree =
+type alias Config msg =
+    { keyDownCustom : EventX.CustomDecoder msg
+    }
+
+
+view config grainTree =
     let
         nodeTree =
             Tree.map grainToNode grainTree

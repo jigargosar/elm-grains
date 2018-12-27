@@ -941,11 +941,21 @@ viewRouteChildren model =
     case model.route of
         Route.GrainList ->
             let
-                viewModel =
+                grainTree =
                     GrainCache.rootTree model.grainCache
+
+                config =
+                    { keyDownCustom =
+                        \gid ->
+                            K.bindEachToMsg
+                                [ ( K.arrowDown, pd <| FocusNext )
+                                , ( K.arrowUp, pd <| FocusPrev )
+                                , ( K.arrowLeft, pd <| FocusParent )
+                                ]
+                    }
             in
             --            toGrainListView model |> GLV.view
-            GrainTreeView.view viewModel
+            GrainTreeView.view config grainTree
 
         Route.GrainTree gid ->
             toGrainListView model |> GLV.view
