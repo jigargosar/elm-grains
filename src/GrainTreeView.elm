@@ -50,7 +50,7 @@ grainToNode grain =
 
 
 type alias Config msg =
-    { keyDownCustom : EventX.CustomDecoder msg
+    { keyDownCustom : GrainId -> EventX.CustomDecoder msg
     }
 
 
@@ -70,36 +70,37 @@ viewRootTree config tree =
     div
         [ id node.domId
         , tabindex 0
+        , CssEventX.onKeyDownCustom config.keyDownCustom
         , css [ CS.pv1, CS.ph2, CS.bold ]
         ]
         [ text node.title ]
-        :: viewForest 1 tree
+        :: viewForest config 1 tree
 
 
-simpleIndentedStringEl { level, title, domId } =
+simpleIndentedStringEl config level node =
     div
-        [ id domId
+        [ id node.domId
         , tabindex 0
+        , CssEventX.onKeyDownCustom (config.keyDownCustom node.gid)
         , css
             [ CS.pa1
             , Css.paddingLeft <| px <| 4 + (level * 32)
             ]
         ]
-        [ text title ]
+        [ text node.title ]
 
 
-viewForest level tree =
-    tree |> Tree.children >> List.concatMap (viewTree level)
+viewForest config level tree =
+    tree |> Tree.children >> List.concatMap (viewTree config level)
 
 
-viewTree level tree =
+viewTree config level tree =
     let
         node =
             Tree.label tree
     in
     simpleIndentedStringEl
-        { level = level
-        , domId = node.domId
-        , title = node.title
-        }
-        :: viewForest (level + 1) tree
+        config
+        level
+        node
+        :: viewForest config (level + 1) tree
