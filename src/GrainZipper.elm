@@ -8,6 +8,7 @@ module GrainZipper exposing
     )
 
 import Grain exposing (Grain)
+import GrainId exposing (GrainId)
 import Maybe.Extra as Maybe
 import Tree exposing (Tree)
 import Tree.Zipper as Z exposing (Zipper)
@@ -52,6 +53,12 @@ findFromRootEqById grain =
         |> mapMaybe
 
 
+findFromRootIdEq : GrainId -> GrainZipper -> Maybe GrainZipper
+findFromRootIdEq gid =
+    Z.findFromRoot (Grain.idEq gid)
+        |> mapMaybe
+
+
 removeTree : GrainZipper -> Maybe GrainZipper
 removeTree =
     Z.removeTree
@@ -85,3 +92,15 @@ label =
 
 lastDescendentGrain =
     lastDescendantZ >> label
+
+
+appendGrain : Grain -> GrainZipper -> GrainZipper
+appendGrain grain =
+    Z.append (Tree.singleton grain)
+        |> map
+
+
+appendWhenIdEq : GrainId -> Grain -> GrainZipper -> Maybe GrainZipper
+appendWhenIdEq gid grain =
+    findFromRootIdEq gid
+        >> Maybe.map (appendGrain grain)
