@@ -4,6 +4,7 @@ module GrainZipper exposing
     , GrainZipper
     , appendWhenIdEqAndGetParentAndChildGrains
     , backwardFromRootWhenIdEq
+    , findTreeById
     , forwardFromRootWhenIdEq
     , fromTree
     , lastDescendentGrain
@@ -62,6 +63,15 @@ findFromRootIdEq : GrainId -> GrainZipper -> Maybe GrainZipper
 findFromRootIdEq gid =
     Z.findFromRoot (Grain.idEq gid)
         |> mapMaybe
+
+
+tree =
+    unwrap >> Z.tree
+
+
+findTreeById : GrainId -> GrainZipper -> Maybe GrainTree
+findTreeById gid =
+    findFromRootIdEq gid >> Maybe.map tree
 
 
 removeTree : GrainZipper -> Maybe GrainZipper

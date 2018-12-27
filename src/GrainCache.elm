@@ -18,6 +18,7 @@ module GrainCache exposing
     , rootGrains__
     , rootTree
     , toRawList
+    , treeFromGid
     , updateFromFirebaseChangeList
     , updateWithGrainUpdate
     )
@@ -110,6 +111,12 @@ treeFromCache grainCache grain =
 rootGrain : GrainCache -> Grain
 rootGrain =
     getGrainById GrainId.root >> Maybe.withDefault Grain.root
+
+
+treeFromGid : GrainId -> GrainCache -> Maybe GrainTree
+treeFromGid gid =
+    rootTreeZipper
+        >> Z.findTreeById gid
 
 
 rootTree : GrainCache -> GrainTree
