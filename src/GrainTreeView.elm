@@ -71,6 +71,7 @@ grainToNode grain =
 
 type alias Config msg =
     { keyDownCustom : GrainId -> EventX.CustomDecoder msg
+    , focusRouteTo : GrainId -> msg
     }
 
 
@@ -101,6 +102,7 @@ viewTree config level tree =
         , tabindex 0
         , CssEventX.onKeyDownCustom (config.keyDownCustom node.gid)
         , css nodeStyles
+        , onClick (config.focusRouteTo node.gid)
         ]
         [ text node.title ]
         :: viewForest config (level + 1) tree

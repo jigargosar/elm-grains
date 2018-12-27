@@ -252,6 +252,10 @@ routeToGrainIdMsg gid =
     routeToMsg <| Route.Grain gid
 
 
+routeToGrainTreeMsg gid =
+    routeToMsg <| Route.GrainTree gid
+
+
 autoFocusRoute route =
     let
         maybeDomId =
@@ -941,7 +945,8 @@ viewAppBar { title, showBackBtn } authState =
 
 
 grainTreeViewConfig tree =
-    { keyDownCustom =
+    { focusRouteTo = routeToGrainTreeMsg
+    , keyDownCustom =
         \gid ->
             let
                 frPD =
