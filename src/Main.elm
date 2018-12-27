@@ -26,7 +26,6 @@ import Grain exposing (Grain)
 import GrainCache exposing (GrainCache)
 import GrainChange exposing (GrainChange)
 import GrainId exposing (GrainId)
-import GrainListView as GLV exposing (GrainListView)
 import GrainMorePopupView exposing (GrainMorePopupView)
 import GrainTreeView
 import GrainView exposing (GrainView)
@@ -344,13 +343,8 @@ getSelectedOrLastSelectedGid model =
         |> Maybe.orElseLazy (\_ -> model.lastSelectedGid)
 
 
-focusLastSelectedEffect : Model -> Cmd Msg
-focusLastSelectedEffect =
-    getSelectedOrLastSelectedGid >> focusMaybeGidCmd
-
-
 focusGidCmd gid =
-    focusCmd <| GLV.grainDomId gid
+    focusCmd <| GrainTreeView.grainDomId gid
 
 
 focusMaybeGidCmd =
@@ -475,7 +469,7 @@ updateInlineEditGrain gid msg model =
                 inlineEdit grain =
                     let
                         ieDomId =
-                            GLV.contentInputDomId gid
+                            GrainTreeView.contentInputDomId gid
                     in
                     ( initInlineEdit grain model
                     , Cmd.batch
@@ -998,11 +992,14 @@ viewRouteChildren model =
                 grainTree =
                     GrainCache.rootTree model.grainCache
             in
-            --            toGrainListView model |> GLV.view
             GrainTreeView.view (grainTreeViewConfig grainTree) grainTree
 
         Route.GrainTree gid ->
-            toGrainListView model |> GLV.view
+            let
+                grainTree =
+                    GrainCache.rootTree model.grainCache
+            in
+            GrainTreeView.view (grainTreeViewConfig grainTree) grainTree
 
         Route.Grain gid ->
             let
@@ -1026,69 +1023,6 @@ viewRouteChildren model =
 
 viewToast toast =
     Toast.view ToastDismiss toast
-
-
-toGrainListView : Model -> GrainListView Msg
-toGrainListView model =
-    let
-        grainTree : GrainTree
-        grainTree =
-            model.grainCache
-                |> GrainCache.rootTree
-
-        sort =
-            List.sortWith Grain.defaultComparator
-
-        allGrains =
-            model.grainCache
-                |> GrainCache.toRawList
-                |> List.map SavedGrain.value
-                |> sort
-
-        rootGrains =
-            GrainCache.rootGrains__ model.grainCache
-
-        updateIEG2 =
-            \msgFn gid -> UpdateInlineEditGrain gid << msgFn
-
-        updateIEG =
-            \msgFn gid -> UpdateInlineEditGrain gid msgFn
-    in
-    { tree = grainTree
-    , grains = rootGrains
-    , getChildren = \parent -> List.filter (Grain.isChildOf parent) allGrains
-    , inlineEditGrain = model.inlineEditGrain
-    , addFabClicked = AddGrainClicked
-    , grainMsg =
-        { grainMoreClicked = openGrainMorePopupMsg
-        , grainTitleClicked = updateIEG IE_Start
-        , dragGrain = DragGrain
-        , grainFocus = GrainFocused
-        , keyDownCustom =
-            \gid ->
-                K.bindEachToMsg
-                    [ ( K.arrowDown, pd <| FocusNext )
-                    , ( K.arrowUp, pd <| FocusPrev )
-                    , ( K.arrowLeft, pd <| FocusParent )
-                    , ( K.enter, pd <| updateIEG IE_Start gid )
-                    , ( K.shiftEnter, pd <| AppendNewSibling gid )
-                    , ( K.shiftMetaEnter, pd <| PrependNewSibling gid )
-                    , ( K.ctrlUp, pd <| MoveGrainBy gid -1 )
-                    , ( K.ctrlDown, pd <| MoveGrainBy gid 1 )
-                    , ( K.ctrlLeft, pd <| MoveGrainOneLevelUp gid )
-                    , ( K.ctrlRight, pd <| MoveGrainOneLevelDown gid )
-                    ]
-        , inlineEditGrainContentChanged = updateIEG2 IE_Content
-        , inlineEditFocusChanged = updateIEG2 IE_KeyboardFocus
-        , inlineEditKeyDownCustom =
-            \gid ->
-                K.bindEachToMsg
-                    [ ( K.enter, pd <| updateIEG IE_Submit gid )
-                    , ( K.esc, pd <| updateIEG IE_Discard gid )
-                    ]
-        , inlineEditSubmit = \gid -> UpdateInlineEditGrain gid IE_Submit
-        }
-    }
 
 
 main : Program Flags Model Msg

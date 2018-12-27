@@ -1,4 +1,8 @@
-module GrainTreeView exposing (view)
+module GrainTreeView exposing
+    ( contentInputDomId
+    , grainDomId
+    , view
+    )
 
 import Css exposing (num, pct, px, rem, vh, vw, zero)
 import CssAttrX exposing (attrIf)
@@ -27,6 +31,23 @@ import Html.Styled.Events exposing (onBlur, onClick, onFocus, onInput)
 import Tree
 
 
+grainDomId : GrainId -> String
+grainDomId =
+    GrainId.toDomIdWithPrefix "grain-list-item--"
+
+
+inlineGrainEditInputDomId =
+    Grain.toDomIdWithPrefix editInputPrefix
+
+
+editInputPrefix =
+    "grain-list-item-edit-input--"
+
+
+contentInputDomId =
+    GrainId.toDomIdWithPrefix editInputPrefix
+
+
 type alias NodeModel =
     { title : String
     , domId : String
@@ -35,11 +56,6 @@ type alias NodeModel =
 
 type Node
     = DisplayNode NodeModel
-
-
-grainDomId : GrainId -> String
-grainDomId =
-    GrainId.toDomIdWithPrefix "grain-list-item--"
 
 
 grainToNode grain =
