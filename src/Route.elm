@@ -18,7 +18,7 @@ route : Parser (Route -> a) a
 route =
     oneOf
         [ map (GrainTree GrainId.root) top
-        , map GrainTree (s "grain-tree" </> grainId_)
+        , map GrainTree (s "grain" </> grainId_)
         ]
 
 
@@ -50,7 +50,7 @@ toString r =
                 "/"
 
             else
-                "/grain-tree/" ++ GrainId.toString gid
+                "/grain/" ++ GrainId.toString gid
 
         NotFound string ->
             string
