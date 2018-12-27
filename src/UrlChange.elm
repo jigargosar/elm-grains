@@ -1,4 +1,11 @@
-module UrlChange exposing (Action(..), UrlChange, action, decoder, url)
+module UrlChange exposing
+    ( Action(..)
+    , UrlChange
+    , action
+    , decoder
+    , state
+    , url
+    )
 
 import Json.Decode as D exposing (Decoder)
 import Json.Encode as E exposing (Value)
@@ -61,3 +68,7 @@ url =
 
 action =
     unwrap >> .action
+
+
+state =
+    unwrap >> .state

@@ -665,9 +665,16 @@ updateGrainCache message model =
 -- URL CHANGED
 
 
-updateUrlPopped : String -> Model -> Return Msg Model
-updateUrlPopped url model =
+updateUrlPopped : UrlChange -> Model -> Return Msg Model
+updateUrlPopped event model =
     let
+        url =
+            UrlChange.url event
+
+        _ =
+            D.decodeValue HistoryState.decoder (UrlChange.state event)
+                |> Debug.log "UrlChange.state"
+
         newRoute =
             Route.fromString url
 
@@ -698,7 +705,7 @@ updateUrlPopped url model =
 updateUrlChanged : UrlChange -> Model -> Return Msg Model
 updateUrlChanged event model =
     if UrlChange.action event == UrlChange.Pop then
-        updateUrlPopped (UrlChange.url event) model
+        updateUrlPopped event model
 
     else
         Return.singleton model
