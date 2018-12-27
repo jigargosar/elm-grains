@@ -164,18 +164,21 @@ parent =
         |> mapMaybe
 
 
+forwardFromRootWhenIdEq : GrainId -> GrainZipper -> Maybe Grain
 forwardFromRootWhenIdEq gid =
     findFromRootIdEq gid
         >> Maybe.andThen forward
         >> Maybe.map label
 
 
+backwardFromRootWhenIdEq : GrainId -> GrainZipper -> Maybe Grain
 backwardFromRootWhenIdEq gid =
     findFromRootIdEq gid
         >> Maybe.andThen backward
         >> Maybe.map label
 
 
+parentWhenIdEq : GrainId -> GrainZipper -> Maybe Grain
 parentWhenIdEq gid =
     findFromRootIdEq gid
         >> Maybe.andThen parent

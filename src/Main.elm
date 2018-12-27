@@ -364,19 +364,22 @@ focusRelative :
     -> Return Msg Model
 focusRelative gid tree message model =
     let
+        zipper =
+            GrainZipper.fromTree tree
+
         fn =
             case message of
                 FR_Backward ->
-                    GrainCache.backwardFromGid
+                    GrainZipper.backwardFromRootWhenIdEq
 
                 FR_Forward ->
-                    GrainCache.forwardFromGid
+                    GrainZipper.forwardFromRootWhenIdEq
 
                 FR_Parent ->
-                    GrainCache.parentFromGid
+                    GrainZipper.parentWhenIdEq
     in
     ( model
-    , fn gid model.grainCache
+    , fn gid zipper
         |> focusMaybeGrainCmd
     )
 
