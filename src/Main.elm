@@ -1028,6 +1028,10 @@ grainTreeViewConfig tree =
                 , ( K.arrowUp, frPD FR_Backward )
                 , ( K.arrowLeft, pd <| arrowLeftMsg gid )
                 , ( K.arrowRight, pd <| routeToGrainTreeMsg gid )
+                , ( K.metaDown, pd <| MoveGrainBy gid 1 )
+                , ( K.metaUp, pd <| MoveGrainBy gid -1 )
+                , ( K.metaRight, pd <| MoveGrainOneLevelDown gid )
+                , ( K.metaLeft, pd <| MoveGrainOneLevelUp gid )
                 ]
     }
 
