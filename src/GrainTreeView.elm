@@ -66,10 +66,6 @@ view config grainTree =
     viewTree config 0 nodeTree
 
 
-viewForest config level tree =
-    tree |> Tree.children >> List.concatMap (viewTree config level)
-
-
 viewTree config level tree =
     let
         node =
@@ -92,3 +88,7 @@ viewTree config level tree =
         ]
         [ text node.title ]
         :: viewForest config (level + 1) tree
+
+
+viewForest config level tree =
+    tree |> Tree.children >> List.concatMap (viewTree config level)
