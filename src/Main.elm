@@ -572,6 +572,10 @@ performGrainMove gid offset =
     Task.perform (UpdateGrainCache << GC_MoveBy gid offset) Time.now
 
 
+performGrainMoveInDirection gid direction =
+    Task.perform (UpdateGrainCache << GC_Move direction gid) Time.now
+
+
 performGrainSetContent gid content =
     performGrainUpdate gid <| Grain.SetContent content
 
