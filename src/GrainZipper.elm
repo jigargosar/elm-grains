@@ -3,9 +3,11 @@ module GrainZipper exposing
     , GrainTree
     , GrainZipper
     , fromTree
+    , removeSubTreeEqById
     )
 
 import Grain exposing (Grain)
+import Maybe.Extra as Maybe
 import Tree exposing (Tree)
 import Tree.Zipper as Z exposing (Zipper)
 
@@ -34,6 +36,25 @@ map fn =
     unwrap >> fn >> GrainZipper
 
 
+mapMaybe fn =
+    unwrap >> fn >> Maybe.map GrainZipper
+
+
 fromTree : GrainTree -> GrainZipper
 fromTree =
     Z.fromTree >> GrainZipper
+
+
+findFromRootEqById grain =
+    Z.findFromRoot (Grain.eqById grain)
+        |> mapMaybe
+
+
+removeTree =
+    Z.removeTree
+        |> mapMaybe
+
+
+removeSubTreeEqById grain =
+    findFromRootEqById grain
+        >> Maybe.andThen removeTree

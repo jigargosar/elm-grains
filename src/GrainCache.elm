@@ -126,8 +126,7 @@ rootTreeZipper =
 rejectSubTreeOf : Grain -> GrainCache -> Maybe GrainZipper
 rejectSubTreeOf grain =
     rootTreeZipper
-        >> TZ.findFromRoot (Grain.eqById grain)
-        >> Maybe.andThen TZ.removeTree
+        >> Z.removeSubTreeEqById grain
 
 
 rejectSubTreeAndFlatten : Grain -> GrainCache -> List Grain
