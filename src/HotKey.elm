@@ -84,7 +84,7 @@ isHotKey =
 
 isArrowKey ke =
     [ arrowUp, arrowDown, arrowLeft, arrowRight ]
-        |> List.any (isHotKey ke)
+        |> List.any (matchesKeyEvent ke)
 
 
 decoder : Decoder HotKey

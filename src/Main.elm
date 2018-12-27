@@ -336,19 +336,16 @@ handleKeyDownWhenNothingIsFocused ke model =
     case model.route of
         Route.GrainTree gid ->
             let
-                focusLastOrLazy fn =
-                    getSelectedOrLastSelectedGid model
-                        |> Maybe.orElseLazy fn
-                        |> focusMaybeGidCmd
-            in
-            if K.isArrowKey ke then
-                ( model
-                , focusLastOrLazy
-                    (\_ -> gid)
-                )
+                cmd =
+                    if K.isArrowKey ke then
+                        getSelectedOrLastSelectedGid model
+                            |> Maybe.withDefault gid
+                            |> focusGidCmd
 
-            else
-                Return.singleton model
+                    else
+                        Cmd.none
+            in
+            ( model, cmd )
 
         Route.NotFound _ ->
             Return.singleton model
