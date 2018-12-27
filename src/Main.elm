@@ -1028,16 +1028,20 @@ grainTreeViewConfig tree =
                 moveGrainPD direction =
                     pd <| moveGrain direction
 
+                moveMappings =
+                    Direction.list
+                        |> List.map
+                            (\d ->
+                                ( K.metaArrow d, moveGrainPD d )
+                            )
+
                 bindings =
                     [ ( K.arrowDown, fr FR_Forward )
                     , ( K.arrowUp, fr FR_Backward )
                     , ( K.arrowLeft, arrowLeftMsg gid )
                     , ( K.arrowRight, routeToGrainTreeMsg gid )
-                    , ( K.metaDown, moveGrain Direction.Down )
-                    , ( K.metaUp, moveGrain Direction.Up )
-                    , ( K.metaRight, moveGrain Direction.Right )
-                    , ( K.metaLeft, moveGrain Direction.Left )
                     ]
+                        ++ moveMappings
                         |> List.map (Tuple.mapSecond pd)
             in
             K.bindEachToMsg bindings

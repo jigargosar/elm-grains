@@ -1,4 +1,4 @@
-module Direction exposing (Direction(..))
+module Direction exposing (Direction(..), list)
 
 
 type Direction
@@ -6,3 +6,7 @@ type Direction
     | Down
     | Left
     | Right
+
+
+list =
+    [ Up, Down, Left, Right ]

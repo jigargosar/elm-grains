@@ -18,6 +18,7 @@ module HotKey exposing
     , esc
     , isArrowKey
     , isHotKey
+    , metaArrow
     , metaDown
     , metaLeft
     , metaRight
@@ -28,6 +29,7 @@ module HotKey exposing
     )
 
 import BasicsX exposing (..)
+import Direction exposing (Direction)
 import EventX exposing (KeyEvent)
 import Html
 import Html.Events
@@ -134,6 +136,26 @@ shiftEnter =
 shiftMetaEnter : HotKey
 shiftMetaEnter =
     ( [ Shift, Meta ], "Enter" )
+
+
+metaArrow : Direction -> HotKey
+metaArrow direction =
+    let
+        dir2String =
+            case direction of
+                Direction.Up ->
+                    "ArrowUp"
+
+                Direction.Down ->
+                    "ArrowDown"
+
+                Direction.Left ->
+                    "ArrowLeft"
+
+                Direction.Right ->
+                    "ArrowRight"
+    in
+    ( [ Meta ], dir2String )
 
 
 metaUp : HotKey
