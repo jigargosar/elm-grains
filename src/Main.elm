@@ -681,15 +681,8 @@ updateUrlPopped url model =
 
 updateUrlChanged : UrlChange -> Model -> Return Msg Model
 updateUrlChanged event model =
-    let
-        url =
-            UrlChange.url event
-
-        action =
-            UrlChange.action event
-    in
-    if action == UrlChange.Pop then
-        updateUrlPopped url model
+    if UrlChange.action event == UrlChange.Pop then
+        updateUrlPopped (UrlChange.url event) model
 
     else
         Return.singleton model
