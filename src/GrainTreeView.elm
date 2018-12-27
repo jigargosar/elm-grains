@@ -78,11 +78,12 @@ viewRootTree config tree =
 
 simpleIndentedStringEl { level, title, domId } =
     div
-        [ css
+        [ id domId
+        , tabindex 0
+        , css
             [ CS.pa1
             , Css.paddingLeft <| px <| 4 + (level * 32)
             ]
-        , tabindex 0
         ]
         [ text title ]
 
