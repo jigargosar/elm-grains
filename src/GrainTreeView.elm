@@ -39,13 +39,17 @@ view tree =
     ]
 
 
+simpleStringEl string =
+    div [] [ text string ]
+
+
 viewRootGrain grain =
     let
         title =
             Grain.titleOrEmpty grain
     in
-    div [] [ text title ]
+    simpleStringEl title
 
 
 viewForest grainForest =
-    div [] [ text "forest" ]
+    simpleStringEl "forest"
