@@ -163,9 +163,8 @@ prevByGid gid =
 parentByGid : GrainId -> GrainCache -> GrainId
 parentByGid gid =
     rootTreeZipper
-        >> TZ.findFromRoot (Grain.idEq gid)
-        >> Maybe.andThen TZ.parent
-        >> Maybe.unwrap gid (TZ.label >> Grain.id)
+        >> Z.parentWhenIdEq gid
+        >> Maybe.unwrap gid Grain.id
 
 
 rootGrains__ =

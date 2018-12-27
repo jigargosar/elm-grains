@@ -7,6 +7,7 @@ module GrainZipper exposing
     , forwardFromRootWhenIdEq
     , fromTree
     , lastDescendentGrain
+    , parentWhenIdEq
     , prependWhenIdEqAndGetParentAndChildGrains
     , removeEqByIdThenFlatten
     )
@@ -158,6 +159,11 @@ backward =
         |> mapMaybe
 
 
+parent =
+    Z.parent
+        |> mapMaybe
+
+
 forwardFromRootWhenIdEq gid =
     findFromRootIdEq gid
         >> Maybe.andThen forward
@@ -167,4 +173,10 @@ forwardFromRootWhenIdEq gid =
 backwardFromRootWhenIdEq gid =
     findFromRootIdEq gid
         >> Maybe.andThen backward
+        >> Maybe.map label
+
+
+parentWhenIdEq gid =
+    findFromRootIdEq gid
+        >> Maybe.andThen parent
         >> Maybe.map label
