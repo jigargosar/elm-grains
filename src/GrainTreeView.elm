@@ -27,6 +27,10 @@ import Tree
 
 
 view tree =
+    viewRootTree tree
+
+
+viewRootTree tree =
     let
         rootGrain =
             Tree.label tree
