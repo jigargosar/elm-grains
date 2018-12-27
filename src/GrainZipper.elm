@@ -2,9 +2,9 @@ module GrainZipper exposing
     ( GrainForest
     , GrainTree
     , GrainZipper
-    , flatten
     , fromTree
-    , removeEqById
+    , lastDescendentGrain
+    , removeEqByIdThenFlatten
     )
 
 import Grain exposing (Grain)
@@ -64,6 +64,24 @@ removeEqById grain =
         >> Maybe.andThen removeTree
 
 
+removeEqByIdThenFlatten : Grain -> GrainZipper -> List Grain
+removeEqByIdThenFlatten grain =
+    removeEqById grain >> Maybe.unwrap [] flatten
+
+
 flatten : GrainZipper -> List Grain
 flatten =
     unwrap >> Z.toTree >> Tree.flatten
+
+
+lastDescendantZ =
+    Z.lastDescendant
+        |> map
+
+
+label =
+    unwrap >> Z.label
+
+
+lastDescendentGrain =
+    lastDescendantZ >> label

@@ -123,15 +123,9 @@ rootTreeZipper =
     rootTree >> Z.fromTree
 
 
-rejectSubTreeOf : Grain -> GrainCache -> Maybe GrainZipper
-rejectSubTreeOf grain =
-    rootTreeZipper
-        >> Z.removeEqById grain
-
-
 rejectSubTreeAndFlatten : Grain -> GrainCache -> List Grain
 rejectSubTreeAndFlatten grain =
-    rejectSubTreeOf grain >> Maybe.unwrap [] Z.flatten
+    rootTreeZipper >> Z.removeEqByIdThenFlatten grain
 
 
 getGrainById : GrainId -> GrainCache -> Maybe Grain
@@ -147,8 +141,7 @@ rootGid =
 lastLeafGid : GrainCache -> GrainId
 lastLeafGid =
     rootTreeZipper
-        >> TZ.lastDescendant
-        >> TZ.label
+        >> Z.lastDescendentGrain
         >> Grain.id
 
 
