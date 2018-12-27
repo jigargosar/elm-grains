@@ -683,15 +683,10 @@ updateUrlPopped url maybeHS model =
 
 updateUrlChanged : UrlChange -> Model -> Return Msg Model
 updateUrlChanged event model =
-    let
-        _ =
-            Debug.log "event" event
-    in
     if UrlChange.action event == UrlChange.Pop then
         let
             decodeResult =
                 D.decodeValue HistoryState.decoder (UrlChange.state event)
-                    |> Debug.log "UrlChange.state :"
 
             url =
                 UrlChange.url event
