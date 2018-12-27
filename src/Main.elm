@@ -975,29 +975,30 @@ viewAppBar { title, showBackBtn } authState =
         ]
 
 
+grainTreeViewConfig =
+    { keyDownCustom =
+        \gid ->
+            let
+                frPD =
+                    pd << FocusRelative gid
+            in
+            K.bindEachToMsg
+                [ ( K.arrowDown, frPD FR_Forward )
+                , ( K.arrowUp, frPD FR_Backward )
+                , ( K.arrowLeft, frPD FR_Parent )
+                ]
+    }
+
+
 viewRouteChildren model =
     case model.route of
         Route.GrainList ->
             let
                 grainTree =
                     GrainCache.rootTree model.grainCache
-
-                config =
-                    { keyDownCustom =
-                        \gid ->
-                            let
-                                frPD =
-                                    pd << FocusRelative gid
-                            in
-                            K.bindEachToMsg
-                                [ ( K.arrowDown, frPD FR_Forward )
-                                , ( K.arrowUp, frPD FR_Backward )
-                                , ( K.arrowLeft, frPD FR_Parent )
-                                ]
-                    }
             in
             --            toGrainListView model |> GLV.view
-            GrainTreeView.view config grainTree
+            GrainTreeView.view grainTreeViewConfig grainTree
 
         Route.GrainTree gid ->
             toGrainListView model |> GLV.view
