@@ -28,6 +28,8 @@ const app = Elm.Main.init({
 // noinspection JSUnresolvedFunction
 history.listen((location, action) => {
   console.debug(action, location.pathname, location.state)
+  // console.log(`location`, location)
+  // console.log(`history`, history)
   sendToElmApp(app, 'urlChanged', { url: document.URL, action })
 })
 
