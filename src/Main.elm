@@ -229,7 +229,7 @@ type Msg
     | GrainContentChanged GrainId String
     | DragGrain GrainId
       -- GRAIN FOCUS NAVIGATION
-    | FocusRelative GrainId FocusRelativeMsg
+    | FocusRelative GrainId GrainTree FocusRelativeMsg
     | FocusNext
     | FocusPrev
     | FocusParent
@@ -367,10 +367,11 @@ focusMaybeGrainCmd =
 
 focusRelative :
     GrainId
+    -> GrainTree
     -> FocusRelativeMsg
     -> Model
     -> Return Msg Model
-focusRelative gid message model =
+focusRelative gid tree message model =
     let
         fn =
             case message of
@@ -666,8 +667,8 @@ update message model =
                 |> Result.map (\_ -> Return.singleton model)
                 |> handleStringResult model
 
-        FocusRelative gid msg ->
-            focusRelative gid msg model
+        FocusRelative gid tree msg ->
+            focusRelative gid tree msg model
 
         FocusNext ->
             ( model
@@ -975,12 +976,12 @@ viewAppBar { title, showBackBtn } authState =
         ]
 
 
-grainTreeViewConfig =
+grainTreeViewConfig tree =
     { keyDownCustom =
         \gid ->
             let
                 frPD =
-                    pd << FocusRelative gid
+                    pd << FocusRelative gid tree
             in
             K.bindEachToMsg
                 [ ( K.arrowDown, frPD FR_Forward )
@@ -998,7 +999,7 @@ viewRouteChildren model =
                     GrainCache.rootTree model.grainCache
             in
             --            toGrainListView model |> GLV.view
-            GrainTreeView.view grainTreeViewConfig grainTree
+            GrainTreeView.view (grainTreeViewConfig grainTree) grainTree
 
         Route.GrainTree gid ->
             toGrainListView model |> GLV.view
