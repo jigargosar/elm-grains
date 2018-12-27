@@ -28,6 +28,7 @@ import GrainChange exposing (GrainChange)
 import GrainId exposing (GrainId)
 import GrainListView as GLV exposing (GrainListView)
 import GrainMorePopupView exposing (GrainMorePopupView)
+import GrainTreeView
 import GrainView exposing (GrainView)
 import GrainZipper exposing (GrainTree)
 import HotKey as K exposing (SoftKey(..))
@@ -939,7 +940,12 @@ viewAppBar { title, showBackBtn } authState =
 viewRouteChildren model =
     case model.route of
         Route.GrainList ->
-            toGrainListView model |> GLV.view
+            let
+                viewModel =
+                    GrainCache.rootTree model.grainCache
+            in
+            --            toGrainListView model |> GLV.view
+            GrainTreeView.view viewModel
 
         Route.GrainTree gid ->
             toGrainListView model |> GLV.view
