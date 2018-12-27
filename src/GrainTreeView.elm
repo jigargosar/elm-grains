@@ -70,7 +70,7 @@ viewRootTree config tree =
     div
         [ id node.domId
         , tabindex 0
-        , CssEventX.onKeyDownCustom config.keyDownCustom
+        , CssEventX.onKeyDownCustom (config.keyDownCustom node.gid)
         , css [ CS.pv1, CS.ph2, CS.bold ]
         ]
         [ text node.title ]
