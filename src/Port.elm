@@ -11,6 +11,7 @@ port module Port exposing
     , persistSavedGrainList
     , persistUpdatedGrain
     , pushUrl
+    , replaceState
     , setGrainCache
     , signIn
     , signOut
@@ -54,6 +55,9 @@ port error : String -> Cmd msg
 
 
 port pushUrl : String -> Cmd msg
+
+
+port replaceState : Value -> Cmd msg
 
 
 port urlChanged : (Value -> msg) -> Sub msg

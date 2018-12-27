@@ -1,7 +1,7 @@
 module UrlChange exposing (Action(..), UrlChange, action, decoder, url)
 
 import Json.Decode as D exposing (Decoder)
-import Json.Encode as E
+import Json.Encode as E exposing (Value)
 
 
 type Action
@@ -31,7 +31,7 @@ actionDecoder =
 
 
 type alias Model =
-    { url : String, action : Action }
+    { url : String, action : Action, state : Value }
 
 
 type UrlChange
@@ -48,9 +48,10 @@ map fn =
 
 decoder : Decoder UrlChange
 decoder =
-    D.map2 Model
+    D.map3 Model
         (D.field "url" D.string)
         (D.field "action" actionDecoder)
+        (D.field "state" D.value)
         |> D.map UrlChange
 
 

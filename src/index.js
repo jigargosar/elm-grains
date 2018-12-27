@@ -30,7 +30,11 @@ history.listen((location, action) => {
   console.debug(action, location.pathname, location.state)
   // console.log(`location`, location)
   // console.log(`history`, history)
-  sendToElmApp(app, 'urlChanged', { url: document.URL, action })
+  sendToElmApp(app, 'urlChanged', {
+    url: document.URL,
+    action,
+    state: location.state,
+  })
 })
 
 window.addEventListener('keydown', event => {
