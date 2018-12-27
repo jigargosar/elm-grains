@@ -643,7 +643,8 @@ updateGrainCache message model =
 -- URL CHANGED
 
 
-updateUrlPop url model =
+updateUrlPopped : String -> Model -> Return Msg Model
+updateUrlPopped url model =
     let
         newRoute =
             Route.fromString url
@@ -678,6 +679,7 @@ updateUrlPop url model =
         |> Return.effect_ focusEffect
 
 
+updateUrlChanged : UrlChange -> Model -> Return Msg Model
 updateUrlChanged event model =
     let
         url =
@@ -687,7 +689,7 @@ updateUrlChanged event model =
             UrlChange.action event
     in
     if action == UrlChange.Pop then
-        updateUrlPop url model
+        updateUrlPopped url model
 
     else
         Return.singleton model
