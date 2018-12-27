@@ -7,6 +7,7 @@ import Json.Encode as E
 type Action
     = Push
     | Pop
+    | Replace
 
 
 actionDecoder : Decoder Action
@@ -20,6 +21,9 @@ actionDecoder =
 
                     "POP" ->
                         D.succeed Pop
+
+                    "REPLACE" ->
+                        D.succeed Replace
 
                     _ ->
                         D.fail <| "Invalid Action: " ++ string

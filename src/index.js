@@ -46,7 +46,7 @@ setElmAppPortSubscriptions(
     pushUrl: pathname => {
       // Use push, replace, and go to navigate around.
       if (history.location.pathname !== pathname) {
-        history.push(pathname, { some: 'state' })
+        history.replace(history.location)
       }
     },
     autoSize: domId => {
