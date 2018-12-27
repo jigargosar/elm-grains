@@ -68,6 +68,7 @@ import TimeX
 import Toast exposing (Toast)
 import Tree
 import Tuple exposing (mapFirst)
+import Tuple2
 import UrlChange exposing (UrlChange)
 
 
@@ -1029,11 +1030,13 @@ grainTreeViewConfig tree =
                     pd <| moveGrain direction
 
                 moveMappings =
-                    Direction.list
-                        |> List.map
-                            (\d ->
-                                ( K.metaArrow d, moveGrain d )
-                            )
+                    List.map
+                        (Tuple2.double
+                            >> Tuple.mapBoth
+                                K.metaArrow
+                                moveGrain
+                        )
+                        Direction.list
 
                 bindings =
                     [ ( K.arrowDown, fr FR_Forward )
