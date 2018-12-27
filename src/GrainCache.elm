@@ -10,6 +10,7 @@ module GrainCache exposing
     , init
     , lastLeafGid
     , load
+    , move
     , moveBy
     , moveOneLevelDown
     , moveOneLevelUp
@@ -27,6 +28,7 @@ import ActorId exposing (ActorId)
 import BasicsX exposing (callWith, callWith2, eqs, ifElse, unwrapMaybe)
 import Compare
 import DecodeX exposing (Encoder)
+import Direction exposing (Direction)
 import Firebase
 import Grain exposing (Grain)
 import GrainChange exposing (GrainChange)
@@ -369,6 +371,16 @@ updateWithGrainUpdate :
     -> UpdateResult
 updateWithGrainUpdate grainUpdate gid now model =
     update (Grain.update now grainUpdate) gid model
+
+
+move :
+    Direction
+    -> GrainId
+    -> Posix
+    -> GrainCache
+    -> UpdateResult
+move direction gid now model =
+    Result.Ok model
 
 
 moveBy :

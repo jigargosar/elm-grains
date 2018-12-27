@@ -17,6 +17,7 @@ import CssProto
 import CssShorthand as CS
 import CssTheme exposing (black80, blackAlpha, space2, space4, white)
 import DecodeX exposing (DecodeResult)
+import Direction exposing (Direction)
 import Either exposing (Either(..))
 import Elm.Parser
 import EventX exposing (onKeyDownPD, pNone, pd, sp)
@@ -177,6 +178,7 @@ type GrainCacheAddMsg
 
 type GrainCacheMsg
     = GC_MoveBy GrainId Int Posix
+    | GC_Move Direction GrainId Posix
     | GC_GrainUpdate GrainId Grain.Update Posix
     | GC_MoveOneLevelUp GrainId Posix
     | GC_MoveOneLevelDown GrainId Posix
@@ -615,6 +617,13 @@ updateGrainCache message model =
                 >> handleStringResult model
     in
     case message of
+        GC_Move direction grainId now ->
+            GrainCache.move direction
+                grainId
+                now
+                model.grainCache
+                |> handleResult
+
         GC_MoveBy grainId offset now ->
             GrainCache.moveBy offset
                 grainId
