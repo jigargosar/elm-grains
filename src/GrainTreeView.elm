@@ -45,6 +45,7 @@ grainToNode grain =
     in
     { title = Grain.titleOrEmpty grain
     , domId = grainDomId gid
+    , gid = gid
     }
 
 
