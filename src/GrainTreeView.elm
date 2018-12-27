@@ -27,7 +27,7 @@ import Tree
 
 
 simplePaddedContainer =
-    div [ css [ CS.pa2 ] ]
+    div [ css [ CS.pv2 ] ]
 
 
 view tree =
@@ -38,15 +38,9 @@ view tree =
         rootForest =
             Tree.children tree
     in
-    [ simplePaddedContainer
-        [ viewRootGrain rootGrain
-        , viewForest 1 rootForest
-        ]
+    [ viewRootGrain rootGrain
+    , viewForest 1 rootForest
     ]
-
-
-simpleStringEl string =
-    div [ css [ CS.pa1 ] ] [ text string ]
 
 
 simpleIndentedStringEl level string =
@@ -64,7 +58,7 @@ viewRootGrain grain =
         title =
             Grain.titleOrEmpty grain
     in
-    simpleStringEl title
+    div [ css [ CS.pv1, CS.ph2, CS.bold ] ] [ text title ]
 
 
 viewForest level grainForest =

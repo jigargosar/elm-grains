@@ -39,9 +39,14 @@ module CssShorthand exposing
     , pa0
     , pa1
     , pa2
+    , ph
+    , ph1
+    , ph2
     , pointer
     , posFill
     , pv
+    , pv1
+    , pv2
     , relative
     , row
     , rowCC
@@ -267,12 +272,12 @@ pa =
     Css.padding
 
 
-pa2 =
-    Css.padding (rem 0.5)
-
-
 pa1 =
     Css.padding (rem 0.25)
+
+
+pa2 =
+    Css.padding (rem 0.5)
 
 
 p2 =
@@ -289,6 +294,26 @@ ma0 =
 
 pv unit =
     Css.batch [ Css.paddingTop unit, Css.paddingBottom unit ]
+
+
+pv1 =
+    pv <| rem 0.25
+
+
+pv2 =
+    pv <| rem 0.5
+
+
+ph unit =
+    Css.batch [ Css.paddingLeft unit, Css.paddingRight unit ]
+
+
+ph1 =
+    ph <| rem 0.25
+
+
+ph2 =
+    ph <| rem 0.5
 
 
 pointer =
