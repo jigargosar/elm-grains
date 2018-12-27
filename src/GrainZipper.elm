@@ -2,8 +2,9 @@ module GrainZipper exposing
     ( GrainForest
     , GrainTree
     , GrainZipper
+    , flatten
     , fromTree
-    , removeSubTreeEqById
+    , removeEqById
     )
 
 import Grain exposing (Grain)
@@ -57,7 +58,12 @@ removeTree =
         |> mapMaybe
 
 
-removeSubTreeEqById : Grain -> GrainZipper -> Maybe GrainZipper
-removeSubTreeEqById grain =
+removeEqById : Grain -> GrainZipper -> Maybe GrainZipper
+removeEqById grain =
     findFromRootEqById grain
         >> Maybe.andThen removeTree
+
+
+flatten : GrainZipper -> List Grain
+flatten =
+    unwrap >> Z.toTree >> Tree.flatten
