@@ -32,10 +32,11 @@ view tree =
 
 viewRootTree tree =
     let
-        rootGrain =
-            Tree.label tree
+        title =
+            Grain.titleOrEmpty <| Tree.label tree
     in
-    viewRootGrain rootGrain :: viewForest 1 tree
+    div [ css [ CS.pv1, CS.ph2, CS.bold ] ] [ text title ]
+        :: viewForest 1 tree
 
 
 simpleIndentedStringEl level string =
@@ -46,14 +47,6 @@ simpleIndentedStringEl level string =
             ]
         ]
         [ text string ]
-
-
-viewRootGrain grain =
-    let
-        title =
-            Grain.titleOrEmpty grain
-    in
-    div [ css [ CS.pv1, CS.ph2, CS.bold ] ] [ text title ]
 
 
 viewForest level tree =
