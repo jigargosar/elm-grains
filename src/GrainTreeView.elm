@@ -40,13 +40,23 @@ view tree =
     in
     [ simplePaddedContainer
         [ viewRootGrain rootGrain
-        , viewForest rootForest
+        , viewForest 1 rootForest
         ]
     ]
 
 
 simpleStringEl string =
     div [ css [ CS.pa1 ] ] [ text string ]
+
+
+simpleIndentedStringEl level string =
+    div
+        [ css
+            [ CS.pa1
+            , Css.paddingLeft <| px <| level * 8
+            ]
+        ]
+        [ text string ]
 
 
 viewRootGrain grain =
@@ -57,5 +67,5 @@ viewRootGrain grain =
     simpleStringEl title
 
 
-viewForest grainForest =
-    simpleStringEl "forest"
+viewForest level grainForest =
+    simpleIndentedStringEl level "forest"
