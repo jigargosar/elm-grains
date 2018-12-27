@@ -966,7 +966,7 @@ viewGrainTreeById gid model =
             GrainTreeView.view (grainTreeViewConfig grainTree) grainTree
     in
     model.grainCache
-        |> GrainCache.treeFromGid GrainId.root
+        |> GrainCache.treeFromGid gid
         |> Maybe.unwrap NotFoundView.view treeView
 
 
