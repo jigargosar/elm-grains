@@ -35,8 +35,7 @@ viewRootTree tree =
         rootGrain =
             Tree.label tree
     in
-    viewRootGrain rootGrain
-        :: viewForest 1 tree
+    viewRootGrain rootGrain :: viewForest 1 tree
 
 
 simpleIndentedStringEl level string =
