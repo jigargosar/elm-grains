@@ -74,6 +74,15 @@ viewTree config level tree =
     let
         node =
             Tree.label tree
+
+        styles =
+            if level == 0 then
+                [ CS.pv1, CS.ph2, CS.bold ]
+
+            else
+                [ CS.pa1
+                , Css.paddingLeft <| px <| 4 + (level * 32)
+                ]
     in
     if level == 0 then
         div
