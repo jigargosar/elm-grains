@@ -71,11 +71,11 @@ viewForest config level tree =
 
 
 viewTree config level tree =
+    let
+        node =
+            Tree.label tree
+    in
     if level == 0 then
-        let
-            node =
-                Tree.label tree
-        in
         div
             [ id node.domId
             , tabindex 0
@@ -83,13 +83,9 @@ viewTree config level tree =
             , css [ CS.pv1, CS.ph2, CS.bold ]
             ]
             [ text node.title ]
-            :: viewForest config 1 tree
+            :: viewForest config (level + 1) tree
 
     else
-        let
-            node =
-                Tree.label tree
-        in
         div
             [ id node.domId
             , tabindex 0
