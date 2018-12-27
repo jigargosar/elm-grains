@@ -66,6 +66,7 @@ import TimeX
 import Toast exposing (Toast)
 import Tree
 import Tuple exposing (mapFirst)
+import UrlChange exposing (UrlChange)
 
 
 
@@ -233,7 +234,7 @@ type Msg
     | UpdatePopup PopupMsg
       -- NAVIGATION --
     | RouteTo Route
-    | UrlChanged String
+    | UrlChanged Value
     | BackPressed
       -- AUTH --
     | SignIn
@@ -754,8 +755,18 @@ update message model =
                 |> Return.effect_ (.route >> Route.toString >> Port.pushUrl)
                 |> Return.effect_ (.route >> autoFocusRoute)
 
-        UrlChanged url ->
-            Return.singleton (setRouteFromString url model)
+        UrlChanged encoded ->
+            let
+                updater uc =
+                    let
+                        url =
+                            UrlChange.url uc
+                    in
+                    Return.singleton (setRouteFromString url model)
+            in
+            D.decodeValue UrlChange.decoder encoded
+                |> Result.map updater
+                |> handleDecodeResult model
 
         Firebase encodedMsg ->
             case Firebase.decodeInbound encodedMsg of

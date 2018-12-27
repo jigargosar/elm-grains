@@ -56,7 +56,7 @@ port error : String -> Cmd msg
 port pushUrl : String -> Cmd msg
 
 
-port urlChanged : (String -> msg) -> Sub msg
+port urlChanged : (Value -> msg) -> Sub msg
 
 
 port fire2Elm : (Value -> msg) -> Sub msg

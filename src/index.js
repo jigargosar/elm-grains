@@ -28,7 +28,7 @@ const app = Elm.Main.init({
 // noinspection JSUnresolvedFunction
 history.listen((location, action) => {
   console.debug(action, location.pathname, location.state)
-  sendToElmApp(app, 'urlChanged', document.URL)
+  sendToElmApp(app, 'urlChanged', { url: document.URL, action })
 })
 
 window.addEventListener('keydown', event => {
