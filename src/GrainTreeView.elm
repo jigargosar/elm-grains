@@ -59,30 +59,32 @@ view config grainTree =
         nodeTree =
             Tree.map grainToNode grainTree
     in
-    viewRootTree nodeTree
+    viewRootTree config nodeTree
 
 
-viewRootTree tree =
+viewRootTree config tree =
     let
         node =
             Tree.label tree
     in
     div
         [ id node.domId
+        , tabindex 0
         , css [ CS.pv1, CS.ph2, CS.bold ]
         ]
         [ text node.title ]
         :: viewForest 1 tree
 
 
-simpleIndentedStringEl level string =
+simpleIndentedStringEl { level, title, domId } =
     div
         [ css
             [ CS.pa1
             , Css.paddingLeft <| px <| 4 + (level * 32)
             ]
+        , tabindex 0
         ]
-        [ text string ]
+        [ text title ]
 
 
 viewForest level tree =
@@ -94,5 +96,9 @@ viewTree level tree =
         node =
             Tree.label tree
     in
-    simpleIndentedStringEl level node.title
+    simpleIndentedStringEl
+        { level = level
+        , domId = node.domId
+        , title = node.title
+        }
         :: viewForest (level + 1) tree
