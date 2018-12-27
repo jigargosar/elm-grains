@@ -229,9 +229,6 @@ type Msg
     | DragGrain GrainId
       -- GRAIN FOCUS NAVIGATION
     | FocusRelative GrainId GrainTree FocusRelativeMsg
-    | FocusNext
-    | FocusPrev
-    | FocusParent
       -- POPUP
     | UpdatePopup PopupMsg
       -- NAVIGATION --
@@ -663,36 +660,6 @@ update message model =
 
         FocusRelative gid tree msg ->
             focusRelative gid tree msg model
-
-        FocusNext ->
-            ( model
-            , getSelectedOrLastSelectedGid model
-                |> Maybe.map
-                    (GrainCache.forwardFromGidOrSelf
-                        >> callWith model.grainCache
-                    )
-                |> focusMaybeGidCmd
-            )
-
-        FocusPrev ->
-            ( model
-            , getSelectedOrLastSelectedGid model
-                |> Maybe.map
-                    (GrainCache.backwardFromGidOrSelf
-                        >> callWith model.grainCache
-                    )
-                |> focusMaybeGidCmd
-            )
-
-        FocusParent ->
-            ( model
-            , getSelectedOrLastSelectedGid model
-                |> Maybe.map
-                    (GrainCache.parentFromGidOrSelf
-                        >> callWith model.grainCache
-                    )
-                |> focusMaybeGidCmd
-            )
 
         GrainFocused gid focused ->
             Return.singleton <|
