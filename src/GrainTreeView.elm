@@ -26,6 +26,10 @@ import Html.Styled.Events exposing (onBlur, onClick, onFocus, onInput)
 import Tree
 
 
+simplePaddedContainer =
+    div [ css [ CS.pa2 ] ]
+
+
 view tree =
     let
         rootGrain =
@@ -34,13 +38,15 @@ view tree =
         rootForest =
             Tree.children tree
     in
-    [ viewRootGrain rootGrain
-    , viewForest rootForest
+    [ simplePaddedContainer
+        [ viewRootGrain rootGrain
+        , viewForest rootForest
+        ]
     ]
 
 
 simpleStringEl string =
-    div [ css [ CS.pa2 ] ] [ text string ]
+    div [ css [ CS.pa1 ] ] [ text string ]
 
 
 viewRootGrain grain =

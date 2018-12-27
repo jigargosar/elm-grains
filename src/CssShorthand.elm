@@ -37,6 +37,7 @@ module CssShorthand exposing
     , p2
     , pa
     , pa0
+    , pa1
     , pa2
     , pointer
     , posFill
@@ -268,6 +269,10 @@ pa =
 
 pa2 =
     Css.padding (rem 0.5)
+
+
+pa1 =
+    Css.padding (rem 0.25)
 
 
 p2 =
