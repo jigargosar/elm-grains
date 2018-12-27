@@ -35,7 +35,7 @@ history.listen((location, action) => {
     action,
     state: location.state,
   }
-  console.log(`urlChangedEvent`, urlChangedEvent)
+  console.debug(`urlChangedEvent`, urlChangedEvent)
   sendToElmApp(app, 'urlChanged', urlChangedEvent)
 })
 
