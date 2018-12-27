@@ -40,7 +40,7 @@ view tree =
 
 
 simpleStringEl string =
-    div [] [ text string ]
+    div [ css [ CS.pa2 ] ] [ text string ]
 
 
 viewRootGrain grain =
