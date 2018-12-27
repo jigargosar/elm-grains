@@ -10,6 +10,7 @@ import CssLayout exposing (flexCol, flexRow)
 import CssShorthand as CS
 import CssTheme exposing (black80, blackAlpha, space1, space2, space4, white)
 import EventX
+import Grain
 import Html.Styled
     exposing
         ( Html
@@ -22,7 +23,22 @@ import Html.Styled
         )
 import Html.Styled.Attributes exposing (autocomplete, class, css, id, rows, tabindex, value)
 import Html.Styled.Events exposing (onBlur, onClick, onFocus, onInput)
+import Tree
 
 
 view tree =
-    [ div [] [ text "hello gt" ] ]
+    let
+        rootGrain =
+            Tree.label tree
+    in
+    [ viewRootGrain rootGrain
+    , div [] [ text "hello gt" ]
+    ]
+
+
+viewRootGrain grain =
+    let
+        title =
+            Grain.titleOrEmpty grain
+    in
+    div [] [ text title ]
