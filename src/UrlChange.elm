@@ -1,4 +1,4 @@
-module UrlChange exposing (Action(..), UrlChange, decoder, url)
+module UrlChange exposing (Action(..), UrlChange, action, decoder, url)
 
 import Json.Decode as D exposing (Decoder)
 import Json.Encode as E
@@ -52,3 +52,7 @@ decoder =
 
 url =
     unwrap >> .url
+
+
+action =
+    unwrap >> .action

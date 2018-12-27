@@ -638,12 +638,28 @@ updateGrainCache message model =
 -- URL CHANGED
 
 
-updateUrlChanged uc model =
+updateUrlChanged event model =
     let
         url =
-            UrlChange.url uc
+            UrlChange.url event
+
+        action =
+            UrlChange.action event
+
+        newRoute =
+            Route.fromString url
+                |> Debug.log "newRoute"
+
+        oldRoute =
+            model.route
+                |> Debug.log "oldRoute"
     in
-    Return.singleton (setRouteFromString url model)
+    if action == UrlChange.Pop then
+        Return.singleton (setRouteFromString url model)
+            |> Return.effect_ (.route >> autoFocusRoute)
+
+    else
+        Return.singleton model
 
 
 src =
