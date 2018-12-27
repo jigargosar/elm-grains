@@ -10,8 +10,7 @@ import Url.Parser exposing ((</>), Parser, custom, int, map, oneOf, parse, s, st
 
 
 type Route
-    = Grain GrainId
-    | NotFound String
+    = NotFound String
     | GrainTree GrainId
 
 
@@ -19,7 +18,6 @@ route : Parser (Route -> a) a
 route =
     oneOf
         [ map (GrainTree GrainId.root) top
-        , map Grain (s "grain" </> grainId_)
         , map GrainTree (s "grain-tree" </> grainId_)
         ]
 
@@ -53,9 +51,6 @@ toString r =
 
             else
                 "/grain-tree/" ++ GrainId.toString gid
-
-        Grain gid ->
-            "/grain/" ++ GrainId.toString gid
 
         NotFound string ->
             string

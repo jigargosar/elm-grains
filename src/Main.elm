@@ -226,7 +226,6 @@ type Msg
     | MoveGrainOneLevelDown GrainId
     | UpdateGrainCache GrainCacheMsg
     | UpdateInlineEditGrain GrainId InlineEditGrainMsg
-    | GrainContentChanged GrainId String
     | DragGrain GrainId
       -- GRAIN FOCUS NAVIGATION
     | FocusRelative GrainId GrainTree FocusRelativeMsg
@@ -249,10 +248,6 @@ routeToMsg route =
     RouteTo route
 
 
-routeToGrainIdMsg gid =
-    routeToMsg <| Route.Grain gid
-
-
 routeToGrainTreeMsg gid =
     routeToMsg <| Route.GrainTree gid
 
@@ -265,9 +260,6 @@ autoFocusRouteCmd =
 maybeAutoFocusRouteDomId : Route -> Maybe String
 maybeAutoFocusRouteDomId route =
     case route of
-        Route.Grain _ ->
-            Just GrainView.autoFocusId
-
         Route.GrainTree gid ->
             Just <| GrainTreeView.grainDomId gid
 
@@ -441,7 +433,7 @@ updatePopup msg model =
             )
 
         PM_RouteToGrain gid ->
-            update (routeToGrainIdMsg gid) (dismissPopup model)
+            update (routeToGrainTreeMsg gid) (dismissPopup model)
 
         PM_Dismiss ->
             dismissPopup model |> Return.singleton
@@ -651,17 +643,11 @@ updateUrlPopped url model =
 
         maybeFocusDomId : Maybe String
         maybeFocusDomId =
-            case ( newRoute, oldRoute ) of
-                ( Route.Grain _, _ ) ->
-                    Nothing
-
-                ( _, Route.GrainTree gid ) ->
+            case oldRoute of
+                Route.GrainTree gid ->
                     Just <| GrainTreeView.grainDomId gid
 
-                ( _, Route.Grain gid ) ->
-                    Just <| GrainTreeView.grainDomId gid
-
-                _ ->
+                Route.NotFound _ ->
                     Nothing
 
         focusEffect newModel =
@@ -780,11 +766,6 @@ update message model =
 
         DragGrain gid ->
             Return.singleton model
-
-        GrainContentChanged gid content ->
-            ( model
-            , performGrainSetContent gid content
-            )
 
         MoveGrainBy gid offset ->
             ( model, performGrainMove gid offset )
@@ -957,9 +938,6 @@ toRouteView route =
             else
                 { title = "Focused", showBackBtn = True, children = [] }
 
-        Route.Grain _ ->
-            { title = "Grain", showBackBtn = True, children = [] }
-
         Route.NotFound _ ->
             { title = "Oops!", showBackBtn = True, children = [] }
 
@@ -1033,22 +1011,6 @@ viewRouteChildren model =
     case model.route of
         Route.GrainTree gid ->
             viewGrainTreeById gid model
-
-        Route.Grain gid ->
-            let
-                viewModel : Maybe Grain -> GrainView Msg
-                viewModel =
-                    Maybe.map
-                        (\grain ->
-                            { contentChangedMsg =
-                                GrainContentChanged (Grain.id grain)
-                            , content = Grain.content grain
-                            }
-                        )
-            in
-            grainById gid model
-                |> viewModel
-                |> GrainView.view
 
         Route.NotFound string ->
             NotFoundView.view
