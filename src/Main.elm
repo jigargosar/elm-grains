@@ -329,6 +329,38 @@ focusMaybe =
 
 
 
+-- GLOBAL KEYBOARD SHORTCUTS
+
+
+handleKeyDownWhenNothingIsFocused ke model =
+    case model.route of
+        Route.GrainTree gid ->
+            let
+                focusLastOrLazy fn =
+                    getSelectedOrLastSelectedGid model
+                        |> Maybe.orElseLazy fn
+                        |> focusMaybeGidCmd
+            in
+            if K.isHotKey K.arrowDown ke then
+                ( model
+                , focusLastOrLazy
+                    (\_ -> Just <| GrainCache.rootGid model.grainCache)
+                )
+
+            else if K.isHotKey K.arrowUp ke then
+                ( model
+                , focusLastOrLazy
+                    (\_ -> Just <| GrainCache.lastLeafGid model.grainCache)
+                )
+
+            else
+                Return.singleton model
+
+        Route.NotFound _ ->
+            Return.singleton model
+
+
+
 -- SELECTED GID UPDATE --
 
 
@@ -818,31 +850,8 @@ update message model =
             Return.return model (Port.navigateBack ())
 
         KeyDownOnBody value ->
-            let
-                focusLastOrLazy fn =
-                    getSelectedOrLastSelectedGid model
-                        |> Maybe.orElseLazy fn
-                        |> focusMaybeGidCmd
-
-                handleKE : EventX.KeyEvent -> Return Msg Model
-                handleKE ke =
-                    if K.isHotKey K.arrowDown ke then
-                        ( model
-                        , focusLastOrLazy
-                            (\_ -> Just <| GrainCache.rootGid model.grainCache)
-                        )
-
-                    else if K.isHotKey K.arrowUp ke then
-                        ( model
-                        , focusLastOrLazy
-                            (\_ -> Just <| GrainCache.lastLeafGid model.grainCache)
-                        )
-
-                    else
-                        Return.singleton model
-            in
             D.decodeValue EventX.keyEventDecoder value
-                |> Result.map handleKE
+                |> Result.map (handleKeyDownWhenNothingIsFocused >> callWith model)
                 |> handleDecodeResult model
 
 
