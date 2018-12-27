@@ -30,9 +30,12 @@ view tree =
     let
         rootGrain =
             Tree.label tree
+
+        rootForest =
+            Tree.children tree
     in
     [ viewRootGrain rootGrain
-    , div [] [ text "hello gt" ]
+    , viewForest rootForest
     ]
 
 
@@ -42,3 +45,7 @@ viewRootGrain grain =
             Grain.titleOrEmpty grain
     in
     div [] [ text title ]
+
+
+viewForest grainForest =
+    div [] [ text "forest" ]
