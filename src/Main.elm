@@ -229,7 +229,7 @@ type Msg
     | UpdateInlineEditGrain GrainId InlineEditGrainMsg
     | DragGrain GrainId
       -- GRAIN FOCUS NAVIGATION
-    | FocusRelative GrainId GrainTree FocusRelativeMsg
+    | FocusRelative GrainTree GrainId FocusRelativeMsg
       -- POPUP
     | UpdatePopup PopupMsg
       -- NAVIGATION --
@@ -746,7 +746,7 @@ update message model =
                 |> Result.map (\_ -> Return.singleton model)
                 |> handleStringResult model
 
-        FocusRelative gid tree msg ->
+        FocusRelative tree gid msg ->
             focusRelative gid tree msg model
 
         GrainFocused gid focused ->
@@ -998,15 +998,27 @@ viewAppBar { title, showBackBtn } authState =
 
 
 grainTreeViewConfig tree =
+    let
+        treeRootGid =
+            Tree.label tree
+                |> Grain.id
+
+        frParentMsg gid =
+            FocusRelative tree gid FR_Parent
+
+        arrowLeftMsg gid =
+            if gid == treeRootGid && gid /= GrainId.root then
+                BackPressed
+
+            else
+                frParentMsg gid
+    in
     { focusRouteTo = routeToGrainTreeMsg
     , keyDownCustom =
         \gid ->
             let
                 fr =
-                    FocusRelative gid tree
-
-                frParentMsg =
-                    fr FR_Parent
+                    FocusRelative tree gid
 
                 frPD =
                     pd << fr
@@ -1014,7 +1026,7 @@ grainTreeViewConfig tree =
             K.bindEachToMsg
                 [ ( K.arrowDown, frPD FR_Forward )
                 , ( K.arrowUp, frPD FR_Backward )
-                , ( K.arrowLeft, pd <| frParentMsg )
+                , ( K.arrowLeft, pd <| arrowLeftMsg gid )
                 , ( K.arrowRight, pd <| routeToGrainTreeMsg gid )
                 ]
     }
