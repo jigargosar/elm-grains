@@ -380,7 +380,22 @@ move :
     -> GrainCache
     -> UpdateResult
 move direction gid now model =
-    Result.Ok model
+    let
+        fn =
+            case direction of
+                Direction.Up ->
+                    moveBy -1
+
+                Direction.Down ->
+                    moveBy 1
+
+                Direction.Left ->
+                    moveOneLevelUp
+
+                Direction.Right ->
+                    moveOneLevelDown
+    in
+    fn gid now model
 
 
 moveBy :
