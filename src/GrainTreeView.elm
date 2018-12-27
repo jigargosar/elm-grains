@@ -26,14 +26,28 @@ import Html.Styled.Events exposing (onBlur, onClick, onFocus, onInput)
 import Tree
 
 
-view tree =
-    viewRootTree tree
+type alias Node =
+    { title : String
+    }
+
+
+grainToNode grain =
+    { title = Grain.titleOrEmpty grain
+    }
+
+
+view grainTree =
+    let
+        nodeTree =
+            Tree.map grainToNode grainTree
+    in
+    viewRootTree nodeTree
 
 
 viewRootTree tree =
     let
         title =
-            Grain.titleOrEmpty <| Tree.label tree
+            Tree.label tree |> .title
     in
     div [ css [ CS.pv1, CS.ph2, CS.bold ] ] [ text title ]
         :: viewForest 1 tree
@@ -56,7 +70,7 @@ viewForest level tree =
 viewTree level tree =
     let
         title =
-            Grain.titleOrEmpty <| Tree.label tree
+            Tree.label tree |> .title
     in
     simpleIndentedStringEl level title
         :: viewForest (level + 1) tree
