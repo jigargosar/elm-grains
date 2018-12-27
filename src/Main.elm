@@ -177,7 +177,7 @@ type GrainCacheAddMsg
 
 type GrainCacheMsg
     = GC_MoveBy GrainId Int Posix
-    | GrainUpdate GrainId Grain.Update Posix
+    | GC_GrainUpdate GrainId Grain.Update Posix
     | GC_MoveOneLevelUp GrainId Posix
     | GC_MoveOneLevelDown GrainId Posix
     | GC_AddGrainAnd Grain GrainCacheAddMsg
@@ -575,7 +575,7 @@ performGrainSetContent gid content =
 
 
 performGrainUpdate gid grainUpdate =
-    Task.perform (UpdateGrainCache << GrainUpdate gid grainUpdate) Time.now
+    Task.perform (UpdateGrainCache << GC_GrainUpdate gid grainUpdate) Time.now
 
 
 localPersistGrainCacheEffect model =
@@ -622,7 +622,7 @@ updateGrainCache message model =
                 model.grainCache
                 |> handleResult
 
-        GrainUpdate grainId grainUpdate now ->
+        GC_GrainUpdate grainId grainUpdate now ->
             GrainCache.updateWithGrainUpdate grainUpdate
                 grainId
                 now
