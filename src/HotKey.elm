@@ -19,6 +19,8 @@ module HotKey exposing
     , isArrowKey
     , isHotKey
     , metaDown
+    , metaLeft
+    , metaRight
     , metaUp
     , shiftEnter
     , shiftMetaEnter
@@ -142,6 +144,16 @@ metaUp =
 metaDown : HotKey
 metaDown =
     ( [ Meta ], "ArrowDown" )
+
+
+metaLeft : HotKey
+metaLeft =
+    ( [ Meta ], "ArrowLeft" )
+
+
+metaRight : HotKey
+metaRight =
+    ( [ Meta ], "ArrowRight" )
 
 
 ctrlDown : HotKey
