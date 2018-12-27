@@ -270,7 +270,7 @@ autoFocusRoute route =
                 Route.GrainList ->
                     Just <| GrainTreeView.grainDomId GrainId.root
 
-                Route.NotFound ->
+                Route.NotFound _ ->
                     Nothing
     in
     maybeDomId |> unwrapMaybeCmd (BrowserX.focus FocusResult)
