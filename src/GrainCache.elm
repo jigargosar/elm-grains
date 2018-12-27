@@ -51,6 +51,7 @@ import SavedGrain exposing (SavedGrain)
 import Time exposing (Posix)
 import Tree
 import Tree.Zipper as TZ
+import Tuple2
 
 
 type alias GrainCache =
@@ -239,12 +240,25 @@ parentIdUpdater pid now gid =
 
 
 addNewAfterBatchUpdaters siblingGid now grain =
+    let
+        gid =
+            Grain.id grain
+    in
     rootTreeZipper
-        >> TZ.findFromRoot (Grain.idEq siblingGid)
-        >> Maybe.andThen
-            (TZ.append (Tree.tree grain [])
-                >> updatePidAndSortIndices now grain
+        >> Z.appendWhenIdEqAndGetParentAndChildGrains siblingGid grain
+        >> Maybe.map
+            (afterAddGrainUpdaters now gid)
+
+
+afterAddGrainUpdaters now gid pc =
+    pc
+        |> Tuple.mapBoth
+            (Grain.idAsParentId
+                >> parentIdUpdater
+                >> callWith2 now gid
             )
+            (listToSortIdxUpdaters now)
+        |> Tuple2.uncurry (::)
 
 
 updatePidAndSortIndices now grain =
