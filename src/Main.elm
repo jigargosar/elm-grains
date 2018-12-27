@@ -985,10 +985,14 @@ viewRouteChildren model =
                 config =
                     { keyDownCustom =
                         \gid ->
+                            let
+                                frPD =
+                                    pd << FocusRelative gid
+                            in
                             K.bindEachToMsg
-                                [ ( K.arrowDown, pd <| FocusNext )
-                                , ( K.arrowUp, pd <| FocusPrev )
-                                , ( K.arrowLeft, pd <| FocusParent )
+                                [ ( K.arrowDown, frPD FR_Forward )
+                                , ( K.arrowUp, frPD FR_Backward )
+                                , ( K.arrowLeft, frPD FR_Parent )
                                 ]
                     }
             in
