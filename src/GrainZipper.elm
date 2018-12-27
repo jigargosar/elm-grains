@@ -45,16 +45,19 @@ fromTree =
     Z.fromTree >> GrainZipper
 
 
+findFromRootEqById : Grain -> GrainZipper -> Maybe GrainZipper
 findFromRootEqById grain =
     Z.findFromRoot (Grain.eqById grain)
         |> mapMaybe
 
 
+removeTree : GrainZipper -> Maybe GrainZipper
 removeTree =
     Z.removeTree
         |> mapMaybe
 
 
+removeSubTreeEqById : Grain -> GrainZipper -> Maybe GrainZipper
 removeSubTreeEqById grain =
     findFromRootEqById grain
         >> Maybe.andThen removeTree
