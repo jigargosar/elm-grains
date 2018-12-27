@@ -30,20 +30,16 @@ view tree =
     let
         rootGrain =
             Tree.label tree
-
-        rootForest =
-            Tree.children tree
     in
-    [ viewRootGrain rootGrain
-    , viewForest 1 rootForest
-    ]
+    viewRootGrain rootGrain
+        :: viewForest 1 tree
 
 
 simpleIndentedStringEl level string =
     div
         [ css
             [ CS.pa1
-            , Css.paddingLeft <| px <| 4 + (level * 16)
+            , Css.paddingLeft <| px <| 4 + (level * 32)
             ]
         ]
         [ text string ]
@@ -57,5 +53,14 @@ viewRootGrain grain =
     div [ css [ CS.pv1, CS.ph2, CS.bold ] ] [ text title ]
 
 
-viewForest level grainForest =
-    simpleIndentedStringEl level "forest"
+viewForest level =
+    Tree.children >> List.concatMap (viewTree level)
+
+
+viewTree level tree =
+    let
+        title =
+            Grain.titleOrEmpty <| Tree.label tree
+    in
+    simpleIndentedStringEl level title
+        :: viewForest (level + 1) tree
