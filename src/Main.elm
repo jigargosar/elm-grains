@@ -29,6 +29,7 @@ import GrainId exposing (GrainId)
 import GrainListView as GLV exposing (GrainListView)
 import GrainMorePopupView exposing (GrainMorePopupView)
 import GrainView exposing (GrainView)
+import GrainZipper exposing (GrainTree)
 import HotKey as K exposing (SoftKey(..))
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes as SA exposing (..)
@@ -63,6 +64,7 @@ import Task
 import Time exposing (Posix)
 import TimeX
 import Toast exposing (Toast)
+import Tree
 import Tuple exposing (mapFirst)
 
 
@@ -969,6 +971,11 @@ viewToast toast =
 toGrainListView : Model -> GrainListView Msg
 toGrainListView model =
     let
+        grainTree : GrainTree
+        grainTree =
+            model.grainCache
+                |> GrainCache.rootTree
+
         sort =
             List.sortWith Grain.defaultComparator
 
