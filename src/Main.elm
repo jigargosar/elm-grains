@@ -30,7 +30,7 @@ import GrainMorePopupView exposing (GrainMorePopupView)
 import GrainTreeView
 import GrainView exposing (GrainView)
 import GrainZipper exposing (GrainTree)
-import HistoryState
+import HistoryState exposing (HistoryState)
 import HotKey as K exposing (SoftKey(..))
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes as SA exposing (..)
@@ -665,33 +665,12 @@ updateGrainCache message model =
 -- URL CHANGED
 
 
-updateUrlPopped : UrlChange -> Model -> Return Msg Model
-updateUrlPopped event model =
+updateUrlPopped : String -> Maybe HistoryState -> Model -> Return Msg Model
+updateUrlPopped url maybeHS model =
     let
-        url =
-            UrlChange.url event
-
-        _ =
-            D.decodeValue HistoryState.decoder (UrlChange.state event)
-                |> Debug.log "UrlChange.state"
-
-        newRoute =
-            Route.fromString url
-
-        oldRoute =
-            model.route
-
-        maybeFocusDomId : Maybe String
-        maybeFocusDomId =
-            case oldRoute of
-                Route.GrainTree gid ->
-                    Just <| GrainTreeView.grainDomId gid
-
-                Route.NotFound _ ->
-                    Nothing
-
         focusEffect newModel =
-            maybeFocusDomId
+            maybeHS
+                |> Maybe.andThen HistoryState.focusedDomId
                 |> Maybe.orElseLazy
                     (\_ ->
                         maybeAutoFocusRouteDomId newModel.route
@@ -705,7 +684,18 @@ updateUrlPopped event model =
 updateUrlChanged : UrlChange -> Model -> Return Msg Model
 updateUrlChanged event model =
     if UrlChange.action event == UrlChange.Pop then
-        updateUrlPopped event model
+        let
+            decodeResult =
+                D.decodeValue HistoryState.decoder (UrlChange.state event)
+                    |> Debug.log "UrlChange.state :"
+
+            url =
+                UrlChange.url event
+        in
+        decodeResult
+            |> Result.map (\_ -> Return.singleton model)
+            |> handleDecodeResult model
+            |> Return.andThen (updateUrlPopped url <| Result.toMaybe decodeResult)
 
     else
         Return.singleton model

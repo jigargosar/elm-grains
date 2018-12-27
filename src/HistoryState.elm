@@ -1,4 +1,10 @@
-module HistoryState exposing (HistoryState, decoder, encoder, init)
+module HistoryState exposing
+    ( HistoryState
+    , decoder
+    , encoder
+    , focusedDomId
+    , init
+    )
 
 import Json.Decode as D
 import Json.Encode as E
@@ -23,3 +29,7 @@ encoder model =
 decoder =
     D.map HistoryState
         (D.maybe D.string)
+
+
+focusedDomId =
+    .focusedDomId
