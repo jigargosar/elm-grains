@@ -367,17 +367,17 @@ focusRelative gid tree message model =
         fn =
             case message of
                 FR_Backward ->
-                    GrainCache.backwardFromGidOrSelf
+                    GrainCache.backwardFromGid
 
                 FR_Forward ->
-                    GrainCache.forwardFromGidOrSelf
+                    GrainCache.forwardFromGid
 
                 FR_Parent ->
-                    GrainCache.parentFromGidOrSelf
+                    GrainCache.parentFromGid
     in
     ( model
     , fn gid model.grainCache
-        |> focusGidCmd
+        |> focusMaybeGrainCmd
     )
 
 
