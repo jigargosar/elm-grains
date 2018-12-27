@@ -30,11 +30,13 @@ history.listen((location, action) => {
   console.debug(action, location.pathname, location.state)
   // console.log(`location`, location)
   // console.log(`history`, history)
-  sendToElmApp(app, 'urlChanged', {
+  const urlChangedEvent = {
     url: document.URL,
     action,
     state: location.state,
-  })
+  }
+  console.log(`urlChangedEvent`, urlChangedEvent)
+  sendToElmApp(app, 'urlChanged', urlChangedEvent)
 })
 
 window.addEventListener('keydown', event => {
@@ -50,11 +52,14 @@ setElmAppPortSubscriptions(
     pushUrl: pathname => {
       // Use push, replace, and go to navigate around.
       if (history.location.pathname !== pathname) {
-        history.push(pathname, {})
+        history.push(pathname)
       }
     },
     replaceState: state => {
-      history.replace(Object.assign({}, history.location, state))
+      const newLocationWithState = Object.assign({}, history.location, {
+        state,
+      })
+      history.replace(newLocationWithState)
     },
     autoSize: domId => {
       requestAnimationFrame(() => {
