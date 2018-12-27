@@ -63,8 +63,7 @@ viewRootTree tree =
             Tree.label tree
     in
     div
-        [ id node.domId
-        , css [ CS.pv1, CS.ph2, CS.bold ]
+        [ css [ CS.pv1, CS.ph2, CS.bold ]
         ]
         [ text node.title ]
         :: viewForest 1 tree
