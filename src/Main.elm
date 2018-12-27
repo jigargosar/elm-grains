@@ -30,6 +30,7 @@ import GrainMorePopupView exposing (GrainMorePopupView)
 import GrainTreeView
 import GrainView exposing (GrainView)
 import GrainZipper exposing (GrainTree)
+import HistoryState
 import HotKey as K exposing (SoftKey(..))
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes as SA exposing (..)
@@ -320,8 +321,17 @@ performWithNow nowToMsg =
     Task.perform nowToMsg Time.now
 
 
-focusCmd =
-    BrowserX.focus FocusResult
+focusCmd domId =
+    let
+        encodeState =
+            HistoryState.encoder (HistoryState.init (Just domId))
+    in
+    Cmd.batch
+        [ Browser.Dom.focus domId
+            |> Task.mapError (\_ -> "FocusError: domId=" ++ domId)
+            |> Task.attempt FocusResult
+        , Port.replaceState encodeState
+        ]
 
 
 focusMaybe =
