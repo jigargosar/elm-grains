@@ -950,8 +950,12 @@ type alias RouteView =
 toRouteView : Route -> RouteView
 toRouteView route =
     case route of
-        Route.GrainTree _ ->
-            { title = "Grain Tree", showBackBtn = True, children = [] }
+        Route.GrainTree gid ->
+            if gid == GrainId.root then
+                { title = "Home", showBackBtn = False, children = [] }
+
+            else
+                { title = "Focused", showBackBtn = True, children = [] }
 
         Route.Grain _ ->
             { title = "Grain", showBackBtn = True, children = [] }
