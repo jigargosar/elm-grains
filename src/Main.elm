@@ -955,29 +955,25 @@ grainTreeViewConfig tree =
     }
 
 
+viewGrainTreeById gid model =
+    let
+        maybeGrainTree =
+            GrainCache.treeFromGid GrainId.root model.grainCache
+
+        treeView grainTree =
+            GrainTreeView.view (grainTreeViewConfig grainTree) grainTree
+    in
+    maybeGrainTree
+        |> Maybe.unwrap NotFoundView.view treeView
+
+
 viewRouteChildren model =
     case model.route of
         Route.GrainList ->
-            let
-                maybeGrainTree =
-                    GrainCache.treeFromGid GrainId.root model.grainCache
-
-                treeView grainTree =
-                    GrainTreeView.view (grainTreeViewConfig grainTree) grainTree
-            in
-            maybeGrainTree
-                |> Maybe.unwrap NotFoundView.view treeView
+            viewGrainTreeById GrainId.root model
 
         Route.GrainTree gid ->
-            let
-                maybeGrainTree =
-                    GrainCache.treeFromGid gid model.grainCache
-
-                treeView grainTree =
-                    GrainTreeView.view (grainTreeViewConfig grainTree) grainTree
-            in
-            maybeGrainTree
-                |> Maybe.unwrap NotFoundView.view treeView
+            viewGrainTreeById gid model
 
         Route.Grain gid ->
             let
