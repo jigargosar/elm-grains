@@ -7,6 +7,7 @@ module HistoryState exposing
     )
 
 import Json.Decode as D
+import Json.Decode.Pipeline exposing (optional)
 import Json.Encode as E
 import Maybe.Extra as Maybe
 
@@ -27,8 +28,8 @@ encoder model =
 
 
 decoder =
-    D.map HistoryState
-        (D.maybe D.string)
+    D.succeed HistoryState
+        |> optional "focusedDomId" (D.maybe D.string) Nothing
 
 
 focusedDomId =
