@@ -267,6 +267,9 @@ autoFocusRoute route =
                 Route.GrainTree gid ->
                     Just <| GrainTreeView.grainDomId gid
 
+                Route.GrainList ->
+                    Just <| GrainTreeView.grainDomId GrainId.root
+
                 _ ->
                     Nothing
     in
