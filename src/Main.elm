@@ -653,27 +653,27 @@ updateUrlChanged event model =
 
         newRoute =
             Route.fromString url
-                |> Debug.log "newRoute"
 
         oldRoute =
             model.route
-                |> Debug.log "oldRoute"
 
-        maybeOldGid : Maybe GrainId
-        maybeOldGid =
-            case oldRoute of
-                Route.GrainTree gid ->
-                    Just gid
+        maybeFocusDomId : Maybe String
+        maybeFocusDomId =
+            case ( newRoute, oldRoute ) of
+                ( Route.Grain _, _ ) ->
+                    Nothing
 
-                Route.Grain gid ->
-                    Just gid
+                ( _, Route.GrainTree gid ) ->
+                    Just <| GrainTreeView.grainDomId gid
+
+                ( _, Route.Grain gid ) ->
+                    Just <| GrainTreeView.grainDomId gid
 
                 _ ->
                     Nothing
 
         focusEffect newModel =
-            maybeOldGid
-                |> Maybe.map GrainTreeView.grainDomId
+            maybeFocusDomId
                 |> Maybe.orElseLazy
                     (\_ ->
                         maybeAutoFocusRouteDomId newModel.route
