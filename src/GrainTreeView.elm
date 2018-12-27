@@ -26,10 +26,6 @@ import Html.Styled.Events exposing (onBlur, onClick, onFocus, onInput)
 import Tree
 
 
-simplePaddedContainer =
-    div [ css [ CS.pv2 ] ]
-
-
 view tree =
     let
         rootGrain =
