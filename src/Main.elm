@@ -634,6 +634,18 @@ updateGrainCache message model =
             GrainCache.load encoded |> handleResult
 
 
+
+-- URL CHANGED
+
+
+updateUrlChanged uc model =
+    let
+        url =
+            UrlChange.url uc
+    in
+    Return.singleton (setRouteFromString url model)
+
+
 src =
     """module Foo exposing(foo)
 
@@ -756,16 +768,8 @@ update message model =
                 |> Return.effect_ (.route >> autoFocusRoute)
 
         UrlChanged encoded ->
-            let
-                updater uc =
-                    let
-                        url =
-                            UrlChange.url uc
-                    in
-                    Return.singleton (setRouteFromString url model)
-            in
             D.decodeValue UrlChange.decoder encoded
-                |> Result.map updater
+                |> Result.map (updateUrlChanged >> callWith model)
                 |> handleDecodeResult model
 
         Firebase encodedMsg ->
