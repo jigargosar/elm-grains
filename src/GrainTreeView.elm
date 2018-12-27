@@ -75,7 +75,7 @@ viewTree config level tree =
         node =
             Tree.label tree
 
-        styles =
+        nodeStyles =
             if level == 0 then
                 [ CS.pv1, CS.ph2, CS.bold ]
 
@@ -84,25 +84,11 @@ viewTree config level tree =
                 , Css.paddingLeft <| px <| 4 + (level * 32)
                 ]
     in
-    if level == 0 then
-        div
-            [ id node.domId
-            , tabindex 0
-            , CssEventX.onKeyDownCustom (config.keyDownCustom node.gid)
-            , css [ CS.pv1, CS.ph2, CS.bold ]
-            ]
-            [ text node.title ]
-            :: viewForest config (level + 1) tree
-
-    else
-        div
-            [ id node.domId
-            , tabindex 0
-            , CssEventX.onKeyDownCustom (config.keyDownCustom node.gid)
-            , css
-                [ CS.pa1
-                , Css.paddingLeft <| px <| 4 + (level * 32)
-                ]
-            ]
-            [ text node.title ]
-            :: viewForest config (level + 1) tree
+    div
+        [ id node.domId
+        , tabindex 0
+        , CssEventX.onKeyDownCustom (config.keyDownCustom node.gid)
+        , css nodeStyles
+        ]
+        [ text node.title ]
+        :: viewForest config (level + 1) tree
