@@ -27,10 +27,14 @@ import Html.Styled.Events exposing (onBlur, onClick, onFocus, onInput)
 import Tree
 
 
-type alias Node =
+type alias NodeModel =
     { title : String
     , domId : String
     }
+
+
+type Node
+    = DisplayNode NodeModel
 
 
 grainDomId : GrainId -> String
@@ -59,35 +63,7 @@ view config grainTree =
         nodeTree =
             Tree.map grainToNode grainTree
     in
-    viewRootTree config nodeTree
-
-
-viewRootTree config tree =
-    let
-        node =
-            Tree.label tree
-    in
-    div
-        [ id node.domId
-        , tabindex 0
-        , CssEventX.onKeyDownCustom (config.keyDownCustom node.gid)
-        , css [ CS.pv1, CS.ph2, CS.bold ]
-        ]
-        [ text node.title ]
-        :: viewForest config 1 tree
-
-
-simpleIndentedStringEl config level node =
-    div
-        [ id node.domId
-        , tabindex 0
-        , CssEventX.onKeyDownCustom (config.keyDownCustom node.gid)
-        , css
-            [ CS.pa1
-            , Css.paddingLeft <| px <| 4 + (level * 32)
-            ]
-        ]
-        [ text node.title ]
+    viewTree config 0 nodeTree
 
 
 viewForest config level tree =
@@ -95,12 +71,33 @@ viewForest config level tree =
 
 
 viewTree config level tree =
-    let
-        node =
-            Tree.label tree
-    in
-    simpleIndentedStringEl
-        config
-        level
-        node
-        :: viewForest config (level + 1) tree
+    if level == 0 then
+        let
+            node =
+                Tree.label tree
+        in
+        div
+            [ id node.domId
+            , tabindex 0
+            , CssEventX.onKeyDownCustom (config.keyDownCustom node.gid)
+            , css [ CS.pv1, CS.ph2, CS.bold ]
+            ]
+            [ text node.title ]
+            :: viewForest config 1 tree
+
+    else
+        let
+            node =
+                Tree.label tree
+        in
+        div
+            [ id node.domId
+            , tabindex 0
+            , CssEventX.onKeyDownCustom (config.keyDownCustom node.gid)
+            , css
+                [ CS.pa1
+                , Css.paddingLeft <| px <| 4 + (level * 32)
+                ]
+            ]
+            [ text node.title ]
+            :: viewForest config (level + 1) tree
