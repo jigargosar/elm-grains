@@ -288,10 +288,18 @@ subscriptions model =
         ]
 
 
-handleError : String -> Model -> ( Model, Cmd Msg )
-handleError errString model =
+updateError : String -> Model -> ( Model, Cmd Msg )
+updateError errString model =
     Return.return (mapToast (Toast.show errString) model)
         (Port.error errString)
+
+
+updateDecodeError result model =
+    result
+        |> Result.mapBoth
+            (D.errorToString >> updateError >> callWith model)
+            (\_ -> Return.singleton model)
+        |> Result.merge
 
 
 handleStringResult :
@@ -300,7 +308,7 @@ handleStringResult :
     -> Return Msg Model
 handleStringResult model =
     Result.mapError
-        (handleError >> callWith model)
+        (updateError >> callWith model)
         >> Result.merge
 
 
@@ -311,7 +319,7 @@ handleDecodeResult :
 handleDecodeResult model =
     Result.mapError
         (D.errorToString
-            >> handleError
+            >> updateError
             >> callWith model
         )
         >> Result.merge
@@ -691,10 +699,9 @@ updateUrlChanged event model =
             url =
                 UrlChange.url event
         in
-        decodeResult
-            |> Result.map (\_ -> Return.singleton model)
-            |> handleDecodeResult model
-            |> Return.andThen (updateUrlPopped url <| Result.toMaybe decodeResult)
+        updateDecodeError decodeResult model
+            |> Return.andThen
+                (updateUrlPopped url <| Result.toMaybe decodeResult)
 
     else
         Return.singleton model
@@ -828,7 +835,7 @@ update message model =
         Firebase encodedMsg ->
             case Firebase.decodeInbound encodedMsg of
                 Firebase.Error errString ->
-                    handleError errString model
+                    updateError errString model
 
                 Firebase.AuthStateChanged authState ->
                     setAuthState authState model
