@@ -959,10 +959,14 @@ viewRouteChildren model =
     case model.route of
         Route.GrainList ->
             let
-                grainTree =
-                    GrainCache.rootTree model.grainCache
+                maybeGrainTree =
+                    GrainCache.treeFromGid GrainId.root model.grainCache
+
+                treeView grainTree =
+                    GrainTreeView.view (grainTreeViewConfig grainTree) grainTree
             in
-            GrainTreeView.view (grainTreeViewConfig grainTree) grainTree
+            maybeGrainTree
+                |> Maybe.unwrap NotFoundView.view treeView
 
         Route.GrainTree gid ->
             let
