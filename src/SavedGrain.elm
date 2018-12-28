@@ -37,23 +37,39 @@ type alias SavedModel =
 
 
 type SavedGrain
-    = SavedGrain SavedModel
+    = UnPersisted SavedModel
+    | Persisted SavedModel
 
 
 unwrap : SavedGrain -> SavedModel
-unwrap (SavedGrain model) =
-    model
+unwrap model =
+    case model of
+        UnPersisted saved ->
+            saved
+
+        Persisted saved ->
+            saved
 
 
 map : (SavedModel -> SavedModel) -> SavedGrain -> SavedGrain
-map fn =
-    unwrap >> fn >> SavedGrain
+map fn model =
+    case model of
+        UnPersisted saved ->
+            fn saved |> UnPersisted
+
+        Persisted saved ->
+            fn saved |> Persisted
 
 
 decoder : Decoder SavedGrain
 decoder =
-    Saved.decoder Grain.decoder
-        |> D.map SavedGrain
+    let
+        savedDecoder : Decoder SavedModel
+        savedDecoder =
+            Saved.decoder Grain.decoder
+    in
+    D.oneOf [ savedDecoder ]
+        |> D.map Persisted
 
 
 encoder : SavedGrain -> Value
@@ -68,7 +84,7 @@ id =
 
 new : Grain -> SavedGrain
 new grain =
-    SavedGrain (Saved.new grain)
+    UnPersisted (Saved.new grain)
 
 
 value : SavedGrain -> Grain
