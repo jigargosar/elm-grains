@@ -178,8 +178,6 @@ type AddGrainMsg
 type GrainStoreMsg
     = GS_Move Direction GrainId Posix
     | GS_GrainUpdate Grain.Update GrainId Posix
-    | GS_MoveOneLevelUp GrainId Posix
-    | GS_MoveOneLevelDown GrainId Posix
     | GS_AddGrain Grain AddGrainMsg
     | GS_FirebaseChanges (List GrainChange)
     | GS_Load Value
@@ -634,18 +632,6 @@ updateGrainStore message model =
         GS_GrainUpdate grainUpdate grainId now ->
             GrainStore.updateWithGrainUpdate grainUpdate
                 grainId
-                now
-                model.grainStore
-                |> handleResult
-
-        GS_MoveOneLevelUp gid now ->
-            GrainStore.moveOneLevelUp gid
-                now
-                model.grainStore
-                |> handleResult
-
-        GS_MoveOneLevelDown gid now ->
-            GrainStore.moveOneLevelDown gid
                 now
                 model.grainStore
                 |> handleResult
