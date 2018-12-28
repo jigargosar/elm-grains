@@ -1,5 +1,6 @@
-module DatGui exposing (Field(..))
+module DatGui exposing (Field, boolean, integer, view)
 
+import BasicsX exposing (ter)
 import Css exposing (num, pct, px, rem, vh, vw, zero)
 import CssAttrX exposing (attrIf)
 import CssElements
@@ -36,5 +37,49 @@ type Field
     | Boolean Bool
 
 
-view fields =
-    div [] [ text "fields" ]
+type LabelField
+    = LabelField String Field
+
+
+integer name val =
+    LabelField name (Integer val)
+
+
+boolean name val =
+    LabelField name (Boolean val)
+
+
+view : List LabelField -> Html msg
+view entries =
+    div [ css [ CS.fixed, Css.right <| px 0 ] ]
+        (div [] [ text "GUI" ]
+            :: List.map viewLabelField entries
+        )
+
+
+viewLabelField : LabelField -> Html msg
+viewLabelField (LabelField title field) =
+    let
+        fieldView =
+            case field of
+                Integer int ->
+                    viewInt int
+
+                Boolean bool ->
+                    viewBool bool
+
+        labelView =
+            div [] [ text title ]
+    in
+    div [ css [ CS.row ] ]
+        [ labelView
+        , fieldView
+        ]
+
+
+viewInt int =
+    div [] [ text (String.fromInt int) ]
+
+
+viewBool bool =
+    div [] [ text <| ter bool "True" "False" ]

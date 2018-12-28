@@ -16,6 +16,7 @@ import CssLayout exposing (flexCol, flexRow)
 import CssProto
 import CssShorthand as CS
 import CssTheme exposing (black80, blackAlpha, space2, space4, white)
+import DatGui
 import DecodeX exposing (DecodeResult)
 import Direction exposing (Direction)
 import Either exposing (Either(..))
@@ -886,6 +887,10 @@ view2 model =
                 ++ viewRouteChildren model
                 ++ [ viewToast model.toast
                    , viewPopup model
+                   , DatGui.view
+                        [ DatGui.boolean "Debug" False
+                        , DatGui.integer "Counter" 100
+                        ]
                    ]
         }
 
