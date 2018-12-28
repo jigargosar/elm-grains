@@ -175,7 +175,7 @@ type GrainStoreAddMsg
     | GCAdd_NoOp
 
 
-type alias AfterGrainBuildMsg =
+type alias AfterGrainCreate =
     GrainStoreAddMsg
 
 
@@ -213,9 +213,9 @@ type FocusRelativeMsg
     | FR_Parent
 
 
-type BuildGrainStep
-    = BuildGrainWithNow
-    | BuildGrainWithGenerator Posix
+type CreateGrainStep
+    = CreateGrainWithNow
+    | CreateGrainWithGenerator Posix
     | AddBuiltGrain Grain
 
 
@@ -227,7 +227,7 @@ type Msg
       -- TOAST
     | ToastDismiss
       -- ADD GRAIN --
-    | BuildGrain AfterGrainBuildMsg BuildGrainStep
+    | CreateGrain AfterGrainCreate CreateGrainStep
     | AddGrainClicked
     | CreateAndAddNewGrainWithNow GrainStoreAddMsg Posix
     | AddGrainToCache GrainStoreAddMsg Grain
@@ -801,31 +801,32 @@ update message model =
             , performWithNow (CreateAndAddNewGrainWithNow GCAdd_NoOp)
             )
 
-        BuildGrain afterBuildMsg state ->
+        CreateGrain afterBuildMsg state ->
             let
                 nextStep fn1 =
-                    BuildGrain afterBuildMsg << fn1
+                    CreateGrain afterBuildMsg << fn1
 
                 generateGrainCmd now =
                     Random.generate
                         (nextStep AddBuiltGrain)
                         (Grain.generator now)
-
-                cmd =
-                    case state of
-                        BuildGrainWithNow ->
-                            TimeX.withNow
-                                (nextStep
-                                    BuildGrainWithGenerator
-                                )
-
-                        BuildGrainWithGenerator now ->
-                            generateGrainCmd now
-
-                        AddBuiltGrain grain ->
-                            Cmd.none
             in
-            ( model, cmd )
+            case state of
+                CreateGrainWithNow ->
+                    ( model
+                    , TimeX.withNow
+                        (nextStep
+                            CreateGrainWithGenerator
+                        )
+                    )
+
+                CreateGrainWithGenerator now ->
+                    ( model, generateGrainCmd now )
+
+                AddBuiltGrain grain ->
+                    updateGrainStore
+                        (GS_AddGrainAnd grain afterBuildMsg)
+                        model
 
         CreateAndAddNewGrainWithNow afterAddMsg now ->
             let
