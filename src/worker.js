@@ -8,15 +8,16 @@ const filePath = './src/Main.elm'
 
 console.log(`filePath`, filePath)
 
-const fileBuffer = fs.readFileSync(filePath, { encoding: 'utf8' })
-console.log(`fs.readFileSync: fileContent`)
-console.log(fileBuffer)
-// console.log(`fs.readFileSync`, fileBuffer.toString())
+const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' })
+// console.log(`fs.readFileSync: fileContent`)
+// console.log(fileContent)
+// console.log(`fs.readFileSync`, fileContent.toString())
 
 // noinspection JSUnresolvedVariable
 const app = Elm.Worker.init({
   flags: {
     now: Date.now(),
+    fileContent,
   },
 })
 
@@ -24,6 +25,7 @@ setElmAppPortSubscriptions(
   {
     error: data => {
       console.error(data)
+      console.log(data)
     },
   },
   app,

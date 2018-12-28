@@ -13,7 +13,7 @@ port receive : (Value -> msg) -> Sub msg
 
 
 type alias Flags =
-    { now : Int }
+    { now : Int, fileContent : String }
 
 
 type alias Model =
@@ -27,8 +27,8 @@ init flags =
     in
     ( {}
     , Port.error <|
-        "foo: "
-            ++ String.fromInt flags.now
+        "fileContent: \u{000D}\n"
+            ++ flags.fileContent
     )
 
 
