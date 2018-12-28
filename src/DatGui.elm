@@ -79,7 +79,9 @@ view entries =
             , CS.colorWhite
             ]
         ]
-        (div [] [ text "GUI" ] :: List.map viewLabelField entries)
+        (List.map viewLabelField entries
+            ++ [ div [] [ text "Close Controls" ] ]
+        )
 
 
 viewLabelField : LabelField -> Html msg
