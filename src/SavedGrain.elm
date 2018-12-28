@@ -11,12 +11,20 @@ module SavedGrain exposing
     )
 
 import BasicsX exposing (callWith, eqs, flip)
+import Cached exposing (Cached)
 import Compare
 import DecodeX exposing (Encoder)
 import Grain exposing (Grain)
 import GrainId exposing (GrainId(..))
 import Json.Decode as D exposing (Decoder)
-import Json.Decode.Pipeline exposing (custom, hardcoded, optional, required, resolve)
+import Json.Decode.Pipeline
+    exposing
+        ( custom
+        , hardcoded
+        , optional
+        , required
+        , resolve
+        )
 import Json.Encode as E exposing (Value)
 import Maybe.Extra as Maybe
 import Random exposing (Generator)
@@ -24,63 +32,58 @@ import Time exposing (Posix)
 import TimeX
 
 
+type alias Model =
+    Cached Grain
+
+
 type SavedGrain
-    = SavedGrain Grain Grain
+    = SavedGrain Model
+
+
+unwrap (SavedGrain model) =
+    model
+
+
+map fn =
+    unwrap >> fn >> SavedGrain
 
 
 decoder : Decoder SavedGrain
 decoder =
-    D.map2 SavedGrain
-        (D.field "initial" Grain.decoder)
-        (D.field "latest" Grain.decoder)
+    Cached.decoder Grain.decoder
+        |> D.map SavedGrain
 
 
 encoder : SavedGrain -> Value
-encoder (SavedGrain initial latest) =
-    E.object
-        [ ( "initial", Grain.encoder initial )
-        , ( "latest", Grain.encoder latest )
-        ]
+encoder =
+    unwrap >> Cached.encoder Grain.encoder
 
 
 id : SavedGrain -> GrainId
-id (SavedGrain _ latest) =
-    Grain.id latest
+id =
+    value >> Grain.id
 
 
 new : Grain -> SavedGrain
 new grain =
-    SavedGrain grain grain
+    SavedGrain (Cached.new grain)
 
 
 value : SavedGrain -> Grain
-value (SavedGrain initial latest) =
-    latest
+value =
+    unwrap >> Cached.value
 
 
 setSaved : Grain -> SavedGrain -> SavedGrain
-setSaved newInitial (SavedGrain _ latest) =
-    SavedGrain newInitial latest
+setSaved newInitial =
+    map (Cached.setSaved newInitial)
 
 
 isSaved : SavedGrain -> Bool
-isSaved (SavedGrain initial latest) =
-    initial == latest
+isSaved =
+    unwrap >> Cached.isSaved
 
 
 change : (Grain -> Grain) -> SavedGrain -> SavedGrain
-change fn (SavedGrain initial latest) =
-    let
-        newLatest : Grain
-        newLatest =
-            fn latest
-
-        newInitial : Grain
-        newInitial =
-            if initial == newLatest then
-                newLatest
-
-            else
-                initial
-    in
-    SavedGrain newInitial newLatest
+change fn =
+    map (Cached.change fn)
