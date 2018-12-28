@@ -6,7 +6,7 @@ module GrainCache exposing
     , batchUpdate
     , decoder
     , encoder
-    , getGrainById
+    , get
     , init
     , lastLeafGid
     , load
@@ -16,7 +16,6 @@ module GrainCache exposing
     , moveOneLevelUp
     , rejectSubTreeAndFlatten
     , rootGid
-    , rootGrains__
     , rootTree
     , toRawList
     , treeFromGid
@@ -112,7 +111,7 @@ treeFromCache grainCache grain =
 
 rootGrain : GrainCache -> Grain
 rootGrain =
-    getGrainById GrainId.root >> Maybe.withDefault Grain.root
+    get GrainId.root >> Maybe.withDefault Grain.root
 
 
 treeFromGid : GrainId -> GrainCache -> Maybe GrainTree
@@ -136,8 +135,8 @@ rejectSubTreeAndFlatten grain =
     rootTreeZipper >> Z.removeEqByIdThenFlatten grain
 
 
-getGrainById : GrainId -> GrainCache -> Maybe Grain
-getGrainById gid =
+get : GrainId -> GrainCache -> Maybe Grain
+get gid =
     GrainIdLookup.get gid >> Maybe.map SavedGrain.value
 
 
@@ -151,10 +150,6 @@ lastLeafGid =
     rootTreeZipper
         >> Z.lastDescendentGrain
         >> Grain.id
-
-
-rootGrains__ =
-    allGrains >> List.filter Grain.isRoot
 
 
 addNew : Grain -> GrainCache -> UpdateResult
@@ -422,7 +417,7 @@ moveBy offset gid now model =
 
 
 moveOneLevelUp gid now model =
-    getGrainById gid model
+    get gid model
         |> Maybe.andThen (moveOneLevelUpHelp now model)
         |> Maybe.withDefault (Result.Err "Grain Not Found")
 

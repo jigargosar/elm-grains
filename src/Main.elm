@@ -150,7 +150,7 @@ setAuthState authState model =
 
 grainById : GrainId -> Model -> Maybe Grain
 grainById gid =
-    .grainCache >> GrainCache.getGrainById gid
+    .grainCache >> GrainCache.get gid
 
 
 setNewSeed newSeed model =
