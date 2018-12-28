@@ -180,8 +180,7 @@ type alias AfterGrainCreate =
 
 
 type GrainStoreMsg
-    = GS_MoveBy Int GrainId Posix
-    | GS_Move Direction GrainId Posix
+    = GS_Move Direction GrainId Posix
     | GS_GrainUpdate Grain.Update GrainId Posix
     | GS_MoveOneLevelUp GrainId Posix
     | GS_MoveOneLevelDown GrainId Posix
@@ -576,10 +575,6 @@ updateGrainStoreCmd msg =
     Task.perform (UpdateGrainStore << msg) Time.now
 
 
-performGrainMove offset gid =
-    Task.perform (UpdateGrainStore << GS_MoveBy offset gid) Time.now
-
-
 performGrainMoveInDirection direction gid =
     Task.perform (UpdateGrainStore << GS_Move direction gid) Time.now
 
@@ -635,13 +630,6 @@ updateGrainStore message model =
     case message of
         GS_Move direction grainId now ->
             GrainStore.move direction
-                grainId
-                now
-                model.grainStore
-                |> handleResult
-
-        GS_MoveBy offset grainId now ->
-            GrainStore.moveBy offset
                 grainId
                 now
                 model.grainStore
