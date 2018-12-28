@@ -321,12 +321,6 @@ remove grain =
     GrainIdLookup.remove (Grain.id grain)
 
 
-getParentOfGrain : Grain -> GrainCache -> Maybe SavedGrain
-getParentOfGrain grain model =
-    Grain.parentIdAsGrainId grain
-        |> Maybe.andThen (GrainIdLookup.get >> callWith model)
-
-
 toRawList =
     GrainIdLookup.toList
 
@@ -417,8 +411,19 @@ moveBy offset gid now model =
 
 
 moveOneLevelUp gid now model =
-    get gid model
-        |> Maybe.andThen (moveOneLevelUpHelp now model)
+    let
+        zipper =
+            rootTreeZipper model
+
+        setParentId newParentId =
+            updateWithGrainUpdate
+                (Grain.SetParentId newParentId)
+                gid
+                now
+                model
+    in
+    Z.parentWhenIdEq gid zipper
+        |> Maybe.map (Grain.parentId >> setParentId)
         |> Maybe.withDefault (Result.Err "Grain Not Found")
 
 
@@ -448,19 +453,3 @@ moveOneLevelDown gid now model =
                    )
             )
         |> Maybe.withDefault (Result.Err "Grain Not Found")
-
-
-moveOneLevelUpHelp now model grain =
-    getParentOfGrain grain model
-        |> Maybe.map (SavedGrain.value >> moveGrainAfter now model grain)
-
-
-moveGrainAfter now model grain sibling =
-    let
-        gid =
-            Grain.id grain
-
-        newParentId =
-            Grain.parentId sibling
-    in
-    updateWithGrainUpdate (Grain.SetParentId newParentId) gid now model
