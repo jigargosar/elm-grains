@@ -36,14 +36,6 @@ type alias SavedModel =
     Saved Grain
 
 
-cachedEncoder =
-    Saved.encoder Grain.encoder
-
-
-cachedDecoder =
-    Saved.decoder Grain.decoder
-
-
 type SavedGrain
     = SavedGrain SavedModel
 
