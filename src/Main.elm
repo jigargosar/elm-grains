@@ -182,7 +182,7 @@ type alias AfterGrainCreate =
 type GrainStoreMsg
     = GS_MoveBy GrainId Int Posix
     | GS_Move Direction GrainId Posix
-    | GS_GrainUpdate GrainId Grain.Update Posix
+    | GS_GrainUpdate Grain.Update GrainId Posix
     | GS_MoveOneLevelUp GrainId Posix
     | GS_MoveOneLevelDown GrainId Posix
     | GS_AddGrainAnd Grain GrainStoreAddMsg
@@ -589,7 +589,11 @@ performGrainSetContent gid content =
 
 
 performGrainUpdate gid grainUpdate =
-    Task.perform (UpdateGrainStore << GS_GrainUpdate gid grainUpdate) Time.now
+    Task.perform
+        (UpdateGrainStore
+            << GS_GrainUpdate grainUpdate gid
+        )
+        Time.now
 
 
 localPersistGrainStoreEffect model =
@@ -643,7 +647,7 @@ updateGrainStore message model =
                 model.grainStore
                 |> handleResult
 
-        GS_GrainUpdate grainId grainUpdate now ->
+        GS_GrainUpdate grainUpdate grainId now ->
             GrainStore.updateWithGrainUpdate grainUpdate
                 grainId
                 now
