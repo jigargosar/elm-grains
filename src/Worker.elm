@@ -1,6 +1,13 @@
-module Worker exposing (main)
+port module Worker exposing (main)
 
+import Json.Encode exposing (Value)
 import Return
+
+
+port send : Value -> Cmd msg
+
+
+port receive : (Value -> msg) -> Sub msg
 
 
 type alias Flags =
