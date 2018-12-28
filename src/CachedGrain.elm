@@ -59,7 +59,7 @@ id =
 
 new : Grain -> CachedGrain
 new grain =
-    CachedGrain grain grain
+    CachedGrain (Cached.new grain)
 
 
 value : CachedGrain -> Grain
