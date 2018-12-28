@@ -19,7 +19,17 @@ import CssTheme
         , white
         )
 import EventX
-import Html.Styled exposing (Html, button, div, dt, input, styled, text, textarea)
+import Html.Styled
+    exposing
+        ( Html
+        , button
+        , div
+        , dt
+        , input
+        , styled
+        , text
+        , textarea
+        )
 import Html.Styled.Attributes
     exposing
         ( autocomplete
