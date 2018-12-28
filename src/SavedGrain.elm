@@ -63,11 +63,6 @@ setSaved newInitial (SavedGrain _ latest) =
     SavedGrain newInitial latest
 
 
-save : SavedGrain -> SavedGrain
-save (SavedGrain _ latest) =
-    SavedGrain latest latest
-
-
 isSaved : SavedGrain -> Bool
 isSaved (SavedGrain initial latest) =
     initial == latest
