@@ -68,11 +68,22 @@ viewLabelField (LabelField title field) =
                         Boolean bool ->
                             [ text <| ter bool "True" "False" ]
             in
-            div [ css [ Css.display Css.tableCell ] ]
+            div
+                [ css
+                    [ Css.display Css.tableCell
+                    , Css.padding <| px 2
+                    ]
+                ]
                 children
 
         labelView =
-            div [ css [ Css.display Css.tableCell ] ] [ text title ]
+            div
+                [ css
+                    [ Css.display Css.tableCell
+                    , Css.padding <| px 2
+                    ]
+                ]
+                [ text title ]
     in
     div [ css [ Css.display Css.tableRow ] ]
         [ labelView
