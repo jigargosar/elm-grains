@@ -263,10 +263,10 @@ updateFromFirebaseChangeList changeList model =
             in
             case GrainChange.type_ change of
                 GrainChange.Added ->
-                    setSaved grain
+                    setPersisted grain
 
                 GrainChange.Modified ->
-                    setSaved grain
+                    setPersisted grain
 
                 GrainChange.Removed ->
                     remove grain
@@ -309,8 +309,8 @@ blindInsertGrain grain model =
     GrainIdLookup.insert (Grain.id grain) (SavedGrain.new grain) model
 
 
-setSaved : Grain -> GrainCache -> GrainCache
-setSaved grain =
+setPersisted : Grain -> GrainCache -> GrainCache
+setPersisted grain =
     GrainIdLookup.update (Grain.id grain)
         (Maybe.map (SavedGrain.setPersisted grain)
             >> Maybe.orElseLazy (\_ -> Just <| SavedGrain.new grain)
