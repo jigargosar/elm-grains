@@ -1,7 +1,7 @@
 module DatGui exposing (Field, boolean, integer, view)
 
 import BasicsX exposing (ter)
-import Css exposing (num, pct, px, rem, vh, vw, zero)
+import Css exposing (em, num, pct, px, rem, vh, vw, zero)
 import CssAttrX exposing (attrIf)
 import CssElements
 import CssEventX
@@ -19,17 +19,7 @@ import CssTheme
         , white
         )
 import EventX
-import Html.Styled
-    exposing
-        ( Html
-        , button
-        , div
-        , dt
-        , input
-        , styled
-        , text
-        , textarea
-        )
+import Html.Styled exposing (Html, button, div, dt, input, styled, text, textarea)
 import Html.Styled.Attributes
     exposing
         ( autocomplete
@@ -83,6 +73,7 @@ view entries =
             ++ [ div
                     [ css
                         [ CS.rowCC
+                        , CS.bgBlack
                         ]
                     ]
                     [ text "Close Controls" ]

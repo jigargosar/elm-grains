@@ -1,6 +1,7 @@
 module CssShorthand exposing
     ( absolute
     , batchIf
+    , bgBlack
     , bgBlack20
     , bgBlack80
     , bgWhite
@@ -137,8 +138,16 @@ bgBlack20 =
     Css.backgroundColor black20
 
 
+bgBlack =
+    Css.backgroundColor black
+
+
 white =
     Css.hex "fff"
+
+
+black =
+    Css.hex "000"
 
 
 colorWhite =
