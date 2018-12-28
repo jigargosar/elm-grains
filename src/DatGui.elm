@@ -59,12 +59,17 @@ viewLabelField : LabelField -> Html msg
 viewLabelField (LabelField title field) =
     let
         fieldView =
-            case field of
-                Integer int ->
-                    viewInt int
+            let
+                children =
+                    case field of
+                        Integer int ->
+                            [ text (String.fromInt int) ]
 
-                Boolean bool ->
-                    viewBool bool
+                        Boolean bool ->
+                            [ text <| ter bool "True" "False" ]
+            in
+            div [ css [ Css.display Css.tableCell ] ]
+                children
 
         labelView =
             div [ css [ Css.display Css.tableCell ] ] [ text title ]
@@ -73,13 +78,3 @@ viewLabelField (LabelField title field) =
         [ labelView
         , fieldView
         ]
-
-
-viewInt int =
-    div [ css [ Css.display Css.tableCell ] ]
-        [ text (String.fromInt int) ]
-
-
-viewBool bool =
-    div [ css [ Css.display Css.tableCell ] ]
-        [ text <| ter bool "True" "False" ]
