@@ -2,9 +2,6 @@
 import { Elm } from './Worker.elm'
 import { setElmAppPortSubscriptions } from './elm-app'
 import { jsonCacheGetOr } from './json-cache'
-import * as R from 'ramda'
-
-export const tapLog = m => R.tap(R.partial(console.log, [m]))
 
 // noinspection JSUnresolvedVariable
 const app = Elm.Worker.init({
