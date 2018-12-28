@@ -312,7 +312,7 @@ blindInsertGrain grain model =
 setSaved : Grain -> GrainCache -> GrainCache
 setSaved grain =
     GrainIdLookup.update (Grain.id grain)
-        (Maybe.map (SavedGrain.setSaved grain)
+        (Maybe.map (SavedGrain.setPersisted grain)
             >> Maybe.orElseLazy (\_ -> Just <| SavedGrain.new grain)
         )
 

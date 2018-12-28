@@ -6,7 +6,7 @@ module SavedGrain exposing
     , id
     , isSaved
     , new
-    , setSaved
+    , setPersisted
     , value
     )
 
@@ -37,28 +37,28 @@ type alias SavedModel =
 
 
 type SavedGrain
-    = UnPersisted SavedModel
-    | PersistedOnce SavedModel
+    = NeverPersisted SavedModel
+    | Persisted SavedModel
 
 
 unwrap : SavedGrain -> SavedModel
 unwrap model =
     case model of
-        UnPersisted saved ->
+        NeverPersisted saved ->
             saved
 
-        PersistedOnce saved ->
+        Persisted saved ->
             saved
 
 
 map : (SavedModel -> SavedModel) -> SavedGrain -> SavedGrain
 map fn model =
     case model of
-        UnPersisted saved ->
-            fn saved |> UnPersisted
+        NeverPersisted saved ->
+            fn saved |> NeverPersisted
 
-        PersistedOnce saved ->
-            fn saved |> PersistedOnce
+        Persisted saved ->
+            fn saved |> Persisted
 
 
 decoder : Decoder SavedGrain
@@ -69,7 +69,7 @@ decoder =
             Saved.decoder Grain.decoder
     in
     D.oneOf [ savedDecoder ]
-        |> D.map PersistedOnce
+        |> D.map Persisted
 
 
 encoder : SavedGrain -> Value
@@ -84,7 +84,7 @@ id =
 
 new : Grain -> SavedGrain
 new grain =
-    UnPersisted (Saved.new grain)
+    NeverPersisted (Saved.new grain)
 
 
 value : SavedGrain -> Grain
@@ -92,9 +92,19 @@ value =
     unwrap >> Saved.value
 
 
-setSaved : Grain -> SavedGrain -> SavedGrain
-setSaved newInitial =
-    unwrap >> Saved.setSaved newInitial >> PersistedOnce
+setPersisted : Grain -> SavedGrain -> SavedGrain
+setPersisted newInitial =
+    unwrap >> Saved.setSaved newInitial >> Persisted
+
+
+neverPersisted : SavedGrain -> Bool
+neverPersisted model =
+    case model of
+        NeverPersisted saved ->
+            True
+
+        Persisted saved ->
+            False
 
 
 isSaved : SavedGrain -> Bool
