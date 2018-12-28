@@ -73,14 +73,20 @@ view entries =
         [ css
             [ CS.fixed
             , Css.right <| rem 1
-            , Css.fontSize Css.small
+            , Css.fontSize <| px 12
             , Css.minWidth <| rem 8
             , CS.bgBlack80
             , CS.colorWhite
             ]
         ]
         (List.map viewLabelField entries
-            ++ [ div [] [ text "Close Controls" ] ]
+            ++ [ div
+                    [ css
+                        [ CS.rowCC
+                        ]
+                    ]
+                    [ text "Close Controls" ]
+               ]
         )
 
 
