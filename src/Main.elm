@@ -175,6 +175,10 @@ type GrainStoreAddMsg
     | GCAdd_NoOp
 
 
+type alias AfterGrainBuildMsg =
+    GrainStoreAddMsg
+
+
 type GrainStoreMsg
     = GS_MoveBy GrainId Int Posix
     | GS_Move Direction GrainId Posix
@@ -223,7 +227,7 @@ type Msg
       -- TOAST
     | ToastDismiss
       -- ADD GRAIN --
-    | BuildGrain BuildGrainStep
+    | BuildGrain AfterGrainBuildMsg BuildGrainStep
     | AddGrainClicked
     | CreateAndAddNewGrainWithNow GrainStoreAddMsg Posix
     | AddGrainToCache GrainStoreAddMsg Grain
@@ -797,10 +801,10 @@ update message model =
             , performWithNow (CreateAndAddNewGrainWithNow GCAdd_NoOp)
             )
 
-        BuildGrain state ->
+        BuildGrain afterBuildMsg state ->
             let
                 nextStep fn1 =
-                    BuildGrain << fn1
+                    BuildGrain afterBuildMsg << fn1
 
                 generateGrainCmd now =
                     Random.generate
