@@ -33,6 +33,14 @@ type CachedGrain
     = CachedGrain Model
 
 
+unwrap (CachedGrain model) =
+    model
+
+
+map fn =
+    unwrap >> fn >> CachedGrain
+
+
 decoder : Decoder CachedGrain
 decoder =
     Cached.decoder Grain.decoder
@@ -40,13 +48,13 @@ decoder =
 
 
 encoder : CachedGrain -> Value
-encoder (CachedGrain model) =
-    Cached.encoder Grain.encoder model
+encoder =
+    unwrap >> Cached.encoder Grain.encoder
 
 
 id : CachedGrain -> GrainId
-id (CachedGrain model) =
-    Cached.value model |> Grain.id
+id =
+    value >> Grain.id
 
 
 new : Grain -> CachedGrain
@@ -55,33 +63,20 @@ new grain =
 
 
 value : CachedGrain -> Grain
-value (CachedGrain initial latest) =
-    latest
+value =
+    unwrap >> Cached.value
 
 
 setSaved : Grain -> CachedGrain -> CachedGrain
-setSaved newInitial (CachedGrain _ latest) =
-    CachedGrain newInitial latest
+setSaved newInitial =
+    map (Cached.setSaved newInitial)
 
 
 isSaved : CachedGrain -> Bool
-isSaved (CachedGrain initial latest) =
-    initial == latest
+isSaved =
+    unwrap >> Cached.isSaved
 
 
 change : (Grain -> Grain) -> CachedGrain -> CachedGrain
-change fn (CachedGrain initial latest) =
-    let
-        newLatest : Grain
-        newLatest =
-            fn latest
-
-        newInitial : Grain
-        newInitial =
-            if initial == newLatest then
-                newLatest
-
-            else
-                initial
-    in
-    CachedGrain newInitial newLatest
+change fn =
+    map (Cached.change fn)
