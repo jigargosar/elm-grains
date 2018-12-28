@@ -209,6 +209,12 @@ type FocusRelativeMsg
     | FR_Parent
 
 
+type BuildGrainStep
+    = BuildGrainWithNow
+    | BuildGrainWithGenerator Posix
+    | AddBuiltGrain Grain
+
+
 type Msg
     = ---- INJECT MSG BELOW ----
       NoOp
@@ -217,6 +223,7 @@ type Msg
       -- TOAST
     | ToastDismiss
       -- ADD GRAIN --
+    | BuildGrain BuildGrainStep
     | AddGrainClicked
     | CreateAndAddNewGrainWithNow GrainStoreAddMsg Posix
     | AddGrainToCache GrainStoreAddMsg Grain
@@ -789,6 +796,32 @@ update message model =
             ( model
             , performWithNow (CreateAndAddNewGrainWithNow GCAdd_NoOp)
             )
+
+        BuildGrain state ->
+            let
+                nextStep fn1 =
+                    BuildGrain << fn1
+
+                generateGrainCmd now =
+                    Random.generate
+                        (nextStep AddBuiltGrain)
+                        (Grain.generator now)
+
+                cmd =
+                    case state of
+                        BuildGrainWithNow ->
+                            TimeX.withNow
+                                (nextStep
+                                    BuildGrainWithGenerator
+                                )
+
+                        BuildGrainWithGenerator now ->
+                            generateGrainCmd now
+
+                        AddBuiltGrain grain ->
+                            Cmd.none
+            in
+            ( model, cmd )
 
         CreateAndAddNewGrainWithNow afterAddMsg now ->
             let

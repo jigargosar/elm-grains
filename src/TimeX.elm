@@ -1,5 +1,6 @@
-module TimeX exposing (comparator, posixDecoder, posixEncoder)
+module TimeX exposing (comparator, posixDecoder, posixEncoder, withNow)
 
+import BasicsX exposing (callWith)
 import Compare
 import DecodeX exposing (Encoder)
 import Json.Decode as D exposing (Decoder)
@@ -21,3 +22,7 @@ posixDecoder =
 comparator : Compare.Comparator Posix
 comparator =
     Compare.by Time.posixToMillis
+
+
+withNow =
+    Task.perform >> callWith Time.now
