@@ -1,6 +1,7 @@
 port module Worker exposing (main)
 
 import Json.Encode exposing (Value)
+import Port
 import Return
 
 
@@ -19,7 +20,7 @@ type alias Model =
 
 
 init flags =
-    Return.singleton {}
+    ( {}, Port.error "foo" )
 
 
 subscriptions model =
