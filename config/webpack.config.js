@@ -1,6 +1,9 @@
 const path = require('path')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
+  mode: 'development',
+  target: 'node',
   entry: './src/worker.js',
   output: {
     path: path.resolve(__dirname, '../dist'),
@@ -9,7 +12,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.html$/,
+        test: /\.(html)$/,
         exclude: /node_modules/,
         loader: 'file-loader?name=[name].[ext]',
       },
@@ -25,7 +28,7 @@ module.exports = {
       },
     ],
   },
-
+  plugins: [new CopyWebpackPlugin(['src/**/*.elm'], {})],
   devServer: {
     inline: true,
     stats: 'errors-only',
