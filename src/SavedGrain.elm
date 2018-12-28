@@ -114,7 +114,7 @@ needsPersistence model =
             True
 
         Persisted saved ->
-            Saved.isSaved saved
+            Saved.isSaved saved |> not
 
 
 change : (Grain -> Grain) -> SavedGrain -> SavedGrain
