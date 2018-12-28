@@ -51,7 +51,13 @@ boolean name val =
 
 view : List LabelField -> Html msg
 view entries =
-    div [ css [ CS.fixed, Css.right <| px 0 ] ]
+    div
+        [ css
+            [ CS.fixed
+            , Css.right <| rem 1
+            , Css.fontSize Css.small
+            ]
+        ]
         (div [] [ text "GUI" ]
             :: List.map viewLabelField entries
         )
