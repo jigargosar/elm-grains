@@ -11,7 +11,6 @@ module SavedGrain exposing
     )
 
 import BasicsX exposing (callWith, eqs, flip)
-import Cached exposing (Cached)
 import Compare
 import DecodeX exposing (Encoder)
 import Grain exposing (Grain)
@@ -28,37 +27,46 @@ import Json.Decode.Pipeline
 import Json.Encode as E exposing (Value)
 import Maybe.Extra as Maybe
 import Random exposing (Generator)
+import Saved exposing (Saved)
 import Time exposing (Posix)
 import TimeX
 
 
-type alias Model =
-    Cached Grain
+type alias SavedModel =
+    Saved Grain
+
+
+cachedEncoder =
+    Saved.encoder Grain.encoder
+
+
+cachedDecoder =
+    Saved.decoder Grain.decoder
 
 
 type SavedGrain
-    = SavedGrain Model
+    = SavedGrain SavedModel
 
 
-unwrap : SavedGrain -> Model
+unwrap : SavedGrain -> SavedModel
 unwrap (SavedGrain model) =
     model
 
 
-map : (Model -> Model) -> SavedGrain -> SavedGrain
+map : (SavedModel -> SavedModel) -> SavedGrain -> SavedGrain
 map fn =
     unwrap >> fn >> SavedGrain
 
 
 decoder : Decoder SavedGrain
 decoder =
-    Cached.decoder Grain.decoder
+    Saved.decoder Grain.decoder
         |> D.map SavedGrain
 
 
 encoder : SavedGrain -> Value
 encoder =
-    unwrap >> Cached.encoder Grain.encoder
+    unwrap >> Saved.encoder Grain.encoder
 
 
 id : SavedGrain -> GrainId
@@ -68,24 +76,24 @@ id =
 
 new : Grain -> SavedGrain
 new grain =
-    SavedGrain (Cached.new grain)
+    SavedGrain (Saved.new grain)
 
 
 value : SavedGrain -> Grain
 value =
-    unwrap >> Cached.value
+    unwrap >> Saved.value
 
 
 setSaved : Grain -> SavedGrain -> SavedGrain
 setSaved newInitial =
-    map (Cached.setSaved newInitial)
+    map (Saved.setSaved newInitial)
 
 
 isSaved : SavedGrain -> Bool
 isSaved =
-    unwrap >> Cached.isSaved
+    unwrap >> Saved.isSaved
 
 
 change : (Grain -> Grain) -> SavedGrain -> SavedGrain
 change fn =
-    map (Cached.change fn)
+    map (Saved.change fn)

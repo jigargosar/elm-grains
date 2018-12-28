@@ -1,5 +1,5 @@
-module Cached exposing
-    ( Cached
+module Saved exposing
+    ( Saved
     , change
     , decoder
     , encoder
@@ -23,51 +23,51 @@ import Time exposing (Posix)
 import TimeX
 
 
-type Cached a
-    = Cached a a
+type Saved a
+    = Saved a a
 
 
-type alias CachedDecoder a =
-    Decoder (Cached a)
+type alias SavedDecoder a =
+    Decoder (Saved a)
 
 
-decoder : Decoder a -> CachedDecoder a
+decoder : Decoder a -> SavedDecoder a
 decoder valDecoder =
-    D.map2 Cached
+    D.map2 Saved
         (D.field "initial" valDecoder)
         (D.field "latest" valDecoder)
 
 
-encoder : (a -> Value) -> Cached a -> Value
-encoder valEncoder (Cached initial latest) =
+encoder : (a -> Value) -> Saved a -> Value
+encoder valEncoder (Saved initial latest) =
     E.object
         [ ( "initial", valEncoder initial )
         , ( "latest", valEncoder latest )
         ]
 
 
-new : a -> Cached a
+new : a -> Saved a
 new val =
-    Cached val val
+    Saved val val
 
 
-value : Cached a -> a
-value (Cached initial latest) =
+value : Saved a -> a
+value (Saved initial latest) =
     latest
 
 
-setSaved : a -> Cached a -> Cached a
-setSaved newInitial (Cached _ latest) =
-    Cached newInitial latest
+setSaved : a -> Saved a -> Saved a
+setSaved newInitial (Saved _ latest) =
+    Saved newInitial latest
 
 
-isSaved : Cached a -> Bool
-isSaved (Cached initial latest) =
+isSaved : Saved a -> Bool
+isSaved (Saved initial latest) =
     initial == latest
 
 
-change : (a -> a) -> Cached a -> Cached a
-change fn (Cached initial latest) =
+change : (a -> a) -> Saved a -> Saved a
+change fn (Saved initial latest) =
     let
         newLatest : a
         newLatest =
@@ -81,4 +81,4 @@ change fn (Cached initial latest) =
             else
                 initial
     in
-    Cached newInitial newLatest
+    Saved newInitial newLatest
