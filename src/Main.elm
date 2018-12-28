@@ -169,14 +169,10 @@ setGrainStore grainStore model =
 ---- UPDATE ----
 
 
-type GrainStoreAddMsg
+type AddGrainMsg
     = AddGrainAfter GrainId
     | AddGrainBefore GrainId
     | AddGrainDefault
-
-
-type alias AfterGrainCreate =
-    GrainStoreAddMsg
 
 
 type GrainStoreMsg
@@ -184,7 +180,7 @@ type GrainStoreMsg
     | GS_GrainUpdate Grain.Update GrainId Posix
     | GS_MoveOneLevelUp GrainId Posix
     | GS_MoveOneLevelDown GrainId Posix
-    | GS_AddGrain Grain GrainStoreAddMsg
+    | GS_AddGrain Grain AddGrainMsg
     | GS_FirebaseChanges (List GrainChange)
     | GS_Load Value
 
@@ -226,10 +222,10 @@ type Msg
       -- TOAST
     | ToastDismiss
       -- ADD GRAIN --
-    | CreateGrain AfterGrainCreate CreateGrainStep
+    | CreateGrain AddGrainMsg CreateGrainStep
     | AddGrainClicked
-    | CreateAndAddNewGrainWithNow GrainStoreAddMsg Posix
-    | AddGrainToCache GrainStoreAddMsg Grain
+    | CreateAndAddNewGrainWithNow AddGrainMsg Posix
+    | AddGrainToCache AddGrainMsg Grain
     | AppendNewSibling GrainId
     | PrependNewSibling GrainId
       -- UPDATE GRAIN --
