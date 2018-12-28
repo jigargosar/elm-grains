@@ -56,6 +56,9 @@ view entries =
             [ CS.fixed
             , Css.right <| rem 1
             , Css.fontSize Css.small
+            , Css.minWidth <| rem 8
+            , CS.bgBlack80
+            , CS.colorWhite
             ]
         ]
         (div [] [ text "GUI" ]

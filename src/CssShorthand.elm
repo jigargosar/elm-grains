@@ -2,12 +2,14 @@ module CssShorthand exposing
     ( absolute
     , batchIf
     , bgBlack20
+    , bgBlack80
     , bgWhite
     , black20
     , black80
     , blackAlpha
     , bold
     , br_pill
+    , colorWhite
     , debug
     , dodgerBlue
     , ellipsis
@@ -127,13 +129,20 @@ blackAlpha alpha =
     Css.rgba 0 0 0 alpha
 
 
-
---bgBlack80 =
---    Css.backgroundColor black80
+bgBlack80 =
+    Css.backgroundColor black80
 
 
 bgBlack20 =
     Css.backgroundColor black20
+
+
+white =
+    Css.hex "fff"
+
+
+colorWhite =
+    Css.color white
 
 
 bgWhite =
