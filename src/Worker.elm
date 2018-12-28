@@ -3,21 +3,34 @@ module Worker exposing (main)
 import Return
 
 
-main =
-    Platform.worker
-        { init = init
-        , update = update
-        , subscriptions = subscriptions
-        }
+type alias Flags =
+    {}
 
 
-subscriptions model =
-    Sub.batch []
+type alias Model =
+    {}
 
 
 init flags =
     Return.singleton {}
 
 
+subscriptions model =
+    Sub.batch []
+
+
+type Msg
+    = NoOp
+
+
 update msg model =
     Return.singleton model
+
+
+main : Flags -> Model -> Msg
+main =
+    Platform.worker
+        { init = init
+        , update = update
+        , subscriptions = subscriptions
+        }
