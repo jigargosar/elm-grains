@@ -200,7 +200,7 @@ type InlineEditGrainMsg
 
 type PopupMsg
     = PM_SetGrainParent GrainId Grain.ParentId
-    | PM_MoveGrain GrainId Int
+    | PM_MoveGrain GrainId Direction
     | PM_SetGrainDeleted GrainId Bool
     | PM_RouteToGrain GrainId
     | PM_Dismiss
@@ -473,9 +473,9 @@ updatePopup msg model =
             , performGrainUpdate gid (Grain.SetParentId parentId)
             )
 
-        PM_MoveGrain gid offset ->
+        PM_MoveGrain gid direction ->
             ( dismissPopup model
-            , performGrainMove offset gid
+            , performGrainMoveInDirection direction gid
             )
 
         PM_SetGrainDeleted gid deleted ->
@@ -960,8 +960,8 @@ grainMorePopupViewModel model grain =
             Grain.id grain
     in
     { editMsg = popupMsg <| PM_RouteToGrain gid
-    , moveUpMsg = popupMsg <| PM_MoveGrain gid -1
-    , moveDownMsg = popupMsg <| PM_MoveGrain gid 1
+    , moveUpMsg = popupMsg <| PM_MoveGrain gid Direction.Up
+    , moveDownMsg = popupMsg <| PM_MoveGrain gid Direction.Down
     , moveToMsg = openGrainMovePopupMsg gid
     , toggleDeleteMsg = popupMsg <| PM_SetGrainDeleted gid (not deleted)
     , dismissMsg = dismissPopupMsg
