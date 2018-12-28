@@ -593,7 +593,7 @@ firePersistUnsavedGrainsEffect model =
         dirtyGrains =
             model.grainCache
                 |> GrainCache.toRawList
-                |> List.filterNot SavedGrain.saved
+                |> List.filterNot SavedGrain.isSaved
     in
     if List.isEmpty dirtyGrains then
         Cmd.none

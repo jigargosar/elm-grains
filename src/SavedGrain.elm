@@ -4,8 +4,8 @@ module SavedGrain exposing
     , decoder
     , encoder
     , id
+    , isSaved
     , new
-    , saved
     , setSaved
     , value
     )
@@ -68,8 +68,8 @@ save (SavedGrain _ latest) =
     SavedGrain latest latest
 
 
-saved : SavedGrain -> Bool
-saved (SavedGrain initial latest) =
+isSaved : SavedGrain -> Bool
+isSaved (SavedGrain initial latest) =
     initial == latest
 
 
