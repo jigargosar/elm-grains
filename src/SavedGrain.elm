@@ -4,7 +4,7 @@ module SavedGrain exposing
     , decoder
     , encoder
     , id
-    , isSaved
+    , needsPersistence
     , new
     , setPersisted
     , value
@@ -107,9 +107,14 @@ neverPersisted model =
             False
 
 
-isSaved : SavedGrain -> Bool
-isSaved =
-    unwrap >> Saved.isSaved
+needsPersistence : SavedGrain -> Bool
+needsPersistence model =
+    case model of
+        NeverPersisted saved ->
+            True
+
+        Persisted saved ->
+            Saved.isSaved saved
 
 
 change : (Grain -> Grain) -> SavedGrain -> SavedGrain
