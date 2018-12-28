@@ -129,7 +129,7 @@ init flags =
                 |> Random.finish
     in
     model
-        |> update (UpdateGrainStore <| GC_Load flags.grainCache)
+        |> update (UpdateGrainStore <| GS_Load flags.grainCache)
 
 
 setRoute route model =
@@ -176,14 +176,14 @@ type GrainStoreAddMsg
 
 
 type GrainStoreMsg
-    = GC_MoveBy GrainId Int Posix
-    | GC_Move Direction GrainId Posix
-    | GC_GrainUpdate GrainId Grain.Update Posix
-    | GC_MoveOneLevelUp GrainId Posix
-    | GC_MoveOneLevelDown GrainId Posix
-    | GC_AddGrainAnd Grain GrainStoreAddMsg
-    | GC_FirebaseChanges (List GrainChange)
-    | GC_Load Value
+    = GS_MoveBy GrainId Int Posix
+    | GS_Move Direction GrainId Posix
+    | GS_GrainUpdate GrainId Grain.Update Posix
+    | GS_MoveOneLevelUp GrainId Posix
+    | GS_MoveOneLevelDown GrainId Posix
+    | GS_AddGrainAnd Grain GrainStoreAddMsg
+    | GS_FirebaseChanges (List GrainChange)
+    | GS_Load Value
 
 
 type InlineEditGrainMsg
@@ -566,11 +566,11 @@ updateGrainStoreCmd msg =
 
 
 performGrainMove gid offset =
-    Task.perform (UpdateGrainStore << GC_MoveBy gid offset) Time.now
+    Task.perform (UpdateGrainStore << GS_MoveBy gid offset) Time.now
 
 
 performGrainMoveInDirection direction gid =
-    Task.perform (UpdateGrainStore << GC_Move direction gid) Time.now
+    Task.perform (UpdateGrainStore << GS_Move direction gid) Time.now
 
 
 performGrainSetContent gid content =
@@ -578,7 +578,7 @@ performGrainSetContent gid content =
 
 
 performGrainUpdate gid grainUpdate =
-    Task.perform (UpdateGrainStore << GC_GrainUpdate gid grainUpdate) Time.now
+    Task.perform (UpdateGrainStore << GS_GrainUpdate gid grainUpdate) Time.now
 
 
 localPersistGrainStoreEffect model =
@@ -618,40 +618,40 @@ updateGrainStore message model =
                 >> handleStringResult model
     in
     case message of
-        GC_Move direction grainId now ->
+        GS_Move direction grainId now ->
             GrainStore.move direction
                 grainId
                 now
                 model.grainStore
                 |> handleResult
 
-        GC_MoveBy grainId offset now ->
+        GS_MoveBy grainId offset now ->
             GrainStore.moveBy offset
                 grainId
                 now
                 model.grainStore
                 |> handleResult
 
-        GC_GrainUpdate grainId grainUpdate now ->
+        GS_GrainUpdate grainId grainUpdate now ->
             GrainStore.updateWithGrainUpdate grainUpdate
                 grainId
                 now
                 model.grainStore
                 |> handleResult
 
-        GC_MoveOneLevelUp gid now ->
+        GS_MoveOneLevelUp gid now ->
             GrainStore.moveOneLevelUp gid
                 now
                 model.grainStore
                 |> handleResult
 
-        GC_MoveOneLevelDown gid now ->
+        GS_MoveOneLevelDown gid now ->
             GrainStore.moveOneLevelDown gid
                 now
                 model.grainStore
                 |> handleResult
 
-        GC_AddGrainAnd grain msg ->
+        GS_AddGrainAnd grain msg ->
             case msg of
                 GCAdd_Before siblingGid ->
                     GrainStore.addNewGrainBefore siblingGid
@@ -670,12 +670,12 @@ updateGrainStore message model =
                         model.grainStore
                         |> handleResult
 
-        GC_FirebaseChanges changeList ->
+        GS_FirebaseChanges changeList ->
             GrainStore.updateFromFirebaseChangeList changeList
                 model.grainStore
                 |> handleResult
 
-        GC_Load encoded ->
+        GS_Load encoded ->
             GrainStore.load encoded |> handleResult
 
 
@@ -803,7 +803,7 @@ update message model =
                 gid =
                     Grain.id grain
             in
-            updateGrainStore (GC_AddGrainAnd grain msg) model
+            updateGrainStore (GS_AddGrainAnd grain msg) model
                 --                |> Return.andThen
                 --                    (update <| routeToGrainIdMsg <| Grain.id grain)
                 |> Return.andThen (updateInlineEditGrain gid IE_Start)
@@ -843,7 +843,7 @@ update message model =
                         |> Return.singleton
 
                 Firebase.GrainChanges changes ->
-                    updateGrainStore (GC_FirebaseChanges changes) model
+                    updateGrainStore (GS_FirebaseChanges changes) model
 
         SignIn ->
             Return.return model (Firebase.signIn ())
