@@ -4,6 +4,7 @@ port module Port exposing
     , error
     , fire2Elm
     , keyDownOnBody
+    , logJson
     , navigateBack
     , persistGrains
     , persistNewGrain
@@ -52,6 +53,9 @@ port navigateBack : () -> Cmd msg
 
 
 port error : String -> Cmd msg
+
+
+port logJson : Value -> Cmd msg
 
 
 port pushUrl : String -> Cmd msg

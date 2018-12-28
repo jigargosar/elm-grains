@@ -27,6 +27,10 @@ setElmAppPortSubscriptions(
       // console.error(data)
       console.log(data)
     },
+    logJson: obj => {
+      console.log('logJson', obj)
+      console.log(JSON.stringify(obj, null, 2))
+    },
   },
   app,
 )
