@@ -40,10 +40,12 @@ type SavedGrain
     = SavedGrain Model
 
 
+unwrap : SavedGrain -> Model
 unwrap (SavedGrain model) =
     model
 
 
+map : (Model -> Model) -> SavedGrain -> SavedGrain
 map fn =
     unwrap >> fn >> SavedGrain
 
