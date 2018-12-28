@@ -180,7 +180,7 @@ type alias AfterGrainCreate =
 
 
 type GrainStoreMsg
-    = GS_MoveBy GrainId Int Posix
+    = GS_MoveBy Int GrainId Posix
     | GS_Move Direction GrainId Posix
     | GS_GrainUpdate Grain.Update GrainId Posix
     | GS_MoveOneLevelUp GrainId Posix
@@ -475,7 +475,7 @@ updatePopup msg model =
 
         PM_MoveGrain gid offset ->
             ( dismissPopup model
-            , performGrainMove gid offset
+            , performGrainMove offset gid
             )
 
         PM_SetGrainDeleted gid deleted ->
@@ -576,8 +576,8 @@ updateGrainStoreCmd msg =
     Task.perform (UpdateGrainStore << msg) Time.now
 
 
-performGrainMove gid offset =
-    Task.perform (UpdateGrainStore << GS_MoveBy gid offset) Time.now
+performGrainMove offset gid =
+    Task.perform (UpdateGrainStore << GS_MoveBy offset gid) Time.now
 
 
 performGrainMoveInDirection direction gid =
@@ -640,7 +640,7 @@ updateGrainStore message model =
                 model.grainStore
                 |> handleResult
 
-        GS_MoveBy grainId offset now ->
+        GS_MoveBy offset grainId now ->
             GrainStore.moveBy offset
                 grainId
                 now
