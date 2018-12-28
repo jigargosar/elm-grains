@@ -326,8 +326,8 @@ remove grain =
     GrainIdLookup.remove (Grain.id grain)
 
 
-getSiblingsById : GrainId -> GrainCache -> List SavedGrain
-getSiblingsById gid model =
+getSiblingsById__ : GrainId -> GrainCache -> List SavedGrain
+getSiblingsById__ gid model =
     get__ gid model |> Maybe.unwrap [] (getSiblingsOf__ >> callWith model)
 
 
@@ -446,7 +446,7 @@ moveOneLevelUp gid now model =
 moveOneLevelDown gid now model =
     let
         siblings =
-            getSiblingsById gid model
+            getSiblingsById__ gid model
 
         newParentIdx : Int
         newParentIdx =
@@ -527,11 +527,3 @@ isRoot =
 
 parentId =
     SavedGrain.value >> Grain.parentId
-
-
-isChildOfGrainId gid =
-    SavedGrain.value >> Grain.isChildOfGrainId gid
-
-
-parentIdAsGrainId =
-    SavedGrain.value >> Grain.parentIdAsGrainId
