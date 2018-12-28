@@ -52,9 +52,7 @@ view entries =
             , CS.colorWhite
             ]
         ]
-        (div [] [ text "GUI" ]
-            :: List.map viewLabelField entries
-        )
+        (div [] [ text "GUI" ] :: List.map viewLabelField entries)
 
 
 viewLabelField : LabelField -> Html msg
@@ -69,17 +67,19 @@ viewLabelField (LabelField title field) =
                     viewBool bool
 
         labelView =
-            div [] [ text title ]
+            div [ css [ Css.display Css.tableCell ] ] [ text title ]
     in
-    div [ css [ CS.row ] ]
+    div [ css [ Css.display Css.tableRow ] ]
         [ labelView
         , fieldView
         ]
 
 
 viewInt int =
-    div [] [ text (String.fromInt int) ]
+    div [ css [ Css.display Css.tableCell ] ]
+        [ text (String.fromInt int) ]
 
 
 viewBool bool =
-    div [] [ text <| ter bool "True" "False" ]
+    div [ css [ Css.display Css.tableCell ] ]
+        [ text <| ter bool "True" "False" ]
