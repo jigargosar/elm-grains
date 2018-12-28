@@ -29,7 +29,7 @@ setElmAppPortSubscriptions(
     },
     logJson: obj => {
       console.log('logJson', obj)
-      console.log(JSON.stringify(obj, null, 2))
+      // console.log(JSON.stringify(obj, null, 2))
     },
   },
   app,

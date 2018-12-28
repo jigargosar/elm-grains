@@ -68,7 +68,10 @@ parseAndEncode input =
         processing =
             Elm.Processing.init
     in
-    Elm.Parser.parse input
+    Elm.Parser.parse
+        """
+module Foo exposing (..)
+        """
         --        |> Result.map Elm.RawFile.encode
         |> Result.map
             --            Elm.Processing.addFile
