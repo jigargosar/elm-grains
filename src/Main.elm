@@ -216,7 +216,7 @@ type FocusRelativeMsg
 type CreateGrainStep
     = CreateGrainWithNow
     | CreateGrainWithGenerator Posix
-    | AddBuiltGrain Grain
+    | AddCreatedGrain Grain
 
 
 type Msg
@@ -808,7 +808,7 @@ update message model =
 
                 generateGrainCmd now =
                     Random.generate
-                        (nextStep AddBuiltGrain)
+                        (nextStep AddCreatedGrain)
                         (Grain.generator now)
             in
             case state of
@@ -823,7 +823,7 @@ update message model =
                 CreateGrainWithGenerator now ->
                     ( model, generateGrainCmd now )
 
-                AddBuiltGrain grain ->
+                AddCreatedGrain grain ->
                     updateGrainStore
                         (GS_AddGrainAnd grain afterBuildMsg)
                         model
