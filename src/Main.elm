@@ -170,9 +170,9 @@ setGrainStore grainStore model =
 
 
 type GrainStoreAddMsg
-    = GCAdd_After GrainId
-    | GCAdd_Before GrainId
-    | GCAdd_NoOp
+    = AddGrainAfter GrainId
+    | AddGrainBefore GrainId
+    | AddGrainDefault
 
 
 type alias AfterGrainCreate =
@@ -184,7 +184,7 @@ type GrainStoreMsg
     | GS_GrainUpdate Grain.Update GrainId Posix
     | GS_MoveOneLevelUp GrainId Posix
     | GS_MoveOneLevelDown GrainId Posix
-    | GS_AddGrainAnd Grain GrainStoreAddMsg
+    | GS_AddGrain Grain GrainStoreAddMsg
     | GS_FirebaseChanges (List GrainChange)
     | GS_Load Value
 
@@ -654,21 +654,21 @@ updateGrainStore message model =
                 model.grainStore
                 |> handleResult
 
-        GS_AddGrainAnd grain msg ->
+        GS_AddGrain grain msg ->
             case msg of
-                GCAdd_Before siblingGid ->
+                AddGrainBefore siblingGid ->
                     GrainStore.addNewGrainBefore siblingGid
                         grain
                         model.grainStore
                         |> handleResult
 
-                GCAdd_After siblingGid ->
+                AddGrainAfter siblingGid ->
                     GrainStore.addNewAfter siblingGid
                         grain
                         model.grainStore
                         |> handleResult
 
-                GCAdd_NoOp ->
+                AddGrainDefault ->
                     GrainStore.addNew grain
                         model.grainStore
                         |> handleResult
@@ -780,17 +780,17 @@ update message model =
 
         AppendNewSibling gid ->
             ( model
-            , performWithNow (CreateAndAddNewGrainWithNow <| GCAdd_After gid)
+            , performWithNow (CreateAndAddNewGrainWithNow <| AddGrainAfter gid)
             )
 
         PrependNewSibling gid ->
             ( model
-            , performWithNow (CreateAndAddNewGrainWithNow <| GCAdd_Before gid)
+            , performWithNow (CreateAndAddNewGrainWithNow <| AddGrainBefore gid)
             )
 
         AddGrainClicked ->
             ( model
-            , performWithNow (CreateAndAddNewGrainWithNow GCAdd_NoOp)
+            , performWithNow (CreateAndAddNewGrainWithNow AddGrainDefault)
             )
 
         CreateGrain afterBuildMsg state ->
@@ -817,7 +817,7 @@ update message model =
 
                 AddCreatedGrain grain ->
                     updateGrainStore
-                        (GS_AddGrainAnd grain afterBuildMsg)
+                        (GS_AddGrain grain afterBuildMsg)
                         model
 
         CreateAndAddNewGrainWithNow afterAddMsg now ->
@@ -833,7 +833,7 @@ update message model =
                 gid =
                     Grain.id grain
             in
-            updateGrainStore (GS_AddGrainAnd grain msg) model
+            updateGrainStore (GS_AddGrain grain msg) model
                 --                |> Return.andThen
                 --                    (update <| routeToGrainIdMsg <| Grain.id grain)
                 |> Return.andThen (updateInlineEditGrain gid IE_Start)
