@@ -9,7 +9,6 @@ const app = Elm.Worker.init({
   flags: {
     now: Date.now(),
     windowSize: { width: window.innerWidth, height: window.innerHeight },
-    grains: jsonCacheGetOr([], 'grains'),
     grainCache: jsonCacheGetOr([], 'grainCache'),
     url: document.URL,
   },
