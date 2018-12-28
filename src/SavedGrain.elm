@@ -38,7 +38,7 @@ type alias SavedModel =
 
 type SavedGrain
     = UnPersisted SavedModel
-    | Persisted SavedModel
+    | PersistedOnce SavedModel
 
 
 unwrap : SavedGrain -> SavedModel
@@ -47,7 +47,7 @@ unwrap model =
         UnPersisted saved ->
             saved
 
-        Persisted saved ->
+        PersistedOnce saved ->
             saved
 
 
@@ -57,8 +57,8 @@ map fn model =
         UnPersisted saved ->
             fn saved |> UnPersisted
 
-        Persisted saved ->
-            fn saved |> Persisted
+        PersistedOnce saved ->
+            fn saved |> PersistedOnce
 
 
 decoder : Decoder SavedGrain
@@ -69,7 +69,7 @@ decoder =
             Saved.decoder Grain.decoder
     in
     D.oneOf [ savedDecoder ]
-        |> D.map Persisted
+        |> D.map PersistedOnce
 
 
 encoder : SavedGrain -> Value
@@ -94,7 +94,7 @@ value =
 
 setSaved : Grain -> SavedGrain -> SavedGrain
 setSaved newInitial =
-    unwrap >> Saved.setSaved newInitial >> Persisted
+    unwrap >> Saved.setSaved newInitial >> PersistedOnce
 
 
 isSaved : SavedGrain -> Bool
