@@ -2,14 +2,9 @@ module SavedGrain exposing
     ( SavedGrain
     , change
     , decoder
-    , defaultComparator
-    , defaultSort
-    , discard
     , encoder
     , id
-    , isChildOf
     , new
-    , parentIdEq
     , saved
     , setSaved
     , value
@@ -73,9 +68,10 @@ save (SavedGrain _ latest) =
     SavedGrain latest latest
 
 
-discard : SavedGrain -> SavedGrain
-discard (SavedGrain initial _) =
-    SavedGrain initial initial
+
+--discard : SavedGrain -> SavedGrain
+--discard (SavedGrain initial _) =
+--    SavedGrain initial initial
 
 
 saved : SavedGrain -> Bool
@@ -99,19 +95,3 @@ change fn (SavedGrain initial latest) =
                 initial
     in
     SavedGrain newInitial newLatest
-
-
-defaultComparator =
-    Compare.compose value Grain.defaultComparator
-
-
-defaultSort =
-    List.sortWith defaultComparator
-
-
-parentIdEq pid =
-    value >> Grain.parentIdEq pid
-
-
-isChildOf parent =
-    value >> Grain.isChildOf (value parent)
