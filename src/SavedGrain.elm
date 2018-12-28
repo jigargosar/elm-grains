@@ -68,12 +68,6 @@ save (SavedGrain _ latest) =
     SavedGrain latest latest
 
 
-
---discard : SavedGrain -> SavedGrain
---discard (SavedGrain initial _) =
---    SavedGrain initial initial
-
-
 saved : SavedGrain -> Bool
 saved (SavedGrain initial latest) =
     initial == latest
