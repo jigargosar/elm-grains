@@ -1,6 +1,6 @@
 import { Elm } from './Worker.elm'
 import { setElmAppPortSubscriptions } from './elm-app'
-import { jsonCacheGetOr, jsonCacheSet } from './json-cache'
+import { jsonCacheGetOr } from './json-cache'
 
 export const tapLog = m => tap(partial(console.log, [m]))
 
@@ -24,9 +24,6 @@ setElmAppPortSubscriptions(
     // cacheGrains: data => {
     //   jsonCacheSet('grains', data)
     // },
-    setGrainCache: data => {
-      jsonCacheSet('grainCache', data)
-    },
   },
   app,
 )
