@@ -148,12 +148,9 @@ setAuthState authState model =
     { model | authState = authState }
 
 
+grainById : GrainId -> Model -> Maybe Grain
 grainById gid =
-    savedGrainById gid >> Maybe.map SavedGrain.value
-
-
-savedGrainById gid =
-    .grainCache >> GrainCache.get__ gid
+    .grainCache >> GrainCache.getGrainById gid
 
 
 setNewSeed newSeed model =

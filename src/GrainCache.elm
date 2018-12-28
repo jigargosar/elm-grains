@@ -6,7 +6,7 @@ module GrainCache exposing
     , batchUpdate
     , decoder
     , encoder
-    , get__
+    , getGrainById
     , init
     , lastLeafGid
     , load
@@ -138,7 +138,7 @@ rejectSubTreeAndFlatten grain =
 
 getGrainById : GrainId -> GrainCache -> Maybe Grain
 getGrainById gid =
-    get__ gid >> Maybe.map SavedGrain.value
+    GrainIdLookup.get gid >> Maybe.map SavedGrain.value
 
 
 rootGid : GrainCache -> GrainId
@@ -326,16 +326,6 @@ remove grain =
     GrainIdLookup.remove (Grain.id grain)
 
 
-getSiblingsById__ : GrainId -> GrainCache -> List SavedGrain
-getSiblingsById__ gid model =
-    get__ gid model |> Maybe.unwrap [] (getSiblingsOf__ >> callWith model)
-
-
-get__ : GrainId -> GrainCache -> Maybe SavedGrain
-get__ gid =
-    GrainIdLookup.get gid
-
-
 getParentOfGrain : Grain -> GrainCache -> Maybe SavedGrain
 getParentOfGrain grain model =
     Grain.parentIdAsGrainId grain
@@ -405,28 +395,22 @@ moveBy :
     -> GrainCache
     -> UpdateResult
 moveBy offset gid now model =
-    get__ gid model
-        |> Result.fromMaybe "Error: setSortIdx: Grain Not Found in Cache"
-        |> Result.andThen (moveHelp now offset >> callWith model)
-
-
-moveHelp : Posix -> Int -> SavedGrain -> GrainCache -> UpdateResult
-moveHelp now offset savedGrain model =
     let
-        siblings : List SavedGrain
+        zipper =
+            rootTreeZipper model
+
+        siblings : List Grain
         siblings =
-            getSiblingsOf__ savedGrain model
+            Z.siblingsOf gid zipper
 
         gIdx : Int
         gIdx =
-            List.findIndex (eqById savedGrain)
-                siblings
+            List.findIndex (Grain.idEq gid) siblings
                 |> Maybe.withDefault -1
 
         updaters : List ( Grain -> Grain, GrainId )
         updaters =
             List.swapAt gIdx (gIdx + offset) siblings
-                |> List.map SavedGrain.value
                 |> Grain.listToEffectiveSortIndices
                 |> List.map
                     (Tuple.mapBoth
@@ -445,20 +429,21 @@ moveOneLevelUp gid now model =
 
 moveOneLevelDown gid now model =
     let
+        zipper =
+            rootTreeZipper model
+
         siblings =
-            getSiblingsById__ gid model
+            Z.siblingsOf gid zipper
 
         newParentIdx : Int
         newParentIdx =
-            List.findIndex (idEq gid) siblings
+            List.findIndex (Grain.idEq gid) siblings
                 |> Maybe.unwrap -1 ((+) -1)
                 |> Debug.log "newParentIdx"
     in
     List.getAt newParentIdx siblings
         |> Maybe.map
-            (SavedGrain.value
-                >> Grain.idAsParentId
-                >> Debug.log "pid"
+            (Grain.idAsParentId
                 >> (\pid ->
                         updateWithGrainUpdate
                             (Grain.SetParentId pid)
@@ -484,46 +469,3 @@ moveGrainAfter now model grain sibling =
             Grain.parentId sibling
     in
     updateWithGrainUpdate (Grain.SetParentId newParentId) gid now model
-
-
-getSiblingsOf__ : SavedGrain -> GrainCache -> List SavedGrain
-getSiblingsOf__ savedGrain model =
-    toRawList model
-        |> List.filter (eqByParentId savedGrain)
-        |> List.sortWith defaultComparator
-
-
-getChildrenWithParentId pid model =
-    toRawList model
-        |> List.filter (eqByParentId pid)
-        |> List.sortWith defaultComparator
-
-
-defaultComparator =
-    Compare.compose SavedGrain.value Grain.defaultComparator
-
-
-eqByParentId savedGrain =
-    SavedGrain.value
-        >> Grain.isSibling (SavedGrain.value savedGrain)
-
-
-idEq gid =
-    SavedGrain.value >> Grain.idEq gid
-
-
-eqById savedGrain =
-    SavedGrain.value
-        >> Grain.eqById (SavedGrain.value savedGrain)
-
-
-id =
-    SavedGrain.id
-
-
-isRoot =
-    SavedGrain.value >> Grain.isRoot
-
-
-parentId =
-    SavedGrain.value >> Grain.parentId

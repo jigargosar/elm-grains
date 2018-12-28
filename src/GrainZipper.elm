@@ -11,6 +11,7 @@ module GrainZipper exposing
     , parentWhenIdEq
     , prependWhenIdEqAndGetParentAndChildGrains
     , removeEqByIdThenFlatten
+    , siblingsOf
     )
 
 import Grain exposing (Grain)
@@ -151,12 +152,16 @@ toParentChildrenLabelsTuple =
     unwrap
         >> (\z ->
                 let
-                    children =
+                    children_ =
                         Z.children z |> List.map Tree.label
                 in
                 Z.parent z
-                    |> Maybe.map (Z.label >> (\p -> ( p, children )))
+                    |> Maybe.map (Z.label >> (\p -> ( p, children_ )))
            )
+
+
+children =
+    unwrap >> Z.children
 
 
 forward =
@@ -193,3 +198,14 @@ parentWhenIdEq gid =
     findFromRootIdEq gid
         >> Maybe.andThen parent
         >> Maybe.map label
+
+
+siblingsOf : GrainId -> GrainZipper -> List Grain
+siblingsOf gid =
+    findFromRootIdEq gid
+        >> Maybe.andThen parent
+        >> Maybe.unwrap []
+            (unwrap
+                >> Z.children
+                >> List.map Tree.label
+            )
