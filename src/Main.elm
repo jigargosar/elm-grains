@@ -60,7 +60,7 @@ import RandomId
 import Result.Extra as Result
 import Return exposing (Return)
 import Route exposing (Route)
-import SavedGrain
+import SavedGrain exposing (SavedGrain)
 import Skeleton
 import Tagged
 import Task
@@ -216,6 +216,9 @@ type Msg
     | GrainFocused GrainId Bool
       -- TOAST
     | ToastDismiss
+      -- TEST --
+    | DoUpdateThenExecuteWithNow
+    | UpdateGrainIfOldSavedGrainIdentical (List ( SavedGrain, Grain ))
       -- ADD GRAIN --
     | AddGrainClicked
     | CreateAndAddNewGrainWithNow GrainStoreAddMsg Posix
@@ -784,6 +787,27 @@ update message model =
             ( model
             , performWithNow (CreateAndAddNewGrainWithNow <| GCAdd_Before gid)
             )
+
+        DoUpdateThenExecuteWithNow ->
+            let
+                nowFn : Posix -> List ( SavedGrain, Grain )
+                nowFn now =
+                    []
+            in
+            ( model
+            , Time.now
+                |> Task.map nowFn
+                |> Task.perform UpdateGrainIfOldSavedGrainIdentical
+            )
+
+        UpdateGrainIfOldSavedGrainIdentical list ->
+            let
+                _ =
+                    Debug.log
+                        "UpdateGrainIfOldSavedGrainIdentical"
+                        list
+            in
+            Return.singleton model
 
         AddGrainClicked ->
             ( model
