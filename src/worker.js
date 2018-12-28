@@ -24,7 +24,7 @@ const app = Elm.Worker.init({
 setElmAppPortSubscriptions(
   {
     error: data => {
-      console.error(data)
+      // console.error(data)
       console.log(data)
     },
   },
