@@ -27,7 +27,9 @@ init flags =
     in
     ( {}
     , Port.error <|
-        "fileContent: \u{000D}\n"
+        """fileContent:
+
+        """
             ++ flags.fileContent
     )
 
