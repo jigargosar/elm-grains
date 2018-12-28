@@ -1,262 +1,260 @@
 module GrainStore exposing
     ( GrainStore
-    , addNewGrain
-    , allAsList
-    , empty
-    , getAncestorIds
-    , getById
-    , loadCache
+    , addNew
+    , addNewAfter
+    , addNewGrainBefore
+    , batchUpdate
+    , decoder
+    , encoder
+    , get
+    , init
+    , lastLeafGid
+    , load
+    , move
     , moveBy
-    , onFirebaseChanges
-    , permanentlyDeleteGrain
-    , setContent
-    , setDeleted
-    , setParentId
+    , moveOneLevelDown
+    , moveOneLevelUp
+    , rejectSubTreeAndFlatten
+    , rootGid
+    , rootTree
+    , toRawList
+    , treeFromGid
+    , updateFromFirebaseChangeList
+    , updateWithGrainUpdate
     )
 
 import ActorId exposing (ActorId)
-import BasicsX exposing (callWith, ifElse, unwrapMaybe)
+import BasicsX exposing (callWith, callWith2, eqs, ifElse, unwrapMaybe)
+import Compare
 import DecodeX exposing (Encoder)
+import Direction exposing (Direction)
 import Firebase
 import Grain exposing (Grain)
 import GrainChange exposing (GrainChange)
 import GrainDict exposing (GrainDict)
 import GrainId exposing (GrainId)
+import GrainIdLookup exposing (GrainIdLookup)
+import GrainZipper as Z exposing (GrainForest, GrainTree, GrainZipper)
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline exposing (hardcoded, required)
 import Json.Encode as E exposing (Value)
 import List.Extra as List
 import Maybe.Extra as Maybe
+import Pivot exposing (Pivot)
 import Port
 import Random exposing (Generator, Seed)
 import Random.Pipeline as Random
 import RandomX
 import Return exposing (Return)
 import Return3 as R3 exposing (Return3F)
+import SavedGrain exposing (SavedGrain)
+import Time exposing (Posix)
+import Tree
+import Tree.Zipper as TZ
+import Tuple2
 
 
 type alias GrainStore =
-    GrainDict
+    GrainIdLookup SavedGrain
 
 
-empty =
-    GrainDict.empty
+decoder : Decoder GrainStore
+decoder =
+    D.list SavedGrain.decoder
+        |> D.map
+            (GrainIdLookup.fromList SavedGrain.id
+                >> addRootIfAbsent
+            )
 
 
-allAsList =
-    GrainDict.values
+encoder : GrainStore -> Value
+encoder =
+    GrainIdLookup.toList >> E.list SavedGrain.encoder
 
 
-getById : GrainId -> GrainStore -> Maybe Grain
-getById gid =
-    GrainDict.get gid
+init : GrainStore
+init =
+    GrainIdLookup.empty
+        |> addRootIfAbsent
 
 
-getAncestorIds grain model =
-    getAncestorIdsHelp [] grain model
+addRootIfAbsent model =
+    if idExists GrainId.root model then
+        model
+
+    else
+        blindInsertGrain Grain.root model
 
 
-getAncestorIdsHelp ids grain model =
+allGrains : GrainStore -> List Grain
+allGrains =
+    toRawList
+        >> List.map SavedGrain.value
+        >> List.sortWith Grain.defaultComparator
+
+
+childGrains : Grain -> GrainStore -> List Grain
+childGrains grain =
+    allGrains >> List.filter (Grain.isChildOf grain)
+
+
+treeFromCache : GrainStore -> Grain -> GrainTree
+treeFromCache grainStore grain =
+    let
+        newForest : GrainForest
+        newForest =
+            childGrains grain grainStore
+                |> List.map (treeFromCache grainStore)
+    in
+    Tree.tree grain newForest
+
+
+rootGrain : GrainStore -> Grain
+rootGrain =
+    get GrainId.root >> Maybe.withDefault Grain.root
+
+
+treeFromGid : GrainId -> GrainStore -> Maybe GrainTree
+treeFromGid gid =
+    rootTreeZipper
+        >> Z.findTreeById gid
+
+
+rootTree : GrainStore -> GrainTree
+rootTree model =
+    treeFromCache model (rootGrain model)
+
+
+rootTreeZipper : GrainStore -> GrainZipper
+rootTreeZipper =
+    rootTree >> Z.fromTree
+
+
+rejectSubTreeAndFlatten : Grain -> GrainStore -> List Grain
+rejectSubTreeAndFlatten grain =
+    rootTreeZipper >> Z.removeEqByIdThenFlatten grain
+
+
+get : GrainId -> GrainStore -> Maybe Grain
+get gid =
+    GrainIdLookup.get gid >> Maybe.map SavedGrain.value
+
+
+rootGid : GrainStore -> GrainId
+rootGid =
+    rootGrain >> Grain.id
+
+
+lastLeafGid : GrainStore -> GrainId
+lastLeafGid =
+    rootTreeZipper
+        >> Z.lastDescendentGrain
+        >> Grain.id
+
+
+addNew : Grain -> GrainStore -> UpdateResult
+addNew =
+    ifCanAddGrainThen <|
+        \grain model ->
+            Result.Ok <|
+                blindInsertGrain grain model
+
+
+addNewAfter : GrainId -> Grain -> GrainStore -> UpdateResult
+addNewAfter siblingGid =
+    addNewAndThenBatchUpdate <|
+        addNewAfterBatchUpdaters siblingGid
+
+
+addNewGrainBefore : GrainId -> Grain -> GrainStore -> UpdateResult
+addNewGrainBefore siblingGid =
+    addNewAndThenBatchUpdate <|
+        addNewBeforeBatchUpdaters siblingGid
+
+
+ifCanAddGrainThen :
+    (Grain -> GrainStore -> UpdateResult)
+    -> Grain
+    -> GrainStore
+    -> UpdateResult
+ifCanAddGrainThen fn grain model =
+    if idExists (Grain.id grain) model then
+        Result.Err "Error: Add Grain. GrainId exists"
+
+    else
+        fn grain model
+
+
+addNewAndThenBatchUpdate fn grain model =
+    if idExists (Grain.id grain) model then
+        Result.Err "Error: Add Grain. GrainId exists"
+
+    else
+        fn (Grain.createdAt grain) grain model
+            |> Maybe.unwrap
+                (Result.Err "Err: addNewGrainAfter")
+                (insertGrainThenBatchUpdate >> callWith2 grain model)
+
+
+insertGrainThenBatchUpdate updaters grain model =
+    blindInsertGrain grain model
+        |> batchUpdate updaters
+
+
+listToSortIdxUpdaters : Posix -> List Grain -> List GrainUpdater
+listToSortIdxUpdaters now =
+    List.indexedMap
+        (\idx g ->
+            ( Grain.update now <| Grain.SetSortIdx idx
+            , Grain.id g
+            )
+        )
+
+
+parentIdUpdater pid now gid =
+    ( Grain.update now (Grain.SetParentId pid)
+    , gid
+    )
+
+
+addNewAfterBatchUpdaters siblingGid now grain =
     let
         gid =
             Grain.id grain
-
-        newIds =
-            gid :: ids
     in
-    Grain.parentIdAsGrainId grain
-        |> Maybe.andThen (getById >> callWith model)
-        |> Maybe.unwrap newIds (getAncestorIdsHelp newIds >> callWith model)
+    rootTreeZipper
+        >> Z.appendWhenIdEqAndGetParentAndChildGrains siblingGid grain
+        >> Maybe.map
+            (afterAddGrainUpdaters now gid)
 
 
-
--- INTERNAL HELPERS
-
-
-getGrainHavingSameId =
-    Grain.id >> getById
-
-
-hasGrainWithSameId grain =
-    GrainDict.member (Grain.id grain)
-
-
-blindInsert grain =
-    GrainDict.insert (Grain.id grain) grain
+afterAddGrainUpdaters now gid pc =
+    pc
+        |> Tuple.mapBoth
+            (Grain.idAsParentId
+                >> parentIdUpdater
+                >> callWith2 now gid
+            )
+            (listToSortIdxUpdaters now)
+        |> Tuple2.uncurry (::)
 
 
-blindRemove grain =
-    GrainDict.remove (Grain.id grain)
-
-
-encoder =
-    GrainDict.encoder
-
-
-decoder =
-    GrainDict.decoder
-
-
-
---- CACHE
-
-
-loadCache : Value -> GrainStore -> Return msg GrainStore
-loadCache val gs =
-    DecodeX.decodeWithDefault gs decoder val
-
-
-cache =
-    encoder >> Port.cacheGrains
-
-
-
--- INSERT NEW
-
-
-addNewGrain : Grain -> GrainStore -> Result String ( GrainStore, Cmd msg )
-addNewGrain grain model =
+addNewBeforeBatchUpdaters siblingGid now grain =
     let
-        canAdd =
-            hasGrainWithSameId grain model
-                |> not
+        gid =
+            Grain.id grain
     in
-    if canAdd then
-        blindInsert grain model
-            |> withAddNewGrainCmd grain
-            |> Result.Ok
-
-    else
-        Result.Err "Error: Add Grain. Id exists "
-
-
-withAddNewGrainCmd grain model =
-    ( model, Cmd.batch [ cache model, Firebase.persistNewGrain grain ] )
+    rootTreeZipper
+        >> Z.prependWhenIdEqAndGetParentAndChildGrains siblingGid grain
+        >> Maybe.map
+            (afterAddGrainUpdaters now gid)
 
 
 
--- UPDATE EXISTING
+-- EXPOSED UPDATERS
 
 
-updateGrain now msg model grain =
-    let
-        updatedGrain =
-            Grain.update now msg grain
-
-        newModel =
-            blindInsert updatedGrain model
-    in
-    withUpdateGrainCmd updatedGrain newModel
-
-
-withUpdateGrainCmd grain model =
-    ( model, Cmd.batch [ cache model, Firebase.persistUpdatedGrain grain ] )
-
-
-
---  SET CONTENT
-
-
-setContent content now gid model =
-    getById gid model
-        |> Maybe.map (updateGrain now (Grain.SetContent content) model)
-        |> Result.fromMaybe "Error: SetContent Grain Not Found in Cache"
-
-
-
--- SET DELETED
-
-
-setDeleted deleted now gid model =
-    getById gid model
-        |> Maybe.map (updateGrain now (Grain.SetDeleted deleted) model)
-        |> Result.fromMaybe "Error: setDeleted: Grain Not Found in Cache"
-
-
-
--- SET ParentId
-
-
-setParentId parentId now gid model =
-    getById gid model
-        |> Maybe.map (updateGrain now (Grain.SetParentId parentId) model)
-        |> Result.fromMaybe "Error: setParentId: Grain Not Found in Cache"
-
-
-
--- SET SortIdx
-
-
-setSortIdx now sortIdx gid model =
-    getById gid model
-        |> Maybe.map (updateGrain now (Grain.SetSortIdx sortIdx) model)
-        |> Result.fromMaybe "Error: setSortIdx: Grain Not Found in Cache"
-
-
-moveBy offset now gid model =
-    getById gid model
-        |> Maybe.map (moveHelp now offset >> callWith model)
-        |> Result.fromMaybe "Error: setSortIdx: Grain Not Found in Cache"
-
-
-moveHelp now offset grain model =
-    let
-        siblings : List Grain
-        siblings =
-            getSiblings grain model
-
-        gIdx : Int
-        gIdx =
-            List.findIndex (Grain.eqById grain) siblings
-                |> Maybe.withDefault -1
-
-        updatedGrains : List Grain
-        updatedGrains =
-            List.swapAt gIdx (gIdx + offset) siblings
-                |> Grain.updateSortIndices now
-
-        newModel =
-            List.foldl blindInsert model updatedGrains
-
-        fireCmd : Cmd msg
-        fireCmd =
-            updatedGrains
-                |> List.map Firebase.persistUpdatedGrain
-                |> Cmd.batch
-    in
-    ( newModel, Cmd.batch [ cache newModel, fireCmd ] )
-
-
-getSiblings : Grain -> GrainStore -> List Grain
-getSiblings grain model =
-    allAsList model
-        |> List.filter (Grain.isSibling grain)
-        |> List.sortWith Grain.defaultComparator
-
-
-
--- PERMANENT DELETE EXISTING
-
-
-permanentlyDeleteGrain grain model =
-    if hasGrainWithSameId grain model then
-        blindRemove grain model
-            |> withRemoveGrainCmd grain
-            |> Result.Ok
-
-    else
-        Result.Err "Error: PermanentDeleteGrain: Grain Not Found in cache"
-
-
-withRemoveGrainCmd grain model =
-    ( model, Cmd.batch [ cache model, Firebase.persistRemovedGrain grain ] )
-
-
-
--- HANDLE FIREBASE GRAIN CHANGES
-
-
-onFirebaseChanges changeList model =
+updateFromFirebaseChangeList changeList model =
     let
         handleChange change =
             let
@@ -265,15 +263,193 @@ onFirebaseChanges changeList model =
             in
             case GrainChange.type_ change of
                 GrainChange.Added ->
-                    blindInsert grain
+                    setPersisted grain
 
                 GrainChange.Modified ->
-                    blindInsert grain
+                    setPersisted grain
 
                 GrainChange.Removed ->
-                    blindRemove grain
-
-        newModel =
-            List.foldr handleChange model changeList
+                    remove grain
     in
-    ( newModel, cache newModel )
+    List.foldr handleChange model changeList
+        |> Result.Ok
+
+
+load =
+    D.decodeValue decoder
+        >> Result.mapError D.errorToString
+
+
+type alias UpdateResult =
+    Result String GrainStore
+
+
+update :
+    (Grain -> Grain)
+    -> GrainId
+    -> GrainStore
+    -> UpdateResult
+update changeFn gid model =
+    if GrainIdLookup.member gid model then
+        let
+            updateFn =
+                SavedGrain.change changeFn
+        in
+        Result.Ok <| GrainIdLookup.updateIfExists gid updateFn model
+
+    else
+        Result.Err "GrainNotFound"
+
+
+
+-- UPDATE HELPERS
+
+
+blindInsertGrain grain model =
+    GrainIdLookup.insert (Grain.id grain) (SavedGrain.new grain) model
+
+
+setPersisted : Grain -> GrainStore -> GrainStore
+setPersisted grain =
+    GrainIdLookup.update (Grain.id grain)
+        (Maybe.map (SavedGrain.setPersisted grain)
+            >> Maybe.orElseLazy (\_ -> Just <| SavedGrain.new grain)
+        )
+
+
+remove grain =
+    GrainIdLookup.remove (Grain.id grain)
+
+
+toRawList =
+    GrainIdLookup.toList
+
+
+idExists gid =
+    GrainIdLookup.member gid
+
+
+type alias GrainUpdater =
+    ( Grain -> Grain, GrainId )
+
+
+batchUpdate : List GrainUpdater -> GrainStore -> UpdateResult
+batchUpdate list model =
+    let
+        reducer ( changeFn, gid ) =
+            Result.andThen (update changeFn gid)
+    in
+    List.foldl reducer (Result.Ok model) list
+
+
+updateWithGrainUpdate :
+    Grain.Update
+    -> GrainId
+    -> Posix
+    -> GrainStore
+    -> UpdateResult
+updateWithGrainUpdate grainUpdate gid now model =
+    update (Grain.update now grainUpdate) gid model
+
+
+move :
+    Direction
+    -> GrainId
+    -> Posix
+    -> GrainStore
+    -> UpdateResult
+move direction gid now model =
+    let
+        fn =
+            case direction of
+                Direction.Up ->
+                    moveBy -1
+
+                Direction.Down ->
+                    moveBy 1
+
+                Direction.Left ->
+                    moveOneLevelUp
+
+                Direction.Right ->
+                    moveOneLevelDown
+    in
+    fn gid now model
+
+
+moveBy :
+    Int
+    -> GrainId
+    -> Posix
+    -> GrainStore
+    -> UpdateResult
+moveBy offset gid now model =
+    let
+        zipper =
+            rootTreeZipper model
+
+        siblings : List Grain
+        siblings =
+            Z.siblingsOf gid zipper
+
+        gIdx : Int
+        gIdx =
+            List.findIndex (Grain.idEq gid) siblings
+                |> Maybe.withDefault -1
+
+        updaters : List ( Grain -> Grain, GrainId )
+        updaters =
+            List.swapAt gIdx (gIdx + offset) siblings
+                |> Grain.listToEffectiveSortIndices
+                |> List.map
+                    (Tuple.mapBoth
+                        (Grain.SetSortIdx >> Grain.update now)
+                        Grain.id
+                    )
+    in
+    batchUpdate updaters model
+
+
+moveOneLevelUp gid now model =
+    let
+        zipper =
+            rootTreeZipper model
+
+        setParentId newParentId =
+            updateWithGrainUpdate
+                (Grain.SetParentId newParentId)
+                gid
+                now
+                model
+    in
+    Z.parentWhenIdEq gid zipper
+        |> Maybe.map (Grain.parentId >> setParentId)
+        |> Maybe.withDefault (Result.Err "Grain Not Found")
+
+
+moveOneLevelDown gid now model =
+    let
+        zipper =
+            rootTreeZipper model
+
+        siblings =
+            Z.siblingsOf gid zipper
+
+        newParentIdx : Int
+        newParentIdx =
+            List.findIndex (Grain.idEq gid) siblings
+                |> Maybe.unwrap -1 ((+) -1)
+                |> Debug.log "newParentIdx"
+    in
+    List.getAt newParentIdx siblings
+        |> Maybe.map
+            (Grain.idAsParentId
+                >> (\pid ->
+                        updateWithGrainUpdate
+                            (Grain.SetParentId pid)
+                            gid
+                            now
+                            model
+                   )
+            )
+        |> Maybe.withDefault (Result.Err "Grain Not Found")

@@ -25,10 +25,10 @@ import EventX exposing (onKeyDownPD, pNone, pd, sp)
 import FireUser exposing (FireUser)
 import Firebase
 import Grain exposing (Grain)
-import GrainCache exposing (GrainCache)
 import GrainChange exposing (GrainChange)
 import GrainId exposing (GrainId)
 import GrainMorePopupView exposing (GrainMorePopupView)
+import GrainStore exposing (GrainStore)
 import GrainTreeView
 import GrainView exposing (GrainView)
 import GrainZipper exposing (GrainTree)
@@ -104,7 +104,7 @@ type alias Model =
     , actorId : ActorId
     , popup : Popup
     , inlineEditGrain : InlineEditGrain
-    , grainCache : GrainCache
+    , grainStore : GrainStore
     , selectedGid : Maybe GrainId
     , lastSelectedGid : Maybe GrainId
     , seed : Seed
@@ -123,13 +123,13 @@ init flags =
                 |> Random.with ActorId.generator
                 |> Random.always NoPopup
                 |> Random.always InlineEditGrain.initialValue
-                |> Random.always GrainCache.init
+                |> Random.always GrainStore.init
                 |> Random.always Nothing
                 |> Random.always Nothing
                 |> Random.finish
     in
     model
-        |> update (UpdateGrainCache <| GC_Load flags.grainCache)
+        |> update (UpdateGrainStore <| GC_Load flags.grainCache)
 
 
 setRoute route model =
@@ -150,7 +150,7 @@ setAuthState authState model =
 
 grainById : GrainId -> Model -> Maybe Grain
 grainById gid =
-    .grainCache >> GrainCache.get gid
+    .grainStore >> GrainStore.get gid
 
 
 setNewSeed newSeed model =
@@ -161,27 +161,27 @@ dismissPopup model =
     { model | popup = NoPopup }
 
 
-setGrainCache grainCache model =
-    { model | grainCache = grainCache }
+setGrainStore grainStore model =
+    { model | grainStore = grainStore }
 
 
 
 ---- UPDATE ----
 
 
-type GrainCacheAddMsg
+type GrainStoreAddMsg
     = GCAdd_After GrainId
     | GCAdd_Before GrainId
     | GCAdd_NoOp
 
 
-type GrainCacheMsg
+type GrainStoreMsg
     = GC_MoveBy GrainId Int Posix
     | GC_Move Direction GrainId Posix
     | GC_GrainUpdate GrainId Grain.Update Posix
     | GC_MoveOneLevelUp GrainId Posix
     | GC_MoveOneLevelDown GrainId Posix
-    | GC_AddGrainAnd Grain GrainCacheAddMsg
+    | GC_AddGrainAnd Grain GrainStoreAddMsg
     | GC_FirebaseChanges (List GrainChange)
     | GC_Load Value
 
@@ -218,13 +218,13 @@ type Msg
     | ToastDismiss
       -- ADD GRAIN --
     | AddGrainClicked
-    | CreateAndAddNewGrainWithNow GrainCacheAddMsg Posix
-    | AddGrainToCache GrainCacheAddMsg Grain
+    | CreateAndAddNewGrainWithNow GrainStoreAddMsg Posix
+    | AddGrainToCache GrainStoreAddMsg Grain
     | AppendNewSibling GrainId
     | PrependNewSibling GrainId
       -- UPDATE GRAIN --
     | MoveGrain Direction GrainId
-    | UpdateGrainCache GrainCacheMsg
+    | UpdateGrainStore GrainStoreMsg
     | UpdateInlineEditGrain GrainId InlineEditGrainMsg
     | DragGrain GrainId
       -- GRAIN FOCUS NAVIGATION
@@ -561,16 +561,16 @@ updateInlineEditGrain gid msg model =
 -- GRAIN CACHE --
 
 
-updateGrainCacheCmd msg =
-    Task.perform (UpdateGrainCache << msg) Time.now
+updateGrainStoreCmd msg =
+    Task.perform (UpdateGrainStore << msg) Time.now
 
 
 performGrainMove gid offset =
-    Task.perform (UpdateGrainCache << GC_MoveBy gid offset) Time.now
+    Task.perform (UpdateGrainStore << GC_MoveBy gid offset) Time.now
 
 
 performGrainMoveInDirection direction gid =
-    Task.perform (UpdateGrainCache << GC_Move direction gid) Time.now
+    Task.perform (UpdateGrainStore << GC_Move direction gid) Time.now
 
 
 performGrainSetContent gid content =
@@ -578,18 +578,18 @@ performGrainSetContent gid content =
 
 
 performGrainUpdate gid grainUpdate =
-    Task.perform (UpdateGrainCache << GC_GrainUpdate gid grainUpdate) Time.now
+    Task.perform (UpdateGrainStore << GC_GrainUpdate gid grainUpdate) Time.now
 
 
-localPersistGrainCacheEffect model =
-    Port.setGrainCache <| GrainCache.encoder model.grainCache
+localPersistGrainStoreEffect model =
+    Port.setGrainCache <| GrainStore.encoder model.grainStore
 
 
 firePersistUnsavedGrainsEffect model =
     let
         dirtyGrains =
-            model.grainCache
-                |> GrainCache.toRawList
+            model.grainStore
+                |> GrainStore.toRawList
                 |> List.filterNot SavedGrain.needsPersistence
     in
     if List.isEmpty dirtyGrains then
@@ -601,82 +601,82 @@ firePersistUnsavedGrainsEffect model =
             |> Port.persistSavedGrainList
 
 
-updateGrainCache :
-    GrainCacheMsg
+updateGrainStore :
+    GrainStoreMsg
     -> Model
     -> ( Model, Cmd Msg )
-updateGrainCache message model =
+updateGrainStore message model =
     let
-        setGrainCacheAndPersist newGrainCache =
+        setGrainStoreAndPersist newGrainStore =
             Return.singleton
-                >> Return.map (setGrainCache newGrainCache)
-                >> Return.effect_ localPersistGrainCacheEffect
+                >> Return.map (setGrainStore newGrainStore)
+                >> Return.effect_ localPersistGrainStoreEffect
                 >> Return.effect_ firePersistUnsavedGrainsEffect
 
         handleResult =
-            Result.map (setGrainCacheAndPersist >> callWith model)
+            Result.map (setGrainStoreAndPersist >> callWith model)
                 >> handleStringResult model
     in
     case message of
         GC_Move direction grainId now ->
-            GrainCache.move direction
+            GrainStore.move direction
                 grainId
                 now
-                model.grainCache
+                model.grainStore
                 |> handleResult
 
         GC_MoveBy grainId offset now ->
-            GrainCache.moveBy offset
+            GrainStore.moveBy offset
                 grainId
                 now
-                model.grainCache
+                model.grainStore
                 |> handleResult
 
         GC_GrainUpdate grainId grainUpdate now ->
-            GrainCache.updateWithGrainUpdate grainUpdate
+            GrainStore.updateWithGrainUpdate grainUpdate
                 grainId
                 now
-                model.grainCache
+                model.grainStore
                 |> handleResult
 
         GC_MoveOneLevelUp gid now ->
-            GrainCache.moveOneLevelUp gid
+            GrainStore.moveOneLevelUp gid
                 now
-                model.grainCache
+                model.grainStore
                 |> handleResult
 
         GC_MoveOneLevelDown gid now ->
-            GrainCache.moveOneLevelDown gid
+            GrainStore.moveOneLevelDown gid
                 now
-                model.grainCache
+                model.grainStore
                 |> handleResult
 
         GC_AddGrainAnd grain msg ->
             case msg of
                 GCAdd_Before siblingGid ->
-                    GrainCache.addNewGrainBefore siblingGid
+                    GrainStore.addNewGrainBefore siblingGid
                         grain
-                        model.grainCache
+                        model.grainStore
                         |> handleResult
 
                 GCAdd_After siblingGid ->
-                    GrainCache.addNewAfter siblingGid
+                    GrainStore.addNewAfter siblingGid
                         grain
-                        model.grainCache
+                        model.grainStore
                         |> handleResult
 
                 GCAdd_NoOp ->
-                    GrainCache.addNew grain
-                        model.grainCache
+                    GrainStore.addNew grain
+                        model.grainStore
                         |> handleResult
 
         GC_FirebaseChanges changeList ->
-            GrainCache.updateFromFirebaseChangeList changeList
-                model.grainCache
+            GrainStore.updateFromFirebaseChangeList changeList
+                model.grainStore
                 |> handleResult
 
         GC_Load encoded ->
-            GrainCache.load encoded |> handleResult
+            GrainStore.load encoded |> handleResult
 
 
 
@@ -803,13 +803,13 @@ update message model =
                 gid =
                     Grain.id grain
             in
-            updateGrainCache (GC_AddGrainAnd grain msg) model
+            updateGrainStore (GC_AddGrainAnd grain msg) model
                 --                |> Return.andThen
                 --                    (update <| routeToGrainIdMsg <| Grain.id grain)
                 |> Return.andThen (updateInlineEditGrain gid IE_Start)
 
-        UpdateGrainCache msg ->
-            updateGrainCache msg model
+        UpdateGrainStore msg ->
+            updateGrainStore msg model
 
         UpdateInlineEditGrain gid msg ->
             updateInlineEditGrain gid msg model
@@ -843,7 +843,7 @@ update message model =
                         |> Return.singleton
 
                 Firebase.GrainChanges changes ->
-                    updateGrainCache (GC_FirebaseChanges changes) model
+                    updateGrainStore (GC_FirebaseChanges changes) model
 
         SignIn ->
             Return.return model (Firebase.signIn ())
@@ -934,7 +934,7 @@ moveGrainPopupViewModel model grain =
             Grain.id grain
 
         otherGrains =
-            GrainCache.rejectSubTreeAndFlatten grain model.grainCache
+            GrainStore.rejectSubTreeAndFlatten grain model.grainStore
                 |> Debug.log "otherGrains"
     in
     { grain = grain
@@ -1058,8 +1058,8 @@ viewGrainTreeById gid model =
         viewTree grainTree =
             GrainTreeView.view (grainTreeViewConfig grainTree) grainTree
     in
-    model.grainCache
-        |> GrainCache.treeFromGid gid
+    model.grainStore
+        |> GrainStore.treeFromGid gid
         |> Maybe.unwrap NotFoundView.view viewTree
 
 
