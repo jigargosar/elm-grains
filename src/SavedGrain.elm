@@ -94,7 +94,7 @@ value =
 
 setSaved : Grain -> SavedGrain -> SavedGrain
 setSaved newInitial =
-    map (Saved.setSaved newInitial)
+    unwrap >> Saved.setSaved newInitial >> Persisted
 
 
 isSaved : SavedGrain -> Bool
