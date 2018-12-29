@@ -785,8 +785,6 @@ update message model =
                     Grain.id grain
             in
             updateGrainStore (GS_AddGrain grain msg) model
-                --                |> Return.andThen
-                --                    (update <| routeToGrainIdMsg <| Grain.id grain)
                 |> Return.andThen (updateInlineEditGrain gid IE_Start)
 
         UpdateGrainStore msg ->
