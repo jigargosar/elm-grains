@@ -15,7 +15,7 @@ import CssLayout exposing (flexCol, flexRow)
 import CssShorthand as CS
 import CssTheme exposing (black80, blackAlpha, space1, space2, space4, white)
 import EventX
-import Grain
+import Grain exposing (Grain)
 import GrainId exposing (GrainId)
 import GrainZipper exposing (GrainTree)
 import Html.Styled
@@ -68,15 +68,17 @@ type Node
     = DisplayNode DisplayNodeModel
 
 
+grainToNode : Grain -> Node
 grainToNode grain =
     let
         gid =
             Grain.id grain
     in
-    { title = Grain.titleOrEmpty grain
-    , domId = grainDomId gid
-    , gid = gid
-    }
+    DisplayNode
+        { title = Grain.titleOrEmpty grain
+        , domId = grainDomId gid
+        , gid = gid
+        }
 
 
 type alias GrainTreeView msg =
@@ -95,33 +97,33 @@ view config =
         nodeTree =
             Tree.map grainToNode grainTree
     in
-    viewTree config 0 nodeTree
+    viewNodeTree config 0 nodeTree
 
 
-viewTree config level tree =
-    let
-        node =
-            Tree.label tree
+viewNodeTree config level tree =
+    case Tree.label tree of
+        DisplayNode node ->
+            let
+                nodeStyles =
+                    if level == 0 then
+                        [ CS.pv1, CS.ph2, CS.bold ]
 
-        nodeStyles =
-            if level == 0 then
-                [ CS.pv1, CS.ph2, CS.bold ]
-
-            else
-                [ CS.pa1
-                , Css.paddingLeft <| px <| 4 + (level * 32)
+                    else
+                        [ CS.pa1
+                        , Css.paddingLeft <| px <| 4 + (level * 32)
+                        ]
+            in
+            div
+                [ id node.domId
+                , tabindex 0
+                , CssEventX.onKeyDownCustom
+                    (config.keyDownCustom node.gid)
+                , css nodeStyles
+                , onDoubleClick (config.routeTo node.gid)
                 ]
-    in
-    div
-        [ id node.domId
-        , tabindex 0
-        , CssEventX.onKeyDownCustom (config.keyDownCustom node.gid)
-        , css nodeStyles
-        , onDoubleClick (config.routeTo node.gid)
-        ]
-        [ text node.title ]
-        :: viewForest config (level + 1) tree
+                [ text node.title ]
+                :: viewForest config (level + 1) tree
 
 
 viewForest config level tree =
-    tree |> Tree.children >> List.concatMap (viewTree config level)
+    tree |> Tree.children >> List.concatMap (viewNodeTree config level)
