@@ -806,7 +806,11 @@ update message model =
 
         RouteTo route ->
             Return.singleton (setRoute route model)
-                |> Return.effect_ (.route >> Route.toString >> Port.pushUrl)
+                |> Return.effect_
+                    (.route
+                        >> Route.toString
+                        >> Port.pushUrl
+                    )
                 |> Return.effect_ (.route >> autoFocusRouteCmd)
 
         UrlChanged encoded ->
