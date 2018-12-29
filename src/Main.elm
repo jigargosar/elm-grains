@@ -725,12 +725,18 @@ update message model =
 
         AppendNewSibling gid ->
             ( model
-            , performWithNow (CreateAndAddNewGrainWithNow <| AddGrainAfter gid)
+            , performWithNow
+                (CreateAndAddNewGrainWithNow <|
+                    AddGrainAfter gid
+                )
             )
 
         PrependNewSibling gid ->
             ( model
-            , performWithNow (CreateAndAddNewGrainWithNow <| AddGrainBefore gid)
+            , performWithNow
+                (CreateAndAddNewGrainWithNow <|
+                    AddGrainBefore gid
+                )
             )
 
         AddGrainClicked ->
