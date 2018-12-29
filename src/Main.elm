@@ -851,14 +851,6 @@ update message model =
 -- VIEW --
 
 
-type alias View =
-    { route : Route
-    , authState : Firebase.AuthState
-    , toast : Toast
-    , popup : Popup
-    }
-
-
 view : Model -> Html Msg
 view model =
     let
@@ -867,14 +859,21 @@ view model =
 
         viewModel =
             { route = model.route
-            , authState = model.authState
             , toast = model.toast
             , popup = model.popup
             , routeVM = routeVM
+            , appBar =
+                { title = routeVM.title
+                , maybeBackButtonMsg =
+                    maybeBool routeVM.showBackBtn BackPressed
+                , authState = model.authState
+                , signOutMsg = SignOut
+                , signInMsg = SignIn
+                }
             }
 
         _ =
-            View.view
+            View.view viewModel
     in
     Skeleton.view
         { children =

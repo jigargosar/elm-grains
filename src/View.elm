@@ -56,6 +56,8 @@ type alias AppBarView msg =
     { title : String
     , maybeBackButtonMsg : Maybe msg
     , authState : Firebase.AuthState
+    , signOutMsg : msg
+    , signInMsg : msg
     }
 
 
