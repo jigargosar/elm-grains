@@ -16,6 +16,7 @@ import CssTheme exposing (black80, blackAlpha, space1, space2, space4, white)
 import EventX
 import Grain
 import GrainId exposing (GrainId)
+import GrainZipper exposing (GrainTree)
 import Html.Styled
     exposing
         ( Html
@@ -79,11 +80,15 @@ grainToNode grain =
 type alias Config msg =
     { keyDownCustom : GrainId -> EventX.CustomDecoder msg
     , focusRouteTo : GrainId -> msg
+    , grainTree : GrainTree
     }
 
 
-view config grainTree =
+view config =
     let
+        grainTree =
+            config.grainTree
+
         nodeTree =
             Tree.map grainToNode grainTree
     in

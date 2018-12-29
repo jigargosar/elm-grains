@@ -859,9 +859,6 @@ view model =
 
         viewModel =
             { route = model.route
-            , toast = model.toast
-            , popup = model.popup
-            , routeVM = routeVM
             , appBar =
                 { title = routeVM.title
                 , maybeBackButtonMsg =
@@ -870,23 +867,43 @@ view model =
                 , signOutMsg = SignOut
                 , signInMsg = SignIn
                 }
+            , createGrainTreeVM =
+                \gid ->
+                    model.grainStore
+                        |> GrainStore.treeFromGid gid
+                        |> Maybe.map grainTreeViewConfig
+            , popup = model.popup
+            , createGrainMorePopupVM =
+                \gid ->
+                    grainById gid model
+                        |> Maybe.map (grainMorePopupViewModel model)
+            , createGrainMovePopupVM =
+                \gid ->
+                    grainById gid model
+                        |> Maybe.map (moveGrainPopupViewModel model)
+            , toastVM =
+                { dismissMsg = ToastDismiss
+                , toast = model.toast
+                }
             }
-
-        _ =
-            View.view viewModel
     in
-    Skeleton.view
-        { children =
-            [ viewAppBar routeVM model.authState ]
-                ++ viewRouteChildren model
-                ++ [ viewToast model.toast
-                   , viewPopup model
-                   , DatGui.view
-                        [ DatGui.boolean "Debug" False
-                        , DatGui.integer "Counter" 100
-                        ]
+    View.view viewModel
+
+
+
+{- Skeleton.view
+   { children =
+       [ viewAppBar routeVM model.authState ]
+           ++ viewRouteChildren model
+           ++ [ viewToast model.toast
+              , viewPopup model
+              , DatGui.view
+                   [ DatGui.boolean "Debug" False
+                   , DatGui.integer "Counter" 100
                    ]
-        }
+              ]
+   }
+-}
 
 
 viewPopup model =
@@ -1015,7 +1032,8 @@ grainTreeViewConfig tree =
             else
                 frParentMsg gid
     in
-    { focusRouteTo = routeToGrainTreeMsg
+    { grainTree = tree
+    , focusRouteTo = routeToGrainTreeMsg
     , keyDownCustom =
         \gid ->
             let
@@ -1050,20 +1068,13 @@ grainTreeViewConfig tree =
     }
 
 
-viewGrainTreeById gid model =
-    let
-        viewTree grainTree =
-            GrainTreeView.view (grainTreeViewConfig grainTree) grainTree
-    in
-    model.grainStore
-        |> GrainStore.treeFromGid gid
-        |> Maybe.unwrap NotFoundView.view viewTree
-
-
 viewRouteChildren model =
     case model.route of
         Route.GrainTree gid ->
-            viewGrainTreeById gid model
+            model.grainStore
+                |> GrainStore.treeFromGid gid
+                |> Maybe.map grainTreeViewConfig
+                |> Maybe.unwrap NotFoundView.view GrainTreeView.view
 
         Route.NotFound string ->
             NotFoundView.view

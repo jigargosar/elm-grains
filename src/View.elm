@@ -18,8 +18,11 @@ import CssTheme
         , space4
         , white
         )
+import DatGui
 import EventX
 import Firebase
+import GrainMorePopupView
+import GrainTreeView
 import Html.Styled
     exposing
         ( Html
@@ -49,7 +52,13 @@ import Html.Styled.Events
         , onFocus
         , onInput
         )
+import Maybe.Extra as Maybe
+import MoveGrainPopupView
+import NotFoundView
+import Popup
+import Route
 import Skeleton
+import Toast
 
 
 type alias AppBarView msg =
@@ -65,16 +74,43 @@ view vm =
     Skeleton.view
         { children =
             [ viewAppBar vm.appBar ]
-
-        --                    ++ viewRouteChildren model
-        --                    ++ [ viewToast model.toast
-        --                       , viewPopup model
-        --                       , DatGui.view
-        --                            [ DatGui.boolean "Debug" False
-        --                            , DatGui.integer "Counter" 100
-        --                            ]
-        --                       ]
+                ++ viewRouteChildren vm
+                ++ [ viewToast vm.toastVM
+                   , viewPopup vm
+                   , DatGui.view
+                        [ DatGui.boolean "Debug" False
+                        , DatGui.integer "Counter" 100
+                        ]
+                   ]
         }
+
+
+viewToast vm =
+    Toast.view vm.dismissMsg vm.toast
+
+
+viewPopup vm =
+    case vm.popup of
+        Popup.GrainMorePopup gid ->
+            vm.createGrainMorePopupVM gid
+                |> CssHtml.viewMaybe GrainMorePopupView.view
+
+        Popup.GrainMovePopup gid ->
+            vm.createGrainMovePopupVM gid
+                |> CssHtml.viewMaybe MoveGrainPopupView.view
+
+        Popup.NoPopup ->
+            CssHtml.noView
+
+
+viewRouteChildren vm =
+    case vm.route of
+        Route.GrainTree gid ->
+            vm.createGrainTreeVM gid
+                |> Maybe.unwrap NotFoundView.view GrainTreeView.view
+
+        Route.NotFound string ->
+            NotFoundView.view
 
 
 viewAppBar vm =
