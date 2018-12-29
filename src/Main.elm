@@ -681,25 +681,20 @@ update message model =
 
                 PM_MoveGrain gid direction ->
                     dismissPopup model
-                        |> Return.singleton
-                        |> Return.andThen
-                            (update
-                                ((UpdateGrain <|
-                                    GrainStore.Move direction
-                                 )
-                                    gid
-                                )
+                        |> update
+                            ((UpdateGrain <|
+                                GrainStore.Move direction
+                             )
+                                gid
                             )
 
                 PM_SetGrainDeleted gid deleted ->
                     dismissPopup model
-                        |> Return.singleton
-                        |> Return.andThen
-                            (update <|
+                        |> (update <|
                                 GrainSet
                                     (Grain.SetDeleted deleted)
                                     gid
-                            )
+                           )
 
                 PM_RouteToGrain gid ->
                     dismissPopup model
