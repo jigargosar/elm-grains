@@ -1,4 +1,4 @@
-module View exposing (AppBarView, view)
+module View exposing (AppBarView, ViewModel, view)
 
 import BasicsX exposing (ter)
 import Css exposing (num, pct, px, rem, vh, vw, zero)
@@ -21,8 +21,9 @@ import CssTheme
 import DatGui
 import EventX
 import Firebase
-import GrainMorePopupView
-import GrainTreeView
+import GrainId exposing (GrainId)
+import GrainMorePopupView exposing (GrainMorePopupView)
+import GrainTreeView exposing (GrainTreeView)
 import Html.Styled
     exposing
         ( Html
@@ -53,12 +54,29 @@ import Html.Styled.Events
         , onInput
         )
 import Maybe.Extra as Maybe
-import MoveGrainPopupView
+import MoveGrainPopupView exposing (MoveGrainPopupView)
 import NotFoundView
-import Popup
-import Route
+import Popup exposing (Popup)
+import Route exposing (Route)
 import Skeleton
-import Toast
+import Toast exposing (Toast)
+
+
+type alias ViewModel msg =
+    { route : Route
+    , popup : Popup
+    , appBarVM : AppBarView msg
+    , createGrainTreeVM :
+        GrainId -> Maybe (GrainTreeView msg)
+    , createGrainMorePopupVM :
+        GrainId -> Maybe (GrainMorePopupView msg)
+    , createGrainMovePopupVM :
+        GrainId -> Maybe (MoveGrainPopupView msg)
+    , toastVM :
+        { dismissMsg : msg
+        , toast : Toast
+        }
+    }
 
 
 view vm =

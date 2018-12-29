@@ -60,7 +60,7 @@ import Tree
 import Tuple exposing (mapFirst)
 import Tuple2
 import UrlChange exposing (UrlChange)
-import View
+import View exposing (ViewModel)
 
 
 
@@ -842,23 +842,6 @@ update message model =
 view : Model -> Html Msg
 view model =
     View.view (viewModel model)
-
-
-type alias ViewModel msg =
-    { route : Route
-    , popup : Popup
-    , appBarVM : View.AppBarView msg
-    , createGrainTreeVM :
-        GrainId -> Maybe (GrainTreeView msg)
-    , createGrainMorePopupVM :
-        GrainId -> Maybe (GrainMorePopupView msg)
-    , createGrainMovePopupVM :
-        GrainId -> Maybe (MoveGrainPopupView msg)
-    , toastVM :
-        { dismissMsg : msg
-        , toast : Toast
-        }
-    }
 
 
 viewModel : Model -> ViewModel Msg
