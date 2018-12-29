@@ -683,9 +683,12 @@ update message model =
                     dismissPopup model
                         |> Return.singleton
                         |> Return.andThen
-                            (update <|
-                                GrainStore.Move direction
+                            (update
+                                ((UpdateGrain <|
+                                    GrainStore.Move direction
+                                 )
                                     gid
+                                )
                             )
 
                 PM_SetGrainDeleted gid deleted ->
