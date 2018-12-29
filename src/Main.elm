@@ -841,7 +841,10 @@ update message model =
 
         KeyDownOnBody value ->
             D.decodeValue EventX.keyEventDecoder value
-                |> Result.map (handleKeyDownWhenNothingIsFocused >> callWith model)
+                |> Result.map
+                    (handleKeyDownWhenNothingIsFocused
+                        >> callWith model
+                    )
                 |> handleDecodeResult model
 
 
