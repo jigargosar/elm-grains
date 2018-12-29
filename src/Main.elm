@@ -717,12 +717,8 @@ update message model =
                             )
 
         AppendNewSibling gid ->
-            ( model
-            , performWithNow
-                (CreateAndAddNewGrainWithNow <|
-                    AddGrainAfter gid
-                )
-            )
+            update (CreateGrain (AddGrainAfter gid) CreateGrainWithNow)
+                model
 
         PrependNewSibling gid ->
             ( model
