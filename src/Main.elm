@@ -703,27 +703,6 @@ updateUrlChanged event model =
 
 
 
--- EXPERIMENT ELM SYNTAX / PARSER
-
-
-src =
-    """module Foo exposing(foo)
-
-foo = 1
-"""
-
-
-parse : String -> String
-parse input =
-    case Elm.Parser.parse input of
-        Err e ->
-            "Failed: " ++ Debug.toString e
-
-        Ok v ->
-            "Success: " ++ Debug.toString v
-
-
-
 -- UPDATE
 
 
@@ -876,16 +855,8 @@ update message model =
 -- VIEW --
 
 
-view =
-    view2
-
-
-view1 _ =
-    div [] [ text <| parse src ]
-
-
-view2 : Model -> Html Msg
-view2 model =
+view : Model -> Html Msg
+view model =
     let
         routeVM =
             toRouteView model.route
