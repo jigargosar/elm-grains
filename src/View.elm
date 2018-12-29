@@ -65,7 +65,7 @@ view vm =
     Html.Styled.toUnstyled <|
         Skeleton.view
             { children =
-                [ viewAppBar vm.appBar ]
+                [ viewAppBar vm.appBarVM ]
                     ++ viewRouteChildren vm
                     ++ [ viewToast vm.toastVM
                        , viewPopup vm

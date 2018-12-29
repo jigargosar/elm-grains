@@ -842,19 +842,9 @@ update message model =
 view : Model -> Html Msg
 view model =
     let
-        routeVM =
-            toRouteView model.route
-
         viewModel =
             { route = model.route
-            , appBar =
-                { title = routeVM.title
-                , maybeBackButtonMsg =
-                    maybeBool routeVM.showBackBtn BackPressed
-                , authState = model.authState
-                , signOutMsg = SignOut
-                , signInMsg = SignIn
-                }
+            , appBarVM = appBarViewModel model
             , createGrainTreeVM =
                 \gid ->
                     model.grainStore
@@ -876,6 +866,20 @@ view model =
             }
     in
     View.view viewModel
+
+
+appBarViewModel model =
+    let
+        routeVM =
+            toRouteView model.route
+    in
+    { title = routeVM.title
+    , maybeBackButtonMsg =
+        maybeBool routeVM.showBackBtn BackPressed
+    , authState = model.authState
+    , signOutMsg = SignOut
+    , signInMsg = SignIn
+    }
 
 
 grainMorePopupViewModel : Model -> Grain -> GrainMorePopupView Msg
