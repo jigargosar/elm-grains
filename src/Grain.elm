@@ -1,8 +1,8 @@
 module Grain exposing
     ( Grain
     , ParentId
+    , Set(..)
     , SortIdx
-    , Update(..)
     , content
     , createdAt
     , decoder
@@ -302,7 +302,7 @@ defaultComparator =
         ]
 
 
-type Update
+type Set
     = SetContent String
     | SetDeleted Bool
     | SetParentId ParentId
@@ -319,7 +319,7 @@ listToEffectiveSortIndices =
     List.indexedMap Tuple.pair
 
 
-update : Posix -> Update -> Grain -> Grain
+update : Posix -> Set -> Grain -> Grain
 update now msg grain =
     let
         innerUpdate =

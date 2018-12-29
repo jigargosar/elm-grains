@@ -1,6 +1,7 @@
 module GrainStore exposing
     ( AddGrainMsg(..)
     , GrainStore
+    , Update(..)
     , addNew
     , batchUpdate
     , decoder
@@ -18,8 +19,9 @@ module GrainStore exposing
     , rootTree
     , toRawList
     , treeFromGid
+    , update
     , updateFromFirebaseChangeList
-    , updateWithGrainUpdate
+    , updateWithSetMsg
     )
 
 import ActorId exposing (ActorId)
@@ -189,6 +191,20 @@ addNew msg grain =
             addNewDefault grain
 
 
+type Update
+    = Set Grain.Set
+    | Move Direction
+
+
+update msg gid now =
+    case msg of
+        Set setMsg ->
+            updateWithSetMsg setMsg gid now
+
+        Move direction ->
+            move direction gid now
+
+
 ifCanAddGrainThen :
     (Grain -> GrainStore -> UpdateResult)
     -> Grain
@@ -301,12 +317,12 @@ type alias UpdateResult =
     Result String GrainStore
 
 
-update :
+updateWithChangeFn :
     (Grain -> Grain)
     -> GrainId
     -> GrainStore
     -> UpdateResult
-update changeFn gid model =
+updateWithChangeFn changeFn gid model =
     if GrainIdLookup.member gid model then
         let
             updateFn =
@@ -354,19 +370,19 @@ batchUpdate : List GrainUpdater -> GrainStore -> UpdateResult
 batchUpdate list model =
     let
         reducer ( changeFn, gid ) =
-            Result.andThen (update changeFn gid)
+            Result.andThen (updateWithChangeFn changeFn gid)
     in
     List.foldl reducer (Result.Ok model) list
 
 
-updateWithGrainUpdate :
-    Grain.Update
+updateWithSetMsg :
+    Grain.Set
     -> GrainId
     -> Posix
     -> GrainStore
     -> UpdateResult
-updateWithGrainUpdate grainUpdate gid now model =
-    update (Grain.update now grainUpdate) gid model
+updateWithSetMsg grainUpdate gid now model =
+    updateWithChangeFn (Grain.update now grainUpdate) gid model
 
 
 move :
@@ -433,7 +449,7 @@ moveOneLevelUp gid now model =
             rootTreeZipper model
 
         setParentId newParentId =
-            updateWithGrainUpdate
+            updateWithSetMsg
                 (Grain.SetParentId newParentId)
                 gid
                 now
@@ -462,7 +478,7 @@ moveOneLevelDown gid now model =
         |> Maybe.map
             (Grain.idAsParentId
                 >> (\pid ->
-                        updateWithGrainUpdate
+                        updateWithSetMsg
                             (Grain.SetParentId pid)
                             gid
                             now

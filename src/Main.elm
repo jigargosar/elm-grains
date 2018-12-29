@@ -156,7 +156,8 @@ setGrainStore grainStore model =
 
 type GrainStoreMsg
     = GS_Move Direction GrainId Posix
-    | GS_GrainUpdate Grain.Update GrainId Posix
+    | GS_Set Grain.Set GrainId Posix
+    | GS_UpdateGrain GrainStore.Update GrainId Posix
     | GS_AddGrain GrainStore.AddGrainMsg Grain
     | GS_FirebaseChanges (List GrainChange)
     | GS_Load Value
@@ -546,10 +547,10 @@ performGrainSetContent gid content =
     performGrainUpdate gid <| Grain.SetContent content
 
 
-performGrainUpdate gid grainUpdate =
+performGrainUpdate gid setMsg =
     Task.perform
         (UpdateGrainStore
-            << GS_GrainUpdate grainUpdate gid
+            << GS_Set setMsg gid
         )
         Time.now
 
@@ -604,9 +605,16 @@ updateGrainStore message model =
                 model.grainStore
                 |> handleResult
 
-        GS_GrainUpdate grainUpdate grainId now ->
-            GrainStore.updateWithGrainUpdate grainUpdate
+        GS_Set setMsg grainId now ->
+            GrainStore.updateWithSetMsg setMsg
                 grainId
+                now
+                model.grainStore
+                |> handleResult
+
+        GS_UpdateGrain msg gid now ->
+            GrainStore.update msg
+                gid
                 now
                 model.grainStore
                 |> handleResult
