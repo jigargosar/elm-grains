@@ -873,7 +873,16 @@ appBarViewModel : Model -> View.AppBarView Msg
 appBarViewModel model =
     let
         routeVM =
-            toRouteView model.route
+            case model.route of
+                Route.GrainTree gid ->
+                    if gid == GrainId.root then
+                        { title = "Home", showBackBtn = False }
+
+                    else
+                        { title = "Focused", showBackBtn = True }
+
+                Route.NotFound _ ->
+                    { title = "Oops!", showBackBtn = True }
     in
     { title = routeVM.title
     , maybeBackButtonMsg =
@@ -920,24 +929,6 @@ moveGrainPopupViewModel model grain =
     , setParentMsg = popupMsg << PM_SetGrainParent gid
     , setParentToRootMsg = (popupMsg << PM_SetGrainParent gid) Grain.rootIdAsParentId
     }
-
-
-type alias RouteView =
-    { title : String, showBackBtn : Bool }
-
-
-toRouteView : Route -> RouteView
-toRouteView route =
-    case route of
-        Route.GrainTree gid ->
-            if gid == GrainId.root then
-                { title = "Home", showBackBtn = False }
-
-            else
-                { title = "Focused", showBackBtn = True }
-
-        Route.NotFound _ ->
-            { title = "Oops!", showBackBtn = True }
 
 
 grainTreeViewModel : GrainTree -> GrainTreeView Msg
