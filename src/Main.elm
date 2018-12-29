@@ -866,6 +866,53 @@ moveGrainPopupViewModel model grain =
 --grainTreeViewModel : GrainTree -> GrainTreeView Msg
 
 
+grainTreeViewKeyBindings :
+    GrainTree
+    -> (GrainId -> EventX.CustomDecoder Msg)
+grainTreeViewKeyBindings tree =
+    let
+        treeRootGid =
+            Tree.label tree
+                |> Grain.id
+
+        arrowLeftMsg gid =
+            if gid == treeRootGid && gid /= GrainId.root then
+                BackPressed
+
+            else
+                fr FR_Parent gid
+
+        moveMappings : List ( HotKey, GrainId -> Msg )
+        moveMappings =
+            List.map
+                (Tuple2.double
+                    >> Tuple.mapBoth
+                        K.metaArrow
+                        MoveGrain
+                )
+                Direction.list
+
+        fr relative gid =
+            FocusRelative relative tree gid
+
+        bindings : List ( HotKey, GrainId -> Msg )
+        bindings =
+            [ ( K.arrowDown, fr FR_Forward )
+            , ( K.arrowUp, fr FR_Backward )
+            , ( K.arrowLeft, arrowLeftMsg )
+            , ( K.arrowRight, routeToGrainTreeMsg )
+            ]
+                ++ moveMappings
+
+        keyDownCustom : GrainId -> EventX.CustomDecoder Msg
+        keyDownCustom gid =
+            bindings
+                |> List.map (Tuple.mapSecond (callWith gid >> pd))
+                |> K.bindEachToMsg
+    in
+    keyDownCustom
+
+
 grainTreeViewModel tree =
     let
         treeRootGid =
