@@ -596,16 +596,16 @@ updateGrainStore message model =
                 >> handleStringResult model
     in
     case message of
+        GS_AddGrain msg grain ->
+            GrainStore.addNew msg
+                grain
+                model.grainStore
+                |> handleResult
+
         GS_UpdateGrain msg gid now ->
             GrainStore.update msg
                 gid
                 now
-                model.grainStore
-                |> handleResult
-
-        GS_AddGrain msg grain ->
-            GrainStore.addNew msg
-                grain
                 model.grainStore
                 |> handleResult
 
