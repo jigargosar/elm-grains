@@ -16,6 +16,7 @@ import EventX exposing (onKeyDownPD, pNone, pd, sp)
 import FireUser exposing (FireUser)
 import Firebase
 import Grain exposing (Grain)
+import GrainBuilder exposing (GrainBuilder)
 import GrainChange exposing (GrainChange)
 import GrainId exposing (GrainId)
 import GrainMorePopupView exposing (GrainMorePopupView)
@@ -204,6 +205,8 @@ type Msg
     | ToastDismiss
       -- ADD GRAIN --
     | CreateGrain AddGrainMsg CreateGrainStep
+    | StartBuildingGrain AddGrainMsg
+    | ContinueBuilding (GrainBuilder AddGrainMsg)
     | AppendNewSibling GrainId
     | PrependNewSibling GrainId
       -- UPDATE GRAIN --
@@ -713,6 +716,20 @@ update message model =
                                 else
                                     model
                             )
+
+        StartBuildingGrain afterBuildMsg ->
+            ( model, GrainBuilder.init afterBuildMsg ContinueBuilding )
+
+        ContinueBuilding builder ->
+            builder
+                |> GrainBuilder.continue ContinueBuilding
+                |> Either.unpack
+                    (Return.return model)
+                    (\( afterBuildMsg, grain ) ->
+                        updateGrainStore
+                            (GS_AddGrain grain afterBuildMsg)
+                            model
+                    )
 
         AppendNewSibling gid ->
             update (CreateGrain (AddGrainAfter gid) CreateGrainWithNow)
