@@ -862,7 +862,10 @@ moveGrainPopupViewModel model grain =
     }
 
 
-grainTreeViewModel : GrainTree -> GrainTreeView Msg
+
+--grainTreeViewModel : GrainTree -> GrainTreeView Msg
+
+
 grainTreeViewModel tree =
     let
         treeRootGid =
@@ -876,6 +879,7 @@ grainTreeViewModel tree =
             else
                 fr FR_Parent gid
 
+        moveMappings : List ( HotKey, GrainId -> Msg )
         moveMappings =
             List.map
                 (Tuple2.double
@@ -897,10 +901,11 @@ grainTreeViewModel tree =
             ]
                 ++ moveMappings
 
-        keyDownCustom : GrainId -> Decoder Msg
+        keyDownCustom : GrainId -> EventX.CustomDecoder Msg
         keyDownCustom gid =
-            List.map (Tuple.mapSecond (callWith gid >> pd))
-                K.bindEachToMsg
+            bindings
+                |> List.map (Tuple.mapSecond (callWith gid >> pd))
+                |> K.bindEachToMsg
     in
     { grainTree = tree
     , routeTo = routeToGrainTreeMsg
