@@ -198,7 +198,7 @@ type Msg
     | NewGrainStep (GrainBuilder GrainStore.Add)
       -- UPDATE GRAIN --
     | MoveGrain Direction GrainId
-    | UpdateGrain GrainId GrainStore.Update
+    | UpdateGrain GrainStore.Update GrainId
     | UpdateGrainStore GrainStoreMsg
     | UpdateInlineEditGrain GrainId InlineEditGrainMsg
     | DragGrain GrainId
@@ -711,7 +711,7 @@ update message model =
                     (addBuiltGrain >> callWith model)
 
         --|> Return.andThen (updateInlineEditGrain gid IE_Start)
-        UpdateGrain gid msg ->
+        UpdateGrain msg gid ->
             ( model, performGrainUpdate msg gid )
 
         UpdateGrainStore msg ->
@@ -907,7 +907,7 @@ grainTreeViewKeyBindings tree gid =
                 (Tuple2.double
                     >> Tuple.mapBoth
                         K.metaArrow
-                        MoveGrain
+                        (UpdateGrain << GrainStore.Move)
                 )
                 Direction.list
 
