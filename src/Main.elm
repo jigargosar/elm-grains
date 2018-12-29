@@ -858,7 +858,8 @@ moveGrainPopupViewModel model grain =
     , isSelected = Grain.isParentOf grain
     , dismissMsg = dismissPopupMsg
     , setParentMsg = popupMsg << PM_SetGrainParent gid
-    , setParentToRootMsg = (popupMsg << PM_SetGrainParent gid) Grain.rootIdAsParentId
+    , setParentToRootMsg =
+        (popupMsg << PM_SetGrainParent gid) Grain.rootIdAsParentId
     }
 
 
