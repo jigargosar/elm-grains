@@ -7,7 +7,6 @@ module GrainStore exposing
     , encoder
     , get
     , init
-    , lastLeafGid
     , load
     , rejectSubTreeAndFlatten
     , rootGid
@@ -138,13 +137,6 @@ get gid =
 rootGid : GrainStore -> GrainId
 rootGid =
     rootGrain >> Grain.id
-
-
-lastLeafGid : GrainStore -> GrainId
-lastLeafGid =
-    rootTreeZipper
-        >> Z.lastDescendentGrain
-        >> Grain.id
 
 
 addNewDefault : Grain -> GrainStore -> UpdateResult
