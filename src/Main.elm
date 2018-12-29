@@ -190,12 +190,6 @@ type FocusRelativeMsg
     | FR_Parent
 
 
-type CreateGrainStep
-    = CreateGrainWithNow
-    | CreateGrainWithGenerator Posix
-    | AddCreatedGrain Grain
-
-
 type Msg
     = ---- INJECT MSG BELOW ----
       NoOp
@@ -204,11 +198,8 @@ type Msg
       -- TOAST
     | ToastDismiss
       -- ADD GRAIN --
-    | CreateGrain AddGrainMsg CreateGrainStep
-    | StartBuildingGrain AddGrainMsg
+    | NewGrain AddGrainMsg
     | ContinueBuilding (GrainBuilder AddGrainMsg)
-    | AppendNewSibling GrainId
-    | PrependNewSibling GrainId
       -- UPDATE GRAIN --
     | MoveGrain Direction GrainId
     | UpdateGrainStore GrainStoreMsg
@@ -717,7 +708,7 @@ update message model =
                                     model
                             )
 
-        StartBuildingGrain afterBuildMsg ->
+        NewGrain afterBuildMsg ->
             ( model, GrainBuilder.init afterBuildMsg ContinueBuilding )
 
         ContinueBuilding builder ->
@@ -730,41 +721,6 @@ update message model =
                             (GS_AddGrain grain afterBuildMsg)
                             model
                     )
-
-        AppendNewSibling gid ->
-            update (StartBuildingGrain (AddGrainAfter gid))
-                model
-
-        PrependNewSibling gid ->
-            update (StartBuildingGrain (AddGrainBefore gid))
-                model
-
-        CreateGrain afterBuildMsg state ->
-            let
-                nextStep fn1 =
-                    CreateGrain afterBuildMsg << fn1
-
-                generateGrainCmd now =
-                    Random.generate
-                        (nextStep AddCreatedGrain)
-                        (Grain.generator now)
-            in
-            case state of
-                CreateGrainWithNow ->
-                    ( model
-                    , TimeX.withNow
-                        (nextStep
-                            CreateGrainWithGenerator
-                        )
-                    )
-
-                CreateGrainWithGenerator now ->
-                    ( model, generateGrainCmd now )
-
-                AddCreatedGrain grain ->
-                    updateGrainStore
-                        (GS_AddGrain grain afterBuildMsg)
-                        model
 
         --|> Return.andThen (updateInlineEditGrain gid IE_Start)
         UpdateGrainStore msg ->
