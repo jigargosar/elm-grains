@@ -23,7 +23,17 @@ import EventX
 import Firebase
 import GrainMorePopupView
 import GrainTreeView
-import Html.Styled exposing (Html, button, div, dt, input, styled, text, textarea)
+import Html.Styled
+    exposing
+        ( Html
+        , button
+        , div
+        , dt
+        , input
+        , styled
+        , text
+        , textarea
+        )
 import Html.Styled.Attributes
     exposing
         ( autocomplete
@@ -49,15 +59,6 @@ import Popup
 import Route
 import Skeleton
 import Toast
-
-
-type alias AppBarView msg =
-    { title : String
-    , maybeBackButtonMsg : Maybe msg
-    , authState : Firebase.AuthState
-    , signOutMsg : msg
-    , signInMsg : msg
-    }
 
 
 view vm =
@@ -104,6 +105,16 @@ viewRouteChildren vm =
             NotFoundView.view
 
 
+type alias AppBarView msg =
+    { title : String
+    , maybeBackButtonMsg : Maybe msg
+    , authState : Firebase.AuthState
+    , signOutMsg : msg
+    , signInMsg : msg
+    }
+
+
+viewAppBar : AppBarView msg -> Html msg
 viewAppBar vm =
     let
         viewTitle =
