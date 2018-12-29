@@ -1,5 +1,6 @@
 module HotKey exposing
     ( Event
+    , HotKey
     , SoftKey(..)
     , arrowDown
     , arrowLeft

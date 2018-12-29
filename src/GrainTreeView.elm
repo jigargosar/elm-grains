@@ -85,6 +85,7 @@ type alias GrainTreeView msg =
     { keyDownCustom : GrainId -> EventX.CustomDecoder msg
     , routeTo : GrainId -> msg
     , grainTree : GrainTree
+    , editGid : Maybe GrainId
     }
 
 

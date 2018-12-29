@@ -25,10 +25,10 @@ import GrainTreeView exposing (GrainTreeView)
 import GrainView exposing (GrainView)
 import GrainZipper exposing (GrainTree)
 import HistoryState exposing (HistoryState)
-import HotKey as K exposing (SoftKey(..))
+import HotKey as K exposing (HotKey, SoftKey(..))
 import Html exposing (Html)
 import InlineEditGrain exposing (InlineEditGrain)
-import Json.Decode as D
+import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline exposing (optional)
 import Json.Encode as E exposing (Value)
 import List.Extra as List
@@ -200,7 +200,7 @@ type Msg
     | UpdateInlineEditGrain GrainId InlineEditGrainMsg
     | DragGrain GrainId
       -- GRAIN FOCUS NAVIGATION
-    | FocusRelative GrainTree GrainId FocusRelativeMsg
+    | FocusRelative FocusRelativeMsg GrainTree GrainId
       -- POPUP
     | UpdatePopup PopupMsg
       -- NAVIGATION --
@@ -678,7 +678,7 @@ update message model =
                 |> Result.map (\_ -> Return.singleton model)
                 |> handleStringResult model
 
-        FocusRelative tree gid msg ->
+        FocusRelative msg tree gid ->
             focusRelative gid tree msg model
 
         GrainFocused gid focused ->
@@ -869,49 +869,43 @@ grainTreeViewModel tree =
             Tree.label tree
                 |> Grain.id
 
-        frParentMsg gid =
-            FocusRelative tree gid FR_Parent
-
         arrowLeftMsg gid =
             if gid == treeRootGid && gid /= GrainId.root then
                 BackPressed
 
             else
-                frParentMsg gid
+                fr FR_Parent gid
+
+        moveMappings =
+            List.map
+                (Tuple2.double
+                    >> Tuple.mapBoth
+                        K.metaArrow
+                        MoveGrain
+                )
+                Direction.list
+
+        fr relative gid =
+            FocusRelative relative tree gid
+
+        bindings : List ( HotKey, GrainId -> Msg )
+        bindings =
+            [ ( K.arrowDown, fr FR_Forward )
+            , ( K.arrowUp, fr FR_Backward )
+            , ( K.arrowLeft, arrowLeftMsg )
+            , ( K.arrowRight, routeToGrainTreeMsg )
+            ]
+                ++ moveMappings
+
+        keyDownCustom : GrainId -> Decoder Msg
+        keyDownCustom gid =
+            List.map (Tuple.mapSecond (callWith gid >> pd))
+                K.bindEachToMsg
     in
     { grainTree = tree
     , routeTo = routeToGrainTreeMsg
-    , keyDownCustom =
-        \gid ->
-            let
-                fr =
-                    FocusRelative tree gid
-
-                moveGrain direction =
-                    MoveGrain direction gid
-
-                moveGrainPD direction =
-                    pd <| moveGrain direction
-
-                moveMappings =
-                    List.map
-                        (Tuple2.double
-                            >> Tuple.mapBoth
-                                K.metaArrow
-                                moveGrain
-                        )
-                        Direction.list
-
-                bindings =
-                    [ ( K.arrowDown, fr FR_Forward )
-                    , ( K.arrowUp, fr FR_Backward )
-                    , ( K.arrowLeft, arrowLeftMsg gid )
-                    , ( K.arrowRight, routeToGrainTreeMsg gid )
-                    ]
-                        ++ moveMappings
-                        |> List.map (Tuple.mapSecond pd)
-            in
-            K.bindEachToMsg bindings
+    , keyDownCustom = keyDownCustom
+    , editGid = Nothing
     }
 
 
