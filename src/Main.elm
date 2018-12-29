@@ -708,17 +708,17 @@ update message model =
                                     model
                             )
 
-        NewGrain addMsg ->
-            ( model, GrainBuilder.init addMsg NewGrainStep )
+        NewGrain ctx ->
+            ( model, GrainBuilder.init ctx NewGrainStep )
 
         NewGrainStep builder ->
             builder
                 |> GrainBuilder.continue NewGrainStep
                 |> Either.unpack
                     (Return.return model)
-                    (\( addMsg, grain ) ->
+                    (\( ctx, grain ) ->
                         updateGrainStore
-                            (GS_AddGrain grain addMsg)
+                            (GS_AddGrain grain ctx)
                             model
                     )
 
