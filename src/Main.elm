@@ -841,31 +841,31 @@ update message model =
 
 view : Model -> Html Msg
 view model =
-    let
-        viewModel =
-            { route = model.route
-            , appBarVM = appBarViewModel model
-            , createGrainTreeVM =
-                \gid ->
-                    model.grainStore
-                        |> GrainStore.treeFromGid gid
-                        |> Maybe.map grainTreeViewConfig
-            , popup = model.popup
-            , createGrainMorePopupVM =
-                \gid ->
-                    grainById gid model
-                        |> Maybe.map (grainMorePopupViewModel model)
-            , createGrainMovePopupVM =
-                \gid ->
-                    grainById gid model
-                        |> Maybe.map (moveGrainPopupViewModel model)
-            , toastVM =
-                { dismissMsg = ToastDismiss
-                , toast = model.toast
-                }
-            }
-    in
-    View.view viewModel
+    View.view (viewModel model)
+
+
+viewModel model =
+    { route = model.route
+    , popup = model.popup
+    , appBarVM = appBarViewModel model
+    , createGrainTreeVM =
+        \gid ->
+            model.grainStore
+                |> GrainStore.treeFromGid gid
+                |> Maybe.map grainTreeViewConfig
+    , createGrainMorePopupVM =
+        \gid ->
+            grainById gid model
+                |> Maybe.map (grainMorePopupViewModel model)
+    , createGrainMovePopupVM =
+        \gid ->
+            grainById gid model
+                |> Maybe.map (moveGrainPopupViewModel model)
+    , toastVM =
+        { dismissMsg = ToastDismiss
+        , toast = model.toast
+        }
+    }
 
 
 appBarViewModel model =
