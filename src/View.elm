@@ -1,4 +1,4 @@
-module View exposing (view)
+module View exposing (AppBarView, view)
 
 import BasicsX exposing (ter)
 import Css exposing (num, pct, px, rem, vh, vw, zero)

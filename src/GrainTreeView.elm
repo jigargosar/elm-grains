@@ -1,5 +1,6 @@
 module GrainTreeView exposing
-    ( contentInputDomId
+    ( GrainTreeView
+    , contentInputDomId
     , grainDomId
     , view
     )
@@ -77,13 +78,14 @@ grainToNode grain =
     }
 
 
-type alias Config msg =
+type alias GrainTreeView msg =
     { keyDownCustom : GrainId -> EventX.CustomDecoder msg
     , focusRouteTo : GrainId -> msg
     , grainTree : GrainTree
     }
 
 
+view : GrainTreeView msg -> List (Html msg)
 view config =
     let
         grainTree =

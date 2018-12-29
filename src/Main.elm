@@ -20,7 +20,7 @@ import GrainChange exposing (GrainChange)
 import GrainId exposing (GrainId)
 import GrainMorePopupView exposing (GrainMorePopupView)
 import GrainStore exposing (GrainStore)
-import GrainTreeView
+import GrainTreeView exposing (GrainTreeView)
 import GrainView exposing (GrainView)
 import GrainZipper exposing (GrainTree)
 import HistoryState exposing (HistoryState)
@@ -844,6 +844,24 @@ view model =
     View.view (viewModel model)
 
 
+type alias ViewModel msg =
+    { route : Route
+    , popup : Popup
+    , appBarVM : View.AppBarView msg
+    , createGrainTreeVM :
+        GrainId -> Maybe (GrainTreeView msg)
+    , createGrainMorePopupVM :
+        GrainId -> Maybe (GrainMorePopupView msg)
+    , createGrainMovePopupVM :
+        GrainId -> Maybe (MoveGrainPopupView msg)
+    , toastVM :
+        { dismissMsg : msg
+        , toast : Toast
+        }
+    }
+
+
+viewModel : Model -> ViewModel Msg
 viewModel model =
     { route = model.route
     , popup = model.popup
@@ -852,7 +870,7 @@ viewModel model =
         \gid ->
             model.grainStore
                 |> GrainStore.treeFromGid gid
-                |> Maybe.map grainTreeViewConfig
+                |> Maybe.map grainTreeViewModel
     , createGrainMorePopupVM =
         \gid ->
             grainById gid model
@@ -868,6 +886,7 @@ viewModel model =
     }
 
 
+appBarViewModel : Model -> View.AppBarView Msg
 appBarViewModel model =
     let
         routeVM =
@@ -938,7 +957,8 @@ toRouteView route =
             { title = "Oops!", showBackBtn = True }
 
 
-grainTreeViewConfig tree =
+grainTreeViewModel : GrainTree -> GrainTreeView Msg
+grainTreeViewModel tree =
     let
         treeRootGid =
             Tree.label tree
