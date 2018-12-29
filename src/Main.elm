@@ -622,7 +622,11 @@ updateGrainStore message model =
 -- URL CHANGED
 
 
-updateUrlPopped : String -> Maybe HistoryState -> Model -> Return Msg Model
+updateUrlPopped :
+    String
+    -> Maybe HistoryState
+    -> Model
+    -> Return Msg Model
 updateUrlPopped url maybeHS model =
     let
         focusEffect newModel =
