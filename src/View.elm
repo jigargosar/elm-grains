@@ -127,8 +127,8 @@ type alias AppBarView msg =
     { title : String
     , onBack : Maybe msg
     , authState : Firebase.AuthState
-    , signOutMsg : msg
-    , signInMsg : msg
+    , onSignOut : msg
+    , onSignIn : msg
     }
 
 
@@ -154,11 +154,11 @@ viewAppBar vm =
                         [ text "SignIn" ]
 
                 Firebase.AuthStateUser user ->
-                    button [ class "btn", onClick vm.signOutMsg ]
+                    button [ class "btn", onClick vm.onSignOut ]
                         [ text "SignOut" ]
 
                 Firebase.AuthStateNoUser ->
-                    button [ class "btn", onClick vm.signInMsg ]
+                    button [ class "btn", onClick vm.onSignIn ]
                         [ text "SignIn" ]
     in
     CssLayout.flexRow

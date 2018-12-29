@@ -887,8 +887,8 @@ appBarViewModel model =
     { title = title
     , onBack = maybeBool showBackBtn BackPressed
     , authState = model.authState
-    , signOutMsg = SignOut
-    , signInMsg = SignIn
+    , onSignOut = SignOut
+    , onSignIn = SignIn
     }
 
 
