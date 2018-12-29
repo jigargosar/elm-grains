@@ -1,8 +1,7 @@
 module GrainStore exposing
-    ( GrainStore
+    ( AddGrainMsg(..)
+    , GrainStore
     , addNew
-    , addNewAfter
-    , addNewBefore
     , batchUpdate
     , decoder
     , encoder
@@ -152,8 +151,8 @@ lastLeafGid =
         >> Grain.id
 
 
-addNew : Grain -> GrainStore -> UpdateResult
-addNew =
+addNewDefault : Grain -> GrainStore -> UpdateResult
+addNewDefault =
     ifCanAddGrainThen <|
         \grain model ->
             Result.Ok <|
@@ -170,6 +169,24 @@ addNewBefore : GrainId -> Grain -> GrainStore -> UpdateResult
 addNewBefore siblingGid =
     addNewAndThenBatchUpdate <|
         addNewBeforeBatchUpdaters siblingGid
+
+
+type AddGrainMsg
+    = AddAfter GrainId
+    | AddBefore GrainId
+    | AddDefault
+
+
+addNew msg grain =
+    case msg of
+        AddAfter gid ->
+            addNewAfter gid grain
+
+        AddBefore gid ->
+            addNewBefore gid grain
+
+        AddDefault ->
+            addNewDefault grain
 
 
 ifCanAddGrainThen :

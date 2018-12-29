@@ -154,15 +154,10 @@ setGrainStore grainStore model =
 ---- UPDATE ----
 
 
-type AddGrainMsg
-    = AddGrainAfter GrainId
-    | AddGrainBefore GrainId
-
-
 type GrainStoreMsg
     = GS_Move Direction GrainId Posix
     | GS_GrainUpdate Grain.Update GrainId Posix
-    | GS_AddGrain Grain AddGrainMsg
+    | GS_AddGrain GrainStore.AddGrainMsg Grain
     | GS_FirebaseChanges (List GrainChange)
     | GS_Load Value
 
@@ -198,8 +193,8 @@ type Msg
       -- TOAST
     | ToastDismiss
       -- ADD GRAIN --
-    | NewGrain AddGrainMsg
-    | NewGrainStep (GrainBuilder AddGrainMsg)
+    | NewGrain GrainStore.AddGrainMsg
+    | NewGrainStep (GrainBuilder GrainStore.AddGrainMsg)
       -- UPDATE GRAIN --
     | MoveGrain Direction GrainId
     | UpdateGrainStore GrainStoreMsg
@@ -579,9 +574,9 @@ firePersistUnsavedGrainsEffect model =
             |> Port.persistSavedGrainList
 
 
-addBuiltGrain ( ctx, grain ) model =
+addBuiltGrain ( addMsg, grain ) model =
     updateGrainStore
-        (GS_AddGrain grain ctx)
+        (GS_AddGrain addMsg grain)
         model
 
 
@@ -616,19 +611,11 @@ updateGrainStore message model =
                 model.grainStore
                 |> handleResult
 
-        GS_AddGrain grain msg ->
-            case msg of
-                AddGrainBefore siblingGid ->
-                    GrainStore.addNewBefore siblingGid
-                        grain
-                        model.grainStore
-                        |> handleResult
-
-                AddGrainAfter siblingGid ->
-                    GrainStore.addNewAfter siblingGid
-                        grain
-                        model.grainStore
-                        |> handleResult
+        GS_AddGrain msg grain ->
+            GrainStore.addNew msg
+                grain
+                model.grainStore
+                |> handleResult
 
         GS_FirebaseChanges changeList ->
             GrainStore.updateFromFirebaseChangeList changeList
@@ -714,8 +701,8 @@ update message model =
                                     model
                             )
 
-        NewGrain ctx ->
-            ( model, GrainBuilder.init ctx NewGrainStep )
+        NewGrain addMsg ->
+            ( model, GrainBuilder.init addMsg NewGrainStep )
 
         NewGrainStep builder ->
             builder
