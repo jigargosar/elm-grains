@@ -193,7 +193,7 @@ type Update
 update msg gid now =
     case msg of
         Set setMsg ->
-            updateWithChangeFn (Grain.update now setMsg) gid
+            updateWithSetMsg setMsg gid now
 
         Move direction ->
             move direction gid now
@@ -367,6 +367,16 @@ batchUpdate list model =
             Result.andThen (updateWithChangeFn changeFn gid)
     in
     List.foldl reducer (Result.Ok model) list
+
+
+updateWithSetMsg :
+    Grain.Set
+    -> GrainId
+    -> Posix
+    -> GrainStore
+    -> UpdateResult
+updateWithSetMsg grainUpdate gid now model =
+    updateWithChangeFn (Grain.update now grainUpdate) gid model
 
 
 move :
