@@ -872,7 +872,7 @@ viewModel model =
 appBarViewModel : Model -> View.AppBarView Msg
 appBarViewModel model =
     let
-        routeVM =
+        { title, showBackBtn } =
             case model.route of
                 Route.GrainTree gid ->
                     if gid == GrainId.root then
@@ -884,9 +884,8 @@ appBarViewModel model =
                 Route.NotFound _ ->
                     { title = "Oops!", showBackBtn = True }
     in
-    { title = routeVM.title
-    , maybeBackButtonMsg =
-        maybeBool routeVM.showBackBtn BackPressed
+    { title = title
+    , onBack = maybeBool showBackBtn BackPressed
     , authState = model.authState
     , signOutMsg = SignOut
     , signInMsg = SignIn

@@ -125,7 +125,7 @@ viewRouteChildren vm =
 
 type alias AppBarView msg =
     { title : String
-    , maybeBackButtonMsg : Maybe msg
+    , onBack : Maybe msg
     , authState : Firebase.AuthState
     , signOutMsg : msg
     , signInMsg : msg
@@ -144,8 +144,8 @@ viewAppBar vm =
                 []
                 [ text vm.title ]
 
-        viewBackBtn backMsg =
-            button [ class "btn", onClick backMsg ] [ text "Back" ]
+        viewBackBtn onBack =
+            button [ class "btn", onClick onBack ] [ text "Back" ]
 
         viewAuthState =
             case vm.authState of
@@ -168,7 +168,7 @@ viewAppBar vm =
         , CS.itemsCenter
         ]
         [ class "bg-dark" ]
-        [ CssHtml.viewMaybe viewBackBtn vm.maybeBackButtonMsg
+        [ CssHtml.viewMaybe viewBackBtn vm.onBack
         , viewTitle
         , viewAuthState
         ]
