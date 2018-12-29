@@ -57,14 +57,15 @@ contentInputDomId =
     GrainId.toDomIdWithPrefix editInputPrefix
 
 
-type alias NodeModel =
+type alias DisplayNodeModel =
     { title : String
     , domId : String
+    , gid : GrainId
     }
 
 
 type Node
-    = DisplayNode NodeModel
+    = DisplayNode DisplayNodeModel
 
 
 grainToNode grain =
