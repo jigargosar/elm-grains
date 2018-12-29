@@ -204,8 +204,6 @@ type Msg
     | ToastDismiss
       -- ADD GRAIN --
     | CreateGrain AddGrainMsg CreateGrainStep
-    | CreateAndAddNewGrainWithNow AddGrainMsg Posix
-    | AddGrainToCache AddGrainMsg Grain
     | AppendNewSibling GrainId
     | PrependNewSibling GrainId
       -- UPDATE GRAIN --
@@ -721,12 +719,8 @@ update message model =
                 model
 
         PrependNewSibling gid ->
-            ( model
-            , performWithNow
-                (CreateAndAddNewGrainWithNow <|
-                    AddGrainBefore gid
-                )
-            )
+            update (CreateGrain (AddGrainBefore gid) CreateGrainWithNow)
+                model
 
         CreateGrain afterBuildMsg state ->
             let
@@ -755,22 +749,7 @@ update message model =
                         (GS_AddGrain grain afterBuildMsg)
                         model
 
-        CreateAndAddNewGrainWithNow afterAddMsg now ->
-            let
-                generateTag =
-                    AddGrainToCache afterAddMsg
-            in
-            Return.return model
-                (Random.generate generateTag (Grain.generator now))
-
-        AddGrainToCache msg grain ->
-            let
-                gid =
-                    Grain.id grain
-            in
-            updateGrainStore (GS_AddGrain grain msg) model
-                |> Return.andThen (updateInlineEditGrain gid IE_Start)
-
+        --|> Return.andThen (updateInlineEditGrain gid IE_Start)
         UpdateGrainStore msg ->
             updateGrainStore msg model
 
