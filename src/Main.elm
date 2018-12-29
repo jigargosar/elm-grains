@@ -72,6 +72,7 @@ import Tree
 import Tuple exposing (mapFirst)
 import Tuple2
 import UrlChange exposing (UrlChange)
+import View
 
 
 
@@ -863,6 +864,17 @@ view model =
     let
         routeVM =
             toRouteView model.route
+
+        viewModel =
+            { route = model.route
+            , authState = model.authState
+            , toast = model.toast
+            , popup = model.popup
+            , routeVM = routeVM
+            }
+
+        _ =
+            View.view
     in
     Skeleton.view
         { children =
