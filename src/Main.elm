@@ -156,7 +156,7 @@ setGrainStore grainStore model =
 
 type GrainStoreMsg
     = GS_UpdateGrain GrainStore.Update GrainId Posix
-    | GS_AddGrain GrainStore.AddGrainMsg Grain
+    | GS_AddGrain GrainStore.Add Grain
     | GS_FirebaseChanges (List GrainChange)
     | GS_Load Value
 
@@ -192,8 +192,8 @@ type Msg
       -- TOAST
     | ToastDismiss
       -- ADD GRAIN --
-    | NewGrain GrainStore.AddGrainMsg
-    | NewGrainStep (GrainBuilder GrainStore.AddGrainMsg)
+    | NewGrain GrainStore.Add
+    | NewGrainStep (GrainBuilder GrainStore.Add)
       -- UPDATE GRAIN --
     | MoveGrain Direction GrainId
     | UpdateGrainStore GrainStoreMsg

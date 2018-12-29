@@ -1,5 +1,5 @@
 module GrainStore exposing
-    ( AddGrainMsg(..)
+    ( Add(..)
     , GrainStore
     , Update(..)
     , addNew
@@ -152,7 +152,7 @@ addNewBefore siblingGid =
         addNewBeforeBatchUpdaters siblingGid
 
 
-type AddGrainMsg
+type Add
     = AddAfter GrainId
     | AddBefore GrainId
     | AddDefault
