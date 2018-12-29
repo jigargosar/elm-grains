@@ -530,7 +530,7 @@ updateInlineEditGrain gid msg model =
 
 
 
--- GRAIN CACHE --
+-- GRAIN STORE --
 
 
 performGrainMove direction gid =
