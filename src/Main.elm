@@ -1,6 +1,8 @@
 module Main exposing (main, update)
 
 import ActorId exposing (ActorId)
+import Array
+import Array.Extra as Array
 import BasicsX exposing (..)
 import Browser
 import Browser.Dom
@@ -562,7 +564,7 @@ firePersistUnsavedGrainsEffect model =
         dirtyGrains =
             model.grainStore
                 |> GrainStore.toRawList
-                |> List.filterNot SavedGrain.needsPersistence
+                |> List.filter SavedGrain.needsPersistence
     in
     if List.isEmpty dirtyGrains then
         Cmd.none
@@ -799,6 +801,18 @@ viewModel model =
         , toast = model.toast
         }
     }
+
+
+sort array =
+    let
+        length =
+            Array.length array
+    in
+    if length < 2 then
+        array
+
+    else
+        Array.slice 0 (length // 2) array
 
 
 appBarViewModel : Model -> View.AppBarView Msg
