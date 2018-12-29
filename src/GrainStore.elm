@@ -9,8 +9,6 @@ module GrainStore exposing
     , init
     , load
     , rejectSubTreeAndFlatten
-    , rootGid
-    , rootTree
     , toRawList
     , treeFromGid
     , update
@@ -132,11 +130,6 @@ rejectSubTreeAndFlatten grain =
 get : GrainId -> GrainStore -> Maybe Grain
 get gid =
     GrainIdLookup.get gid >> Maybe.map SavedGrain.value
-
-
-rootGid : GrainStore -> GrainId
-rootGid =
-    rootGrain >> Grain.id
 
 
 addNewDefault : Grain -> GrainStore -> UpdateResult
