@@ -155,9 +155,7 @@ setGrainStore grainStore model =
 
 
 type GrainStoreMsg
-    = GS_Move Direction GrainId Posix
-    | GS_Set Grain.Set GrainId Posix
-    | GS_UpdateGrain GrainStore.Update GrainId Posix
+    = GS_UpdateGrain GrainStore.Update GrainId Posix
     | GS_AddGrain GrainStore.AddGrainMsg Grain
     | GS_FirebaseChanges (List GrainChange)
     | GS_Load Value
@@ -598,20 +596,6 @@ updateGrainStore message model =
                 >> handleStringResult model
     in
     case message of
-        GS_Move direction grainId now ->
-            GrainStore.move direction
-                grainId
-                now
-                model.grainStore
-                |> handleResult
-
-        GS_Set setMsg grainId now ->
-            GrainStore.updateWithSetMsg setMsg
-                grainId
-                now
-                model.grainStore
-                |> handleResult
-
         GS_UpdateGrain msg gid now ->
             GrainStore.update msg
                 gid

@@ -3,17 +3,12 @@ module GrainStore exposing
     , GrainStore
     , Update(..)
     , addNew
-    , batchUpdate
     , decoder
     , encoder
     , get
     , init
     , lastLeafGid
     , load
-    , move
-    , moveBy
-    , moveOneLevelDown
-    , moveOneLevelUp
     , rejectSubTreeAndFlatten
     , rootGid
     , rootTree
@@ -21,7 +16,6 @@ module GrainStore exposing
     , treeFromGid
     , update
     , updateFromFirebaseChangeList
-    , updateWithSetMsg
     )
 
 import ActorId exposing (ActorId)
@@ -199,7 +193,7 @@ type Update
 update msg gid now =
     case msg of
         Set setMsg ->
-            updateWithSetMsg setMsg gid now
+            updateWithChangeFn (Grain.update now setMsg) gid
 
         Move direction ->
             move direction gid now
@@ -373,16 +367,6 @@ batchUpdate list model =
             Result.andThen (updateWithChangeFn changeFn gid)
     in
     List.foldl reducer (Result.Ok model) list
-
-
-updateWithSetMsg :
-    Grain.Set
-    -> GrainId
-    -> Posix
-    -> GrainStore
-    -> UpdateResult
-updateWithSetMsg grainUpdate gid now model =
-    updateWithChangeFn (Grain.update now grainUpdate) gid model
 
 
 move :
