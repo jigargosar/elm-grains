@@ -2,7 +2,7 @@ module GrainStore exposing
     ( GrainStore
     , addNew
     , addNewAfter
-    , addNewGrainBefore
+    , addNewBefore
     , batchUpdate
     , decoder
     , encoder
@@ -166,8 +166,8 @@ addNewAfter siblingGid =
         addNewAfterBatchUpdaters siblingGid
 
 
-addNewGrainBefore : GrainId -> Grain -> GrainStore -> UpdateResult
-addNewGrainBefore siblingGid =
+addNewBefore : GrainId -> Grain -> GrainStore -> UpdateResult
+addNewBefore siblingGid =
     addNewAndThenBatchUpdate <|
         addNewBeforeBatchUpdaters siblingGid
 

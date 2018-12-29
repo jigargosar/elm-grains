@@ -613,7 +613,7 @@ updateGrainStore message model =
         GS_AddGrain grain msg ->
             case msg of
                 AddGrainBefore siblingGid ->
-                    GrainStore.addNewGrainBefore siblingGid
+                    GrainStore.addNewBefore siblingGid
                         grain
                         model.grainStore
                         |> handleResult
