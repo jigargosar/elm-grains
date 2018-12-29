@@ -433,17 +433,17 @@ updatePopup msg model =
     case msg of
         PM_SetGrainParent gid parentId ->
             ( dismissPopup model
-            , performGrainUpdate gid (Grain.SetParentId parentId)
+            , performGrainSet (Grain.SetParentId parentId) gid
             )
 
         PM_MoveGrain gid direction ->
             ( dismissPopup model
-            , performGrainMoveInDirection direction gid
+            , performGrainMove direction gid
             )
 
         PM_SetGrainDeleted gid deleted ->
             ( dismissPopup model
-            , performGrainUpdate gid (Grain.SetDeleted deleted)
+            , performGrainSet (Grain.SetDeleted deleted) gid
             )
 
         PM_RouteToGrain gid ->
@@ -507,7 +507,7 @@ updateInlineEditGrain gid msg model =
                             focusGidCmd gid_
 
                         setContentCmd =
-                            performGrainSetContent gid_ content
+                            performGrainSetContent content gid_
                     in
                     ( setInlineEditGrain inlineEditGrain model
                     , Cmd.batch [ setContentCmd, focusEditedGidCmd ]
@@ -535,22 +535,22 @@ updateInlineEditGrain gid msg model =
 -- GRAIN CACHE --
 
 
-updateGrainStoreCmd msg =
-    Task.perform (UpdateGrainStore << msg) Time.now
+performGrainMove direction gid =
+    performGrainUpdate (GrainStore.Move direction) gid
 
 
-performGrainMoveInDirection direction gid =
-    Task.perform (UpdateGrainStore << GS_Move direction gid) Time.now
+performGrainSetContent content gid =
+    performGrainSet (Grain.SetContent content) gid
 
 
-performGrainSetContent gid content =
-    performGrainUpdate gid <| Grain.SetContent content
+performGrainSet setMsg gid =
+    performGrainUpdate (GrainStore.Set setMsg) gid
 
 
-performGrainUpdate gid setMsg =
+performGrainUpdate msg gid =
     Task.perform
         (UpdateGrainStore
-            << GS_Set setMsg gid
+            << GS_UpdateGrain msg gid
         )
         Time.now
 
@@ -730,7 +730,7 @@ update message model =
             Return.singleton model
 
         MoveGrain direction gid ->
-            ( model, performGrainMoveInDirection direction gid )
+            ( model, performGrainMove direction gid )
 
         UpdatePopup msg ->
             updatePopup msg model
