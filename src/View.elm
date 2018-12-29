@@ -23,17 +23,7 @@ import EventX
 import Firebase
 import GrainMorePopupView
 import GrainTreeView
-import Html.Styled
-    exposing
-        ( Html
-        , button
-        , div
-        , dt
-        , input
-        , styled
-        , text
-        , textarea
-        )
+import Html.Styled exposing (Html, button, div, dt, input, styled, text, textarea)
 import Html.Styled.Attributes
     exposing
         ( autocomplete
@@ -71,18 +61,19 @@ type alias AppBarView msg =
 
 
 view vm =
-    Skeleton.view
-        { children =
-            [ viewAppBar vm.appBar ]
-                ++ viewRouteChildren vm
-                ++ [ viewToast vm.toastVM
-                   , viewPopup vm
-                   , DatGui.view
-                        [ DatGui.boolean "Debug" False
-                        , DatGui.integer "Counter" 100
-                        ]
-                   ]
-        }
+    Html.Styled.toUnstyled <|
+        Skeleton.view
+            { children =
+                [ viewAppBar vm.appBar ]
+                    ++ viewRouteChildren vm
+                    ++ [ viewToast vm.toastVM
+                       , viewPopup vm
+                       , DatGui.view
+                            [ DatGui.boolean "Debug" False
+                            , DatGui.integer "Counter" 100
+                            ]
+                       ]
+            }
 
 
 viewToast vm =

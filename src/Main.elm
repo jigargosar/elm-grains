@@ -7,15 +7,6 @@ import Browser.Dom
 import Browser.Events
 import BrowserX exposing (WindowSize)
 import Color
-import Css exposing (em, num, pct, px, rgb, zero)
-import CssElements exposing (..)
-import CssElevation exposing (elevation)
-import CssHtml
-import CssIcons exposing (view)
-import CssLayout exposing (flexCol, flexRow)
-import CssProto
-import CssShorthand as CS
-import CssTheme exposing (black80, blackAlpha, space2, space4, white)
 import DatGui
 import DecodeX exposing (DecodeResult)
 import Direction exposing (Direction)
@@ -34,10 +25,7 @@ import GrainView exposing (GrainView)
 import GrainZipper exposing (GrainTree)
 import HistoryState exposing (HistoryState)
 import HotKey as K exposing (SoftKey(..))
-import Html.Styled as Html exposing (..)
-import Html.Styled.Attributes as SA exposing (..)
-import Html.Styled.Events as SE exposing (onBlur, onClick, onFocus, onInput, onSubmit)
-import Html.Styled.Keyed
+import Html exposing (Html)
 import InlineEditGrain exposing (InlineEditGrain)
 import Json.Decode as D
 import Json.Decode.Pipeline exposing (optional)
@@ -890,38 +878,6 @@ view model =
     View.view viewModel
 
 
-
-{- Skeleton.view
-   { children =
-       [ viewAppBar routeVM model.authState ]
-           ++ viewRouteChildren model
-           ++ [ viewToast model.toast
-              , viewPopup model
-              , DatGui.view
-                   [ DatGui.boolean "Debug" False
-                   , DatGui.integer "Counter" 100
-                   ]
-              ]
-   }
--}
-
-
-viewPopup model =
-    case model.popup of
-        Popup.GrainMorePopup gid ->
-            grainById gid model
-                |> Maybe.map (grainMorePopupViewModel model)
-                |> CssHtml.viewMaybe GrainMorePopupView.view
-
-        Popup.GrainMovePopup gid ->
-            grainById gid model
-                |> Maybe.map (moveGrainPopupViewModel model)
-                |> CssHtml.viewMaybe MoveGrainPopupView.view
-
-        Popup.NoPopup ->
-            CssHtml.noView
-
-
 grainMorePopupViewModel : Model -> Grain -> GrainMorePopupView Msg
 grainMorePopupViewModel model grain =
     let
@@ -961,7 +917,7 @@ moveGrainPopupViewModel model grain =
 
 
 type alias RouteView =
-    { title : String, showBackBtn : Bool, children : List (Html Msg) }
+    { title : String, showBackBtn : Bool }
 
 
 toRouteView : Route -> RouteView
@@ -969,51 +925,13 @@ toRouteView route =
     case route of
         Route.GrainTree gid ->
             if gid == GrainId.root then
-                { title = "Home", showBackBtn = False, children = [] }
+                { title = "Home", showBackBtn = False }
 
             else
-                { title = "Focused", showBackBtn = True, children = [] }
+                { title = "Focused", showBackBtn = True }
 
         Route.NotFound _ ->
-            { title = "Oops!", showBackBtn = True, children = [] }
-
-
-viewAppBar { title, showBackBtn } authState =
-    let
-        viewTitle =
-            styled div
-                [ CS.p2 space2 zero
-                , CS.flex11Auto
-                , Css.textAlign Css.center
-                ]
-                []
-                [ text title ]
-
-        viewBackBtn =
-            button [ class "btn", onClick BackPressed ] [ text "Back" ]
-
-        viewAuthState =
-            case authState of
-                Firebase.AuthStateLoading ->
-                    button [ class "btn loading" ] [ text "SignIn" ]
-
-                Firebase.AuthStateUser user ->
-                    button [ class "btn", onClick SignOut ] [ text "SignOut" ]
-
-                Firebase.AuthStateNoUser ->
-                    button [ class "btn", onClick SignIn ] [ text "SignIn" ]
-    in
-    CssLayout.flexRow
-        [ CS.sticky
-        , Css.top <| px 0
-        , CS.p2 zero space2
-        , CS.itemsCenter
-        ]
-        [ class "bg-dark" ]
-        [ CssHtml.viewIf showBackBtn viewBackBtn
-        , viewTitle
-        , viewAuthState
-        ]
+            { title = "Oops!", showBackBtn = True }
 
 
 grainTreeViewConfig tree =
@@ -1068,26 +986,10 @@ grainTreeViewConfig tree =
     }
 
 
-viewRouteChildren model =
-    case model.route of
-        Route.GrainTree gid ->
-            model.grainStore
-                |> GrainStore.treeFromGid gid
-                |> Maybe.map grainTreeViewConfig
-                |> Maybe.unwrap NotFoundView.view GrainTreeView.view
-
-        Route.NotFound string ->
-            NotFoundView.view
-
-
-viewToast toast =
-    Toast.view ToastDismiss toast
-
-
 main : Program Flags Model Msg
 main =
     Browser.element
-        { view = Html.toUnstyled << view
+        { view = view
         , init = init
         , update = update
         , subscriptions = subscriptions
