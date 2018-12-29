@@ -198,6 +198,7 @@ type Msg
     | NewGrainStep (GrainBuilder GrainStore.Add)
       -- UPDATE GRAIN --
     | MoveGrain Direction GrainId
+    | UpdateGrain GrainId GrainStore.Update
     | UpdateGrainStore GrainStoreMsg
     | UpdateInlineEditGrain GrainId InlineEditGrainMsg
     | DragGrain GrainId
@@ -710,6 +711,9 @@ update message model =
                     (addBuiltGrain >> callWith model)
 
         --|> Return.andThen (updateInlineEditGrain gid IE_Start)
+        UpdateGrain gid msg ->
+            ( model, performGrainUpdate msg gid )
+
         UpdateGrainStore msg ->
             updateGrainStore msg model
 
