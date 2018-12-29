@@ -156,7 +156,6 @@ setGrainStore grainStore model =
 type AddGrainMsg
     = AddGrainAfter GrainId
     | AddGrainBefore GrainId
-    | AddGrainDefault
 
 
 type GrainStoreMsg
@@ -205,7 +204,6 @@ type Msg
     | ToastDismiss
       -- ADD GRAIN --
     | CreateGrain AddGrainMsg CreateGrainStep
-    | AddGrainClicked
     | CreateAndAddNewGrainWithNow AddGrainMsg Posix
     | AddGrainToCache AddGrainMsg Grain
     | AppendNewSibling GrainId
@@ -634,11 +632,6 @@ updateGrainStore message model =
                         model.grainStore
                         |> handleResult
 
-                AddGrainDefault ->
-                    GrainStore.addNew grain
-                        model.grainStore
-                        |> handleResult
-
         GS_FirebaseChanges changeList ->
             GrainStore.updateFromFirebaseChangeList changeList
                 model.grainStore
@@ -737,11 +730,6 @@ update message model =
                 (CreateAndAddNewGrainWithNow <|
                     AddGrainBefore gid
                 )
-            )
-
-        AddGrainClicked ->
-            ( model
-            , performWithNow (CreateAndAddNewGrainWithNow AddGrainDefault)
             )
 
         CreateGrain afterBuildMsg state ->
