@@ -53,6 +53,7 @@ import Material.Icons.Toggle as MIcons
 import Maybe.Extra as Maybe
 import MoveGrainPopupView exposing (MoveGrainPopupView)
 import NotFoundView
+import Popup exposing (Popup)
 import Port
 import Random exposing (Generator, Seed)
 import Random.Pipeline as Random
@@ -75,12 +76,6 @@ import UrlChange exposing (UrlChange)
 
 
 ---- MODEL ----
-
-
-type Popup
-    = GrainMorePopup GrainId
-    | GrainMovePopup GrainId
-    | NoPopup
 
 
 type alias Flags =
@@ -121,7 +116,7 @@ init flags =
                 |> Random.always (Route.fromString flags.url)
                 |> Random.always Firebase.initialAuthState
                 |> Random.with ActorId.generator
-                |> Random.always NoPopup
+                |> Random.always Popup.NoPopup
                 |> Random.always InlineEditGrain.initialValue
                 |> Random.always GrainStore.init
                 |> Random.always Nothing
@@ -158,7 +153,7 @@ setNewSeed newSeed model =
 
 
 dismissPopup model =
-    { model | popup = NoPopup }
+    { model | popup = Popup.NoPopup }
 
 
 setGrainStore grainStore model =
@@ -451,12 +446,12 @@ openPopupMsg popup =
 
 openGrainMovePopupMsg : GrainId -> Msg
 openGrainMovePopupMsg gid =
-    openPopupMsg <| GrainMovePopup gid
+    openPopupMsg <| Popup.GrainMovePopup gid
 
 
 openGrainMorePopupMsg : GrainId -> Msg
 openGrainMorePopupMsg gid =
-    openPopupMsg <| GrainMorePopup gid
+    openPopupMsg <| Popup.GrainMorePopup gid
 
 
 updatePopup msg model =
@@ -855,6 +850,14 @@ update message model =
 -- VIEW --
 
 
+type alias View =
+    { route : Route
+    , authState : Firebase.AuthState
+    , toast : Toast
+    , popup : Popup
+    }
+
+
 view : Model -> Html Msg
 view model =
     let
@@ -877,17 +880,17 @@ view model =
 
 viewPopup model =
     case model.popup of
-        GrainMorePopup gid ->
+        Popup.GrainMorePopup gid ->
             grainById gid model
                 |> Maybe.map (grainMorePopupViewModel model)
                 |> CssHtml.viewMaybe GrainMorePopupView.view
 
-        GrainMovePopup gid ->
+        Popup.GrainMovePopup gid ->
             grainById gid model
                 |> Maybe.map (moveGrainPopupViewModel model)
                 |> CssHtml.viewMaybe MoveGrainPopupView.view
 
-        NoPopup ->
+        Popup.NoPopup ->
             CssHtml.noView
 
 
