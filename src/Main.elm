@@ -579,6 +579,12 @@ firePersistUnsavedGrainsEffect model =
             |> Port.persistSavedGrainList
 
 
+addBuiltGrain ( ctx, grain ) model =
+    updateGrainStore
+        (GS_AddGrain grain ctx)
+        model
+
+
 updateGrainStore :
     GrainStoreMsg
     -> Model
@@ -716,11 +722,7 @@ update message model =
                 |> GrainBuilder.continue NewGrainStep
                 |> Either.unpack
                     (Return.return model)
-                    (\( ctx, grain ) ->
-                        updateGrainStore
-                            (GS_AddGrain grain ctx)
-                            model
-                    )
+                    (addBuiltGrain >> callWith model)
 
         --|> Return.andThen (updateInlineEditGrain gid IE_Start)
         UpdateGrainStore msg ->
