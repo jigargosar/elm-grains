@@ -880,7 +880,7 @@ grainTreeViewModel tree =
                 frParentMsg gid
     in
     { grainTree = tree
-    , focusRouteTo = routeToGrainTreeMsg
+    , routeTo = routeToGrainTreeMsg
     , keyDownCustom =
         \gid ->
             let
