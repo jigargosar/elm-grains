@@ -3,7 +3,6 @@
   <component name="ElmPluginSettings">
     <option name="elmMakeExecutable" value="/usr/local/bin/elm" />
     <option name="nodeExecutable" value="/usr/local/bin/node" />
-    <option name="pluginEnabled" value="true" />
   </component>
   <component name="JavaScriptSettings">
     <option name="languageLevel" value="ES6" />
