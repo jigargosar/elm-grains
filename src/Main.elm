@@ -429,33 +429,6 @@ openGrainMorePopupMsg gid =
     openPopupMsg <| Popup.GrainMorePopup gid
 
 
-updatePopup msg model =
-    case msg of
-        PM_SetGrainParent gid parentId ->
-            ( dismissPopup model
-            , performGrainSet (Grain.SetParentId parentId) gid
-            )
-
-        PM_MoveGrain gid direction ->
-            ( dismissPopup model
-            , performGrainMove direction gid
-            )
-
-        PM_SetGrainDeleted gid deleted ->
-            ( dismissPopup model
-            , performGrainSet (Grain.SetDeleted deleted) gid
-            )
-
-        PM_RouteToGrain gid ->
-            update (routeToGrainTreeMsg gid) (dismissPopup model)
-
-        PM_Dismiss ->
-            dismissPopup model |> Return.singleton
-
-        PM_Open popup ->
-            Return.singleton { model | popup = popup }
-
-
 
 -- UPDATE InlineEditGrain --
 
@@ -723,7 +696,30 @@ update message model =
             Return.singleton model
 
         UpdatePopup msg ->
-            updatePopup msg model
+            case msg of
+                PM_SetGrainParent gid parentId ->
+                    ( dismissPopup model
+                    , performGrainSet (Grain.SetParentId parentId) gid
+                    )
+
+                PM_MoveGrain gid direction ->
+                    ( dismissPopup model
+                    , performGrainMove direction gid
+                    )
+
+                PM_SetGrainDeleted gid deleted ->
+                    ( dismissPopup model
+                    , performGrainSet (Grain.SetDeleted deleted) gid
+                    )
+
+                PM_RouteToGrain gid ->
+                    update (routeToGrainTreeMsg gid) (dismissPopup model)
+
+                PM_Dismiss ->
+                    dismissPopup model |> Return.singleton
+
+                PM_Open popup ->
+                    Return.singleton { model | popup = popup }
 
         RouteTo route ->
             Return.singleton (setRoute route model)
