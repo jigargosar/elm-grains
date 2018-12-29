@@ -197,7 +197,6 @@ type Msg
     | NewGrain GrainStore.Add
     | NewGrainStep (GrainBuilder GrainStore.Add)
       -- UPDATE GRAIN --
-    | MoveGrain Direction GrainId
     | UpdateGrain GrainStore.Update GrainId
     | UpdateGrainStore GrainStoreMsg
     | UpdateInlineEditGrain GrainId InlineEditGrainMsg
@@ -722,9 +721,6 @@ update message model =
 
         DragGrain gid ->
             Return.singleton model
-
-        MoveGrain direction gid ->
-            ( model, performGrainMove direction gid )
 
         UpdatePopup msg ->
             updatePopup msg model
