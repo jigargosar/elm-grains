@@ -732,11 +732,11 @@ update message model =
                     )
 
         AppendNewSibling gid ->
-            update (CreateGrain (AddGrainAfter gid) CreateGrainWithNow)
+            update (StartBuildingGrain (AddGrainAfter gid))
                 model
 
         PrependNewSibling gid ->
-            update (CreateGrain (AddGrainBefore gid) CreateGrainWithNow)
+            update (StartBuildingGrain (AddGrainBefore gid))
                 model
 
         CreateGrain afterBuildMsg state ->
