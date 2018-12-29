@@ -199,7 +199,7 @@ type Msg
     | ToastDismiss
       -- ADD GRAIN --
     | NewGrain AddGrainMsg
-    | ContinueBuilding (GrainBuilder AddGrainMsg)
+    | NewGrainStep (GrainBuilder AddGrainMsg)
       -- UPDATE GRAIN --
     | MoveGrain Direction GrainId
     | UpdateGrainStore GrainStoreMsg
@@ -709,11 +709,11 @@ update message model =
                             )
 
         NewGrain addMsg ->
-            ( model, GrainBuilder.init addMsg ContinueBuilding )
+            ( model, GrainBuilder.init addMsg NewGrainStep )
 
-        ContinueBuilding builder ->
+        NewGrainStep builder ->
             builder
-                |> GrainBuilder.continue ContinueBuilding
+                |> GrainBuilder.continue NewGrainStep
                 |> Either.unpack
                     (Return.return model)
                     (\( addMsg, grain ) ->
