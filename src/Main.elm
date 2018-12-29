@@ -402,34 +402,6 @@ focusRelative gid tree message model =
 
 
 -- POPUP UPDATE
-
-
-popupMsg : PopupMsg -> Msg
-popupMsg =
-    UpdatePopup
-
-
-dismissPopupMsg : Msg
-dismissPopupMsg =
-    popupMsg PM_Dismiss
-
-
-openPopupMsg : Popup -> Msg
-openPopupMsg popup =
-    popupMsg <| PM_Open popup
-
-
-openGrainMovePopupMsg : GrainId -> Msg
-openGrainMovePopupMsg gid =
-    openPopupMsg <| Popup.GrainMovePopup gid
-
-
-openGrainMorePopupMsg : GrainId -> Msg
-openGrainMorePopupMsg gid =
-    openPopupMsg <| Popup.GrainMorePopup gid
-
-
-
 -- UPDATE InlineEditGrain --
 
 
@@ -843,12 +815,14 @@ grainMorePopupViewModel model grain =
         gid =
             Grain.id grain
     in
-    { editMsg = popupMsg <| PM_RouteToGrain gid
-    , moveUpMsg = popupMsg <| PM_MoveGrain gid Direction.Up
-    , moveDownMsg = popupMsg <| PM_MoveGrain gid Direction.Down
-    , moveToMsg = openGrainMovePopupMsg gid
-    , toggleDeleteMsg = popupMsg <| PM_SetGrainDeleted gid (not deleted)
-    , dismissMsg = dismissPopupMsg
+    { editMsg = UpdatePopup <| PM_RouteToGrain gid
+    , moveUpMsg = UpdatePopup <| PM_MoveGrain gid Direction.Up
+    , moveDownMsg = UpdatePopup <| PM_MoveGrain gid Direction.Down
+    , moveToMsg = UpdatePopup <| PM_Open (Popup.GrainMovePopup gid)
+    , toggleDeleteMsg =
+        UpdatePopup <|
+            PM_SetGrainDeleted gid (not deleted)
+    , dismissMsg = UpdatePopup PM_Dismiss
     , deleted = deleted
     }
 
@@ -866,10 +840,10 @@ moveGrainPopupViewModel model grain =
     { grain = grain
     , otherGrains = otherGrains
     , isSelected = Grain.isParentOf grain
-    , dismissMsg = dismissPopupMsg
-    , setParentMsg = popupMsg << PM_SetGrainParent gid
+    , dismissMsg = UpdatePopup PM_Dismiss
+    , setParentMsg = UpdatePopup << PM_SetGrainParent gid
     , setParentToRootMsg =
-        (popupMsg << PM_SetGrainParent gid) Grain.rootIdAsParentId
+        (UpdatePopup << PM_SetGrainParent gid) Grain.rootIdAsParentId
     }
 
 
