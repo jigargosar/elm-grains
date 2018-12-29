@@ -198,6 +198,7 @@ type Msg
     | NewGrainStep (GrainBuilder GrainStore.Add)
       -- UPDATE GRAIN --
     | UpdateGrain GrainStore.Update GrainId
+    | GrainSet Grain.Set GrainId
     | UpdateGrainStore GrainStoreMsg
     | UpdateInlineEditGrain GrainId InlineEditGrainMsg
     | DragGrain GrainId
@@ -655,6 +656,10 @@ update message model =
                     (addBuiltGrain >> callWith model)
 
         --|> Return.andThen (updateInlineEditGrain gid IE_Start)
+        GrainSet msg gid ->
+            update (UpdateGrain (GrainStore.Set msg) gid)
+                model
+
         UpdateGrain msg gid ->
             ( model, performGrainUpdate msg gid )
 
@@ -670,24 +675,26 @@ update message model =
         Popup msg ->
             case msg of
                 PM_SetGrainParent gid parentId ->
-                    ( dismissPopup model
-                    , performGrainSet (Grain.SetParentId parentId) gid
-                    )
+                    dismissPopup model
+                        |> update
+                            (GrainSet (Grain.SetParentId parentId) gid)
 
                 PM_MoveGrain gid direction ->
-                    ( dismissPopup model
-                    , performGrainMove direction gid
-                    )
+                    dismissPopup model
+                        |> Return.singleton
+                        |> Return.andThen
+                            (update <|
+                                GrainStore.Move direction
+                                    gid
+                            )
 
                 PM_SetGrainDeleted gid deleted ->
                     dismissPopup model
                         |> Return.singleton
                         |> Return.andThen
                             (update <|
-                                UpdateGrain
-                                    (GrainStore.Set <|
-                                        Grain.SetDeleted deleted
-                                    )
+                                GrainSet
+                                    (Grain.SetDeleted deleted)
                                     gid
                             )
 
