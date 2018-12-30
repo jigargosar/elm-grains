@@ -622,7 +622,7 @@ viewModel model =
         \gid ->
             model.grainStore
                 |> GrainStore.treeFromGid gid
-                |> Maybe.map grainTreeViewModel
+                |> Maybe.map (grainTreeViewModel model.editGid)
     , createGrainMorePopupVM =
         \gid ->
             grainById gid model
@@ -708,10 +708,6 @@ moveGrainPopupViewModel model grain =
     }
 
 
-
---grainTreeViewModel : GrainTree -> GrainTreeView Msg
-
-
 grainTreeViewKeyBindings :
     GrainTree
     -> GrainId
@@ -748,6 +744,7 @@ grainTreeViewKeyBindings tree gid =
             , ( K.arrowLeft, arrowLeftMsg )
             , ( K.arrowRight, routeToGrainTreeMsg )
             , ( K.shiftMetaEnter, NewGrain << GrainStore.AddChild )
+            , ( K.enter, StartEditing )
             ]
                 ++ moveMappings
     in
@@ -756,12 +753,12 @@ grainTreeViewKeyBindings tree gid =
         |> K.bindEachToMsg
 
 
-grainTreeViewModel : GrainTree -> GrainTreeView Msg
-grainTreeViewModel tree =
+grainTreeViewModel : Maybe GrainId -> GrainTree -> GrainTreeView Msg
+grainTreeViewModel editGid tree =
     { grainTree = tree
     , routeTo = routeToGrainTreeMsg
     , keyDownCustom = grainTreeViewKeyBindings tree
-    , editGid = Nothing
+    , editGid = editGid
     , onContentChanged = \gid content -> setContentMsg content gid
     }
 
