@@ -207,6 +207,7 @@ type Msg
       -- POPUP
     | Popup PopupMsg
     | DismissPopupAndThen Msg
+    | OpenPopup Popup
       -- NAVIGATION --
     | RouteTo Route
     | UrlChanged Value
@@ -232,9 +233,18 @@ setParentIdMsg pid gid =
     GrainSet (Grain.SetParentId pid) gid
 
 
+setDeletedMsg deleted gid =
+    GrainSet (Grain.SetDeleted deleted) gid
+
+
+moveMsg direction gid =
+    UpdateGrain (GrainStore.Move direction) gid
+
+
 autoFocusRouteCmd : Route -> Cmd Msg
 autoFocusRouteCmd =
-    maybeAutoFocusRouteDomId >> unwrapMaybeCmd (BrowserX.focus FocusResult)
+    maybeAutoFocusRouteDomId
+        >> unwrapMaybeCmd (BrowserX.focus FocusResult)
 
 
 maybeAutoFocusRouteDomId : Route -> Maybe String
@@ -681,6 +691,10 @@ update message model =
             dismissPopup model
                 |> update msg
 
+        OpenPopup popup ->
+            { model | popup = popup }
+                |> Return.singleton
+
         Popup msg ->
             case msg of
                 PM_SetGrainParent gid parentId ->
@@ -838,14 +852,17 @@ grainMorePopupViewModel model grain =
 
         gid =
             Grain.id grain
+
+        dismiss msg =
+            DismissPopupAndThen <| msg
     in
-    { editMsg = DismissPopupAndThen <| routeToGrainTreeMsg gid
-    , moveUpMsg = Popup <| PM_MoveGrain gid Direction.Up
-    , moveDownMsg = Popup <| PM_MoveGrain gid Direction.Down
-    , moveToMsg = Popup <| PM_Open (Popup.GrainMovePopup gid)
+    { editMsg = dismiss <| routeToGrainTreeMsg gid
+    , moveUpMsg = dismiss <| moveMsg Direction.Up gid
+    , moveDownMsg = dismiss <| moveMsg Direction.Down gid
+    , moveToMsg = OpenPopup (Popup.GrainMovePopup gid)
     , toggleDeleteMsg =
-        Popup <|
-            PM_SetGrainDeleted gid (not deleted)
+        dismiss <|
+            setDeletedMsg (not deleted) gid
     , dismissMsg = Popup PM_Dismiss
     , deleted = deleted
     }
