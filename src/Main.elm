@@ -202,7 +202,7 @@ routeToGrainTreeMsg gid =
 
 
 setParentIdMsg pid gid =
-    grainSetMsg (Grain.SetParentId pid) gid
+    UpdateGrain (GrainStore.SetParentId pid) gid
 
 
 grainSetMsg msg gid =
@@ -210,7 +210,7 @@ grainSetMsg msg gid =
 
 
 setDeletedMsg deleted gid =
-    grainSetMsg (Grain.SetDeleted deleted) gid
+    UpdateGrain (GrainStore.SetDeleted deleted) gid
 
 
 moveMsg direction gid =
