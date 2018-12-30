@@ -91,6 +91,7 @@ type alias Model =
     , grainStore : GrainStore
     , selectedGid : Maybe GrainId
     , lastSelectedGid : Maybe GrainId
+    , editGid : Maybe GrainId
     , seed : Seed
     }
 
@@ -107,6 +108,7 @@ init flags =
                 |> Random.with ActorId.generator
                 |> Random.always Popup.NoPopup
                 |> Random.always GrainStore.init
+                |> Random.always Nothing
                 |> Random.always Nothing
                 |> Random.always Nothing
                 |> Random.finish
@@ -170,6 +172,8 @@ type Msg
     | GrainFocused GrainId Bool
       -- TOAST
     | ToastDismiss
+      -- EDIT GRAIN --
+    | StartEditing GrainId
       -- ADD GRAIN --
     | NewGrain GrainStore.Add
     | AddNewGrain GrainStore.Add Grain
@@ -509,6 +513,10 @@ update message model =
                                     model
                             )
 
+        StartEditing gid ->
+            { model | editGid = Just gid }
+                |> Return.singleton
+
         NewGrain addMsg ->
             let
                 ( newModel, independentSeed ) =
@@ -739,6 +747,7 @@ grainTreeViewKeyBindings tree gid =
             , ( K.arrowUp, fr FR_Backward )
             , ( K.arrowLeft, arrowLeftMsg )
             , ( K.arrowRight, routeToGrainTreeMsg )
+            , ( K.enter, StartEditing )
             ]
                 ++ moveMappings
     in
