@@ -130,32 +130,6 @@ get gid =
     GrainIdLookup.get gid >> Maybe.map SavedGrain.value
 
 
-addNewDefault : Grain -> GrainStore -> UpdateResult
-addNewDefault =
-    ifCanAddGrainThen <|
-        \grain model ->
-            Result.Ok <|
-                blindInsertGrain grain model
-
-
-addNewAfter : GrainId -> Grain -> GrainStore -> UpdateResult
-addNewAfter siblingGid =
-    addNewAndThenBatchUpdate <|
-        addNewAfterBatchUpdaters siblingGid
-
-
-addNewBefore : GrainId -> Grain -> GrainStore -> UpdateResult
-addNewBefore siblingGid =
-    addNewAndThenBatchUpdate <|
-        addNewBeforeBatchUpdaters siblingGid
-
-
-addNewChild : GrainId -> Grain -> GrainStore -> UpdateResult
-addNewChild parentGid =
-    addNewAndThenBatchUpdate <|
-        addNewChildBatchUpdaters parentGid
-
-
 type Add
     = AddAfter GrainId
     | AddBefore GrainId
@@ -166,16 +140,24 @@ type Add
 addNew msg grain =
     case msg of
         AddAfter gid ->
-            addNewAfter gid grain
+            addNewAndThenBatchUpdate
+                (addNewAfterBatchUpdaters gid)
+                grain
 
         AddBefore gid ->
-            addNewBefore gid grain
+            addNewAndThenBatchUpdate
+                (addNewBeforeBatchUpdaters gid)
+                grain
 
         AddChild gid ->
-            addNewChild gid grain
+            addNewAndThenBatchUpdate
+                (addNewChildBatchUpdaters gid)
+                grain
 
         AddDefault ->
-            addNewDefault grain
+            addNewAndThenBatchUpdate
+                (\_ _ _ -> Nothing)
+                grain
 
 
 type Update
