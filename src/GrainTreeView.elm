@@ -64,19 +64,24 @@ type alias DisplayModel =
     }
 
 
-type alias EditModel =
+type alias EditModel msg =
     { content : String
     , domId : String
     , gid : GrainId
+    , onContentChanged : String -> msg
     }
 
 
-type Node
+type Node msg
     = DisplayNode DisplayModel
-    | EditNode EditModel
+    | EditNode (EditModel msg)
 
 
-grainToNode : Grain -> Node
+type alias NodeTree msg =
+    Tree (Node msg)
+
+
+grainToNode : Grain -> Node msg
 grainToNode grain =
     let
         gid =
@@ -109,7 +114,7 @@ view config =
     viewNodeTree config 0 nodeTree
 
 
-viewNodeTree : GrainTreeView msg -> Float -> Tree Node -> List (Html msg)
+viewNodeTree : GrainTreeView msg -> Float -> NodeTree msg -> List (Html msg)
 viewNodeTree config level tree =
     case Tree.label tree of
         DisplayNode node ->
@@ -132,6 +137,30 @@ viewNodeTree config level tree =
                 , onDoubleClick (config.routeTo node.gid)
                 ]
                 [ text node.title ]
+                :: viewForest config (level + 1) tree
+
+        EditNode node ->
+            let
+                nodeStyles =
+                    if level == 0 then
+                        [ CS.pv1, CS.ph2, CS.bold ]
+
+                    else
+                        [ CS.pa1
+                        , Css.paddingLeft <| px <| 4 + (level * 32)
+                        ]
+            in
+            textarea
+                [ id node.domId
+                , tabindex 0
+                , CssEventX.onKeyDownCustom
+                    (config.keyDownCustom node.gid)
+                , css nodeStyles
+                , onDoubleClick (config.routeTo node.gid)
+                , value node.content
+                , onInput node.onContentChanged
+                ]
+                []
                 :: viewForest config (level + 1) tree
 
 
