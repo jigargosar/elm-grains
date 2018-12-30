@@ -29,7 +29,6 @@ import GrainZipper exposing (GrainTree)
 import HistoryState exposing (HistoryState)
 import HotKey as K exposing (HotKey, SoftKey(..))
 import Html exposing (Html)
-import InlineEditGrain exposing (InlineEditGrain)
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline exposing (optional)
 import Json.Encode as E exposing (Value)
@@ -90,7 +89,6 @@ type alias Model =
     , authState : Firebase.AuthState
     , actorId : ActorId
     , popup : Popup
-    , inlineEditGrain : InlineEditGrain
     , grainStore : GrainStore
     , selectedGid : Maybe GrainId
     , lastSelectedGid : Maybe GrainId
@@ -109,7 +107,6 @@ init flags =
                 |> Random.always Firebase.initialAuthState
                 |> Random.with ActorId.generator
                 |> Random.always Popup.NoPopup
-                |> Random.always InlineEditGrain.initialValue
                 |> Random.always GrainStore.init
                 |> Random.always Nothing
                 |> Random.always Nothing
@@ -163,14 +160,6 @@ type GrainStoreMsg
     | GS_Load Value
 
 
-type InlineEditGrainMsg
-    = IE_Start
-    | IE_Content String
-    | IE_Submit
-    | IE_Discard
-    | IE_KeyboardFocus Bool
-
-
 type FocusRelativeMsg
     = FR_Forward
     | FR_Backward
@@ -190,7 +179,6 @@ type Msg
       -- UPDATE GRAIN --
     | UpdateGrain GrainStore.Update GrainId
     | UpdateGrainStore GrainStoreMsg
-    | UpdateInlineEditGrain GrainId InlineEditGrainMsg
     | DragGrain GrainId
       -- GRAIN FOCUS NAVIGATION
     | FocusRelative FocusRelativeMsg GrainTree GrainId
@@ -406,87 +394,7 @@ focusRelative gid tree message model =
 
 
 
--- POPUP UPDATE
--- UPDATE InlineEditGrain --
-
-
-setInlineEditGrain : InlineEditGrain -> Model -> Model
-setInlineEditGrain inlineEditGrain model =
-    { model | inlineEditGrain = inlineEditGrain }
-
-
-initInlineEdit grain =
-    setInlineEditGrain <| InlineEditGrain.startEditing grain
-
-
-updateInlineEditGrain gid msg model =
-    let
-        handleResult =
-            Result.map
-                (setInlineEditGrain
-                    >> callWith model
-                    >> Return.singleton
-                )
-                >> handleStringResult model
-    in
-    case msg of
-        IE_Start ->
-            let
-                inlineEdit grain =
-                    let
-                        ieDomId =
-                            GrainTreeView.contentInputDomId gid
-                    in
-                    ( initInlineEdit grain model
-                    , Cmd.batch
-                        [ focusCmd ieDomId
-                        , Port.autoSize ieDomId
-                        ]
-                    )
-            in
-            grainById gid model
-                |> Result.fromMaybe "IE_Start: Grain Not Found"
-                |> Result.map inlineEdit
-                |> handleStringResult model
-
-        IE_Submit ->
-            let
-                mapResult ( gid_, content, inlineEditGrain ) =
-                    let
-                        focusEditedGidCmd =
-                            focusGidCmd gid_
-
-                        setContentCmd =
-                            performGrainSetContent content gid_
-                    in
-                    ( setInlineEditGrain inlineEditGrain model
-                    , Cmd.batch [ setContentCmd, focusEditedGidCmd ]
-                    )
-            in
-            InlineEditGrain.endEditing model.inlineEditGrain
-                |> Result.map mapResult
-                |> handleStringResult model
-
-        IE_Discard ->
-            InlineEditGrain.discard model.inlineEditGrain
-                |> handleResult
-                |> Return.command (focusGidCmd gid)
-
-        IE_Content content ->
-            InlineEditGrain.onContentChange content model.inlineEditGrain
-                |> handleResult
-
-        IE_KeyboardFocus focused ->
-            InlineEditGrain.setFocused focused model.inlineEditGrain
-                |> handleResult
-
-
-
 -- GRAIN STORE --
-
-
-performGrainMove direction gid =
-    performGrainUpdate (GrainStore.Move direction) gid
 
 
 performGrainSetContent content gid =
@@ -659,15 +567,11 @@ update message model =
                     (Return.return model)
                     (addBuiltGrain >> callWith model)
 
-        --|> Return.andThen (updateInlineEditGrain gid IE_Start)
         UpdateGrain msg gid ->
             ( model, performGrainUpdate msg gid )
 
         UpdateGrainStore msg ->
             updateGrainStore msg model
-
-        UpdateInlineEditGrain gid msg ->
-            updateInlineEditGrain gid msg model
 
         DragGrain gid ->
             Return.singleton model
