@@ -507,20 +507,21 @@ update message model =
 
         NewGrain addMsg ->
             let
-                generateGrain independentSeed =
+                ( newModel, independentSeed ) =
+                    generateIndependentSeed model
+
+                grainFromNow now =
+                    Random.step (Grain.generator now)
+                        independentSeed
+                        |> Tuple.first
+
+                cmd =
                     Time.now
-                        |> Task.map Grain.generator
-                        |> Task.map
-                            (\generator ->
-                                Random.step generator
-                                    independentSeed
-                                    |> Tuple.first
-                            )
+                        |> Task.map grainFromNow
                         |> Task.perform
                             (AddNewGrain addMsg)
             in
-            generateIndependentSeed model
-                |> Tuple.mapSecond generateGrain
+            ( newModel, cmd )
 
         AddNewGrain addMsg grain ->
             updateGrainStore (GrainStore.AddGrain addMsg grain)
