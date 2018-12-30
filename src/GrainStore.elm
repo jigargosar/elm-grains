@@ -150,9 +150,16 @@ addNewBefore siblingGid =
         addNewBeforeBatchUpdaters siblingGid
 
 
+addNewChild : GrainId -> Grain -> GrainStore -> UpdateResult
+addNewChild parentGid =
+    addNewAndThenBatchUpdate <|
+        addNewChildBatchUpdaters parentGid
+
+
 type Add
     = AddAfter GrainId
     | AddBefore GrainId
+    | AddChild GrainId
     | AddDefault
 
 
@@ -163,6 +170,9 @@ addNew msg grain =
 
         AddBefore gid ->
             addNewBefore gid grain
+
+        AddChild gid ->
+            addNewChild gid grain
 
         AddDefault ->
             addNewDefault grain
@@ -297,6 +307,17 @@ addNewBeforeBatchUpdaters siblingGid now grain =
     in
     rootTreeZipper
         >> Z.prependWhenIdEqAndGetParentAndChildGrains siblingGid grain
+        >> Maybe.map
+            (afterAddGrainUpdaters now gid)
+
+
+addNewChildBatchUpdaters parentId now grain =
+    let
+        gid =
+            Grain.id grain
+    in
+    rootTreeZipper
+        >> Z.prependWhenIdEqAndGetParentAndChildGrains parentId grain
         >> Maybe.map
             (afterAddGrainUpdaters now gid)
 

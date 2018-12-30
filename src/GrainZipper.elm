@@ -116,6 +116,12 @@ appendGrain grain =
         |> map
 
 
+prependGrain : Grain -> GrainZipper -> GrainZipper
+prependGrain grain =
+    Z.prepend (Tree.singleton grain)
+        |> map
+
+
 appendWhenIdEq : GrainId -> Grain -> GrainZipper -> Maybe GrainZipper
 appendWhenIdEq gid grain =
     findFromRootIdEq gid
@@ -124,6 +130,12 @@ appendWhenIdEq gid grain =
 
 prependWhenIdEq : GrainId -> Grain -> GrainZipper -> Maybe GrainZipper
 prependWhenIdEq gid grain =
+    findFromRootIdEq gid
+        >> Maybe.map (prependGrain grain)
+
+
+prependChildIdEq : GrainId -> Grain -> GrainZipper -> Maybe GrainZipper
+prependChildIdEq gid grain =
     findFromRootIdEq gid
         >> Maybe.map (appendGrain grain)
 
@@ -144,6 +156,16 @@ prependWhenIdEqAndGetParentAndChildGrains :
     -> GrainZipper
     -> Maybe ( Grain, List Grain )
 prependWhenIdEqAndGetParentAndChildGrains gid grain =
+    prependWhenIdEq gid grain
+        >> Maybe.andThen toParentChildrenLabelsTuple
+
+
+prependChildWhenIdEqAndGetParentAndChildGrains :
+    GrainId
+    -> Grain
+    -> GrainZipper
+    -> Maybe ( Grain, List Grain )
+prependChildWhenIdEqAndGetParentAndChildGrains gid grain =
     appendWhenIdEq gid grain
         >> Maybe.andThen toParentChildrenLabelsTuple
 
