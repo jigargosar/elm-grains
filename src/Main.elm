@@ -170,7 +170,7 @@ type Msg
     | NewGrain GrainStore.Add
     | NewGrainStep (GrainBuilder GrainStore.Add)
       -- UPDATE GRAIN --
-    | UpdateGrain GrainStore.Update GrainId
+    | UpdateGrainWithNow GrainStore.Update GrainId
     | UpdateGrainStore GrainStore.Msg
       -- GRAIN FOCUS NAVIGATION
     | FocusRelative FocusRelativeMsg GrainTree GrainId
@@ -195,15 +195,15 @@ routeToGrainTreeMsg gid =
 
 
 setParentIdMsg pid gid =
-    UpdateGrain (GrainStore.SetParentId pid) gid
+    UpdateGrainWithNow (GrainStore.SetParentId pid) gid
 
 
 setDeletedMsg deleted gid =
-    UpdateGrain (GrainStore.SetDeleted deleted) gid
+    UpdateGrainWithNow (GrainStore.SetDeleted deleted) gid
 
 
 moveMsg direction gid =
-    UpdateGrain (GrainStore.Move direction) gid
+    UpdateGrainWithNow (GrainStore.Move direction) gid
 
 
 autoFocusRouteCmd : Route -> Cmd Msg
@@ -517,7 +517,7 @@ update message model =
                         >> callWith model
                     )
 
-        UpdateGrain msg gid ->
+        UpdateGrainWithNow msg gid ->
             ( model
             , Task.perform
                 (UpdateGrainStore
