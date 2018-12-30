@@ -4,6 +4,7 @@ module SavedGrain exposing
     , decoder
     , encoder
     , id
+    , idEq
     , needsPersistence
     , new
     , setPersisted
@@ -80,6 +81,11 @@ encoder =
 id : SavedGrain -> GrainId
 id =
     value >> Grain.id
+
+
+idEq : GrainId -> SavedGrain -> Bool
+idEq gid =
+    value >> Grain.idEq gid
 
 
 new : Grain -> SavedGrain
