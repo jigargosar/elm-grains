@@ -173,40 +173,38 @@ addNew msg grain =
 type Update
     = Set Grain.Set
     | Move Direction
-
-
-type SetGrainField
-    = SetContent String
+    | SetContent String
     | SetDeleted Bool
     | SetParentId ParentId
     | SetSortIdx SortIdx
 
 
-updateGrainWithNow : Posix -> SetGrainField -> Grain -> Grain
-updateGrainWithNow now msg grain =
-    let
-        innerUpdate =
-            case msg of
-                SetContent content_ ->
-                    Grain.setContent content_
 
-                SetDeleted deleted_ ->
-                    Grain.setDeleted deleted_
-
-                SetParentId parentId_ ->
-                    Grain.setParentId parentId_
-
-                SetSortIdx sortIdx_ ->
-                    Grain.setSortIdx sortIdx_
-
-        newGrain =
-            innerUpdate grain
-    in
-    if grain == newGrain then
-        newGrain
-
-    else
-        Grain.setModifiedAt now newGrain
+--updateGrainWithNow : Posix -> Grain.Set -> Grain -> Grain
+--updateGrainWithNow now msg grain =
+--    let
+--        innerUpdate =
+--            case msg of
+--                Grain.SetContent content_ ->
+--                    Grain.setContent content_
+--
+--                Grain.SetDeleted deleted_ ->
+--                    Grain.setDeleted deleted_
+--
+--                Grain.SetParentId parentId_ ->
+--                    Grain.setParentId parentId_
+--
+--                Grain.SetSortIdx sortIdx_ ->
+--                    Grain.setSortIdx sortIdx_
+--
+--        newGrain =
+--            innerUpdate grain
+--    in
+--    if grain == newGrain then
+--        newGrain
+--
+--    else
+--        Grain.setModifiedAt now newGrain
 
 
 update msg gid now =
@@ -217,14 +215,17 @@ update msg gid now =
         Move direction ->
             move direction gid now
 
+        SetContent val ->
+            updateWithSetMsg (Grain.SetContent val) gid now
 
-updateInner msg gid now =
-    case msg of
-        Set setMsg ->
-            updateWithSetMsg setMsg gid now
+        SetDeleted val ->
+            updateWithSetMsg (Grain.SetDeleted val) gid now
 
-        Move direction ->
-            move direction gid now
+        SetParentId val ->
+            updateWithSetMsg (Grain.SetParentId val) gid now
+
+        SetSortIdx val ->
+            updateWithSetMsg (Grain.SetSortIdx val) gid now
 
 
 ifCanAddGrainThen :
