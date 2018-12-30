@@ -18,7 +18,6 @@ import EventX exposing (onKeyDownPD, pNone, pd, sp)
 import FireUser exposing (FireUser)
 import Firebase
 import Grain exposing (Grain)
-import GrainBuilder exposing (GrainBuilder)
 import GrainChange exposing (GrainChange)
 import GrainId exposing (GrainId)
 import GrainMorePopupView exposing (GrainMorePopupView)
@@ -137,7 +136,7 @@ grainById gid =
     .grainStore >> GrainStore.get gid
 
 
-setNewSeed newSeed model =
+setNextSeed newSeed model =
     { model | seed = newSeed }
 
 
@@ -168,7 +167,7 @@ type Msg
     | ToastDismiss
       -- ADD GRAIN --
     | NewGrain GrainStore.Add
-    | NewGrainStep (GrainBuilder GrainStore.Add)
+    | NewGrainWithNow GrainStore.Add Seed Posix
       -- UPDATE GRAIN --
     | UpdateGrain GrainStore.Update GrainId
     | UpdateGrainWithNow GrainStore.Update GrainId Posix
@@ -502,17 +501,23 @@ update message model =
                             )
 
         NewGrain addMsg ->
-            ( model, GrainBuilder.init addMsg NewGrainStep )
+            let
+                ( independentSeed, nextSeed ) =
+                    Random.step Random.independentSeed model.seed
+            in
+            ( setNextSeed nextSeed model
+            , Time.now
+                |> Task.perform
+                    (NewGrainWithNow addMsg independentSeed)
+            )
 
-        NewGrainStep builder ->
-            builder
-                |> GrainBuilder.continue NewGrainStep
-                |> Either.unpack
-                    (Return.return model)
-                    (Tuple2.uncurry GrainStore.AddGrain
-                        >> updateGrainStore
-                        >> callWith model
-                    )
+        NewGrainWithNow addMsg independentSeed now ->
+            let
+                ( grain, _ ) =
+                    Random.step (Grain.generator now) independentSeed
+            in
+            updateGrainStore (GrainStore.AddGrain addMsg grain)
+                model
 
         UpdateGrain updateMsg gid ->
             ( model
