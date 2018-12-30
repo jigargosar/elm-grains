@@ -171,15 +171,6 @@ type InlineEditGrainMsg
     | IE_KeyboardFocus Bool
 
 
-type PopupMsg
-    = PM_SetGrainParent GrainId Grain.ParentId
-    | PM_MoveGrain GrainId Direction
-    | PM_SetGrainDeleted GrainId Bool
-    | PM_RouteToGrain GrainId
-    | PM_Dismiss
-    | PM_Open Popup
-
-
 type FocusRelativeMsg
     = FR_Forward
     | FR_Backward
@@ -205,7 +196,6 @@ type Msg
       -- GRAIN FOCUS NAVIGATION
     | FocusRelative FocusRelativeMsg GrainTree GrainId
       -- POPUP
-    | PopupAction PopupMsg
     | DismissPopupAndThen Msg
     | OpenPopup Popup
       -- NAVIGATION --
@@ -694,42 +684,6 @@ update message model =
         OpenPopup popup ->
             { model | popup = popup }
                 |> Return.singleton
-
-        PopupAction msg ->
-            case msg of
-                PM_SetGrainParent gid parentId ->
-                    dismissPopup model
-                        |> update
-                            (GrainSet (Grain.SetParentId parentId) gid)
-
-                PM_MoveGrain gid direction ->
-                    dismissPopup model
-                        |> update
-                            ((UpdateGrain <|
-                                GrainStore.Move direction
-                             )
-                                gid
-                            )
-
-                PM_SetGrainDeleted gid deleted ->
-                    dismissPopup model
-                        |> (update <|
-                                GrainSet
-                                    (Grain.SetDeleted deleted)
-                                    gid
-                           )
-
-                PM_RouteToGrain gid ->
-                    dismissPopup model
-                        |> update (routeToGrainTreeMsg gid)
-
-                PM_Dismiss ->
-                    dismissPopup model
-                        |> Return.singleton
-
-                PM_Open popup ->
-                    { model | popup = popup }
-                        |> Return.singleton
 
         RouteTo route ->
             Return.singleton (setRoute route model)
