@@ -405,12 +405,6 @@ firePersistUnsavedGrainsEffect model =
             |> Port.persistSavedGrainList
 
 
-addBuiltGrain ( addMsg, grain ) model =
-    updateGrainStore
-        (GrainStore.AddGrain addMsg grain)
-        model
-
-
 updateGrainStore :
     GrainStore.Msg
     -> Model
@@ -518,7 +512,10 @@ update message model =
                 |> GrainBuilder.continue NewGrainStep
                 |> Either.unpack
                     (Return.return model)
-                    (addBuiltGrain >> callWith model)
+                    (Tuple2.uncurry GrainStore.AddGrain
+                        >> updateGrainStore
+                        >> callWith model
+                    )
 
         UpdateGrain msg gid ->
             ( model
