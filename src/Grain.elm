@@ -350,25 +350,35 @@ updateWithSetMsg msg =
 update : Posix -> Set -> Grain -> Grain
 update now msg grain =
     let
-        innerUpdate =
-            case msg of
-                SetContent content_ ->
-                    setContent content_
-
-                SetDeleted deleted_ ->
-                    setDeleted deleted_
-
-                SetParentId parentId_ ->
-                    setParentId parentId_
-
-                SetSortIdx sortIdx_ ->
-                    setSortIdx sortIdx_
-
-        newGrain =
-            innerUpdate grain
+        updaterFn =
+            updateWithSetMsg msg
     in
-    if grain == newGrain then
-        newGrain
+    updateWithNowFn now updaterFn grain
 
-    else
-        setModifiedAt now newGrain
+
+
+--update : Posix -> Set -> Grain -> Grain
+--update now msg grain =
+--    let
+--        innerUpdate =
+--            case msg of
+--                SetContent content_ ->
+--                    setContent content_
+--
+--                SetDeleted deleted_ ->
+--                    setDeleted deleted_
+--
+--                SetParentId parentId_ ->
+--                    setParentId parentId_
+--
+--                SetSortIdx sortIdx_ ->
+--                    setSortIdx sortIdx_
+--
+--        newGrain =
+--            innerUpdate grain
+--    in
+--    if grain == newGrain then
+--        newGrain
+--
+--    else
+--        setModifiedAt now newGrain
