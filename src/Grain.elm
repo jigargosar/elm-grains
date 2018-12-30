@@ -331,8 +331,8 @@ updateWithNowFn now fn grain =
         setModifiedAt now newGrain
 
 
-updateByMsg : Set -> Grain -> Grain
-updateByMsg msg =
+updateWithSetMsg : Set -> Grain -> Grain
+updateWithSetMsg msg =
     case msg of
         SetContent content_ ->
             setContent content_
