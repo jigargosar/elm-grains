@@ -11,8 +11,8 @@ module GrainStore exposing
     , rejectSubTreeAndFlatten
     , toRawList
     , treeFromGid
-    , update
     , updateFromFirebaseChangeList
+    , updateGrain
     )
 
 import ActorId exposing (ActorId)
@@ -206,7 +206,7 @@ type Update
 --        Grain.setModifiedAt now newGrain
 
 
-update msg gid now =
+updateGrain msg gid now =
     case msg of
         Move direction ->
             move direction gid now

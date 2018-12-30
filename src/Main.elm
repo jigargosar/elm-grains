@@ -442,7 +442,7 @@ updateGrainStore message model =
                 |> handleResult
 
         GS_UpdateGrain msg gid now ->
-            GrainStore.update msg
+            GrainStore.updateGrain msg
                 gid
                 now
                 model.grainStore
