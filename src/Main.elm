@@ -211,12 +211,8 @@ type Msg
     | KeyDownOnBody Value
 
 
-routeToMsg route =
-    RouteTo route
-
-
 routeToGrainTreeMsg gid =
-    routeToMsg <| Route.GrainTree gid
+    RouteTo <| Route.GrainTree gid
 
 
 setParentIdMsg pid gid =
