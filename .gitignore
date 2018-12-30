@@ -10,3 +10,4 @@ node_modules
 .vscode/
 gmail-api-test/
 /index.html
+prettier-plugin-elm-dist/
