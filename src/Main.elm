@@ -398,10 +398,10 @@ localPersistGrainStoreEffect model =
 firePersistUnsavedGrainsEffect model =
     let
         editing savedGrain =
-            Maybe.unwrap
-                False
-                (SavedGrain.idEq >> callWith savedGrain)
-                model.editGid
+            model.editGid
+                |> Maybe.unwrap
+                    False
+                    (SavedGrain.idEq >> callWith savedGrain)
 
         shouldPersist savedGrain =
             SavedGrain.needsPersistence savedGrain
