@@ -165,7 +165,7 @@ addNew msg grain model =
             now =
                 Grain.createdAt grain
         in
-        fn now grain model
+        fn grain model
             |> Maybe.map (afterAddGrainUpdaters now newGid)
             |> Maybe.unwrap
                 (Result.Err "Err: addNewGrainAfter")
@@ -177,11 +177,7 @@ insertGrainThenBatchUpdate updaters grain model =
         |> batchUpdate updaters
 
 
-addNewAfterBatchUpdaters siblingGid now grain =
-    let
-        gid =
-            Grain.id grain
-    in
+addNewAfterBatchUpdaters siblingGid grain =
     rootTreeZipper
         >> Z.appendWhenIdEqAndGetParentAndChildGrains siblingGid grain
 
@@ -197,20 +193,12 @@ afterAddGrainUpdaters now gid pc =
         |> Tuple2.uncurry (::)
 
 
-addNewBeforeBatchUpdaters siblingGid now grain =
-    let
-        gid =
-            Grain.id grain
-    in
+addNewBeforeBatchUpdaters siblingGid grain =
     rootTreeZipper
         >> Z.prependWhenIdEqAndGetParentAndChildGrains siblingGid grain
 
 
-addNewChildBatchUpdaters parentId now grain =
-    let
-        gid =
-            Grain.id grain
-    in
+addNewChildBatchUpdaters parentId grain =
     rootTreeZipper
         >> Z.prependChildWhenIdEqAndGetParentAndChildGrains parentId grain
 
