@@ -765,11 +765,29 @@ grainTreeViewKeyBindings tree gid =
         |> K.bindEachToMsg
 
 
+grainTreeViewEditKeyBindings :
+    GrainTree
+    -> GrainId
+    -> EventX.CustomDecoder Msg
+grainTreeViewEditKeyBindings tree gid =
+    let
+        bindings : List ( HotKey, GrainId -> Msg )
+        bindings =
+            [ ( K.enter, EndEditing )
+            , ( K.esc, EndEditing )
+            ]
+    in
+    bindings
+        |> List.map (Tuple.mapSecond (callWith gid >> pd))
+        |> K.bindEachToMsg
+
+
 grainTreeViewModel : Maybe GrainId -> GrainTree -> GrainTreeView Msg
 grainTreeViewModel editGid tree =
     { grainTree = tree
     , routeTo = routeToGrainTreeMsg
     , keyDownCustom = grainTreeViewKeyBindings tree
+    , editKeyDownCustom = grainTreeViewEditKeyBindings tree
     , editGid = editGid
     , onContentChanged = \gid content -> setContentMsg content gid
     }

@@ -59,6 +59,7 @@ type alias GrainTreeView msg =
     , grainTree : GrainTree
     , onContentChanged : GrainId -> String -> msg
     , editGid : Maybe GrainId
+    , editKeyDownCustom : GrainId -> EventX.CustomDecoder msg
     }
 
 
@@ -119,7 +120,7 @@ viewNodeTree config level tree =
                 div
                     [ id (grainDomId gid)
                     , tabindex 0
-                    , CssEventX.onKeyDownCustom (config.keyDownCustom gid)
+                    , CssEventX.onKeyDownCustom (config.editKeyDownCustom gid)
                     , css
                         (nodeStyles
                             ++ [ CS.styleIf isTitleEmpty
