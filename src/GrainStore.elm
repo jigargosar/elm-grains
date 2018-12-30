@@ -137,6 +137,7 @@ type Add
     | AddDefault
 
 
+addNew : Add -> Grain -> GrainStore -> UpdateResult
 addNew msg =
     case msg of
         AddAfter gid ->
