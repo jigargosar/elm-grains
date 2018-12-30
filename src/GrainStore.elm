@@ -138,7 +138,7 @@ type Add
 
 
 addNew : Add -> Grain -> GrainStore -> UpdateResult
-addNew msg grain model =
+addNew msg newGrain model =
     let
         fn =
             case msg of
@@ -155,7 +155,7 @@ addNew msg grain model =
                     Z.prependChildWhenIdEqAndGetParentTree GrainId.root
 
         newGid =
-            Grain.id grain
+            Grain.id newGrain
     in
     if idExists newGid model then
         Result.Err "Error: Add Grain. GrainId exists"
@@ -163,15 +163,15 @@ addNew msg grain model =
     else
         let
             now =
-                Grain.createdAt grain
+                Grain.createdAt newGrain
         in
         model
             |> rootTreeZipper
-            |> fn grain
-            |> Maybe.map (batchUpdatersFromTree now newGid)
+            |> fn newGrain
+            |> Maybe.map (batchUpdatersFromTree now newGrain)
             |> Maybe.unwrap
                 (Result.Err "Err: addNewGrainAfter")
-                (insertGrainThenBatchUpdate >> callWith2 grain model)
+                (callWith model)
 
 
 insertGrainThenBatchUpdate updaters grain model =
@@ -179,14 +179,17 @@ insertGrainThenBatchUpdate updaters grain model =
         |> batchUpdate updaters
 
 
-batchUpdatersFromTree now gid tree =
+batchUpdatersFromTree now newGrain tree =
     let
+        newGid =
+            Grain.id newGrain
+
         parentIdUpdater =
             Tree.label tree
                 |> Grain.idAsParentId
                 |> (\pid ->
                         ( Grain.update now (Grain.SetParentId pid)
-                        , gid
+                        , newGid
                         )
                    )
 
@@ -199,8 +202,12 @@ batchUpdatersFromTree now gid tree =
                         , Grain.id g
                         )
                     )
+
+        updaters =
+            parentIdUpdater :: childUpdaters
     in
-    parentIdUpdater :: childUpdaters
+    blindInsertGrain newGrain
+        >> batchUpdate updaters
 
 
 type Update
