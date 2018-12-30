@@ -397,10 +397,17 @@ localPersistGrainStoreEffect model =
 
 firePersistUnsavedGrainsEffect model =
     let
+        isNotEditing gid =
+            Maybe.unwrap True (eqs gid) model.editGid
+
+        shouldPersist savedGrain =
+            SavedGrain.needsPersistence savedGrain
+                && isNotEditing (SavedGrain.id savedGrain)
+
         dirtyGrains =
             model.grainStore
                 |> GrainStore.toRawList
-                |> List.filter SavedGrain.needsPersistence
+                |> List.filter shouldPersist
     in
     if List.isEmpty dirtyGrains then
         Cmd.none
