@@ -743,11 +743,12 @@ grainTreeViewKeyBindings tree gid =
         |> K.bindEachToMsg
 
 
+grainTreeViewModel : GrainTree -> GrainTreeView Msg
 grainTreeViewModel tree =
     { grainTree = tree
     , routeTo = routeToGrainTreeMsg
     , keyDownCustom = grainTreeViewKeyBindings tree
-    , editGid = Nothing
+    , editVM = Nothing
     }
 
 

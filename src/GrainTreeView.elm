@@ -94,11 +94,18 @@ grainToNode grain =
         }
 
 
+type alias EditView msg =
+    { gid : GrainId
+    , onContentChanged : String -> msg
+    , content : String
+    }
+
+
 type alias GrainTreeView msg =
     { keyDownCustom : GrainId -> EventX.CustomDecoder msg
     , routeTo : GrainId -> msg
     , grainTree : GrainTree
-    , editGid : Maybe GrainId
+    , editVM : Maybe (EditView msg)
     }
 
 
