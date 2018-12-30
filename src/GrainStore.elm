@@ -153,12 +153,20 @@ addNew msg grain model =
 
                 AddDefault ->
                     addNewChildBatchUpdaters GrainId.root
+
+        newGid =
+            Grain.id grain
     in
-    if idExists (Grain.id grain) model then
+    if idExists newGid model then
         Result.Err "Error: Add Grain. GrainId exists"
 
     else
-        fn (Grain.createdAt grain) grain model
+        let
+            now =
+                Grain.createdAt grain
+        in
+        fn now grain model
+            |> Maybe.map (afterAddGrainUpdaters now newGid)
             |> Maybe.unwrap
                 (Result.Err "Err: addNewGrainAfter")
                 (insertGrainThenBatchUpdate >> callWith2 grain model)
@@ -176,8 +184,6 @@ addNewAfterBatchUpdaters siblingGid now grain =
     in
     rootTreeZipper
         >> Z.appendWhenIdEqAndGetParentAndChildGrains siblingGid grain
-        >> Maybe.map
-            (afterAddGrainUpdaters now gid)
 
 
 afterAddGrainUpdaters now gid pc =
@@ -198,8 +204,6 @@ addNewBeforeBatchUpdaters siblingGid now grain =
     in
     rootTreeZipper
         >> Z.prependWhenIdEqAndGetParentAndChildGrains siblingGid grain
-        >> Maybe.map
-            (afterAddGrainUpdaters now gid)
 
 
 addNewChildBatchUpdaters parentId now grain =
@@ -209,8 +213,6 @@ addNewChildBatchUpdaters parentId now grain =
     in
     rootTreeZipper
         >> Z.prependChildWhenIdEqAndGetParentAndChildGrains parentId grain
-        >> Maybe.map
-            (afterAddGrainUpdaters now gid)
 
 
 type Update
