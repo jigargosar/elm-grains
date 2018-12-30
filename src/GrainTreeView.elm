@@ -99,6 +99,7 @@ viewNodeTree config level tree =
                     , CssEventX.onKeyDownCustom (config.keyDownCustom gid)
                     , css nodeStyles
                     , value (Grain.content grain)
+                    , onInput (config.onContentChanged gid)
                     ]
                     []
 
