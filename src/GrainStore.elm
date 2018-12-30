@@ -143,7 +143,7 @@ addNew msg grain model =
         fn =
             case msg of
                 AddAfter gid ->
-                    addNewAfterBatchUpdaters gid
+                    Z.appendWhenIdEqAndGetParentAndChildGrains gid
 
                 AddBefore gid ->
                     addNewBeforeBatchUpdaters gid
@@ -177,10 +177,6 @@ addNew msg grain model =
 insertGrainThenBatchUpdate updaters grain model =
     blindInsertGrain grain model
         |> batchUpdate updaters
-
-
-addNewAfterBatchUpdaters siblingGid grain =
-    Z.appendWhenIdEqAndGetParentAndChildGrains siblingGid grain
 
 
 afterAddGrainUpdaters now gid pc =
