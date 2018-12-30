@@ -206,6 +206,7 @@ type Msg
     | FocusRelative FocusRelativeMsg GrainTree GrainId
       -- POPUP
     | Popup PopupMsg
+    | DismissPopupAnd Msg
       -- NAVIGATION --
     | RouteTo Route
     | UrlChanged Value
@@ -672,6 +673,10 @@ update message model =
         DragGrain gid ->
             Return.singleton model
 
+        DismissPopupAnd msg ->
+            dismissPopup model
+                |> update msg
+
         Popup msg ->
             case msg of
                 PM_SetGrainParent gid parentId ->
@@ -856,9 +861,12 @@ moveGrainPopupViewModel model grain =
     , otherGrains = otherGrains
     , isSelected = Grain.isParentOf grain
     , dismissMsg = Popup PM_Dismiss
-    , setParentMsg = Popup << PM_SetGrainParent gid
+    , setParentMsg =
+        \pid ->
+            DismissPopupAnd <| GrainSet (Grain.SetParentId pid) gid
     , setParentToRootMsg =
-        (Popup << PM_SetGrainParent gid) Grain.rootIdAsParentId
+        DismissPopupAnd <|
+            GrainSet (Grain.SetParentId Grain.rootIdAsParentId) gid
     }
 
 
