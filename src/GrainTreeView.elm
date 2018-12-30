@@ -88,9 +88,6 @@ viewNodeTree config level tree =
         gid =
             Grain.id grain
 
-        title =
-            Grain.titleOrEmpty grain
-
         isEditing =
             Maybe.unwrap False (eqs gid) config.editGid
 
@@ -101,9 +98,9 @@ viewNodeTree config level tree =
                     , tabindex 0
                     , CssEventX.onKeyDownCustom (config.keyDownCustom gid)
                     , css nodeStyles
-                    , onDoubleClick (config.routeTo gid)
+                    , value (Grain.content grain)
                     ]
-                    [ text title ]
+                    []
 
             else
                 div
@@ -113,7 +110,7 @@ viewNodeTree config level tree =
                     , css nodeStyles
                     , onDoubleClick (config.routeTo gid)
                     ]
-                    [ text title ]
+                    [ text (Grain.titleOrEmpty grain) ]
     in
     grainView
         :: viewForest config (level + 1) tree
