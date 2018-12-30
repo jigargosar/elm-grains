@@ -189,7 +189,6 @@ type Msg
     | NewGrainStep (GrainBuilder GrainStore.Add)
       -- UPDATE GRAIN --
     | UpdateGrain GrainStore.Update GrainId
-    | GrainSet Grain.Set GrainId
     | UpdateGrainStore GrainStoreMsg
     | UpdateInlineEditGrain GrainId InlineEditGrainMsg
     | DragGrain GrainId
@@ -216,11 +215,15 @@ routeToGrainTreeMsg gid =
 
 
 setParentIdMsg pid gid =
-    GrainSet (Grain.SetParentId pid) gid
+    grainSetMsg (Grain.SetParentId pid) gid
+
+
+grainSetMsg msg gid =
+    UpdateGrain (GrainStore.Set msg) gid
 
 
 setDeletedMsg deleted gid =
-    GrainSet (Grain.SetDeleted deleted) gid
+    grainSetMsg (Grain.SetDeleted deleted) gid
 
 
 moveMsg direction gid =
@@ -657,10 +660,6 @@ update message model =
                     (addBuiltGrain >> callWith model)
 
         --|> Return.andThen (updateInlineEditGrain gid IE_Start)
-        GrainSet msg gid ->
-            update (UpdateGrain (GrainStore.Set msg) gid)
-                model
-
         UpdateGrain msg gid ->
             ( model, performGrainUpdate msg gid )
 
