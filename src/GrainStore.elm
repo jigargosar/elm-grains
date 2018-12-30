@@ -146,13 +146,13 @@ addNew msg grain model =
                     Z.appendWhenIdEqAndGetParentAndChildGrains gid
 
                 AddBefore gid ->
-                    addNewBeforeBatchUpdaters gid
+                    Z.prependWhenIdEqAndGetParentAndChildGrains gid
 
                 AddChild gid ->
-                    addNewChildBatchUpdaters gid
+                    Z.prependChildWhenIdEqAndGetParentAndChildGrains gid
 
                 AddDefault ->
-                    addNewChildBatchUpdaters GrainId.root
+                    Z.prependChildWhenIdEqAndGetParentAndChildGrains GrainId.root
 
         newGid =
             Grain.id grain
@@ -188,14 +188,6 @@ afterAddGrainUpdaters now gid pc =
             )
             (listToSortIdxUpdaters now)
         |> Tuple2.uncurry (::)
-
-
-addNewBeforeBatchUpdaters siblingGid grain =
-    Z.prependWhenIdEqAndGetParentAndChildGrains siblingGid grain
-
-
-addNewChildBatchUpdaters parentId grain =
-    Z.prependChildWhenIdEqAndGetParentAndChildGrains parentId grain
 
 
 type Update
