@@ -87,10 +87,11 @@ view vm =
                     ++ viewRouteChildren vm
                     ++ [ viewToast vm.toastVM
                        , viewPopup vm
-                       , DatGui.view
-                            [ DatGui.boolean "Debug" False
-                            , DatGui.integer "Counter" 100
-                            ]
+
+                       --                       , DatGui.view
+                       --                            [ DatGui.boolean "Debug" False
+                       --                            , DatGui.integer "Counter" 100
+                       --                            ]
                        ]
             }
 
