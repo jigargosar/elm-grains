@@ -753,6 +753,8 @@ grainTreeViewKeyBindings tree gid =
             , ( K.arrowLeft, arrowLeftMsg )
             , ( K.arrowRight, routeToGrainTreeMsg )
             , ( K.shiftMetaEnter, NewGrain << GrainStore.AddChild )
+            , ( K.shiftEnter, NewGrain << GrainStore.AddBefore )
+            , ( K.metaEnter, NewGrain << GrainStore.AddAfter )
             , ( K.enter, StartEditing )
             , ( K.esc, EndEditing )
             ]

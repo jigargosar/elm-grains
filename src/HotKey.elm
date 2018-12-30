@@ -21,6 +21,7 @@ module HotKey exposing
     , isHotKey
     , metaArrow
     , metaDown
+    , metaEnter
     , metaLeft
     , metaRight
     , metaUp
@@ -132,6 +133,11 @@ enter =
 shiftEnter : HotKey
 shiftEnter =
     ( [ Shift ], "Enter" )
+
+
+metaEnter : HotKey
+metaEnter =
+    ( [ Meta ], "Enter" )
 
 
 shiftMetaEnter : HotKey
