@@ -279,10 +279,6 @@ handleDecodeResult model =
         >> Result.merge
 
 
-performWithNow nowToMsg =
-    Task.perform nowToMsg Time.now
-
-
 focusCmd domId =
     let
         encodeState =
