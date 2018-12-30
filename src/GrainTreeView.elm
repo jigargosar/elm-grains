@@ -37,7 +37,7 @@ import Html.Styled.Events
         , onFocus
         , onInput
         )
-import Tree
+import Tree exposing (Tree)
 
 
 grainDomId : GrainId -> String
@@ -57,15 +57,23 @@ contentInputDomId =
     GrainId.toDomIdWithPrefix editInputPrefix
 
 
-type alias DisplayNodeModel =
+type alias DisplayModel =
     { title : String
     , domId : String
     , gid : GrainId
     }
 
 
+type alias EditModel =
+    { content : String
+    , domId : String
+    , gid : GrainId
+    }
+
+
 type Node
-    = DisplayNode DisplayNodeModel
+    = DisplayNode DisplayModel
+    | EditNode EditModel
 
 
 grainToNode : Grain -> Node
@@ -101,6 +109,7 @@ view config =
     viewNodeTree config 0 nodeTree
 
 
+viewNodeTree : GrainTreeView msg -> Float -> Tree Node -> List (Html msg)
 viewNodeTree config level tree =
     case Tree.label tree of
         DisplayNode node ->
