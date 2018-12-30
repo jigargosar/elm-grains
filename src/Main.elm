@@ -870,7 +870,7 @@ moveGrainPopupViewModel model grain =
             DismissPopupAndThen <| setParentIdMsg pid gid
     , setParentToRootMsg =
         DismissPopupAndThen <|
-            GrainSet (Grain.SetParentId Grain.rootIdAsParentId) gid
+            setParentIdMsg Grain.rootIdAsParentId gid
     }
 
 
