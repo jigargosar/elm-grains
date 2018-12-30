@@ -626,18 +626,6 @@ viewModel model =
     }
 
 
-sort array =
-    let
-        length =
-            Array.length array
-    in
-    if length < 2 then
-        array
-
-    else
-        Array.slice 0 (length // 2) array
-
-
 appBarViewModel : Model -> View.AppBarView Msg
 appBarViewModel model =
     let
