@@ -400,29 +400,23 @@ localPersistGrainStoreEffect model =
 
 
 firePersistEffect model =
-    let
-        editing savedGrain =
-            model.editGid
-                |> Maybe.unwrap
-                    False
-                    (SavedGrain.idEq >> callWith savedGrain)
-
-        shouldPersist savedGrain =
-            SavedGrain.needsPersistence savedGrain
-                && (not <| editing savedGrain)
-
-        dirtyGrains =
-            model.grainStore
-                |> GrainStore.toRawList
-                |> List.filter shouldPersist
-    in
-    if List.isEmpty dirtyGrains then
+    if model.editGid |> Maybe.isJust then
         Cmd.none
 
     else
-        dirtyGrains
-            |> E.list SavedGrain.encoder
-            |> Port.persistSavedGrainList
+        let
+            dirtyGrains =
+                model.grainStore
+                    |> GrainStore.toRawList
+                    |> List.filter SavedGrain.needsPersistence
+        in
+        if List.isEmpty dirtyGrains then
+            Cmd.none
+
+        else
+            dirtyGrains
+                |> E.list SavedGrain.encoder
+                |> Port.persistSavedGrainList
 
 
 setGrainStoreAndPersist : GrainStore -> Model -> Return Msg Model
