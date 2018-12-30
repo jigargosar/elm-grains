@@ -561,7 +561,9 @@ update message model =
                         |> Return.singleton
 
                 Firebase.GrainChanges changes ->
-                    updateGrainStore (GrainStore.FirebaseChanges changes) model
+                    updateGrainStore
+                        (GrainStore.FirebaseChanges changes)
+                        model
 
         SignIn ->
             Return.return model (Firebase.signIn ())
