@@ -179,6 +179,7 @@ type Msg
     | NewGrain GrainStore.Add
     | AddNewGrain GrainStore.Add Grain
       -- UPDATE GRAIN --
+    | MoveGrain Direction GrainId
     | UpdateGrain GrainStore.Update GrainId
     | UpdateGrainWithNow GrainStore.Update GrainId Posix
       -- GRAIN FOCUS NAVIGATION
@@ -213,10 +214,6 @@ setDeletedMsg deleted gid =
 
 setContentMsg content gid =
     UpdateGrain (GrainStore.SetContent content) gid
-
-
-moveMsg direction gid =
-    UpdateGrain (GrainStore.Move direction) gid
 
 
 autoFocusRouteCmd : Route -> Cmd Msg
@@ -547,6 +544,10 @@ update message model =
                 |> updateGrainStore (GrainStore.AddGrain addMsg grain)
                 |> Return.andThen (update (StartEditing <| Grain.id grain))
 
+        MoveGrain direction gid ->
+            update (UpdateGrain (GrainStore.Move direction) gid) model
+                |> Return.command (focusGidCmd gid)
+
         UpdateGrain updateMsg gid ->
             ( model
             , Task.perform
@@ -683,8 +684,8 @@ grainMorePopupViewModel model grain =
             DismissPopupAndThen <| msg
     in
     { editMsg = dismiss <| routeToGrainTreeMsg gid
-    , moveUpMsg = dismiss <| moveMsg Direction.Up gid
-    , moveDownMsg = dismiss <| moveMsg Direction.Down gid
+    , moveUpMsg = dismiss <| MoveGrain Direction.Up gid
+    , moveDownMsg = dismiss <| MoveGrain Direction.Down gid
     , moveToMsg = OpenPopup (Popup.GrainMovePopup gid)
     , toggleDeleteMsg =
         dismiss <|
@@ -739,7 +740,7 @@ grainTreeViewKeyBindings tree gid =
                 (Tuple2.double
                     >> Tuple.mapBoth
                         K.metaArrow
-                        moveMsg
+                        MoveGrain
                 )
                 Direction.list
 
