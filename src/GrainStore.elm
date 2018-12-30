@@ -137,27 +137,22 @@ type Add
     | AddDefault
 
 
-addNew msg grain =
+addNew msg =
     case msg of
         AddAfter gid ->
             addNewAndThenBatchUpdate
                 (addNewAfterBatchUpdaters gid)
-                grain
 
         AddBefore gid ->
             addNewAndThenBatchUpdate
                 (addNewBeforeBatchUpdaters gid)
-                grain
 
         AddChild gid ->
             addNewAndThenBatchUpdate
                 (addNewChildBatchUpdaters gid)
-                grain
 
         AddDefault ->
-            addNewAndThenBatchUpdate
-                (\_ _ _ -> Nothing)
-                grain
+            addNew (AddChild GrainId.root)
 
 
 type Update
