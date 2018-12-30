@@ -319,6 +319,34 @@ listToEffectiveSortIndices =
     List.indexedMap Tuple.pair
 
 
+updateWithNowFn now fn grain =
+    let
+        newGrain =
+            fn grain
+    in
+    if grain == newGrain then
+        newGrain
+
+    else
+        setModifiedAt now newGrain
+
+
+updateByMsg : Set -> Grain -> Grain
+updateByMsg msg =
+    case msg of
+        SetContent content_ ->
+            setContent content_
+
+        SetDeleted deleted_ ->
+            setDeleted deleted_
+
+        SetParentId parentId_ ->
+            setParentId parentId_
+
+        SetSortIdx sortIdx_ ->
+            setSortIdx sortIdx_
+
+
 update : Posix -> Set -> Grain -> Grain
 update now msg grain =
     let

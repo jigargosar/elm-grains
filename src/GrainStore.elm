@@ -184,6 +184,15 @@ update msg gid now =
             move direction gid now
 
 
+updateInner msg gid now =
+    case msg of
+        Set setMsg ->
+            updateWithSetMsg setMsg gid now
+
+        Move direction ->
+            move direction gid now
+
+
 ifCanAddGrainThen :
     (Grain -> GrainStore -> UpdateResult)
     -> Grain
