@@ -181,20 +181,21 @@ insertGrainThenBatchUpdate updaters grain model =
 
 batchUpdatersFromTree now gid tree =
     let
-        parentGrain =
+        parentId =
             Tree.label tree
+                |> Grain.idAsParentId
 
         childGrains_ =
             Tree.children tree |> List.map Tree.label
     in
-    ( parentGrain, childGrains_ )
-        |> Tuple.mapBoth
-            (Grain.idAsParentId
-                >> parentIdUpdater
-                >> callWith2 now gid
+    parentIdUpdater parentId now gid
+        :: List.indexedMap
+            (\idx g ->
+                ( Grain.update now <| Grain.SetSortIdx idx
+                , Grain.id g
+                )
             )
-            (listToSortIdxUpdaters now)
-        |> Tuple2.uncurry (::)
+            childGrains_
 
 
 type Update
@@ -250,16 +251,6 @@ updateGrain msg gid now =
 
 --        SetSortIdx val ->
 --            updateWithSetMsg (Grain.SetSortIdx val) gid now
-
-
-listToSortIdxUpdaters : Posix -> List Grain -> List GrainUpdater
-listToSortIdxUpdaters now =
-    List.indexedMap
-        (\idx g ->
-            ( Grain.update now <| Grain.SetSortIdx idx
-            , Grain.id g
-            )
-        )
 
 
 parentIdUpdater pid now gid =
