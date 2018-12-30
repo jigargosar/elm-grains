@@ -396,22 +396,6 @@ focusRelative gid tree message model =
 -- GRAIN STORE --
 
 
-performGrainSetContent content gid =
-    performGrainSet (Grain.SetContent content) gid
-
-
-performGrainSet setMsg gid =
-    performGrainUpdate (GrainStore.Set setMsg) gid
-
-
-performGrainUpdate msg gid =
-    Task.perform
-        (UpdateGrainStore
-            << GS_UpdateGrain msg gid
-        )
-        Time.now
-
-
 localPersistGrainStoreEffect model =
     Port.setGrainCache <| GrainStore.encoder model.grainStore
 
@@ -567,7 +551,13 @@ update message model =
                     (addBuiltGrain >> callWith model)
 
         UpdateGrain msg gid ->
-            ( model, performGrainUpdate msg gid )
+            ( model
+            , Task.perform
+                (UpdateGrainStore
+                    << GS_UpdateGrain msg gid
+                )
+                Time.now
+            )
 
         UpdateGrainStore msg ->
             updateGrainStore msg model
