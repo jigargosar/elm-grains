@@ -752,7 +752,7 @@ grainTreeViewKeyBindings tree gid =
                 (Tuple2.double
                     >> Tuple.mapBoth
                         K.metaArrow
-                        (UpdateGrain << GrainStore.Move)
+                        moveMsg
                 )
                 Direction.list
 
