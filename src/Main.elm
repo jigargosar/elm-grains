@@ -155,6 +155,10 @@ setGrainStore grainStore model =
     { model | grainStore = grainStore }
 
 
+setEditGid editGid model =
+    { model | editGid = editGid }
+
+
 
 ---- UPDATE ----
 
@@ -501,6 +505,14 @@ updateUrlChanged event model =
 
 
 
+--- EDIT
+
+
+beforeEndEditing model =
+    Return.singleton model
+
+
+
 -- UPDATE
 
 
@@ -546,15 +558,12 @@ update message model =
             , GrainTreeView.contentInputDomId gid
                 |> focusCmd
             )
+                |> effectIf wasEditing firePersistEffect
 
         EndEditing gid ->
-            let
-                wasEditing =
-                    Maybe.isJust model.editGid
-            in
-            ( { model | editGid = Nothing }
-            , focusGidCmd gid
-            )
+            beforeEndEditing model
+                |> Return.map (setEditGid Nothing)
+                |> Return.command (focusGidCmd gid)
 
         NewGrain addMsg ->
             let
