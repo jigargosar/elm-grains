@@ -401,19 +401,19 @@ firePersistUnsavedGrainsEffect model =
             |> Port.persistSavedGrainList
 
 
+setGrainStoreAndPersist : GrainStore -> Model -> Return Msg Model
+setGrainStoreAndPersist newGrainStore =
+    Return.singleton
+        >> Return.map (setGrainStore newGrainStore)
+        >> Return.effect_ localPersistGrainStoreEffect
+        >> Return.effect_ firePersistUnsavedGrainsEffect
+
+
 updateGrainStore :
     GrainStore.Msg
     -> Model
     -> ( Model, Cmd Msg )
 updateGrainStore message model =
-    let
-        setGrainStoreAndPersist : GrainStore -> Model -> Return Msg Model
-        setGrainStoreAndPersist newGrainStore =
-            Return.singleton
-                >> Return.map (setGrainStore newGrainStore)
-                >> Return.effect_ localPersistGrainStoreEffect
-                >> Return.effect_ firePersistUnsavedGrainsEffect
-    in
     GrainStore.update message model.grainStore
         |> Result.mapBoth
             updateError
