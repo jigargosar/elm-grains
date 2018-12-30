@@ -514,8 +514,10 @@ update message model =
                             )
 
         StartEditing gid ->
-            { model | editGid = Just gid }
-                |> Return.singleton
+            ( { model | editGid = Just gid }
+            , GrainTreeView.contentInputDomId gid
+                |> focusCmd
+            )
 
         NewGrain addMsg ->
             let
