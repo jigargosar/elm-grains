@@ -185,17 +185,18 @@ batchUpdatersFromTree now gid tree =
             Tree.label tree
                 |> Grain.idAsParentId
 
-        childGrains_ =
-            Tree.children tree |> List.map Tree.label
+        childUpdaters =
+            Tree.children tree
+                |> List.map Tree.label
+                |> List.indexedMap
+                    (\idx g ->
+                        ( Grain.update now <| Grain.SetSortIdx idx
+                        , Grain.id g
+                        )
+                    )
     in
     parentIdUpdater parentId now gid
-        :: List.indexedMap
-            (\idx g ->
-                ( Grain.update now <| Grain.SetSortIdx idx
-                , Grain.id g
-                )
-            )
-            childGrains_
+        :: childUpdaters
 
 
 type Update
