@@ -1,18 +1,16 @@
 module GrainStore exposing
     ( Add(..)
     , GrainStore
+    , Msg(..)
     , Update(..)
-    , addNew
     , decoder
     , encoder
     , get
     , init
-    , load
     , rejectSubTreeAndFlatten
     , toRawList
     , treeFromGid
-    , updateFromFirebaseChangeList
-    , updateGrain
+    , update
     )
 
 import ActorId exposing (ActorId)

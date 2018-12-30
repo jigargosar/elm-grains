@@ -113,7 +113,7 @@ init flags =
                 |> Random.finish
     in
     model
-        |> update (UpdateGrainStore <| GS_Load flags.grainCache)
+        |> update (UpdateGrainStore <| GrainStore.Load flags.grainCache)
 
 
 setRoute route model =
@@ -153,13 +153,6 @@ setGrainStore grainStore model =
 ---- UPDATE ----
 
 
-type GrainStoreMsg
-    = GS_UpdateGrain GrainStore.Update GrainId Posix
-    | GS_AddGrain GrainStore.Add Grain
-    | GS_FirebaseChanges (List GrainChange)
-    | GS_Load Value
-
-
 type FocusRelativeMsg
     = FR_Forward
     | FR_Backward
@@ -178,7 +171,7 @@ type Msg
     | NewGrainStep (GrainBuilder GrainStore.Add)
       -- UPDATE GRAIN --
     | UpdateGrain GrainStore.Update GrainId
-    | UpdateGrainStore GrainStoreMsg
+    | UpdateGrainStore GrainStore.Msg
       -- GRAIN FOCUS NAVIGATION
     | FocusRelative FocusRelativeMsg GrainTree GrainId
       -- POPUP
@@ -414,12 +407,12 @@ firePersistUnsavedGrainsEffect model =
 
 addBuiltGrain ( addMsg, grain ) model =
     updateGrainStore
-        (GS_AddGrain addMsg grain)
+        (GrainStore.AddGrain addMsg grain)
         model
 
 
 updateGrainStore :
-    GrainStoreMsg
+    GrainStore.Msg
     -> Model
     -> ( Model, Cmd Msg )
 updateGrainStore message model =
@@ -434,27 +427,8 @@ updateGrainStore message model =
             Result.map (setGrainStoreAndPersist >> callWith model)
                 >> handleStringResult model
     in
-    case message of
-        GS_AddGrain msg grain ->
-            GrainStore.addNew msg
-                grain
-                model.grainStore
-                |> handleResult
-
-        GS_UpdateGrain msg gid now ->
-            GrainStore.updateGrain msg
-                gid
-                now
-                model.grainStore
-                |> handleResult
-
-        GS_FirebaseChanges changeList ->
-            GrainStore.updateFromFirebaseChangeList changeList
-                model.grainStore
-                |> handleResult
-
-        GS_Load encoded ->
-            GrainStore.load encoded |> handleResult
+    GrainStore.update message model
+        |> handleResult
 
 
 
@@ -550,7 +524,7 @@ update message model =
             ( model
             , Task.perform
                 (UpdateGrainStore
-                    << GS_UpdateGrain msg gid
+                    << GrainStore.UpdateGrain msg gid
                 )
                 Time.now
             )
@@ -590,7 +564,7 @@ update message model =
                         |> Return.singleton
 
                 Firebase.GrainChanges changes ->
-                    updateGrainStore (GS_FirebaseChanges changes) model
+                    updateGrainStore (GrainStore.FirebaseChanges changes) model
 
         SignIn ->
             Return.return model (Firebase.signIn ())
