@@ -168,18 +168,12 @@ addNew msg newGrain model =
         model
             |> rootTreeZipper
             |> fn newGrain
-            |> Maybe.map (batchUpdatersFromTree now newGrain)
             |> Maybe.unwrap
                 (Result.Err "Err: addNewGrainAfter")
-                (callWith model)
+                (addGrainWithParentTree now newGrain >> callWith model)
 
 
-insertGrainThenBatchUpdate updaters grain model =
-    blindInsertGrain grain model
-        |> batchUpdate updaters
-
-
-batchUpdatersFromTree now newGrain tree =
+addGrainWithParentTree now newGrain tree =
     let
         newGid =
             Grain.id newGrain
