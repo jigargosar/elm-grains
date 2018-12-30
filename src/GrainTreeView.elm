@@ -38,6 +38,7 @@ import Html.Styled.Events
         , onFocus
         , onInput
         )
+import MaterialColor
 import Maybe.Extra as Maybe
 import Tree exposing (Tree)
 
@@ -104,14 +105,30 @@ viewNodeTree config level tree =
                     []
 
             else
+                let
+                    title =
+                        Grain.titleOrEmpty grain
+
+                    isTitleEmpty =
+                        String.isEmpty title
+
+                    displayTitle =
+                        title
+                            |> defaultEmptyStringTo "Title..."
+                in
                 div
                     [ id (grainDomId gid)
                     , tabindex 0
                     , CssEventX.onKeyDownCustom (config.keyDownCustom gid)
-                    , css nodeStyles
+                    , css
+                        (nodeStyles
+                            ++ [ CS.styleIf isTitleEmpty
+                                    (Css.color (CS.fromMaterialColor MaterialColor.grey500))
+                               ]
+                        )
                     , onDoubleClick (config.routeTo gid)
                     ]
-                    [ text (Grain.titleOrEmpty grain) ]
+                    [ text displayTitle ]
     in
     grainView
         :: viewForest config (level + 1) tree
