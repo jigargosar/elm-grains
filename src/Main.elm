@@ -514,14 +514,13 @@ update message model =
                     Random.step (Grain.generator now)
                         independentSeed
                         |> Tuple.first
-
-                cmd =
-                    Time.now
-                        |> Task.map grainFromNow
-                        |> Task.perform
-                            (AddNewGrain addMsg)
             in
-            ( newModel, cmd )
+            ( newModel
+            , Time.now
+                |> Task.map grainFromNow
+                |> Task.perform
+                    (AddNewGrain addMsg)
+            )
 
         AddNewGrain addMsg grain ->
             updateGrainStore (GrainStore.AddGrain addMsg grain)
