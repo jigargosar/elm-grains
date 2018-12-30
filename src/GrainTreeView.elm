@@ -98,7 +98,7 @@ viewNodeTree config level tree =
                 textarea
                     [ id (contentInputDomId gid)
                     , tabindex 0
-                    , CssEventX.onKeyDownCustom (config.keyDownCustom gid)
+                    , CssEventX.onKeyDownCustom (config.editKeyDownCustom gid)
                     , css nodeStyles
                     , value (Grain.content grain)
                     , onInput (config.onContentChanged gid)
@@ -120,7 +120,7 @@ viewNodeTree config level tree =
                 div
                     [ id (grainDomId gid)
                     , tabindex 0
-                    , CssEventX.onKeyDownCustom (config.editKeyDownCustom gid)
+                    , CssEventX.onKeyDownCustom (config.keyDownCustom gid)
                     , css
                         (nodeStyles
                             ++ [ CS.styleIf isTitleEmpty
