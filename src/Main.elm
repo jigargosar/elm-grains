@@ -179,7 +179,6 @@ type Msg
       -- UPDATE GRAIN --
     | UpdateGrain GrainStore.Update GrainId
     | UpdateGrainStore GrainStoreMsg
-    | DragGrain GrainId
       -- GRAIN FOCUS NAVIGATION
     | FocusRelative FocusRelativeMsg GrainTree GrainId
       -- POPUP
@@ -572,9 +571,6 @@ update message model =
 
         UpdateGrainStore msg ->
             updateGrainStore msg model
-
-        DragGrain gid ->
-            Return.singleton model
 
         DismissPopupAndThen msg ->
             dismissPopup model
