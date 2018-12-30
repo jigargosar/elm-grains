@@ -170,8 +170,8 @@ type Msg
     | NewGrain GrainStore.Add
     | NewGrainStep (GrainBuilder GrainStore.Add)
       -- UPDATE GRAIN --
-    | UpdateGrainWithNow GrainStore.Update GrainId
-    | UpdateGrainStore GrainStore.Msg
+    | UpdateGrain GrainStore.Update GrainId
+    | UpdateGrainWithNow GrainStore.Update GrainId Posix
       -- GRAIN FOCUS NAVIGATION
     | FocusRelative FocusRelativeMsg GrainTree GrainId
       -- POPUP
@@ -195,15 +195,15 @@ routeToGrainTreeMsg gid =
 
 
 setParentIdMsg pid gid =
-    UpdateGrainWithNow (GrainStore.SetParentId pid) gid
+    UpdateGrain (GrainStore.SetParentId pid) gid
 
 
 setDeletedMsg deleted gid =
-    UpdateGrainWithNow (GrainStore.SetDeleted deleted) gid
+    UpdateGrain (GrainStore.SetDeleted deleted) gid
 
 
 moveMsg direction gid =
-    UpdateGrainWithNow (GrainStore.Move direction) gid
+    UpdateGrain (GrainStore.Move direction) gid
 
 
 autoFocusRouteCmd : Route -> Cmd Msg
@@ -517,17 +517,17 @@ update message model =
                         >> callWith model
                     )
 
-        UpdateGrainWithNow msg gid ->
+        UpdateGrain msg gid ->
             ( model
             , Task.perform
-                (UpdateGrainStore
-                    << GrainStore.UpdateGrain msg gid
-                )
+                (UpdateGrainWithNow msg gid)
                 Time.now
             )
 
-        UpdateGrainStore msg ->
-            updateGrainStore msg model
+        UpdateGrainWithNow updateMsg gid now ->
+            updateGrainStore
+                (GrainStore.UpdateGrain updateMsg gid now)
+                model
 
         DismissPopupAndThen msg ->
             dismissPopup model
