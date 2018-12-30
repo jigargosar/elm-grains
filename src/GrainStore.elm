@@ -6,6 +6,7 @@ module GrainStore exposing
     , decoder
     , encoder
     , get
+    , getSavedGrain
     , init
     , rejectSubTreeAndFlatten
     , toRawList
@@ -128,6 +129,11 @@ rejectSubTreeAndFlatten grain =
 get : GrainId -> GrainStore -> Maybe Grain
 get gid =
     GrainIdLookup.get gid >> Maybe.map SavedGrain.value
+
+
+getSavedGrain : GrainId -> GrainStore -> Maybe Grain
+getSavedGrain gid =
+    GrainIdLookup.get gid
 
 
 type Add

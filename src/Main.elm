@@ -509,6 +509,12 @@ updateUrlChanged event model =
 
 
 beforeEndEditing model =
+    let
+        foo : Maybe SavedGrain
+        foo =
+            model.editGid
+                |> Maybe.andThen (GrainStore.getSavedGrain >> callWith model.grainStore)
+    in
     Return.singleton model
 
 
