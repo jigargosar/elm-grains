@@ -181,9 +181,14 @@ insertGrainThenBatchUpdate updaters grain model =
 
 batchUpdatersFromTree now gid tree =
     let
-        parentId =
+        parentIdUpdater =
             Tree.label tree
                 |> Grain.idAsParentId
+                |> (\pid ->
+                        ( Grain.update now (Grain.SetParentId pid)
+                        , gid
+                        )
+                   )
 
         childUpdaters =
             Tree.children tree
@@ -195,8 +200,7 @@ batchUpdatersFromTree now gid tree =
                         )
                     )
     in
-    parentIdUpdater parentId now gid
-        :: childUpdaters
+    parentIdUpdater :: childUpdaters
 
 
 type Update
@@ -252,15 +256,6 @@ updateGrain msg gid now =
 
 --        SetSortIdx val ->
 --            updateWithSetMsg (Grain.SetSortIdx val) gid now
-
-
-parentIdUpdater pid now gid =
-    ( Grain.update now (Grain.SetParentId pid)
-    , gid
-    )
-
-
-
 -- EXPOSED UPDATERS
 
 
