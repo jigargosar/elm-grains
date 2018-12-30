@@ -507,11 +507,15 @@ update message model =
 
         NewGrain addMsg ->
             let
+                grainGeneratorFromNow now =
+                    Grain.generator now
+
                 generateGrain independentSeed =
                     Time.now
                         |> Task.map
-                            (\now ->
-                                Random.step (Grain.generator now)
+                        |> Task.map grainGeneratorFromNow
+                            (\generator ->
+                                Random.step generator
                                     independentSeed
                                     |> Tuple.first
                             )
