@@ -139,21 +139,22 @@ type Add
 
 addNew : Add -> Grain -> GrainStore -> UpdateResult
 addNew msg =
-    case msg of
-        AddAfter gid ->
-            addNewAndThenBatchUpdate
-                (addNewAfterBatchUpdaters gid)
+    let
+        fn =
+            case msg of
+                AddAfter gid ->
+                    addNewAfterBatchUpdaters gid
 
-        AddBefore gid ->
-            addNewAndThenBatchUpdate
-                (addNewBeforeBatchUpdaters gid)
+                AddBefore gid ->
+                    addNewBeforeBatchUpdaters gid
 
-        AddChild gid ->
-            addNewAndThenBatchUpdate
-                (addNewChildBatchUpdaters gid)
+                AddChild gid ->
+                    addNewChildBatchUpdaters gid
 
-        AddDefault ->
-            addNew (AddChild GrainId.root)
+                AddDefault ->
+                    addNewChildBatchUpdaters GrainId.root
+    in
+    addNewAndThenBatchUpdate fn
 
 
 addNewAndThenBatchUpdate fn grain model =
