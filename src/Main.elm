@@ -860,7 +860,7 @@ moveGrainPopupViewModel model grain =
     { grain = grain
     , otherGrains = otherGrains
     , isSelected = Grain.isParentOf grain
-    , dismissMsg = Popup PM_Dismiss
+    , dismissMsg = DismissPopupAnd NoOp
     , setParentMsg =
         \pid ->
             DismissPopupAnd <| GrainSet (Grain.SetParentId pid) gid
