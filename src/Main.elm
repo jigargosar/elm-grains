@@ -167,7 +167,7 @@ type Msg
     | ToastDismiss
       -- ADD GRAIN --
     | NewGrain GrainStore.Add
-    | NewGrainWithNow GrainStore.Add Seed Posix
+    | AddNewGrain GrainStore.Add Grain
       -- UPDATE GRAIN --
     | UpdateGrain GrainStore.Update GrainId
     | UpdateGrainWithNow GrainStore.Update GrainId Posix
@@ -507,15 +507,16 @@ update message model =
             in
             ( setNextSeed nextSeed model
             , Time.now
+                |> Task.map
+                    (\now ->
+                        Random.step (Grain.generator now) independentSeed
+                            |> Tuple.first
+                    )
                 |> Task.perform
-                    (NewGrainWithNow addMsg independentSeed)
+                    (AddNewGrain addMsg)
             )
 
-        NewGrainWithNow addMsg independentSeed now ->
-            let
-                ( grain, _ ) =
-                    Random.step (Grain.generator now) independentSeed
-            in
+        AddNewGrain addMsg grain ->
             updateGrainStore (GrainStore.AddGrain addMsg grain)
                 model
 
