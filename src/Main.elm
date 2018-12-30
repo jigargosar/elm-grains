@@ -522,7 +522,7 @@ update message model =
 
         EndEditing gid ->
             ( { model | editGid = Nothing }
-            , Cmd.none
+            , focusGidCmd gid
             )
 
         NewGrain addMsg ->
