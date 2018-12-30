@@ -206,6 +206,34 @@ type Update
 --        Grain.setModifiedAt now newGrain
 
 
+type Msg
+    = AddGrain Add Grain
+    | UpdateGrain Update GrainId Posix
+    | Load Value
+    | FirebaseChanges (List GrainChange)
+
+
+update message model =
+    case message of
+        AddGrain msg grain ->
+            addNew msg
+                grain
+                model.grainStore
+
+        UpdateGrain msg gid now ->
+            updateGrain msg
+                gid
+                now
+                model.grainStore
+
+        FirebaseChanges changeList ->
+            updateFromFirebaseChangeList changeList
+                model.grainStore
+
+        Load encoded ->
+            load encoded
+
+
 updateGrain msg gid now =
     case msg of
         Move direction ->
