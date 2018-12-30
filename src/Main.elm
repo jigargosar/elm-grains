@@ -747,7 +747,7 @@ grainTreeViewKeyBindings tree gid =
             , ( K.arrowUp, fr FR_Backward )
             , ( K.arrowLeft, arrowLeftMsg )
             , ( K.arrowRight, routeToGrainTreeMsg )
-            , ( K.shiftMetaEnter, NewGrain << GrainStore.AddAfter )
+            , ( K.shiftMetaEnter, NewGrain << GrainStore.AddChild )
             ]
                 ++ moveMappings
     in

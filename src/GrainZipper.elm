@@ -9,6 +9,7 @@ module GrainZipper exposing
     , fromTree
     , lastDescendentGrain
     , parentWhenIdEq
+    , prependChildWhenIdEqAndGetParentAndChildGrains
     , prependWhenIdEqAndGetParentAndChildGrains
     , removeEqByIdThenFlatten
     , siblingsOf
@@ -116,6 +117,14 @@ appendGrain grain =
         |> map
 
 
+prependChildGrain : Grain -> GrainZipper -> Maybe GrainZipper
+prependChildGrain grain =
+    (Z.mapTree (Tree.prependChild (Tree.singleton grain))
+        >> Z.firstChild
+    )
+        |> mapMaybe
+
+
 prependGrain : Grain -> GrainZipper -> GrainZipper
 prependGrain grain =
     Z.prepend (Tree.singleton grain)
@@ -137,7 +146,7 @@ prependWhenIdEq gid grain =
 prependChildIdEq : GrainId -> Grain -> GrainZipper -> Maybe GrainZipper
 prependChildIdEq gid grain =
     findFromRootIdEq gid
-        >> Maybe.map (appendGrain grain)
+        >> Maybe.andThen (prependChildGrain grain)
 
 
 appendWhenIdEqAndGetParentAndChildGrains :
@@ -166,7 +175,7 @@ prependChildWhenIdEqAndGetParentAndChildGrains :
     -> GrainZipper
     -> Maybe ( Grain, List Grain )
 prependChildWhenIdEqAndGetParentAndChildGrains gid grain =
-    appendWhenIdEq gid grain
+    prependChildIdEq gid grain
         >> Maybe.andThen toParentChildrenLabelsTuple
 
 

@@ -317,7 +317,7 @@ addNewChildBatchUpdaters parentId now grain =
             Grain.id grain
     in
     rootTreeZipper
-        >> Z.prependWhenIdEqAndGetParentAndChildGrains parentId grain
+        >> Z.prependChildWhenIdEqAndGetParentAndChildGrains parentId grain
         >> Maybe.map
             (afterAddGrainUpdaters now gid)
 
