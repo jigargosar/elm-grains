@@ -140,7 +140,7 @@ type Add
 addNew : Add -> Grain -> GrainStore -> UpdateResult
 addNew msg newGrain model =
     let
-        addToZipperAndGetParentTree =
+        addWithZipperAndGetParentTree =
             case msg of
                 AddAfter gid ->
                     Z.appendWhenIdEqAndGetParentTree gid
@@ -166,7 +166,7 @@ addNew msg newGrain model =
                 Grain.createdAt newGrain
         in
         rootTreeZipper model
-            |> addToZipperAndGetParentTree newGrain
+            |> addWithZipperAndGetParentTree newGrain
             |> Maybe.unwrap
                 (Result.Err "Err: addNewGrainAfter")
                 (addGrainWithParentTree now newGrain >> callWith model)
