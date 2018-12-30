@@ -510,9 +510,9 @@ update message model =
                 ( newModel, independentSeed ) =
                     generateIndependentSeed model
 
+                grainFromNow : Posix -> Grain
                 grainFromNow now =
-                    Random.step (Grain.generator now)
-                        independentSeed
+                    Random.step (Grain.generator now) independentSeed
                         |> Tuple.first
             in
             ( newModel
