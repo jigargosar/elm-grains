@@ -413,16 +413,13 @@ updateGrainStore message model =
                 >> Return.map (setGrainStore newGrainStore)
                 >> Return.effect_ localPersistGrainStoreEffect
                 >> Return.effect_ firePersistUnsavedGrainsEffect
-
-        handleResult =
-            Result.mapBoth
-                updateError
-                setGrainStoreAndPersist
-                >> Result.merge
-                >> callWith model
     in
     GrainStore.update message model.grainStore
-        |> handleResult
+        |> Result.mapBoth
+            updateError
+            setGrainStoreAndPersist
+        >> Result.merge
+        >> callWith model
 
 
 
