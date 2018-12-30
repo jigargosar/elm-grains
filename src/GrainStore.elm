@@ -131,7 +131,7 @@ get gid =
     GrainIdLookup.get gid >> Maybe.map SavedGrain.value
 
 
-getSavedGrain : GrainId -> GrainStore -> Maybe Grain
+getSavedGrain : GrainId -> GrainStore -> Maybe SavedGrain
 getSavedGrain gid =
     GrainIdLookup.get gid
 
