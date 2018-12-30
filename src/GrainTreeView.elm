@@ -37,6 +37,7 @@ import Html.Styled.Events
         , onFocus
         , onInput
         )
+import Maybe.Extra as Maybe
 import Tree exposing (Tree)
 
 
@@ -95,6 +96,9 @@ viewNodeTree config level tree =
 
         title =
             Grain.titleOrEmpty grain
+
+        isEditing =
+            Maybe.unwrap False (Grain.idEq gid)
     in
     div
         [ id (grainDomId gid)
