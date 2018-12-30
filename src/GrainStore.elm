@@ -171,8 +171,7 @@ addNew msg grain =
 
 
 type Update
-    = Set Grain.Set
-    | Move Direction
+    = Move Direction
     | SetContent String
     | SetDeleted Bool
     | SetParentId ParentId
@@ -209,9 +208,6 @@ type Update
 
 update msg gid now =
     case msg of
-        Set setMsg ->
-            updateWithSetMsg setMsg gid now
-
         Move direction ->
             move direction gid now
 
