@@ -429,6 +429,14 @@ setGrainStoreAndPersist newGrainStore =
         >> Return.effect_ firePersistEffect
 
 
+effectIf bool fn =
+    if bool then
+        Return.effect_ fn
+
+    else
+        identity
+
+
 updateGrainStore :
     GrainStore.Msg
     -> Model
@@ -530,13 +538,7 @@ update message model =
             , GrainTreeView.contentInputDomId gid
                 |> focusCmd
             )
-                |> Return.effect_
-                    (if wasEditing then
-                        firePersistEffect
-
-                     else
-                        always Cmd.none
-                    )
+                |> effectIf wasEditing firePersistEffect
 
         EndEditing gid ->
             let
@@ -546,13 +548,7 @@ update message model =
             ( { model | editGid = Nothing }
             , focusGidCmd gid
             )
-                |> Return.effect_
-                    (if wasEditing then
-                        firePersistEffect
-
-                     else
-                        always Cmd.none
-                    )
+                |> effectIf wasEditing firePersistEffect
 
         NewGrain addMsg ->
             let
