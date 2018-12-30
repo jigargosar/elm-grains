@@ -517,10 +517,10 @@ update message model =
                         >> callWith model
                     )
 
-        UpdateGrain msg gid ->
+        UpdateGrain updateMsg gid ->
             ( model
             , Task.perform
-                (UpdateGrainWithNow msg gid)
+                (UpdateGrainWithNow updateMsg gid)
                 Time.now
             )
 
