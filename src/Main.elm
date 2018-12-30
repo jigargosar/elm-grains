@@ -437,6 +437,14 @@ effectIf bool fn =
         identity
 
 
+andThenIf bool fn =
+    if bool then
+        Return.andThen fn
+
+    else
+        identity
+
+
 updateGrainStore :
     GrainStore.Msg
     -> Model
@@ -538,7 +546,6 @@ update message model =
             , GrainTreeView.contentInputDomId gid
                 |> focusCmd
             )
-                |> effectIf wasEditing firePersistEffect
 
         EndEditing gid ->
             let
@@ -548,7 +555,6 @@ update message model =
             ( { model | editGid = Nothing }
             , focusGidCmd gid
             )
-                |> effectIf wasEditing firePersistEffect
 
         NewGrain addMsg ->
             let
