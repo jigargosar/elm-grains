@@ -113,7 +113,7 @@ init flags =
                 |> Random.finish
     in
     model
-        |> update (UpdateGrainStore <| GrainStore.Load flags.grainCache)
+        |> updateGrainStore (GrainStore.Load flags.grainCache)
 
 
 setRoute route model =
