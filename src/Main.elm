@@ -351,6 +351,10 @@ focusGidCmd gid =
     focusCmd <| GrainTreeView.grainDomId gid
 
 
+focusEditGidCmd gid =
+    focusCmd <| GrainTreeView.contentInputDomId gid
+
+
 focusMaybeGidCmd =
     unwrapMaybeCmd focusGidCmd
 
@@ -499,38 +503,6 @@ updateUrlChanged event model =
 
 
 
---- EDIT
-
-
-beforeEndEditing model =
-    model.editGid
-        |> Maybe.andThen (GrainStore.getSavedGrain >> callWith model.grainStore)
-        |> Maybe.map
-            (\savedGrain ->
-                let
-                    shouldRemove =
-                        SavedGrain.neverPersisted savedGrain
-                            && (SavedGrain.value savedGrain
-                                    |> (Grain.content >> isBlank)
-                               )
-                in
-                if shouldRemove then
-                    GrainStore.removeSavedGrain
-                        (Debug.log "removing: savedGrain"
-                            savedGrain
-                        )
-                        model.grainStore
-                        |> (setGrainStore >> callWith model)
-                        |> Return.singleton
-                        |> Return.effect_ localPersistGrainStoreEffect
-
-                else
-                    Return.singleton model
-            )
-        |> Maybe.withDefault (Return.singleton model)
-
-
-
 -- UPDATE
 
 
@@ -568,20 +540,13 @@ update message model =
                             )
 
         StartEditing gid ->
-            let
-                wasEditing =
-                    Maybe.isJust model.editGid
-            in
-            ( { model | editGid = Just gid }
-            , GrainTreeView.contentInputDomId gid
-                |> focusCmd
+            ( setEditGid (Just gid) model
+            , focusEditGidCmd gid
             )
-                |> effectIf wasEditing firePersistEffect
+                |> Return.effect_ firePersistEffect
 
         EndEditing gid ->
-            beforeEndEditing model
-                |> Return.map (setEditGid Nothing)
-                |> Return.command (focusGidCmd gid)
+            ( setEditGid Nothing model, focusGidCmd gid )
                 |> Return.effect_ firePersistEffect
 
         NewGrain addMsg ->
