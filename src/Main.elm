@@ -507,13 +507,10 @@ update message model =
 
         NewGrain addMsg ->
             let
-                grainGeneratorFromNow now =
-                    Grain.generator now
-
                 generateGrain independentSeed =
                     Time.now
+                        |> Task.map Grain.generator
                         |> Task.map
-                        |> Task.map grainGeneratorFromNow
                             (\generator ->
                                 Random.step generator
                                     independentSeed
