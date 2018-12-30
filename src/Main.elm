@@ -228,6 +228,10 @@ routeToGrainTreeMsg gid =
     routeToMsg <| Route.GrainTree gid
 
 
+setParentIdMsg pid gid =
+    GrainSet (Grain.SetParentId pid) gid
+
+
 autoFocusRouteCmd : Route -> Cmd Msg
 autoFocusRouteCmd =
     maybeAutoFocusRouteDomId >> unwrapMaybeCmd (BrowserX.focus FocusResult)
@@ -835,7 +839,7 @@ grainMorePopupViewModel model grain =
         gid =
             Grain.id grain
     in
-    { editMsg = Popup <| PM_RouteToGrain gid
+    { editMsg = DismissPopupAndThen <| routeToGrainTreeMsg gid
     , moveUpMsg = Popup <| PM_MoveGrain gid Direction.Up
     , moveDownMsg = Popup <| PM_MoveGrain gid Direction.Down
     , moveToMsg = Popup <| PM_Open (Popup.GrainMovePopup gid)
@@ -863,7 +867,7 @@ moveGrainPopupViewModel model grain =
     , dismissMsg = DismissPopupAndThen NoOp
     , setParentMsg =
         \pid ->
-            DismissPopupAndThen <| GrainSet (Grain.SetParentId pid) gid
+            DismissPopupAndThen <| setParentIdMsg pid gid
     , setParentToRootMsg =
         DismissPopupAndThen <|
             GrainSet (Grain.SetParentId Grain.rootIdAsParentId) gid
