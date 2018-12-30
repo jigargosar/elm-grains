@@ -205,10 +205,6 @@ setParentIdMsg pid gid =
     UpdateGrain (GrainStore.SetParentId pid) gid
 
 
-grainSetMsg msg gid =
-    UpdateGrain (GrainStore.Set msg) gid
-
-
 setDeletedMsg deleted gid =
     UpdateGrain (GrainStore.SetDeleted deleted) gid
 
