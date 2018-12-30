@@ -44,19 +44,12 @@ import Tree exposing (Tree)
 
 grainDomId : GrainId -> String
 grainDomId =
-    GrainId.toDomIdWithPrefix "grain-list-item--"
+    GrainId.toDomIdWithPrefix "grain-tree-item--"
 
 
-inlineGrainEditInputDomId =
-    Grain.toDomIdWithPrefix editInputPrefix
-
-
-editInputPrefix =
-    "grain-list-item-edit-input--"
-
-
+contentInputDomId : GrainId -> String
 contentInputDomId =
-    GrainId.toDomIdWithPrefix editInputPrefix
+    GrainId.toDomIdWithPrefix "grain-tree-item-content-input--"
 
 
 type alias GrainTreeView msg =
@@ -103,8 +96,8 @@ viewNodeTree config level tree =
 
         grainView =
             if isEditing then
-                div
-                    [ id (grainDomId gid)
+                textarea
+                    [ id (contentInputDomId gid)
                     , tabindex 0
                     , CssEventX.onKeyDownCustom
                         (config.keyDownCustom gid)
