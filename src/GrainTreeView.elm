@@ -57,55 +57,10 @@ contentInputDomId =
     GrainId.toDomIdWithPrefix editInputPrefix
 
 
-type alias DisplayModel =
-    { title : String
-    , domId : String
-    , gid : GrainId
-    }
-
-
-type alias EditModel msg =
-    { content : String
-    , domId : String
-    , gid : GrainId
-    , onContentChanged : String -> msg
-    }
-
-
-type Node msg
-    = DisplayNode DisplayModel
-    | EditNode (EditModel msg)
-
-
-type alias NodeTree msg =
-    Tree (Node msg)
-
-
-grainToNode : Grain -> Node msg
-grainToNode grain =
-    let
-        gid =
-            Grain.id grain
-    in
-    DisplayNode
-        { title = Grain.titleOrEmpty grain
-        , domId = grainDomId gid
-        , gid = gid
-        }
-
-
-type alias EditView msg =
-    { gid : GrainId
-    , onContentChanged : String -> msg
-    , content : String
-    }
-
-
 type alias GrainTreeView msg =
     { keyDownCustom : GrainId -> EventX.CustomDecoder msg
     , routeTo : GrainId -> msg
     , grainTree : GrainTree
-    , editVM : Maybe (EditView msg)
     , onContentChanged : GrainId -> String -> msg
     , editGid : Maybe GrainId
     }
@@ -116,61 +71,41 @@ view config =
     let
         grainTree =
             config.grainTree
-
-        nodeTree =
-            Tree.map grainToNode grainTree
     in
-    viewNodeTree config 0 nodeTree
+    viewNodeTree config 0 grainTree
 
 
-viewNodeTree : GrainTreeView msg -> Float -> NodeTree msg -> List (Html msg)
+viewNodeTree : GrainTreeView msg -> Float -> GrainTree -> List (Html msg)
 viewNodeTree config level tree =
-    case Tree.label tree of
-        DisplayNode node ->
-            let
-                nodeStyles =
-                    if level == 0 then
-                        [ CS.pv1, CS.ph2, CS.bold ]
+    let
+        nodeStyles =
+            if level == 0 then
+                [ CS.pv1, CS.ph2, CS.bold ]
 
-                    else
-                        [ CS.pa1
-                        , Css.paddingLeft <| px <| 4 + (level * 32)
-                        ]
-            in
-            div
-                [ id node.domId
-                , tabindex 0
-                , CssEventX.onKeyDownCustom
-                    (config.keyDownCustom node.gid)
-                , css nodeStyles
-                , onDoubleClick (config.routeTo node.gid)
+            else
+                [ CS.pa1
+                , Css.paddingLeft <| px <| 4 + (level * 32)
                 ]
-                [ text node.title ]
-                :: viewForest config (level + 1) tree
 
-        EditNode node ->
-            let
-                nodeStyles =
-                    if level == 0 then
-                        [ CS.pv1, CS.ph2, CS.bold ]
+        grain =
+            Tree.label tree
 
-                    else
-                        [ CS.pa1
-                        , Css.paddingLeft <| px <| 4 + (level * 32)
-                        ]
-            in
-            textarea
-                [ id node.domId
-                , tabindex 0
-                , CssEventX.onKeyDownCustom
-                    (config.keyDownCustom node.gid)
-                , css nodeStyles
-                , onDoubleClick (config.routeTo node.gid)
-                , value node.content
-                , onInput node.onContentChanged
-                ]
-                []
-                :: viewForest config (level + 1) tree
+        gid =
+            Grain.id grain
+
+        title =
+            Grain.titleOrEmpty grain
+    in
+    div
+        [ id (grainDomId gid)
+        , tabindex 0
+        , CssEventX.onKeyDownCustom
+            (config.keyDownCustom gid)
+        , css nodeStyles
+        , onDoubleClick (config.routeTo gid)
+        ]
+        [ text title ]
+        :: viewForest config (level + 1) tree
 
 
 viewForest config level tree =

@@ -752,7 +752,6 @@ grainTreeViewModel tree =
     { grainTree = tree
     , routeTo = routeToGrainTreeMsg
     , keyDownCustom = grainTreeViewKeyBindings tree
-    , editVM = Nothing
     , editGid = Nothing
     , onContentChanged = \gid content -> setContentMsg content gid
     }
