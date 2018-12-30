@@ -143,16 +143,16 @@ addNew msg grain model =
         fn =
             case msg of
                 AddAfter gid ->
-                    Z.appendWhenIdEqAndGetParentAndChildGrains gid
+                    Z.appendWhenIdEqAndGetParentTree gid
 
                 AddBefore gid ->
-                    Z.prependWhenIdEqAndGetParentAndChildGrains gid
+                    Z.prependWhenIdEqAndGetParentTree gid
 
                 AddChild gid ->
-                    Z.prependChildWhenIdEqAndGetParentAndChildGrains gid
+                    Z.prependChildWhenIdEqAndGetParentTree gid
 
                 AddDefault ->
-                    Z.prependChildWhenIdEqAndGetParentAndChildGrains GrainId.root
+                    Z.prependChildWhenIdEqAndGetParentTree GrainId.root
 
         newGid =
             Grain.id grain
@@ -168,7 +168,7 @@ addNew msg grain model =
         model
             |> rootTreeZipper
             |> fn grain
-            |> Maybe.map (afterAddGrainUpdaters now newGid)
+            |> Maybe.map (batchUpdatersFromTree now newGid)
             |> Maybe.unwrap
                 (Result.Err "Err: addNewGrainAfter")
                 (insertGrainThenBatchUpdate >> callWith2 grain model)
@@ -179,8 +179,15 @@ insertGrainThenBatchUpdate updaters grain model =
         |> batchUpdate updaters
 
 
-afterAddGrainUpdaters now gid pc =
-    pc
+batchUpdatersFromTree now gid tree =
+    let
+        parentGrain =
+            Tree.label tree
+
+        childGrains_ =
+            Tree.children tree |> List.map Tree.label
+    in
+    ( parentGrain, childGrains_ )
         |> Tuple.mapBoth
             (Grain.idAsParentId
                 >> parentIdUpdater

@@ -2,15 +2,15 @@ module GrainZipper exposing
     ( GrainForest
     , GrainTree
     , GrainZipper
-    , appendWhenIdEqAndGetParentAndChildGrains
+    , appendWhenIdEqAndGetParentTree
     , backwardFromRootWhenIdEq
     , findTreeById
     , forwardFromRootWhenIdEq
     , fromTree
     , lastDescendentGrain
     , parentWhenIdEq
-    , prependChildWhenIdEqAndGetParentAndChildGrains
-    , prependWhenIdEqAndGetParentAndChildGrains
+    , prependChildWhenIdEqAndGetParentTree
+    , prependWhenIdEqAndGetParentTree
     , removeEqByIdThenFlatten
     , siblingsOf
     )
@@ -149,46 +149,38 @@ prependChildIdEq gid grain =
         >> Maybe.andThen (prependChildGrain grain)
 
 
-appendWhenIdEqAndGetParentAndChildGrains :
+appendWhenIdEqAndGetParentTree :
     GrainId
     -> Grain
     -> GrainZipper
-    -> Maybe ( Grain, List Grain )
-appendWhenIdEqAndGetParentAndChildGrains gid grain =
+    -> Maybe (Tree Grain)
+appendWhenIdEqAndGetParentTree gid grain =
     appendWhenIdEq gid grain
         >> Maybe.andThen toParentChildrenLabelsTuple
 
 
-prependWhenIdEqAndGetParentAndChildGrains :
+prependWhenIdEqAndGetParentTree :
     GrainId
     -> Grain
     -> GrainZipper
-    -> Maybe ( Grain, List Grain )
-prependWhenIdEqAndGetParentAndChildGrains gid grain =
+    -> Maybe (Tree Grain)
+prependWhenIdEqAndGetParentTree gid grain =
     prependWhenIdEq gid grain
         >> Maybe.andThen toParentChildrenLabelsTuple
 
 
-prependChildWhenIdEqAndGetParentAndChildGrains :
+prependChildWhenIdEqAndGetParentTree :
     GrainId
     -> Grain
     -> GrainZipper
-    -> Maybe ( Grain, List Grain )
-prependChildWhenIdEqAndGetParentAndChildGrains gid grain =
+    -> Maybe (Tree Grain)
+prependChildWhenIdEqAndGetParentTree gid grain =
     prependChildIdEq gid grain
         >> Maybe.andThen toParentChildrenLabelsTuple
 
 
 toParentChildrenLabelsTuple =
-    unwrap
-        >> (\z ->
-                let
-                    children_ =
-                        Z.children z |> List.map Tree.label
-                in
-                Z.parent z
-                    |> Maybe.map (Z.label >> (\p -> ( p, children_ )))
-           )
+    parent >> Maybe.map tree
 
 
 children =
