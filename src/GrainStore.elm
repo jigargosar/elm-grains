@@ -172,13 +172,13 @@ addNew msg grain =
 
 type Update
     = Move Direction
-    | SetContent String
+      --    | SetContent String
     | SetDeleted Bool
     | SetParentId ParentId
-    | SetSortIdx SortIdx
 
 
 
+--    | SetSortIdx SortIdx
 --updateGrainWithNow : Posix -> Grain.Set -> Grain -> Grain
 --updateGrainWithNow now msg grain =
 --    let
@@ -211,17 +211,18 @@ update msg gid now =
         Move direction ->
             move direction gid now
 
-        SetContent val ->
-            updateWithSetMsg (Grain.SetContent val) gid now
-
+        --        SetContent val ->
+        --            updateWithSetMsg (Grain.SetContent val) gid now
         SetDeleted val ->
             updateWithSetMsg (Grain.SetDeleted val) gid now
 
         SetParentId val ->
             updateWithSetMsg (Grain.SetParentId val) gid now
 
-        SetSortIdx val ->
-            updateWithSetMsg (Grain.SetSortIdx val) gid now
+
+
+--        SetSortIdx val ->
+--            updateWithSetMsg (Grain.SetSortIdx val) gid now
 
 
 ifCanAddGrainThen :
