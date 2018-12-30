@@ -155,6 +155,66 @@ addNew msg =
             addNew (AddChild GrainId.root)
 
 
+addNewAndThenBatchUpdate fn grain model =
+    if idExists (Grain.id grain) model then
+        Result.Err "Error: Add Grain. GrainId exists"
+
+    else
+        fn (Grain.createdAt grain) grain model
+            |> Maybe.unwrap
+                (Result.Err "Err: addNewGrainAfter")
+                (insertGrainThenBatchUpdate >> callWith2 grain model)
+
+
+insertGrainThenBatchUpdate updaters grain model =
+    blindInsertGrain grain model
+        |> batchUpdate updaters
+
+
+addNewAfterBatchUpdaters siblingGid now grain =
+    let
+        gid =
+            Grain.id grain
+    in
+    rootTreeZipper
+        >> Z.appendWhenIdEqAndGetParentAndChildGrains siblingGid grain
+        >> Maybe.map
+            (afterAddGrainUpdaters now gid)
+
+
+afterAddGrainUpdaters now gid pc =
+    pc
+        |> Tuple.mapBoth
+            (Grain.idAsParentId
+                >> parentIdUpdater
+                >> callWith2 now gid
+            )
+            (listToSortIdxUpdaters now)
+        |> Tuple2.uncurry (::)
+
+
+addNewBeforeBatchUpdaters siblingGid now grain =
+    let
+        gid =
+            Grain.id grain
+    in
+    rootTreeZipper
+        >> Z.prependWhenIdEqAndGetParentAndChildGrains siblingGid grain
+        >> Maybe.map
+            (afterAddGrainUpdaters now gid)
+
+
+addNewChildBatchUpdaters parentId now grain =
+    let
+        gid =
+            Grain.id grain
+    in
+    rootTreeZipper
+        >> Z.prependChildWhenIdEqAndGetParentAndChildGrains parentId grain
+        >> Maybe.map
+            (afterAddGrainUpdaters now gid)
+
+
 type Update
     = Move Direction
     | SetContent String
@@ -210,35 +270,6 @@ updateGrain msg gid now =
 --            updateWithSetMsg (Grain.SetSortIdx val) gid now
 
 
-ifCanAddGrainThen :
-    (Grain -> GrainStore -> UpdateResult)
-    -> Grain
-    -> GrainStore
-    -> UpdateResult
-ifCanAddGrainThen fn grain model =
-    if idExists (Grain.id grain) model then
-        Result.Err "Error: Add Grain. GrainId exists"
-
-    else
-        fn grain model
-
-
-addNewAndThenBatchUpdate fn grain model =
-    if idExists (Grain.id grain) model then
-        Result.Err "Error: Add Grain. GrainId exists"
-
-    else
-        fn (Grain.createdAt grain) grain model
-            |> Maybe.unwrap
-                (Result.Err "Err: addNewGrainAfter")
-                (insertGrainThenBatchUpdate >> callWith2 grain model)
-
-
-insertGrainThenBatchUpdate updaters grain model =
-    blindInsertGrain grain model
-        |> batchUpdate updaters
-
-
 listToSortIdxUpdaters : Posix -> List Grain -> List GrainUpdater
 listToSortIdxUpdaters now =
     List.indexedMap
@@ -253,50 +284,6 @@ parentIdUpdater pid now gid =
     ( Grain.update now (Grain.SetParentId pid)
     , gid
     )
-
-
-addNewAfterBatchUpdaters siblingGid now grain =
-    let
-        gid =
-            Grain.id grain
-    in
-    rootTreeZipper
-        >> Z.appendWhenIdEqAndGetParentAndChildGrains siblingGid grain
-        >> Maybe.map
-            (afterAddGrainUpdaters now gid)
-
-
-afterAddGrainUpdaters now gid pc =
-    pc
-        |> Tuple.mapBoth
-            (Grain.idAsParentId
-                >> parentIdUpdater
-                >> callWith2 now gid
-            )
-            (listToSortIdxUpdaters now)
-        |> Tuple2.uncurry (::)
-
-
-addNewBeforeBatchUpdaters siblingGid now grain =
-    let
-        gid =
-            Grain.id grain
-    in
-    rootTreeZipper
-        >> Z.prependWhenIdEqAndGetParentAndChildGrains siblingGid grain
-        >> Maybe.map
-            (afterAddGrainUpdaters now gid)
-
-
-addNewChildBatchUpdaters parentId now grain =
-    let
-        gid =
-            Grain.id grain
-    in
-    rootTreeZipper
-        >> Z.prependChildWhenIdEqAndGetParentAndChildGrains parentId grain
-        >> Maybe.map
-            (afterAddGrainUpdaters now gid)
 
 
 
