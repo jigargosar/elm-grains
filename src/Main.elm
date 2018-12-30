@@ -205,7 +205,7 @@ type Msg
       -- GRAIN FOCUS NAVIGATION
     | FocusRelative FocusRelativeMsg GrainTree GrainId
       -- POPUP
-    | Popup PopupMsg
+    | PopupAction PopupMsg
     | DismissPopupAndThen Msg
     | OpenPopup Popup
       -- NAVIGATION --
@@ -695,7 +695,7 @@ update message model =
             { model | popup = popup }
                 |> Return.singleton
 
-        Popup msg ->
+        PopupAction msg ->
             case msg of
                 PM_SetGrainParent gid parentId ->
                     dismissPopup model
@@ -863,7 +863,7 @@ grainMorePopupViewModel model grain =
     , toggleDeleteMsg =
         dismiss <|
             setDeletedMsg (not deleted) gid
-    , dismissMsg = Popup PM_Dismiss
+    , dismissMsg = dismiss NoOp
     , deleted = deleted
     }
 
