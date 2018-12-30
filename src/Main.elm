@@ -539,9 +539,20 @@ update message model =
                     )
 
         EndEditing gid ->
+            let
+                wasEditing =
+                    Maybe.isJust model.editGid
+            in
             ( { model | editGid = Nothing }
             , focusGidCmd gid
             )
+                |> Return.effect_
+                    (if wasEditing then
+                        firePersistEffect
+
+                     else
+                        always Cmd.none
+                    )
 
         NewGrain addMsg ->
             let
