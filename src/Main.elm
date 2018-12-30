@@ -206,6 +206,10 @@ setDeletedMsg deleted gid =
     UpdateGrain (GrainStore.SetDeleted deleted) gid
 
 
+setContentMsg content gid =
+    UpdateGrain (GrainStore.SetContent content) gid
+
+
 moveMsg direction gid =
     UpdateGrain (GrainStore.Move direction) gid
 
@@ -749,6 +753,8 @@ grainTreeViewModel tree =
     , routeTo = routeToGrainTreeMsg
     , keyDownCustom = grainTreeViewKeyBindings tree
     , editVM = Nothing
+    , editGid = Nothing
+    , onContentChanged = \gid content -> setContentMsg content gid
     }
 
 

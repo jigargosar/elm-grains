@@ -106,6 +106,8 @@ type alias GrainTreeView msg =
     , routeTo : GrainId -> msg
     , grainTree : GrainTree
     , editVM : Maybe (EditView msg)
+    , onContentChanged : GrainId -> String -> msg
+    , editGid : Maybe GrainId
     }
 
 
