@@ -138,7 +138,7 @@ type Add
 
 
 addNew : Add -> Grain -> GrainStore -> UpdateResult
-addNew msg =
+addNew msg grain model =
     let
         fn =
             case msg of
@@ -154,10 +154,6 @@ addNew msg =
                 AddDefault ->
                     addNewChildBatchUpdaters GrainId.root
     in
-    addNewAndThenBatchUpdate fn
-
-
-addNewAndThenBatchUpdate fn grain model =
     if idExists (Grain.id grain) model then
         Result.Err "Error: Add Grain. GrainId exists"
 
