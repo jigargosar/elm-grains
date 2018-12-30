@@ -27,6 +27,11 @@ module Grain exposing
     , parentIdEq
     , root
     , rootIdAsParentId
+    , setContent
+    , setDeleted
+    , setModifiedAt
+    , setParentId
+    , setSortIdx
     , titleOrEmpty
     , toDomIdWithPrefix
     , update

@@ -21,7 +21,7 @@ import Compare
 import DecodeX exposing (Encoder)
 import Direction exposing (Direction)
 import Firebase
-import Grain exposing (Grain)
+import Grain exposing (Grain, ParentId, SortIdx)
 import GrainChange exposing (GrainChange)
 import GrainDict exposing (GrainDict)
 import GrainId exposing (GrainId)
@@ -173,6 +173,40 @@ addNew msg grain =
 type Update
     = Set Grain.Set
     | Move Direction
+
+
+type SetGrainField
+    = SetContent String
+    | SetDeleted Bool
+    | SetParentId ParentId
+    | SetSortIdx SortIdx
+
+
+updateGrainWithNow : Posix -> SetGrainField -> Grain -> Grain
+updateGrainWithNow now msg grain =
+    let
+        innerUpdate =
+            case msg of
+                SetContent content_ ->
+                    Grain.setContent content_
+
+                SetDeleted deleted_ ->
+                    Grain.setDeleted deleted_
+
+                SetParentId parentId_ ->
+                    Grain.setParentId parentId_
+
+                SetSortIdx sortIdx_ ->
+                    Grain.setSortIdx sortIdx_
+
+        newGrain =
+            innerUpdate grain
+    in
+    if grain == newGrain then
+        newGrain
+
+    else
+        Grain.setModifiedAt now newGrain
 
 
 update msg gid now =
