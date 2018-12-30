@@ -216,17 +216,17 @@ update message model =
         AddGrain msg grain ->
             addNew msg
                 grain
-                model.grainStore
+                model
 
         UpdateGrain msg gid now ->
             updateGrain msg
                 gid
                 now
-                model.grainStore
+                model
 
         FirebaseChanges changeList ->
             updateFromFirebaseChangeList changeList
-                model.grainStore
+                model
 
         Load encoded ->
             load encoded

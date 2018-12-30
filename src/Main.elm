@@ -407,6 +407,7 @@ updateGrainStore :
     -> ( Model, Cmd Msg )
 updateGrainStore message model =
     let
+        setGrainStoreAndPersist : GrainStore -> Model -> Return Msg Model
         setGrainStoreAndPersist newGrainStore =
             Return.singleton
                 >> Return.map (setGrainStore newGrainStore)
@@ -414,10 +415,13 @@ updateGrainStore message model =
                 >> Return.effect_ firePersistUnsavedGrainsEffect
 
         handleResult =
-            Result.map (setGrainStoreAndPersist >> callWith model)
-                >> handleStringResult model
+            Result.mapBoth
+                updateError
+                setGrainStoreAndPersist
+                >> Result.merge
+                >> callWith model
     in
-    GrainStore.update message model
+    GrainStore.update message model.grainStore
         |> handleResult
 
 
