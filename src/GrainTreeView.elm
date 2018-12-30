@@ -5,6 +5,7 @@ module GrainTreeView exposing
     , view
     )
 
+import BasicsX exposing (..)
 import Css exposing (num, pct, px, rem, vh, vw, zero)
 import CssAttrX exposing (attrIf)
 import CssElements
@@ -98,18 +99,31 @@ viewNodeTree config level tree =
             Grain.titleOrEmpty grain
 
         isEditing =
-            Maybe.unwrap False (Grain.idEq gid)
+            Maybe.unwrap False (eqs gid) config.editGid
     in
-    div
-        [ id (grainDomId gid)
-        , tabindex 0
-        , CssEventX.onKeyDownCustom
-            (config.keyDownCustom gid)
-        , css nodeStyles
-        , onDoubleClick (config.routeTo gid)
-        ]
-        [ text title ]
-        :: viewForest config (level + 1) tree
+    if isEditing then
+        div
+            [ id (grainDomId gid)
+            , tabindex 0
+            , CssEventX.onKeyDownCustom
+                (config.keyDownCustom gid)
+            , css nodeStyles
+            , onDoubleClick (config.routeTo gid)
+            ]
+            [ text title ]
+            :: viewForest config (level + 1) tree
+
+    else
+        div
+            [ id (grainDomId gid)
+            , tabindex 0
+            , CssEventX.onKeyDownCustom
+                (config.keyDownCustom gid)
+            , css nodeStyles
+            , onDoubleClick (config.routeTo gid)
+            ]
+            [ text title ]
+            :: viewForest config (level + 1) tree
 
 
 viewForest config level tree =
