@@ -509,13 +509,23 @@ updateUrlChanged event model =
 
 
 beforeEndEditing model =
-    let
-        foo : Maybe SavedGrain
-        foo =
-            model.editGid
-                |> Maybe.andThen (GrainStore.getSavedGrain >> callWith model.grainStore)
-    in
-    Return.singleton model
+    model.editGid
+        |> Maybe.andThen (GrainStore.getSavedGrain >> callWith model.grainStore)
+        |> Maybe.map
+            (\savedGrain ->
+                let
+                    shouldRemove =
+                        SavedGrain.neverPersisted savedGrain
+                            && (SavedGrain.value savedGrain
+                                    |> (Grain.content >> isBlank)
+                               )
+                in
+                GrainStore.removeSavedGrain savedGrain model.grainStore
+                    |> (setGrainStore >> callWith model)
+                    |> Return.singleton
+                    |> Return.effect_ localPersistGrainStoreEffect
+            )
+        |> Maybe.withDefault (Return.singleton model)
 
 
 

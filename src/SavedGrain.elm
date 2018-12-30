@@ -6,6 +6,7 @@ module SavedGrain exposing
     , id
     , idEq
     , needsPersistence
+    , neverPersisted
     , new
     , setPersisted
     , value

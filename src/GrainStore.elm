@@ -9,6 +9,7 @@ module GrainStore exposing
     , getSavedGrain
     , init
     , rejectSubTreeAndFlatten
+    , removeSavedGrain
     , toRawList
     , treeFromGid
     , update
@@ -134,6 +135,11 @@ get gid =
 getSavedGrain : GrainId -> GrainStore -> Maybe SavedGrain
 getSavedGrain gid =
     GrainIdLookup.get gid
+
+
+removeSavedGrain : SavedGrain -> GrainStore -> GrainStore
+removeSavedGrain savedGrain =
+    remove (SavedGrain.value savedGrain)
 
 
 type Add
