@@ -395,7 +395,7 @@ localPersistGrainStoreEffect model =
     Port.setGrainCache <| GrainStore.encoder model.grainStore
 
 
-firePersistUnsavedGrainsEffect model =
+firePersistEffect model =
     let
         editing savedGrain =
             model.editGid
@@ -426,7 +426,7 @@ setGrainStoreAndPersist newGrainStore =
     Return.singleton
         >> Return.map (setGrainStore newGrainStore)
         >> Return.effect_ localPersistGrainStoreEffect
-        >> Return.effect_ firePersistUnsavedGrainsEffect
+        >> Return.effect_ firePersistEffect
 
 
 updateGrainStore :
