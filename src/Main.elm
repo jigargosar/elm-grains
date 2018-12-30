@@ -136,8 +136,13 @@ grainById gid =
     .grainStore >> GrainStore.get gid
 
 
-setNextSeed newSeed model =
-    { model | seed = newSeed }
+generateIndependentSeed : Model -> ( Model, Seed )
+generateIndependentSeed model =
+    let
+        ( independentSeed, nextSeed ) =
+            Random.step Random.independentSeed model.seed
+    in
+    ( { model | seed = nextSeed }, independentSeed )
 
 
 dismissPopup model =
@@ -502,10 +507,10 @@ update message model =
 
         NewGrain addMsg ->
             let
-                ( independentSeed, nextSeed ) =
-                    Random.step Random.independentSeed model.seed
+                ( newModel, independentSeed ) =
+                    generateIndependentSeed model
             in
-            ( setNextSeed nextSeed model
+            ( newModel
             , Time.now
                 |> Task.map
                     (\now ->
