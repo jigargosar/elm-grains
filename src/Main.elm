@@ -520,10 +520,18 @@ beforeEndEditing model =
                                     |> (Grain.content >> isBlank)
                                )
                 in
-                GrainStore.removeSavedGrain savedGrain model.grainStore
-                    |> (setGrainStore >> callWith model)
-                    |> Return.singleton
-                    |> Return.effect_ localPersistGrainStoreEffect
+                if shouldRemove then
+                    GrainStore.removeSavedGrain
+                        (Debug.log "removing: savedGrain"
+                            savedGrain
+                        )
+                        model.grainStore
+                        |> (setGrainStore >> callWith model)
+                        |> Return.singleton
+                        |> Return.effect_ localPersistGrainStoreEffect
+
+                else
+                    Return.singleton model
             )
         |> Maybe.withDefault (Return.singleton model)
 
@@ -580,6 +588,7 @@ update message model =
             beforeEndEditing model
                 |> Return.map (setEditGid Nothing)
                 |> Return.command (focusGidCmd gid)
+                |> Return.effect_ firePersistEffect
 
         NewGrain addMsg ->
             let
