@@ -522,10 +522,21 @@ update message model =
                             )
 
         StartEditing gid ->
+            let
+                wasEditing =
+                    Maybe.isJust model.editGid
+            in
             ( { model | editGid = Just gid }
             , GrainTreeView.contentInputDomId gid
                 |> focusCmd
             )
+                |> Return.effect_
+                    (if wasEditing then
+                        firePersistEffect
+
+                     else
+                        always Cmd.none
+                    )
 
         EndEditing gid ->
             ( { model | editGid = Nothing }
