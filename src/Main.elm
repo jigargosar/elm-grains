@@ -174,6 +174,7 @@ type Msg
     | ToastDismiss
       -- EDIT GRAIN --
     | StartEditing GrainId
+    | EndEditing GrainId
       -- ADD GRAIN --
     | NewGrain GrainStore.Add
     | AddNewGrain GrainStore.Add Grain
@@ -519,6 +520,11 @@ update message model =
                 |> focusCmd
             )
 
+        EndEditing gid ->
+            ( { model | editGid = Nothing }
+            , Cmd.none
+            )
+
         NewGrain addMsg ->
             let
                 ( newModel, independentSeed ) =
@@ -537,8 +543,9 @@ update message model =
             )
 
         AddNewGrain addMsg grain ->
-            updateGrainStore (GrainStore.AddGrain addMsg grain)
-                model
+            model
+                |> updateGrainStore (GrainStore.AddGrain addMsg grain)
+                |> Return.andThen (update (StartEditing <| Grain.id grain))
 
         UpdateGrain updateMsg gid ->
             ( model
@@ -747,6 +754,7 @@ grainTreeViewKeyBindings tree gid =
             , ( K.arrowRight, routeToGrainTreeMsg )
             , ( K.shiftMetaEnter, NewGrain << GrainStore.AddChild )
             , ( K.enter, StartEditing )
+            , ( K.esc, EndEditing )
             ]
                 ++ moveMappings
     in
