@@ -3,6 +3,7 @@ module SavedGrain exposing
     , change
     , decoder
     , encoder
+    , eqByParentId
     , id
     , idEq
     , needsPersistence
@@ -87,6 +88,16 @@ id =
 idEq : GrainId -> SavedGrain -> Bool
 idEq gid =
     value >> Grain.idEq gid
+
+
+eqByParentId : SavedGrain -> SavedGrain -> Bool
+eqByParentId s1 s2 =
+    parentId s1 == parentId s2
+
+
+parentId : SavedGrain -> Grain.ParentId
+parentId =
+    value >> Grain.parentId
 
 
 new : Grain -> SavedGrain

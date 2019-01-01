@@ -12,7 +12,6 @@ module GrainStore exposing
     , getSavedGrain
     , init
     , rejectSubTreeAndFlatten
-    , removeSavedGrain
     , toRawList
     , treeFromGid
     , update
@@ -155,11 +154,6 @@ getSavedGrain gid =
     GrainIdLookup.get gid
 
 
-removeSavedGrain : SavedGrain -> GrainStore -> GrainStore
-removeSavedGrain savedGrain =
-    remove (SavedGrain.value savedGrain)
-
-
 type Add
     = AddAfter GrainId
     | AddBefore GrainId
@@ -210,7 +204,7 @@ addNew msg newGrain model =
         model
             |> addWithZipper
             |> Maybe.unwrap
-                (Result.Err "Err: addNewGrainAfter")
+                (Result.Err "Err: addNew")
                 (Z.tree >> addGrainWithParentTree now newGrain >> callWith model)
 
 
@@ -247,8 +241,18 @@ addGrainWithParentTree now newGrain tree =
 
 removeNotPersisted gid model =
     let
+        savedGrainInResult =
+            GrainIdLookup.get gid model
+                |> Result.fromMaybe "Error: removeNotPersisted"
+
+        siblingsOfSaved =
+            SavedGrain.eqByParentId
+                >> List.filter
+                >> callWith (toRawList model)
+
         _ =
-            1
+            savedGrainInResult
+                |> Result.map siblingsOfSaved
     in
     Result.Ok model
 
@@ -328,7 +332,7 @@ updateFromFirebaseChangeList changeList model =
                     setPersisted grain
 
                 GrainChange.Removed ->
-                    remove grain
+                    blindRemoveGid (Grain.id grain)
     in
     List.foldr handleChange model changeList
         |> Result.Ok
@@ -376,8 +380,8 @@ setPersisted grain =
         )
 
 
-remove grain =
-    GrainIdLookup.remove (Grain.id grain)
+blindRemoveGid gid =
+    GrainIdLookup.remove gid
 
 
 toRawList =
