@@ -245,6 +245,14 @@ addGrainWithParentTree now newGrain tree =
         >> batchUpdate updaters
 
 
+removeNotPersisted gid model =
+    let
+        _ =
+            1
+    in
+    Result.Ok model
+
+
 type Update
     = Move Direction
     | SetContent String
@@ -255,6 +263,7 @@ type Update
 type Msg
     = AddGrain Add Grain
     | UpdateGrain Update GrainId Posix
+    | RemoveNotPersisted GrainId
     | Load Value
     | FirebaseChanges (List GrainChange)
 
@@ -271,6 +280,9 @@ update message model =
                 gid
                 now
                 model
+
+        RemoveNotPersisted gid ->
+            removeNotPersisted gid model
 
         FirebaseChanges changeList ->
             updateFromFirebaseChangeList changeList
