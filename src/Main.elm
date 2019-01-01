@@ -435,6 +435,26 @@ andThenIf bool fn =
         identity
 
 
+firePersistEffectAfterGrainStoreUpdate message model =
+    let
+        shouldFirePersist =
+            case message of
+                GrainStore.AddGrain _ _ ->
+                    False
+
+                GrainStore.UpdateGrain _ gid _ ->
+                    model.editGid /= Just gid
+
+                _ ->
+                    True
+    in
+    if shouldFirePersist then
+        firePersistEffect model
+
+    else
+        Cmd.none
+
+
 updateGrainStore :
     GrainStore.Msg
     -> Model
@@ -446,7 +466,7 @@ updateGrainStore message model =
             Return.singleton
                 >> Return.map (setGrainStore newGrainStore)
                 >> Return.effect_ localPersistGrainStoreEffect
-                >> Return.effect_ firePersistEffect
+                >> Return.effect_ (firePersistEffectAfterGrainStoreUpdate message)
     in
     GrainStore.update message model.grainStore
         |> Result.mapBoth
