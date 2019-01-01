@@ -399,8 +399,12 @@ localPersistGrainStoreEffect model =
     Port.setGrainCache <| GrainStore.encoder model.grainStore
 
 
-firePersistEffect model =
-    if model.editGid |> Maybe.isJust then
+firePersistEffectWhenNotEditing model =
+    let
+        isEditing =
+            Maybe.isJust model.editGid
+    in
+    if isEditing then
         Cmd.none
 
     else
@@ -437,22 +441,19 @@ andThenIf bool fn =
 
 firePersistEffectAfterGrainStoreUpdate message model =
     let
-        shouldFirePersist =
+        isAddGrainMessage =
             case message of
                 GrainStore.AddGrain _ _ ->
                     False
 
-                GrainStore.UpdateGrain _ gid _ ->
-                    model.editGid /= Just gid
-
                 _ ->
                     True
     in
-    if shouldFirePersist then
-        firePersistEffect model
+    if isAddGrainMessage then
+        Cmd.none
 
     else
-        Cmd.none
+        firePersistEffectWhenNotEditing model
 
 
 updateGrainStore :
@@ -559,11 +560,11 @@ update message model =
             ( setEditGid (Just gid) model
             , focusEditGidCmd gid
             )
-                |> Return.effect_ firePersistEffect
+                |> Return.effect_ firePersistEffectWhenNotEditing
 
         EndEditing gid ->
             ( setEditGid Nothing model, focusGidCmd gid )
-                |> Return.effect_ firePersistEffect
+                |> Return.effect_ firePersistEffectWhenNotEditing
 
         NewGrain addMsg ->
             let
