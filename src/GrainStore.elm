@@ -239,7 +239,7 @@ addGrainWithParentTree now newGrain tree =
         >> batchUpdate updaters
 
 
-removeNotPersisted gid model =
+removeAndDiscardSiblings gid model =
     let
         savedGrainInResult =
             GrainIdLookup.get gid model
@@ -250,11 +250,15 @@ removeNotPersisted gid model =
                 >> List.filter
                 >> callWith (toRawList model)
 
-        _ =
-            savedGrainInResult
-                |> Result.map siblingsOfSaved
+        insertSavedGrain saved =
+            GrainIdLookup.insert (SavedGrain.id saved) saved
     in
-    Result.Ok model
+    savedGrainInResult
+        |> Result.map
+            (siblingsOfSaved
+                >> List.map SavedGrain.discard
+                >> List.foldl insertSavedGrain model
+            )
 
 
 type Update
@@ -267,7 +271,7 @@ type Update
 type Msg
     = AddGrain Add Grain
     | UpdateGrain Update GrainId Posix
-    | RemoveNotPersisted GrainId
+    | RemoveAndDiscardSiblings GrainId
     | Load Value
     | FirebaseChanges (List GrainChange)
 
@@ -285,8 +289,8 @@ update message model =
                 now
                 model
 
-        RemoveNotPersisted gid ->
-            removeNotPersisted gid model
+        RemoveAndDiscardSiblings gid ->
+            removeAndDiscardSiblings gid model
 
         FirebaseChanges changeList ->
             updateFromFirebaseChangeList changeList

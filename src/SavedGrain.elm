@@ -2,6 +2,7 @@ module SavedGrain exposing
     ( SavedGrain
     , change
     , decoder
+    , discard
     , encoder
     , eqByParentId
     , id
@@ -138,3 +139,7 @@ needsPersistence model =
 change : (Grain -> Grain) -> SavedGrain -> SavedGrain
 change fn =
     map (Saved.change fn)
+
+
+discard =
+    map Saved.discard

@@ -2,6 +2,7 @@ module Saved exposing
     ( Saved
     , change
     , decoder
+    , discard
     , encoder
     , isSaved
     , new
@@ -64,6 +65,10 @@ setSaved newInitial (Saved _ latest) =
 isSaved : Saved a -> Bool
 isSaved (Saved initial latest) =
     initial == latest
+
+
+discard (Saved initial _) =
+    Saved initial initial
 
 
 change : (a -> a) -> Saved a -> Saved a
