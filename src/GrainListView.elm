@@ -20,7 +20,7 @@ import CssTheme exposing (black80, blackAlpha, space1, space2, space4, white)
 import EventX
 import Grain exposing (Grain)
 import GrainId exposing (GrainId)
-import GrainZipper exposing (GrainTree)
+import GrainZipper__ exposing (GrainTree)
 import HotKey
 import Html.Styled exposing (Html, button, div, input, styled, text, textarea)
 import Html.Styled.Attributes exposing (autocomplete, class, css, id, rows, tabindex, value)

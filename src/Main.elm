@@ -24,7 +24,7 @@ import GrainMorePopupView exposing (GrainMorePopupView)
 import GrainStore exposing (GrainStore, GrainTree)
 import GrainTreeView exposing (GrainTreeView)
 import GrainView exposing (GrainView)
-import GrainZipper
+import GrainZipper__
 import HistoryState exposing (HistoryState)
 import HotKey as K exposing (HotKey, SoftKey(..))
 import Html exposing (Html)
@@ -372,18 +372,18 @@ focusRelative :
 focusRelative gid tree message model =
     let
         zipper =
-            GrainZipper.fromTree tree
+            GrainZipper__.fromTree tree
 
         fn =
             case message of
                 FR_Backward ->
-                    GrainZipper.backwardFromRootWhenIdEq
+                    GrainZipper__.backwardFromRootWhenIdEq
 
                 FR_Forward ->
-                    GrainZipper.forwardFromRootWhenIdEq
+                    GrainZipper__.forwardFromRootWhenIdEq
 
                 FR_Parent ->
-                    GrainZipper.parentWhenIdEq
+                    GrainZipper__.parentWhenIdEq
     in
     ( model
     , fn gid zipper

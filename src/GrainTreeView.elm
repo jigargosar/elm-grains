@@ -18,7 +18,7 @@ import CssTheme exposing (black80, blackAlpha, space1, space2, space4, white)
 import EventX
 import Grain exposing (Grain)
 import GrainId exposing (GrainId)
-import GrainZipper exposing (GrainTree)
+import GrainZipper__ exposing (GrainTree)
 import Html.Styled
     exposing
         ( Html
