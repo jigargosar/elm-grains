@@ -1,6 +1,9 @@
 module GrainStore exposing
     ( Add(..)
+    , GrainForest
     , GrainStore
+    , GrainTree
+    , GrainZipper
     , Msg(..)
     , Update(..)
     , decoder
@@ -109,6 +112,14 @@ toTreeHelp grainStore grain =
                 |> List.map (toTreeHelp grainStore)
     in
     Tree.tree grain newForest
+
+
+type alias GrainForest =
+    List GrainTree
+
+
+type alias GrainTree =
+    Tree.Tree Grain
 
 
 type alias GrainZipper =
