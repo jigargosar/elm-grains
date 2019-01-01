@@ -147,10 +147,6 @@ generateIndependentSeed model =
     ( { model | seed = nextSeed }, independentSeed )
 
 
-dismissPopup model =
-    { model | popup = Popup.NoPopup }
-
-
 setGrainStore grainStore model =
     { model | grainStore = grainStore }
 
@@ -588,7 +584,7 @@ update message model =
                 model
 
         DismissPopupAndThen msg ->
-            dismissPopup model
+            { model | popup = Popup.NoPopup }
                 |> update msg
 
         OpenPopup popup ->

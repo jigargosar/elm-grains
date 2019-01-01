@@ -42,7 +42,7 @@
   "dependencies": {
     "autosize": "^4.0.2",
     "clientjs": "^0.1.11",
-    "firebase": "^5.7.1",
+    "firebase": "^5.7.2",
     "history": "^4.7.2",
     "lodash.debounce": "^4.0.8",
     "ramda": "^0.26.1",
