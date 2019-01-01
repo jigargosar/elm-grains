@@ -408,19 +408,23 @@ firePersistEffectWhenNotEditing model =
         Cmd.none
 
     else
-        let
-            dirtyGrains =
-                model.grainStore
-                    |> GrainStore.toRawList
-                    |> List.filter SavedGrain.needsPersistence
-        in
-        if List.isEmpty dirtyGrains then
-            Cmd.none
+        firePersistEffect model
 
-        else
-            dirtyGrains
-                |> E.list SavedGrain.encoder
-                |> Port.persistSavedGrainList
+
+firePersistEffect model =
+    let
+        dirtyGrains =
+            model.grainStore
+                |> GrainStore.toRawList
+                |> List.filter SavedGrain.needsPersistence
+    in
+    if List.isEmpty dirtyGrains then
+        Cmd.none
+
+    else
+        dirtyGrains
+            |> E.list SavedGrain.encoder
+            |> Port.persistSavedGrainList
 
 
 effectIf bool fn =
