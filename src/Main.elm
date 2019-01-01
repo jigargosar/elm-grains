@@ -419,14 +419,6 @@ firePersistEffect model =
                 |> Port.persistSavedGrainList
 
 
-setGrainStoreAndPersist : GrainStore -> Model -> Return Msg Model
-setGrainStoreAndPersist newGrainStore =
-    Return.singleton
-        >> Return.map (setGrainStore newGrainStore)
-        >> Return.effect_ localPersistGrainStoreEffect
-        >> Return.effect_ firePersistEffect
-
-
 effectIf bool fn =
     if bool then
         Return.effect_ fn
@@ -448,6 +440,14 @@ updateGrainStore :
     -> Model
     -> ( Model, Cmd Msg )
 updateGrainStore message model =
+    let
+        setGrainStoreAndPersist : GrainStore -> Model -> Return Msg Model
+        setGrainStoreAndPersist newGrainStore =
+            Return.singleton
+                >> Return.map (setGrainStore newGrainStore)
+                >> Return.effect_ localPersistGrainStoreEffect
+                >> Return.effect_ firePersistEffect
+    in
     GrainStore.update message model.grainStore
         |> Result.mapBoth
             updateError
