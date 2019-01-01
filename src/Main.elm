@@ -439,35 +439,26 @@ andThenIf bool fn =
         identity
 
 
-firePersistEffectAfterGrainStoreUpdate message model =
-    let
-        isAddGrainMessage =
-            case message of
-                GrainStore.AddGrain _ _ ->
-                    False
-
-                _ ->
-                    True
-    in
-    if isAddGrainMessage then
-        Cmd.none
-
-    else
-        firePersistEffectWhenNotEditing model
-
-
 updateGrainStore :
     GrainStore.Msg
     -> Model
     -> ( Model, Cmd Msg )
 updateGrainStore message model =
     let
+        isAddGrainMessage =
+            case message of
+                GrainStore.AddGrain _ _ ->
+                    True
+
+                _ ->
+                    False
+
         setGrainStoreAndPersist : GrainStore -> Model -> Return Msg Model
         setGrainStoreAndPersist newGrainStore =
             Return.singleton
                 >> Return.map (setGrainStore newGrainStore)
                 >> Return.effect_ localPersistGrainStoreEffect
-                >> Return.effect_ (firePersistEffectAfterGrainStoreUpdate message)
+                >> effectIf (not isAddGrainMessage) firePersistEffectWhenNotEditing
     in
     GrainStore.update message model.grainStore
         |> Result.mapBoth
