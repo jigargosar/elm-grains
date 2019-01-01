@@ -47,7 +47,6 @@ import RandomId
 import Result.Extra as Result
 import Return exposing (Return)
 import Route exposing (Route)
-import SavedGrain exposing (SavedGrain)
 import Skeleton
 import Tagged
 import Task
@@ -391,34 +390,6 @@ localPersistGrainStoreEffect model =
     Port.setGrainCache <| GrainStore.encoder model.grainStore
 
 
-firePersistEffectWhenNotEditing model =
-    let
-        isEditing =
-            Maybe.isJust model.editGid
-    in
-    if isEditing then
-        Cmd.none
-
-    else
-        firePersistEffect model
-
-
-firePersistEffect model =
-    let
-        dirtyGrains =
-            model.grainStore
-                |> GrainStore.toRawList
-                |> List.filter SavedGrain.needsPersistence
-    in
-    if List.isEmpty dirtyGrains then
-        Cmd.none
-
-    else
-        dirtyGrains
-            |> E.list SavedGrain.encoder
-            |> Port.persistSavedGrainList
-
-
 effectIf bool fn =
     if bool then
         Return.effect_ fn
@@ -441,20 +412,11 @@ updateGrainStore :
     -> ( Model, Cmd Msg )
 updateGrainStore message model =
     let
-        isAddGrainMessage =
-            case message of
-                GrainStore.AddGrain _ _ ->
-                    True
-
-                _ ->
-                    False
-
         setGrainStoreAndPersist : GrainStore -> Model -> Return Msg Model
         setGrainStoreAndPersist newGrainStore =
             Return.singleton
                 >> Return.map (setGrainStore newGrainStore)
                 >> Return.effect_ localPersistGrainStoreEffect
-                >> effectIf (not isAddGrainMessage) firePersistEffectWhenNotEditing
     in
     GrainStore.update message model.grainStore
         |> Result.mapBoth
@@ -547,11 +509,9 @@ update message model =
             ( setEditGid (Just gid) model
             , focusEditGidCmd gid
             )
-                |> Return.effect_ firePersistEffectWhenNotEditing
 
         EndEditing gid ->
             ( setEditGid Nothing model, focusGidCmd gid )
-                |> Return.effect_ firePersistEffectWhenNotEditing
 
         NewGrain addMsg ->
             let

@@ -9,7 +9,7 @@ module GrainStore exposing
     , decoder
     , encoder
     , get
-    , getSavedGrain
+    , getGrain
     , init
     , rejectSubTreeAndFlatten
     , toRawList
@@ -41,7 +41,6 @@ import Random.Pipeline as Random
 import RandomX
 import Return exposing (Return)
 import Return3 as R3 exposing (Return3F)
-import SavedGrain exposing (SavedGrain)
 import Time exposing (Posix)
 import Tree
 import Tree.Zipper as Z exposing (Zipper)
@@ -49,21 +48,21 @@ import Tuple2
 
 
 type alias GrainStore =
-    GrainIdLookup SavedGrain
+    GrainIdLookup Grain
 
 
 decoder : Decoder GrainStore
 decoder =
-    D.list SavedGrain.decoder
+    D.list Grain.decoder
         |> D.map
-            (GrainIdLookup.fromList SavedGrain.id
+            (GrainIdLookup.fromList Grain.id
                 >> addRootIfAbsent
             )
 
 
 encoder : GrainStore -> Value
 encoder =
-    GrainIdLookup.toList >> E.list SavedGrain.encoder
+    GrainIdLookup.toList >> E.list Grain.encoder
 
 
 init : GrainStore
@@ -83,7 +82,6 @@ addRootIfAbsent model =
 allGrains : GrainStore -> List Grain
 allGrains =
     toRawList
-        >> List.map SavedGrain.value
         >> List.sortWith Grain.defaultComparator
 
 
@@ -146,11 +144,11 @@ rejectSubTreeAndFlatten grain model =
 
 get : GrainId -> GrainStore -> Maybe Grain
 get gid =
-    GrainIdLookup.get gid >> Maybe.map SavedGrain.value
+    GrainIdLookup.get gid
 
 
-getSavedGrain : GrainId -> GrainStore -> Maybe SavedGrain
-getSavedGrain gid =
+getGrain : GrainId -> GrainStore -> Maybe Grain
+getGrain gid =
     GrainIdLookup.get gid
 
 
@@ -239,28 +237,6 @@ addGrainWithParentTree now newGrain tree =
         >> batchUpdate updaters
 
 
-removeAndDiscardSiblingChanges gid model =
-    let
-        savedGrainInResult =
-            GrainIdLookup.get gid model
-                |> Result.fromMaybe "Error: removeNotPersisted"
-
-        siblingsOfSaved =
-            SavedGrain.eqByParentId
-                >> List.filter
-                >> callWith (toRawList model)
-
-        insertSavedGrain saved =
-            GrainIdLookup.insert (SavedGrain.id saved) saved
-    in
-    savedGrainInResult
-        |> Result.map
-            (siblingsOfSaved
-                >> List.map SavedGrain.discard
-                >> List.foldl insertSavedGrain model
-            )
-
-
 type Update
     = Move Direction
     | SetContent String
@@ -271,7 +247,6 @@ type Update
 type Msg
     = AddGrain Add Grain
     | UpdateGrain Update GrainId Posix
-    | RemoveGrainAndDiscardSiblingChanges GrainId
     | Load Value
     | FirebaseChanges (List GrainChange)
 
@@ -288,9 +263,6 @@ update message model =
                 gid
                 now
                 model
-
-        RemoveGrainAndDiscardSiblingChanges gid ->
-            removeAndDiscardSiblingChanges gid model
 
         FirebaseChanges changeList ->
             updateFromFirebaseChangeList changeList
@@ -330,13 +302,13 @@ updateFromFirebaseChangeList changeList model =
             in
             case GrainChange.type_ change of
                 GrainChange.Added ->
-                    setPersisted grain
+                    blindInsertGrain grain
 
                 GrainChange.Modified ->
-                    setPersisted grain
+                    blindInsertGrain grain
 
                 GrainChange.Removed ->
-                    blindRemoveGid (Grain.id grain)
+                    blindRemoveGrain grain
     in
     List.foldr handleChange model changeList
         |> Result.Ok
@@ -358,11 +330,7 @@ updateWithChangeFn :
     -> UpdateResult
 updateWithChangeFn changeFn gid model =
     if GrainIdLookup.member gid model then
-        let
-            updateFn =
-                SavedGrain.change changeFn
-        in
-        Result.Ok <| GrainIdLookup.updateIfExists gid updateFn model
+        Result.Ok <| GrainIdLookup.updateIfExists gid changeFn model
 
     else
         Result.Err "GrainNotFound"
@@ -373,19 +341,11 @@ updateWithChangeFn changeFn gid model =
 
 
 blindInsertGrain grain model =
-    GrainIdLookup.insert (Grain.id grain) (SavedGrain.new grain) model
+    GrainIdLookup.insert (Grain.id grain) grain model
 
 
-setPersisted : Grain -> GrainStore -> GrainStore
-setPersisted grain =
-    GrainIdLookup.update (Grain.id grain)
-        (Maybe.map (SavedGrain.setPersisted grain)
-            >> Maybe.orElseLazy (\_ -> Just <| SavedGrain.new grain)
-        )
-
-
-blindRemoveGid gid =
-    GrainIdLookup.remove gid
+blindRemoveGrain grain model =
+    GrainIdLookup.insert (Grain.id grain) grain model
 
 
 toRawList =
