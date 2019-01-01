@@ -239,7 +239,7 @@ addGrainWithParentTree now newGrain tree =
         >> batchUpdate updaters
 
 
-removeAndDiscardSiblings gid model =
+removeAndDiscardSiblingChanges gid model =
     let
         savedGrainInResult =
             GrainIdLookup.get gid model
@@ -290,7 +290,7 @@ update message model =
                 model
 
         RemoveGrainAndDiscardSiblingChanges gid ->
-            removeAndDiscardSiblings gid model
+            removeAndDiscardSiblingChanges gid model
 
         FirebaseChanges changeList ->
             updateFromFirebaseChangeList changeList
