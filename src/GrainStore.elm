@@ -26,7 +26,7 @@ import GrainChange exposing (GrainChange)
 import GrainDict exposing (GrainDict)
 import GrainId exposing (GrainId)
 import GrainIdLookup exposing (GrainIdLookup)
-import GrainZipper as Z exposing (GrainForest, GrainTree, GrainZipper)
+import GrainZipper exposing (GrainForest, GrainTree)
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline exposing (hardcoded, required)
 import Json.Encode as E exposing (Value)
@@ -42,7 +42,7 @@ import Return3 as R3 exposing (Return3F)
 import SavedGrain exposing (SavedGrain)
 import Time exposing (Posix)
 import Tree
-import Tree.Zipper as TZ
+import Tree.Zipper as Z exposing (Zipper)
 import Tuple2
 
 
@@ -90,41 +90,48 @@ childGrains grain =
     allGrains >> List.filter (Grain.isChildOf grain)
 
 
-treeFromCache : GrainStore -> Grain -> GrainTree
-treeFromCache grainStore grain =
-    let
-        newForest : GrainForest
-        newForest =
-            childGrains grain grainStore
-                |> List.map (treeFromCache grainStore)
-    in
-    Tree.tree grain newForest
-
-
 rootGrain : GrainStore -> Grain
 rootGrain =
     get GrainId.root >> Maybe.withDefault Grain.root
 
 
+toTree : GrainStore -> GrainTree
+toTree model =
+    toTreeHelp model (rootGrain model)
+
+
+toTreeHelp : GrainStore -> Grain -> GrainTree
+toTreeHelp grainStore grain =
+    let
+        newForest : GrainForest
+        newForest =
+            childGrains grain grainStore
+                |> List.map (toTreeHelp grainStore)
+    in
+    Tree.tree grain newForest
+
+
+type alias GrainZipper =
+    Zipper Grain
+
+
+toZipper : GrainStore -> GrainZipper
+toZipper =
+    toTree >> Z.fromTree
+
+
+findFromRoot gid =
+    toZipper >> Z.findFromRoot (Grain.idEq gid)
+
+
 treeFromGid : GrainId -> GrainStore -> Maybe GrainTree
 treeFromGid gid =
-    rootTreeZipper
-        >> Z.findTreeById gid
-
-
-rootTree : GrainStore -> GrainTree
-rootTree model =
-    treeFromCache model (rootGrain model)
-
-
-rootTreeZipper : GrainStore -> GrainZipper
-rootTreeZipper =
-    rootTree >> Z.fromTree
+    findFromRoot gid >> Maybe.map Z.tree
 
 
 rejectSubTreeAndFlatten : Grain -> GrainStore -> List Grain
-rejectSubTreeAndFlatten grain =
-    rootTreeZipper >> Z.removeEqByIdThenFlatten grain
+rejectSubTreeAndFlatten grain model =
+    []
 
 
 get : GrainId -> GrainStore -> Maybe Grain
@@ -149,22 +156,34 @@ type Add
     | AddDefault
 
 
+z_prependChild childTree =
+    Z.mapTree (Tree.prependChild childTree)
+        >> Z.firstChild
+
+
 addNew : Add -> Grain -> GrainStore -> UpdateResult
 addNew msg newGrain model =
     let
-        addWithZipperAndGetParentTree =
+        newGrainTree =
+            Tree.singleton newGrain
+
+        addWithZipper =
             case msg of
                 AddAfter gid ->
-                    Z.appendWhenIdEqAndGetParentTree gid
+                    findFromRoot gid
+                        >> Maybe.map (Z.append newGrainTree)
 
                 AddBefore gid ->
-                    Z.prependWhenIdEqAndGetParentTree gid
+                    findFromRoot gid
+                        >> Maybe.map (Z.append newGrainTree)
 
                 AddChild gid ->
-                    Z.prependChildWhenIdEqAndGetParentTree gid
+                    findFromRoot gid
+                        >> Maybe.andThen (z_prependChild newGrainTree)
 
                 AddDefault ->
-                    Z.prependChildWhenIdEqAndGetParentTree GrainId.root
+                    toZipper
+                        >> z_prependChild newGrainTree
 
         newGid =
             Grain.id newGrain
@@ -177,11 +196,11 @@ addNew msg newGrain model =
             now =
                 Grain.createdAt newGrain
         in
-        rootTreeZipper model
-            |> addWithZipperAndGetParentTree newGrain
+        model
+            |> addWithZipper
             |> Maybe.unwrap
                 (Result.Err "Err: addNewGrainAfter")
-                (addGrainWithParentTree now newGrain >> callWith model)
+                (Z.tree >> addGrainWithParentTree now newGrain >> callWith model)
 
 
 addGrainWithParentTree now newGrain tree =
@@ -402,12 +421,11 @@ moveBy :
     -> UpdateResult
 moveBy offset gid now model =
     let
-        zipper =
-            rootTreeZipper model
-
         siblings : List Grain
         siblings =
-            Z.siblingsOf gid zipper
+            findFromRoot gid model
+                |> Maybe.unwrap []
+                    (Z.tree >> Tree.children >> List.map Tree.label)
 
         gIdx : Int
         gIdx =
@@ -429,9 +447,6 @@ moveBy offset gid now model =
 
 moveOneLevelUp gid now model =
     let
-        zipper =
-            rootTreeZipper model
-
         setParentId newParentId =
             updateWithSetMsg
                 (Grain.SetParentId newParentId)
@@ -439,18 +454,19 @@ moveOneLevelUp gid now model =
                 now
                 model
     in
-    Z.parentWhenIdEq gid zipper
-        |> Maybe.map (Grain.parentId >> setParentId)
+    findFromRoot gid model
+        |> Maybe.andThen Z.parent
+        |> Maybe.map (Z.label >> Grain.parentId >> setParentId)
         |> Maybe.withDefault (Result.Err "Grain Not Found")
 
 
 moveOneLevelDown gid now model =
     let
-        zipper =
-            rootTreeZipper model
-
+        siblings : List Grain
         siblings =
-            Z.siblingsOf gid zipper
+            findFromRoot gid model
+                |> Maybe.unwrap []
+                    (Z.tree >> Tree.children >> List.map Tree.label)
 
         newParentIdx : Int
         newParentIdx =
