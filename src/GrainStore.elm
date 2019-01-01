@@ -271,7 +271,7 @@ type Update
 type Msg
     = AddGrain Add Grain
     | UpdateGrain Update GrainId Posix
-    | RemoveAndDiscardSiblings GrainId
+    | RemoveGrainAndDiscardSiblingChanges GrainId
     | Load Value
     | FirebaseChanges (List GrainChange)
 
@@ -289,7 +289,7 @@ update message model =
                 now
                 model
 
-        RemoveAndDiscardSiblings gid ->
+        RemoveGrainAndDiscardSiblingChanges gid ->
             removeAndDiscardSiblings gid model
 
         FirebaseChanges changeList ->
