@@ -20,7 +20,6 @@ import Firebase
 import Grain exposing (Grain)
 import GrainChange exposing (GrainChange)
 import GrainId exposing (GrainId)
-import GrainMorePopupView exposing (GrainMorePopupView)
 import GrainStore exposing (GrainStore, GrainTree)
 import GrainTreeView exposing (GrainTreeView)
 import GrainView exposing (GrainView)
@@ -40,9 +39,7 @@ import Material.Icons.Editor as MIcons
 import Material.Icons.Navigation as MIcons
 import Material.Icons.Toggle as MIcons
 import Maybe.Extra as Maybe
-import MoveGrainPopupView exposing (MoveGrainPopupView)
 import NotFoundView
-import Popup exposing (Popup)
 import Port
 import Random exposing (Generator, Seed)
 import Random.Pipeline as Random
@@ -87,7 +84,6 @@ type alias Model =
     , route : Route
     , authState : Firebase.AuthState
     , actorId : ActorId
-    , popup : Popup
     , grainStore : GrainStore
     , selectedGid : Maybe GrainId
     , lastSelectedGid : Maybe GrainId
@@ -106,7 +102,6 @@ init flags =
                 |> Random.always (Route.fromString flags.url)
                 |> Random.always Firebase.initialAuthState
                 |> Random.with ActorId.generator
-                |> Random.always Popup.NoPopup
                 |> Random.always GrainStore.init
                 |> Random.always Nothing
                 |> Random.always Nothing
@@ -184,9 +179,6 @@ type Msg
     | UpdateGrainWithNow GrainStore.Update GrainId Posix
       -- GRAIN FOCUS NAVIGATION
     | FocusRelative FocusRelativeMsg GrainTree GrainId
-      -- POPUP
-    | DismissPopupAndThen Msg
-    | OpenPopup Popup
       -- NAVIGATION --
     | RouteTo Route
     | UrlChanged Value
@@ -599,14 +591,6 @@ update message model =
                 (GrainStore.UpdateGrain updateMsg gid now)
                 model
 
-        DismissPopupAndThen msg ->
-            { model | popup = Popup.NoPopup }
-                |> update msg
-
-        OpenPopup popup ->
-            { model | popup = popup }
-                |> Return.singleton
-
         RouteTo route ->
             Return.singleton (setRoute route model)
                 |> Return.effect_
@@ -665,21 +649,12 @@ view model =
 viewModel : Model -> ViewModel Msg
 viewModel model =
     { route = model.route
-    , popup = model.popup
     , appBarVM = appBarViewModel model
     , createGrainTreeVM =
         \gid ->
             model.grainStore
                 |> GrainStore.treeFromGid gid
                 |> Maybe.map (grainTreeViewModel model.editGid)
-    , createGrainMorePopupVM =
-        \gid ->
-            grainById gid model
-                |> Maybe.map (grainMorePopupViewModel model)
-    , createGrainMovePopupVM =
-        \gid ->
-            grainById gid model
-                |> Maybe.map (moveGrainPopupViewModel model)
     , toastVM =
         { dismissMsg = ToastDismiss
         , toast = model.toast
@@ -707,53 +682,6 @@ appBarViewModel model =
     , onBack = maybeBool showBackBtn BackPressed
     , onSignOut = SignOut
     , onSignIn = SignIn
-    }
-
-
-grainMorePopupViewModel : Model -> Grain -> GrainMorePopupView Msg
-grainMorePopupViewModel model grain =
-    let
-        deleted =
-            Grain.deleted grain
-
-        gid =
-            Grain.id grain
-
-        dismiss msg =
-            DismissPopupAndThen <| msg
-    in
-    { editMsg = dismiss <| routeToGrainTreeMsg gid
-    , moveUpMsg = dismiss <| MoveGrain Direction.Up gid
-    , moveDownMsg = dismiss <| MoveGrain Direction.Down gid
-    , moveToMsg = OpenPopup (Popup.GrainMovePopup gid)
-    , toggleDeleteMsg =
-        dismiss <|
-            setDeletedMsg (not deleted) gid
-    , dismissMsg = dismiss NoOp
-    , deleted = deleted
-    }
-
-
-moveGrainPopupViewModel : Model -> Grain -> MoveGrainPopupView Msg
-moveGrainPopupViewModel model grain =
-    let
-        gid =
-            Grain.id grain
-
-        otherGrains =
-            GrainStore.rejectSubTreeAndFlatten grain model.grainStore
-                |> Debug.log "otherGrains"
-    in
-    { grain = grain
-    , otherGrains = otherGrains
-    , isSelected = Grain.isParentOf grain
-    , dismissMsg = DismissPopupAndThen NoOp
-    , setParentMsg =
-        \pid ->
-            DismissPopupAndThen <| setParentIdMsg pid gid
-    , setParentToRootMsg =
-        DismissPopupAndThen <|
-            setParentIdMsg Grain.rootIdAsParentId gid
     }
 
 

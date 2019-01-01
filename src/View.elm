@@ -22,7 +22,6 @@ import DatGui
 import EventX
 import Firebase
 import GrainId exposing (GrainId)
-import GrainMorePopupView exposing (GrainMorePopupView)
 import GrainTreeView exposing (GrainTreeView)
 import Html.Styled
     exposing
@@ -54,9 +53,7 @@ import Html.Styled.Events
         , onInput
         )
 import Maybe.Extra as Maybe
-import MoveGrainPopupView exposing (MoveGrainPopupView)
 import NotFoundView
-import Popup exposing (Popup)
 import Route exposing (Route)
 import Skeleton
 import Toast exposing (Toast)
@@ -64,14 +61,9 @@ import Toast exposing (Toast)
 
 type alias ViewModel msg =
     { route : Route
-    , popup : Popup
     , appBarVM : AppBarView msg
     , createGrainTreeVM :
         GrainId -> Maybe (GrainTreeView msg)
-    , createGrainMorePopupVM :
-        GrainId -> Maybe (GrainMorePopupView msg)
-    , createGrainMovePopupVM :
-        GrainId -> Maybe (MoveGrainPopupView msg)
     , toastVM :
         { dismissMsg : msg
         , toast : Toast
@@ -86,7 +78,6 @@ view vm =
                 [ viewAppBar vm.appBarVM ]
                     ++ viewRouteChildren vm
                     ++ [ viewToast vm.toastVM
-                       , viewPopup vm
 
                        --                       , DatGui.view
                        --                            [ DatGui.boolean "Debug" False
@@ -98,20 +89,6 @@ view vm =
 
 viewToast vm =
     Toast.view vm.dismissMsg vm.toast
-
-
-viewPopup vm =
-    case vm.popup of
-        Popup.GrainMorePopup gid ->
-            vm.createGrainMorePopupVM gid
-                |> CssHtml.viewMaybe GrainMorePopupView.view
-
-        Popup.GrainMovePopup gid ->
-            vm.createGrainMovePopupVM gid
-                |> CssHtml.viewMaybe MoveGrainPopupView.view
-
-        Popup.NoPopup ->
-            CssHtml.noView
 
 
 viewRouteChildren vm =
