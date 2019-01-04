@@ -214,7 +214,7 @@ addAndGetPidAndChildren msg newGrain =
                     )
 
 
-updateWithPidAndChildren newGrain ( pid, c ) =
+updateWithPidAndChildren newGrain ( pid, children ) =
     let
         now =
             Grain.createdAt newGrain
@@ -228,7 +228,7 @@ updateWithPidAndChildren newGrain ( pid, c ) =
             )
 
         childUpdaters =
-            c
+            children
                 |> List.indexedMap
                     (\idx g ->
                         ( Grain.update now <| Grain.SetSortIdx idx
