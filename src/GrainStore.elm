@@ -114,7 +114,7 @@ toZipper =
 
 
 findFromRoot gid =
-    toZipper >> Z.findFromRoot (Grain.idEq gid)
+    toZipper >> GrainTree.findFromRoot gid
 
 
 treeAtGid : GrainId -> GrainStore -> Maybe GrainTree

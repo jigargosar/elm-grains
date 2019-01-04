@@ -1,8 +1,13 @@
-module GrainTree exposing (GrainForest, GrainTree, GrainZipper)
+module GrainTree exposing
+    ( GrainForest
+    , GrainTree
+    , GrainZipper
+    , findFromRoot
+    )
 
 import Grain exposing (Grain)
 import Tree exposing (Tree)
-import Tree.Zipper exposing (Zipper)
+import Tree.Zipper as Z exposing (Zipper)
 
 
 type alias GrainForest =
@@ -15,3 +20,7 @@ type alias GrainTree =
 
 type alias GrainZipper =
     Zipper Grain
+
+
+findFromRoot gid =
+    Z.findFromRoot (Grain.idEq gid)

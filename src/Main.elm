@@ -602,6 +602,10 @@ update message model =
 -- VIEW --
 
 
+treeAtGid gid =
+    .grainStore >> GrainStore.treeAtGid gid
+
+
 view : Model -> Html Msg
 view model =
     View.view (viewModel model)
