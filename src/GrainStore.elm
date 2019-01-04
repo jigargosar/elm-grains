@@ -131,7 +131,6 @@ type Add
     = AddAfter GrainId
     | AddBefore GrainId
     | AddChild GrainId
-    | AddDefault
 
 
 z_prependChild childTree =
@@ -158,10 +157,6 @@ addNew msg newGrain model =
                 AddChild gid ->
                     findFromRoot gid
                         >> Maybe.andThen (z_prependChild newGrainTree)
-
-                AddDefault ->
-                    toZipper
-                        >> z_prependChild newGrainTree
 
         newGid =
             Grain.id newGrain
