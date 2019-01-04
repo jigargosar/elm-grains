@@ -243,37 +243,6 @@ updateWithPidAndChildren newGrain ( pid, children ) =
         >> batchUpdate updaters
 
 
-addGrainWithParentTree now newGrain tree =
-    let
-        newGid =
-            Grain.id newGrain
-
-        parentIdUpdater =
-            Tree.label tree
-                |> Grain.idAsParentId
-                |> (\pid ->
-                        ( Grain.update now (Grain.SetParentId pid)
-                        , newGid
-                        )
-                   )
-
-        childUpdaters =
-            Tree.children tree
-                |> List.map Tree.label
-                |> List.indexedMap
-                    (\idx g ->
-                        ( Grain.update now <| Grain.SetSortIdx idx
-                        , Grain.id g
-                        )
-                    )
-
-        updaters =
-            parentIdUpdater :: childUpdaters
-    in
-    blindInsertGrain newGrain
-        >> batchUpdate updaters
-
-
 type Update
     = Move Direction
     | SetContent String
