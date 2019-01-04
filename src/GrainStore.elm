@@ -184,13 +184,13 @@ addNew msg newGrain model =
 
     else
         model
-            |> getPidAndChildren msg newGrain
+            |> addAndGetPidAndChildren msg newGrain
             |> Maybe.unwrap
                 (Result.Err "Err: addNew")
                 (updateWithPidAndChildren newGrain >> callWith model)
 
 
-getPidAndChildren msg newGrain =
+addAndGetPidAndChildren msg newGrain =
     case msg of
         AddAfter gid ->
             getLCRSiblingsOfGid gid
