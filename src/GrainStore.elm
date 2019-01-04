@@ -128,11 +128,6 @@ type Add
     | AddChild GrainId
 
 
-z_prependChild childTree =
-    Z.mapTree (Tree.prependChild childTree)
-        >> Z.firstChild
-
-
 getLCRSiblingsOfGid :
     GrainId
     -> GrainStore
