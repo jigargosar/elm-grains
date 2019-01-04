@@ -108,13 +108,8 @@ toTreeHelp grainStore grain =
     Tree.tree grain newForest
 
 
-toZipper : GrainStore -> GrainZipper
-toZipper =
-    toTree >> Z.fromTree
-
-
 findFromRoot gid =
-    toZipper >> GrainTree.findFromRoot gid
+    toTree >> Z.fromTree >> GrainTree.findFromRoot gid
 
 
 get : GrainId -> GrainStore -> Maybe Grain
