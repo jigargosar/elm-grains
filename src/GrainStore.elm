@@ -176,39 +176,6 @@ getSortedChildGrainsOfGid gid model =
 addNew : Add -> Grain -> GrainStore -> UpdateResult
 addNew msg newGrain model =
     let
-        newGrainTree =
-            Tree.singleton newGrain
-
-        addWithZipper =
-            case msg of
-                AddAfter gid ->
-                    let
-                        _ =
-                            getLCRSiblingsOfGid gid model
-                                |> Maybe.map
-                                    (\( l, c, r ) ->
-                                        ( Grain.parentId c, l ++ [ c, newGrain ] ++ r )
-                                    )
-                    in
-                    findFromRoot gid
-                        >> Maybe.map (Z.append newGrainTree)
-
-                AddBefore gid ->
-                    findFromRoot gid
-                        >> Maybe.map (Z.append newGrainTree)
-
-                AddChild gid ->
-                    let
-                        _ =
-                            getSortedChildGrainsOfGid gid model
-                                |> Maybe.map
-                                    (\( p, c ) ->
-                                        ( Grain.idAsParentId p, newGrain :: c )
-                                    )
-                    in
-                    findFromRoot gid
-                        >> Maybe.andThen (z_prependChild newGrainTree)
-
         newGid =
             Grain.id newGrain
     in
@@ -216,15 +183,64 @@ addNew msg newGrain model =
         Result.Err "Error: Add Grain. GrainId exists"
 
     else
-        let
-            now =
-                Grain.createdAt newGrain
-        in
         model
-            |> addWithZipper
+            |> getPidAndChildren msg newGrain
             |> Maybe.unwrap
                 (Result.Err "Err: addNew")
-                (Z.tree >> addGrainWithParentTree now newGrain >> callWith model)
+                (updateWithPidAndChildren newGrain >> callWith model)
+
+
+getPidAndChildren msg newGrain =
+    case msg of
+        AddAfter gid ->
+            getLCRSiblingsOfGid gid
+                >> Maybe.map
+                    (\( l, c, r ) ->
+                        ( Grain.parentId c, l ++ [ c, newGrain ] ++ r )
+                    )
+
+        AddBefore gid ->
+            getLCRSiblingsOfGid gid
+                >> Maybe.map
+                    (\( l, c, r ) ->
+                        ( Grain.parentId c, l ++ [ newGrain, c ] ++ r )
+                    )
+
+        AddChild gid ->
+            getSortedChildGrainsOfGid gid
+                >> Maybe.map
+                    (\( p, c ) ->
+                        ( Grain.idAsParentId p, newGrain :: c )
+                    )
+
+
+updateWithPidAndChildren newGrain ( pid, c ) =
+    let
+        now =
+            Grain.createdAt newGrain
+
+        newGid =
+            Grain.id newGrain
+
+        parentIdUpdater =
+            ( Grain.update now (Grain.SetParentId pid)
+            , newGid
+            )
+
+        childUpdaters =
+            c
+                |> List.indexedMap
+                    (\idx g ->
+                        ( Grain.update now <| Grain.SetSortIdx idx
+                        , Grain.id g
+                        )
+                    )
+
+        updaters =
+            parentIdUpdater :: childUpdaters
+    in
+    blindInsertGrain newGrain
+        >> batchUpdate updaters
 
 
 addGrainWithParentTree now newGrain tree =
