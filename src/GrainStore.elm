@@ -158,14 +158,18 @@ getLCRSiblingsOfGid gid model =
             )
 
 
-getSortedChildGrainsOfGid : GrainId -> GrainStore -> Maybe (List Grain)
+getSortedChildGrainsOfGid : GrainId -> GrainStore -> Maybe ( Grain, List Grain )
 getSortedChildGrainsOfGid gid model =
     get gid model
         |> Maybe.map
             (\parentGrain ->
-                GrainIdLookup.toList model
-                    |> List.filter (Grain.isChildOf parentGrain)
-                    |> List.sortWith Grain.defaultComparator
+                let
+                    children =
+                        GrainIdLookup.toList model
+                            |> List.filter (Grain.isChildOf parentGrain)
+                            |> List.sortWith Grain.defaultComparator
+                in
+                ( parentGrain, children )
             )
 
 
@@ -194,6 +198,14 @@ addNew msg newGrain model =
                         >> Maybe.map (Z.append newGrainTree)
 
                 AddChild gid ->
+                    let
+                        _ =
+                            getSortedChildGrainsOfGid gid model
+                                |> Maybe.map
+                                    (\( p, c ) ->
+                                        ( Grain.idAsParentId p, newGrain :: c )
+                                    )
+                    in
                     findFromRoot gid
                         >> Maybe.andThen (z_prependChild newGrainTree)
 
