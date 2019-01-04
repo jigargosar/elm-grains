@@ -8,7 +8,6 @@ module GrainStore exposing
     , get
     , getGrain
     , init
-    , rejectSubTreeAndFlatten
     , toRawList
     , treeFromGid
     , update
@@ -121,11 +120,6 @@ findFromRoot gid =
 treeFromGid : GrainId -> GrainStore -> Maybe GrainTree
 treeFromGid gid =
     findFromRoot gid >> Maybe.map Z.tree
-
-
-rejectSubTreeAndFlatten : Grain -> GrainStore -> List Grain
-rejectSubTreeAndFlatten grain model =
-    []
 
 
 get : GrainId -> GrainStore -> Maybe Grain
