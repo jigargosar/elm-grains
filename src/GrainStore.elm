@@ -9,7 +9,7 @@ module GrainStore exposing
     , getGrain
     , init
     , toRawList
-    , treeFromGid
+    , treeAtGid
     , update
     )
 
@@ -117,8 +117,8 @@ findFromRoot gid =
     toZipper >> Z.findFromRoot (Grain.idEq gid)
 
 
-treeFromGid : GrainId -> GrainStore -> Maybe GrainTree
-treeFromGid gid =
+treeAtGid : GrainId -> GrainStore -> Maybe GrainTree
+treeAtGid gid =
     findFromRoot gid >> Maybe.map Z.tree
 
 

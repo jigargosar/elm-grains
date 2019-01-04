@@ -614,7 +614,7 @@ viewModel model =
     , createGrainTreeVM =
         \gid ->
             model.grainStore
-                |> GrainStore.treeFromGid gid
+                |> GrainStore.treeAtGid gid
                 |> Maybe.map (grainTreeViewModel model.editGid)
     , toastVM =
         { dismissMsg = ToastDismiss
