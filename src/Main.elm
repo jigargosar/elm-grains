@@ -20,7 +20,8 @@ import Firebase
 import Grain exposing (Grain)
 import GrainChange exposing (GrainChange)
 import GrainId exposing (GrainId)
-import GrainStore exposing (GrainStore, GrainTree)
+import GrainStore exposing (GrainStore)
+import GrainTree exposing (GrainTree)
 import GrainTreeView exposing (GrainTreeView)
 import GrainView exposing (GrainView)
 import GrainZipper__

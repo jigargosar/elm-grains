@@ -1,9 +1,6 @@
 module GrainStore exposing
     ( Add(..)
-    , GrainForest
     , GrainStore
-    , GrainTree
-    , GrainZipper
     , Msg(..)
     , Update(..)
     , decoder
@@ -28,6 +25,7 @@ import GrainChange exposing (GrainChange)
 import GrainDict exposing (GrainDict)
 import GrainId exposing (GrainId)
 import GrainIdLookup exposing (GrainIdLookup)
+import GrainTree exposing (GrainZipper)
 import GrainZipper__ exposing (GrainForest, GrainTree)
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline exposing (hardcoded, required)
@@ -109,18 +107,6 @@ toTreeHelp grainStore grain =
                 |> List.map (toTreeHelp grainStore)
     in
     Tree.tree grain newForest
-
-
-type alias GrainForest =
-    List GrainTree
-
-
-type alias GrainTree =
-    Tree.Tree Grain
-
-
-type alias GrainZipper =
-    Zipper Grain
 
 
 toZipper : GrainStore -> GrainZipper
