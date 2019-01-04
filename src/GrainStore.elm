@@ -133,8 +133,11 @@ z_prependChild childTree =
         >> Z.firstChild
 
 
-getSortedSiblingsOfGidAndIdx : GrainId -> GrainStore -> Maybe ( Int, List Grain )
-getSortedSiblingsOfGidAndIdx gid model =
+getSortedAndSplitSiblingsOfGid :
+    GrainId
+    -> GrainStore
+    -> Maybe ( List Grain, Grain, List Grain )
+getSortedAndSplitSiblingsOfGid gid model =
     get gid model
         |> Maybe.andThen
             (\grain ->
@@ -145,7 +148,13 @@ getSortedSiblingsOfGidAndIdx gid model =
                             |> List.sortWith Grain.defaultComparator
                 in
                 List.elemIndex grain siblingGrains
-                    |> Maybe.map (\siblingIdx -> ( siblingIdx, siblingGrains ))
+                    |> Maybe.map
+                        (\siblingIdx ->
+                            ( List.take siblingIdx siblingGrains
+                            , grain
+                            , List.drop (siblingIdx + 1) siblingGrains
+                            )
+                        )
             )
 
 
