@@ -167,6 +167,14 @@ addNew msg newGrain model =
         addWithZipper =
             case msg of
                 AddAfter gid ->
+                    let
+                        _ =
+                            getLCRSiblingsOfGid gid model
+                                |> Maybe.map
+                                    (\( l, c, r ) ->
+                                        l ++ [ c, newGrain ] ++ r
+                                    )
+                    in
                     findFromRoot gid
                         >> Maybe.map (Z.append newGrainTree)
 
