@@ -172,7 +172,7 @@ addNew msg newGrain model =
                             getLCRSiblingsOfGid gid model
                                 |> Maybe.map
                                     (\( l, c, r ) ->
-                                        l ++ [ c, newGrain ] ++ r
+                                        ( Grain.parentId c, l ++ [ c, newGrain ] ++ r )
                                     )
                     in
                     findFromRoot gid
