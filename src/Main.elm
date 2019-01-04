@@ -603,7 +603,9 @@ update message model =
 
 
 treeAtGid gid =
-    .grainStore >> GrainStore.treeAtGid gid
+    .grainStore
+        >> GrainStore.toTree
+        >> GrainTree.treeAtGid gid
 
 
 view : Model -> Html Msg
@@ -617,8 +619,8 @@ viewModel model =
     , appBarVM = appBarViewModel model
     , createGrainTreeVM =
         \gid ->
-            model.grainStore
-                |> GrainStore.treeAtGid gid
+            model
+                |> treeAtGid gid
                 |> Maybe.map (grainTreeViewModel model.editGid)
     , toastVM =
         { dismissMsg = ToastDismiss
