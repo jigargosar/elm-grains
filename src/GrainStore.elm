@@ -133,11 +133,11 @@ z_prependChild childTree =
         >> Z.firstChild
 
 
-getSortedAndSplitSiblingsOfGid :
+getLCRSiblingsOfGid :
     GrainId
     -> GrainStore
     -> Maybe ( List Grain, Grain, List Grain )
-getSortedAndSplitSiblingsOfGid gid model =
+getLCRSiblingsOfGid gid model =
     get gid model
         |> Maybe.andThen
             (\grain ->
