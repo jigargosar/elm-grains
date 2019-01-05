@@ -179,6 +179,29 @@ addNew msg newGrain model =
 
     else
         let
+            addAndGetPidAndChildren =
+                case msg of
+                    AddAfter gid ->
+                        getLCRSiblingsOfGid gid
+                            >> Maybe.map
+                                (\( l, c, r ) ->
+                                    ( Grain.parentId c, l ++ [ c, newGrain ] ++ r )
+                                )
+
+                    AddBefore gid ->
+                        getLCRSiblingsOfGid gid
+                            >> Maybe.map
+                                (\( l, c, r ) ->
+                                    ( Grain.parentId c, l ++ [ newGrain, c ] ++ r )
+                                )
+
+                    AddChild gid ->
+                        getSortedChildGrainsOfGid gid
+                            >> Maybe.map
+                                (\( p, c ) ->
+                                    ( Grain.idAsParentId p, newGrain :: c )
+                                )
+
             toSetMsgUpdaters ( pid, children ) =
                 ( Grain.SetParentId pid
                 , newGrain
@@ -200,37 +223,13 @@ addNew msg newGrain model =
                     >> batchUpdateWithSetMessages setMsgUpdaters now
         in
         model
-            |> addAndGetPidAndChildren msg newGrain
+            |> addAndGetPidAndChildren
             |> Maybe.map
                 (toSetMsgUpdaters
                     >> blindInsertAndUpdate
                     >> callWith model
                 )
             |> Result.fromMaybe "Err: addNew"
-
-
-addAndGetPidAndChildren msg newGrain =
-    case msg of
-        AddAfter gid ->
-            getLCRSiblingsOfGid gid
-                >> Maybe.map
-                    (\( l, c, r ) ->
-                        ( Grain.parentId c, l ++ [ c, newGrain ] ++ r )
-                    )
-
-        AddBefore gid ->
-            getLCRSiblingsOfGid gid
-                >> Maybe.map
-                    (\( l, c, r ) ->
-                        ( Grain.parentId c, l ++ [ newGrain, c ] ++ r )
-                    )
-
-        AddChild gid ->
-            getSortedChildGrainsOfGid gid
-                >> Maybe.map
-                    (\( p, c ) ->
-                        ( Grain.idAsParentId p, newGrain :: c )
-                    )
 
 
 type Update
