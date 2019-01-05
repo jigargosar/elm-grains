@@ -328,64 +328,6 @@ updateGrainWithId msg gid now model =
             )
 
 
-updateFromFirebaseChangeList changeList model =
-    let
-        handleChange change =
-            let
-                grain =
-                    GrainChange.grain change
-            in
-            case GrainChange.type_ change of
-                GrainChange.Added ->
-                    blindInsertGrain grain
-
-                GrainChange.Modified ->
-                    blindInsertGrain grain
-
-                GrainChange.Removed ->
-                    blindRemoveGrain grain
-    in
-    List.foldr handleChange model changeList
-        |> Result.Ok
-
-
-blindInsertGrain grain model =
-    GrainIdLookup.insert (Grain.id grain) grain model
-
-
-blindRemoveGrain grain model =
-    GrainIdLookup.remove (Grain.id grain) model
-
-
-idExists gid =
-    GrainIdLookup.member gid
-
-
-type alias UpdateResult =
-    Result String GrainStore
-
-
-type alias GrainSetterResult =
-    Result String (List ( Grain.Set, Grain ))
-
-
-type alias GrainSetter =
-    ( Grain.Set, Grain )
-
-
-batchUpdateWithSetMessages :
-    List GrainSetter
-    -> Posix
-    -> GrainStore
-    -> GrainStore
-batchUpdateWithSetMessages grainSetters now model =
-    let
-        reducer =
-            blindInsertGrain << Tuple2.uncurry (Grain.update now)
-    in
-    List.foldl reducer model grainSetters
-
-
 move :
     Direction
     -> GrainId
@@ -467,3 +409,65 @@ moveOneLevelDown gid model =
                         )
             )
         |> Result.fromMaybe "Error: moveOneLevelDown"
+
+
+updateFromFirebaseChangeList changeList model =
+    let
+        handleChange change =
+            let
+                grain =
+                    GrainChange.grain change
+            in
+            case GrainChange.type_ change of
+                GrainChange.Added ->
+                    blindInsertGrain grain
+
+                GrainChange.Modified ->
+                    blindInsertGrain grain
+
+                GrainChange.Removed ->
+                    blindRemoveGrain grain
+    in
+    List.foldr handleChange model changeList
+        |> Result.Ok
+
+
+
+-- INTERNAL
+
+
+blindInsertGrain grain model =
+    GrainIdLookup.insert (Grain.id grain) grain model
+
+
+blindRemoveGrain grain model =
+    GrainIdLookup.remove (Grain.id grain) model
+
+
+idExists gid =
+    GrainIdLookup.member gid
+
+
+type alias UpdateResult =
+    Result String GrainStore
+
+
+type alias GrainSetterResult =
+    Result String (List ( Grain.Set, Grain ))
+
+
+type alias GrainSetter =
+    ( Grain.Set, Grain )
+
+
+batchUpdateWithSetMessages :
+    List GrainSetter
+    -> Posix
+    -> GrainStore
+    -> GrainStore
+batchUpdateWithSetMessages grainSetters now model =
+    let
+        reducer =
+            blindInsertGrain << Tuple2.uncurry (Grain.update now)
+    in
+    List.foldl reducer model grainSetters
