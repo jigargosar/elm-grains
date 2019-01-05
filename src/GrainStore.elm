@@ -183,12 +183,33 @@ addNew msg newGrain model =
             --                        ( Grain.update now (Grain.SetParentId pid)
             --                        , newGid
             --                        )
-            updateWithPidAndChildren_ ( pid, children ) =
-                1
+            toSetMsgUpdaters ( pid, children ) =
+                ( Grain.SetParentId pid
+                , newGrain
+                )
+                    :: List.indexedMap
+                        (\idx g ->
+                            ( Grain.SetSortIdx idx
+                            , g
+                            )
+                        )
+                        children
+
+            blindInsertAndUpdate setMsgUpdaters =
+                let
+                    now =
+                        Grain.createdAt newGrain
+                in
+                blindInsertGrain newGrain
+                    >> batchUpdateWithSetMessages setMsgUpdaters now
         in
         model
             |> addAndGetPidAndChildren msg newGrain
-            |> Maybe.map (updateWithPidAndChildren newGrain >> callWith model)
+            |> Maybe.map
+                (toSetMsgUpdaters
+                    >> blindInsertAndUpdate
+                    >> callWith model
+                )
             |> Result.fromMaybe "Err: addNew"
 
 
@@ -214,30 +235,6 @@ addAndGetPidAndChildren msg newGrain =
                     (\( p, c ) ->
                         ( Grain.idAsParentId p, newGrain :: c )
                     )
-
-
-updateWithPidAndChildren newGrain ( pid, children ) =
-    let
-        now =
-            Grain.createdAt newGrain
-
-        childUpdaters =
-            children
-                |> List.indexedMap
-                    (\idx g ->
-                        ( Grain.SetSortIdx idx
-                        , g
-                        )
-                    )
-
-        grainSetters =
-            ( Grain.SetParentId pid
-            , newGrain
-            )
-                :: childUpdaters
-    in
-    blindInsertGrain newGrain
-        >> batchUpdateWithSetMessages grainSetters now
 
 
 type Update
