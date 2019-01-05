@@ -6,7 +6,6 @@ module GrainStore exposing
     , decoder
     , encoder
     , get
-    , getGrain
     , init
     , toRawList
     , toTree
@@ -108,17 +107,8 @@ toTreeHelp grainStore grain =
     Tree.tree grain newForest
 
 
-findFromRoot gid =
-    toTree >> Z.fromTree >> GrainTree.findFromRoot gid
-
-
 get : GrainId -> GrainStore -> Maybe Grain
 get gid =
-    GrainIdLookup.get gid
-
-
-getGrain : GrainId -> GrainStore -> Maybe Grain
-getGrain gid =
     GrainIdLookup.get gid
 
 
