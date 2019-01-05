@@ -199,15 +199,18 @@ getSortedChildGrainsOfGid : GrainId -> GrainStore -> Maybe ( Grain, List Grain )
 getSortedChildGrainsOfGid gid model =
     get gid model
         |> Maybe.map
-            (\parentGrain ->
-                let
-                    children =
-                        GrainIdLookup.toList model
-                            |> List.filter (Grain.isChildOf parentGrain)
-                            |> List.sortWith Grain.defaultComparator
-                in
-                ( parentGrain, children )
-            )
+            (getSortedChildGrainsOfGrain >> callWith model)
+
+
+getSortedChildGrainsOfGrain : Grain -> GrainStore -> ( Grain, List Grain )
+getSortedChildGrainsOfGrain parentGrain model =
+    let
+        children =
+            GrainIdLookup.toList model
+                |> List.filter (Grain.isChildOf parentGrain)
+                |> List.sortWith Grain.defaultComparator
+    in
+    ( parentGrain, children )
 
 
 addNew : Add -> Grain -> GrainStore -> UpdateResult
@@ -510,6 +513,26 @@ moveOneLevelUp gid now model =
 
 moveOneLevelDown gid now model =
     let
+        _ =
+            getLCRSiblingsOfGid gid model
+                |> Maybe.andThen
+                    (\( prevSiblings, grain, _ ) ->
+                        List.last prevSiblings
+                            |> Maybe.map
+                                (getSortedChildGrainsOfGrain >> callWith model)
+                            |> Maybe.map
+                                (\( newParent, newSiblings ) ->
+                                    ( Grain.SetParentId
+                                        (Grain.parentId newParent)
+                                    , grain
+                                    )
+                                        :: (grain
+                                                :: newSiblings
+                                                |> grainListToSetSortIdxSetter
+                                           )
+                                )
+                    )
+
         siblings : List Grain
         siblings =
             findFromRoot gid model
