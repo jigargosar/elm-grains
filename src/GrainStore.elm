@@ -75,6 +75,20 @@ addRootIfAbsent model =
         blindInsertGrain Grain.root model
 
 
+
+--- TO TREE ---
+
+
+toTree : GrainStore -> GrainTree
+toTree model =
+    toTreeHelp model (rootGrain model)
+
+
+rootGrain : GrainStore -> Grain
+rootGrain =
+    get GrainId.root >> Maybe.withDefault Grain.root
+
+
 allGrains : GrainStore -> List Grain
 allGrains =
     toRawList
@@ -86,16 +100,6 @@ childGrains grain =
     allGrains >> List.filter (Grain.isChildOf grain)
 
 
-rootGrain : GrainStore -> Grain
-rootGrain =
-    get GrainId.root >> Maybe.withDefault Grain.root
-
-
-toTree : GrainStore -> GrainTree
-toTree model =
-    toTreeHelp model (rootGrain model)
-
-
 toTreeHelp : GrainStore -> Grain -> GrainTree
 toTreeHelp grainStore grain =
     let
@@ -105,6 +109,10 @@ toTreeHelp grainStore grain =
                 |> List.map (toTreeHelp grainStore)
     in
     Tree.tree grain newForest
+
+
+
+--- END TO TREE
 
 
 get : GrainId -> GrainStore -> Maybe Grain
