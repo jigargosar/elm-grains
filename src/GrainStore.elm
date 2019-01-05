@@ -260,23 +260,19 @@ move :
     -> GrainId
     -> GrainStore
     -> GrainSetterResult
-move direction gid model =
-    let
-        fn =
-            case direction of
-                Direction.Up ->
-                    moveBy -1
+move direction =
+    case direction of
+        Direction.Up ->
+            moveBy -1
 
-                Direction.Down ->
-                    moveBy 1
+        Direction.Down ->
+            moveBy 1
 
-                Direction.Left ->
-                    moveLeft
+        Direction.Left ->
+            moveLeft
 
-                Direction.Right ->
-                    moveRight
-    in
-    fn gid model
+        Direction.Right ->
+            moveRight
 
 
 moveBy :
