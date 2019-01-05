@@ -292,7 +292,9 @@ update message model =
                 model
 
         Load encoded ->
-            load encoded
+            encoded
+                |> D.decodeValue decoder
+                >> Result.mapError D.errorToString
 
 
 updateGrainWithId msg gid now model =
@@ -345,11 +347,6 @@ updateFromFirebaseChangeList changeList model =
     in
     List.foldr handleChange model changeList
         |> Result.Ok
-
-
-load =
-    D.decodeValue decoder
-        >> Result.mapError D.errorToString
 
 
 blindInsertGrain grain model =
