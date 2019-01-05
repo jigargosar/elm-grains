@@ -364,38 +364,12 @@ idExists gid =
     GrainIdLookup.member gid
 
 
-type alias GrainUpdater =
-    ( Grain -> Grain, GrainId )
-
-
 type alias UpdateResult =
     Result String GrainStore
 
 
 type alias GrainSetterResult =
     Result String (List ( Grain.Set, Grain ))
-
-
-updateWithChangeFn :
-    (Grain -> Grain)
-    -> GrainId
-    -> GrainStore
-    -> UpdateResult
-updateWithChangeFn changeFn gid model =
-    if GrainIdLookup.member gid model then
-        Result.Ok <| GrainIdLookup.updateIfExists gid changeFn model
-
-    else
-        Result.Err "GrainNotFound"
-
-
-batchUpdate_ : List GrainUpdater -> GrainStore -> UpdateResult
-batchUpdate_ list model =
-    let
-        reducer ( changeFn, gid ) =
-            Result.andThen (updateWithChangeFn changeFn gid)
-    in
-    List.foldl reducer (Result.Ok model) list
 
 
 type alias GrainSetter =
