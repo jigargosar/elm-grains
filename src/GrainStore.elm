@@ -128,6 +128,22 @@ type Add
     | AddChild GrainId
 
 
+getSiblingsAndIdxOfGid : GrainId -> GrainStore -> Maybe ( Int, List Grain )
+getSiblingsAndIdxOfGid gid model =
+    get gid model
+        |> Maybe.andThen
+            (\grain ->
+                let
+                    siblingGrains =
+                        GrainIdLookup.toList model
+                            |> List.filter (Grain.isSibling grain)
+                            |> List.sortWith Grain.defaultComparator
+                in
+                List.elemIndex grain siblingGrains
+                    |> Maybe.map (\idx -> ( idx, siblingGrains ))
+            )
+
+
 getLCRSiblingsOfGid :
     GrainId
     -> GrainStore
@@ -424,6 +440,9 @@ moveBy :
     -> UpdateResult
 moveBy offset gid now model =
     let
+        _ =
+            getLCRSiblingsOfGid gid model
+
         siblings : List Grain
         siblings =
             findFromRoot gid model
