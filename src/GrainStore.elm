@@ -303,7 +303,7 @@ update message model =
                 model
 
         UpdateGrain msg gid now ->
-            updateGrain msg
+            updateGrainWithId msg
                 gid
                 now
                 model
@@ -316,7 +316,7 @@ update message model =
             load encoded
 
 
-updateGrain msg gid now =
+updateGrainWithId msg gid now =
     case msg of
         Move direction ->
             move direction gid now
