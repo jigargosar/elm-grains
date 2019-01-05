@@ -1,7 +1,7 @@
 module GrainStore exposing
-    ( Add(..)
-    , GrainStore
+    ( GrainStore
     , Msg(..)
+    , New(..)
     , Update(..)
     , decoder
     , encoder
@@ -123,13 +123,50 @@ get gid =
 -- UPDATE
 
 
-type Add
-    = AddAfter GrainId
-    | AddBefore GrainId
-    | AddChild GrainId
+type New
+    = NewAfter GrainId
+    | NewBefore GrainId
+    | NewChild GrainId
 
 
-addNew : Add -> Grain -> GrainStore -> UpdateResult
+type Update
+    = Move Direction
+    | SetContent String
+    | SetDeleted Bool
+    | SetParentId ParentId
+
+
+type Msg
+    = AddGrain New Grain
+    | UpdateGrain Update GrainId Posix
+    | Hydrate Value
+    | FirebaseChanges (List GrainChange)
+
+
+update message model =
+    case message of
+        AddGrain msg grain ->
+            addNew msg
+                grain
+                model
+
+        UpdateGrain msg gid now ->
+            updateGrainWithId msg
+                gid
+                now
+                model
+
+        FirebaseChanges changeList ->
+            updateFromFirebaseChangeList changeList
+                model
+
+        Hydrate encoded ->
+            encoded
+                |> D.decodeValue decoder
+                >> Result.mapError D.errorToString
+
+
+addNew : New -> Grain -> GrainStore -> UpdateResult
 addNew msg newGrain model =
     let
         newGid =
@@ -142,21 +179,21 @@ addNew msg newGrain model =
         let
             addAndGetPidAndChildren =
                 case msg of
-                    AddAfter gid ->
+                    NewAfter gid ->
                         getSortedLCRSiblingsOfGid gid
                             >> Maybe.map
                                 (\( l, c, r ) ->
                                     ( Grain.parentId c, l ++ [ c, newGrain ] ++ r )
                                 )
 
-                    AddBefore gid ->
+                    NewBefore gid ->
                         getSortedLCRSiblingsOfGid gid
                             >> Maybe.map
                                 (\( l, c, r ) ->
                                     ( Grain.parentId c, l ++ [ newGrain, c ] ++ r )
                                 )
 
-                    AddChild gid ->
+                    NewChild gid ->
                         getSortedChildGrainsOfGid gid
                             >> Maybe.map
                                 (\( p, c ) ->
@@ -187,43 +224,6 @@ addNew msg newGrain model =
             |> Result.fromMaybe "Err: addNew"
 
 
-type Update
-    = Move Direction
-    | SetContent String
-    | SetDeleted Bool
-    | SetParentId ParentId
-
-
-type Msg
-    = AddGrain Add Grain
-    | UpdateGrain Update GrainId Posix
-    | Load Value
-    | FirebaseChanges (List GrainChange)
-
-
-update message model =
-    case message of
-        AddGrain msg grain ->
-            addNew msg
-                grain
-                model
-
-        UpdateGrain msg gid now ->
-            updateGrainWithId msg
-                gid
-                now
-                model
-
-        FirebaseChanges changeList ->
-            updateFromFirebaseChangeList changeList
-                model
-
-        Load encoded ->
-            encoded
-                |> D.decodeValue decoder
-                >> Result.mapError D.errorToString
-
-
 updateGrainWithId msg gid now model =
     let
         toGrainSetterSingletonResult setMsg =
@@ -233,6 +233,25 @@ updateGrainWithId msg gid now model =
                         [ ( setMsg, grain ) ]
                     )
                 >> Result.fromMaybe "Err: updateGrainWithId: toGrainSetterSingleton"
+
+        move :
+            Direction
+            -> GrainId
+            -> GrainStore
+            -> GrainSetterResult
+        move direction =
+            case direction of
+                Direction.Up ->
+                    moveBy -1
+
+                Direction.Down ->
+                    moveBy 1
+
+                Direction.Left ->
+                    moveLeft
+
+                Direction.Right ->
+                    moveRight
 
         grainSettersResult =
             case msg of
@@ -253,26 +272,6 @@ updateGrainWithId msg gid now model =
             (batchUpdateWithSetMessages
                 >> callWith2 now model
             )
-
-
-move :
-    Direction
-    -> GrainId
-    -> GrainStore
-    -> GrainSetterResult
-move direction =
-    case direction of
-        Direction.Up ->
-            moveBy -1
-
-        Direction.Down ->
-            moveBy 1
-
-        Direction.Left ->
-            moveLeft
-
-        Direction.Right ->
-            moveRight
 
 
 moveBy :

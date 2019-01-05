@@ -109,7 +109,7 @@ init flags =
                 |> Random.finish
     in
     model
-        |> updateGrainStore (GrainStore.Load flags.grainCache)
+        |> updateGrainStore (GrainStore.Hydrate flags.grainCache)
 
 
 setRoute route model =
@@ -171,8 +171,8 @@ type Msg
     | StartEditing GrainId
     | EndEditing GrainId
       -- ADD GRAIN --
-    | NewGrain GrainStore.Add
-    | AddNewGrain GrainStore.Add Grain
+    | NewGrain GrainStore.New
+    | AddNewGrain GrainStore.New Grain
       -- UPDATE GRAIN --
     | MoveGrain Direction GrainId
     | UpdateGrain GrainStore.Update GrainId
@@ -687,9 +687,9 @@ grainTreeViewKeyBindings tree gid =
             , ( K.arrowUp, fr FR_Backward )
             , ( K.arrowLeft, arrowLeftMsg )
             , ( K.arrowRight, routeToGrainTreeMsg )
-            , ( K.shiftMetaEnter, NewGrain << GrainStore.AddChild )
-            , ( K.shiftEnter, NewGrain << GrainStore.AddBefore )
-            , ( K.metaEnter, NewGrain << GrainStore.AddAfter )
+            , ( K.shiftMetaEnter, NewGrain << GrainStore.NewChild )
+            , ( K.shiftEnter, NewGrain << GrainStore.NewBefore )
+            , ( K.metaEnter, NewGrain << GrainStore.NewAfter )
             , ( K.enter, StartEditing )
             , ( K.esc, EndEditing )
             ]
