@@ -148,24 +148,6 @@ getSiblingsAndSortIdxOfGid gid model =
                 )
 
 
-
---getSiblingsAndSortIdxOfParentOfGid : GrainId -> GrainStore -> Maybe ( Int, List Grain )
---getSiblingsAndSortIdxOfParentOfGid gid model =
---    get gid model
---        |> Maybe.andThen Grain.parentIdAsGrainId
---        |> Maybe.andThen (getSiblingsAndSortIdxOfGid >> callWith model)
---
---
---getLCRSiblingsOfParentOfGid :
---    GrainId
---    -> GrainStore
---    -> Maybe ( List Grain, Grain, List Grain )
---getLCRSiblingsOfParentOfGid gid model =
---    get gid model
---        |> Maybe.andThen Grain.parentIdAsGrainId
---        |> Maybe.andThen (getLCRSiblingsOfGid >> callWith model)
-
-
 getSortedLCRSiblingsOfGid :
     GrainId
     -> GrainStore
