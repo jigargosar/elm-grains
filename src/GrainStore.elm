@@ -148,11 +148,22 @@ getSiblingsAndSortIdxOfGid gid model =
                 )
 
 
-getSiblingsAndSortIdxOfParentOfGid : GrainId -> GrainStore -> Maybe ( Int, List Grain )
-getSiblingsAndSortIdxOfParentOfGid gid model =
-    get gid model
-        |> Maybe.andThen Grain.parentIdAsGrainId
-        |> Maybe.andThen (getSiblingsAndSortIdxOfGid >> callWith model)
+
+--getSiblingsAndSortIdxOfParentOfGid : GrainId -> GrainStore -> Maybe ( Int, List Grain )
+--getSiblingsAndSortIdxOfParentOfGid gid model =
+--    get gid model
+--        |> Maybe.andThen Grain.parentIdAsGrainId
+--        |> Maybe.andThen (getSiblingsAndSortIdxOfGid >> callWith model)
+--
+--
+--getLCRSiblingsOfParentOfGid :
+--    GrainId
+--    -> GrainStore
+--    -> Maybe ( List Grain, Grain, List Grain )
+--getLCRSiblingsOfParentOfGid gid model =
+--    get gid model
+--        |> Maybe.andThen Grain.parentIdAsGrainId
+--        |> Maybe.andThen (getLCRSiblingsOfGid >> callWith model)
 
 
 getLCRSiblingsOfGid :
@@ -160,24 +171,28 @@ getLCRSiblingsOfGid :
     -> GrainStore
     -> Maybe ( List Grain, Grain, List Grain )
 getLCRSiblingsOfGid gid model =
-    get gid model
-        |> Maybe.andThen
-            (\grain ->
-                let
-                    siblingGrains =
-                        GrainIdLookup.toList model
-                            |> List.filter (Grain.isSibling grain)
-                            |> List.sortWith Grain.defaultComparator
-                in
-                List.elemIndex grain siblingGrains
-                    |> Maybe.map
-                        (\siblingIdx ->
-                            ( List.take siblingIdx siblingGrains
-                            , grain
-                            , List.drop (siblingIdx + 1) siblingGrains
+    if GrainId.root == gid then
+        Nothing
+
+    else
+        get gid model
+            |> Maybe.andThen
+                (\grain ->
+                    let
+                        siblingGrains =
+                            GrainIdLookup.toList model
+                                |> List.filter (Grain.isSibling grain)
+                                |> List.sortWith Grain.defaultComparator
+                    in
+                    List.elemIndex grain siblingGrains
+                        |> Maybe.map
+                            (\siblingIdx ->
+                                ( List.take siblingIdx siblingGrains
+                                , grain
+                                , List.drop (siblingIdx + 1) siblingGrains
+                                )
                             )
-                        )
-            )
+                )
 
 
 getSortedChildGrainsOfGid : GrainId -> GrainStore -> Maybe ( Grain, List Grain )
@@ -466,18 +481,31 @@ moveBy offset gid now model =
 
 
 moveOneLevelUp gid now model =
-    let
-        setParentId newParentId =
-            updateWithSetMsg
-                (Grain.SetParentId newParentId)
-                gid
-                now
-                model
-    in
-    findFromRoot gid model
-        |> Maybe.andThen Z.parent
-        |> Maybe.map (Z.label >> Grain.parentId >> setParentId)
-        |> Maybe.withDefault (Result.Err "Grain Not Found")
+    get gid model
+        |> Maybe.andThen
+            (\grain ->
+                Grain.parentIdAsGrainId grain
+                    |> Maybe.andThen (getLCRSiblingsOfGid >> callWith model)
+                    |> Maybe.map
+                        (\( l, parentGrain, r ) ->
+                            ( Grain.SetParentId
+                                (Grain.parentId parentGrain)
+                            , grain
+                            )
+                                :: (l
+                                        ++ [ parentGrain, grain ]
+                                        ++ r
+                                        |> grainListToSetSortIdxSetter
+                                   )
+                        )
+            )
+        |> Maybe.map
+            (batchUpdateWithSetMessages
+                >> callWith2
+                    now
+                    model
+            )
+        |> Result.fromMaybe "Error: moveBy"
 
 
 moveOneLevelDown gid now model =
