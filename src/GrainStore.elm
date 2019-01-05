@@ -321,7 +321,7 @@ moveRight gid model =
                     |> Maybe.map
                         (\( newParent, newSiblings ) ->
                             ( Grain.SetParentId
-                                (Grain.parentId newParent)
+                                (Grain.idAsParentId newParent)
                             , grain
                             )
                                 :: (grain
