@@ -221,11 +221,6 @@ updateWithPidAndChildren newGrain ( pid, children ) =
         now =
             Grain.createdAt newGrain
 
-        parentIdUpdater =
-            ( Grain.SetParentId pid
-            , newGrain
-            )
-
         childUpdaters =
             children
                 |> List.indexedMap
@@ -236,7 +231,10 @@ updateWithPidAndChildren newGrain ( pid, children ) =
                     )
 
         grainSetters =
-            parentIdUpdater :: childUpdaters
+            ( Grain.SetParentId pid
+            , newGrain
+            )
+                :: childUpdaters
     in
     blindInsertGrain newGrain
         >> batchUpdateWithSetMessages grainSetters now
