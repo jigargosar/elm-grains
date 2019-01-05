@@ -347,12 +347,6 @@ updateGrainWithId msg gid now model =
             )
 
 
-
---        SetSortIdx val ->
---            updateWithSetMsg (Grain.SetSortIdx val) gid now
--- EXPOSED UPDATERS
-
-
 updateFromFirebaseChangeList changeList model =
     let
         handleChange change =
