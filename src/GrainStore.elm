@@ -388,6 +388,23 @@ updateWithSetMsg grainUpdate gid now model =
     updateWithChangeFn (Grain.update now grainUpdate) gid model
 
 
+type alias GrainSetter =
+    ( Grain.Set, GrainId )
+
+
+batchUpdateWithSetMessages :
+    List GrainSetter
+    -> Posix
+    -> GrainStore
+    -> UpdateResult
+batchUpdateWithSetMessages grainSetters now model =
+    let
+        reducer ( changeFn, gid ) =
+            Result.andThen (updateWithSetMsg changeFn gid now)
+    in
+    List.foldl reducer (Result.Ok model) grainSetters
+
+
 move :
     Direction
     -> GrainId
