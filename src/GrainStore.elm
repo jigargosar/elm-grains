@@ -391,6 +391,10 @@ type alias UpdateResult =
     Result String GrainStore
 
 
+type alias GrainSetterResult =
+    Result String (List ( Grain.Set, Grain ))
+
+
 updateWithChangeFn :
     (Grain -> Grain)
     -> GrainId
@@ -463,6 +467,10 @@ move direction gid now model =
                     moveOneLevelDown
     in
     fn gid now model
+        |> Result.map
+            (batchUpdateWithSetMessages
+                >> callWith2 now model
+            )
 
 
 moveBy :
@@ -470,17 +478,13 @@ moveBy :
     -> GrainId
     -> Posix
     -> GrainStore
-    -> UpdateResult
+    -> GrainSetterResult
 moveBy offset gid now model =
     getSiblingsAndSortIdxOfGid gid model
         |> Maybe.map
             (\( idx, siblings ) ->
                 List.swapAt idx (idx + offset) siblings
                     |> grainListToSetSortIdxSetter
-            )
-        |> Maybe.map
-            (batchUpdateWithSetMessages
-                >> callWith2 now model
             )
         |> Result.fromMaybe "Error: moveBy"
 
@@ -504,12 +508,6 @@ moveOneLevelUp gid now model =
                                    )
                         )
             )
-        |> Maybe.map
-            (batchUpdateWithSetMessages
-                >> callWith2
-                    now
-                    model
-            )
         |> Result.fromMaybe "Error: moveOneLevelUp"
 
 
@@ -531,11 +529,5 @@ moveOneLevelDown gid now model =
                                         |> grainListToSetSortIdxSetter
                                    )
                         )
-            )
-        |> Maybe.map
-            (batchUpdateWithSetMessages
-                >> callWith2
-                    now
-                    model
             )
         |> Result.fromMaybe "Error: moveOneLevelDown"
