@@ -62,6 +62,16 @@ import View exposing (ViewModel)
 
 
 
+---- EDIT ----
+
+
+type Edit
+    = EditNew GrainId
+    | EditExisting GrainId
+    | NotEditing
+
+
+
 ---- MODEL ----
 
 
@@ -83,32 +93,27 @@ type alias Model =
     { toast : Toast
     , route : Route
     , authState : Firebase.AuthState
-    , actorId : ActorId
     , grainStore : GrainStore
     , selectedGid : Maybe GrainId
     , lastSelectedGid : Maybe GrainId
     , editGid : Maybe GrainId
+    , edit : Edit
     , seed : Seed
     }
 
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-    let
-        model =
-            Model
-                |> Random.from (initialSeed flags)
-                |> Random.always Toast.init
-                |> Random.always (Route.fromString flags.url)
-                |> Random.always Firebase.initialAuthState
-                |> Random.with ActorId.generator
-                |> Random.always GrainStore.init
-                |> Random.always Nothing
-                |> Random.always Nothing
-                |> Random.always Nothing
-                |> Random.finish
-    in
-    model
+    { toast = Toast.init
+    , route = Route.fromString flags.url
+    , authState = Firebase.initialAuthState
+    , grainStore = GrainStore.init
+    , selectedGid = Nothing
+    , lastSelectedGid = Nothing
+    , editGid = Nothing
+    , edit = NotEditing
+    , seed = initialSeed flags
+    }
         |> updateGrainStore (GrainStore.Hydrate flags.grainCache)
 
 
