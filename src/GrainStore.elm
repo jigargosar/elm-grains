@@ -7,7 +7,6 @@ module GrainStore exposing
     , encoder
     , get
     , init
-    , toRawList
     , toTree
     , update
     )
@@ -89,15 +88,15 @@ rootGrain =
     get GrainId.root >> Maybe.withDefault Grain.root
 
 
-allGrains : GrainStore -> List Grain
-allGrains =
-    toRawList
+allSortedGrains : GrainStore -> List Grain
+allSortedGrains =
+    GrainIdLookup.toList
         >> List.sortWith Grain.defaultComparator
 
 
 childGrains : Grain -> GrainStore -> List Grain
 childGrains grain =
-    allGrains >> List.filter (Grain.isChildOf grain)
+    allSortedGrains >> List.filter (Grain.isChildOf grain)
 
 
 toTreeHelp : GrainStore -> Grain -> GrainTree
@@ -359,10 +358,6 @@ blindInsertGrain grain model =
 
 blindRemoveGrain grain model =
     GrainIdLookup.remove (Grain.id grain) model
-
-
-toRawList =
-    GrainIdLookup.toList
 
 
 idExists gid =
