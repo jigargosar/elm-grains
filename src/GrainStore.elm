@@ -316,19 +316,35 @@ update message model =
             load encoded
 
 
-updateGrainWithId msg gid now =
-    case msg of
-        Move direction ->
-            move direction gid now
+updateGrainWithId msg gid now model =
+    let
+        toGrainSetterSingletonResult setMsg =
+            get gid
+                >> Maybe.map
+                    (\grain ->
+                        [ ( setMsg, grain ) ]
+                    )
+                >> Result.fromMaybe "Err: updateGrainWithId: toGrainSetterSingleton"
 
-        SetContent val ->
-            updateWithSetMsg (Grain.SetContent val) gid now
+        updaters =
+            case msg of
+                Move direction ->
+                    move direction gid
 
-        SetDeleted val ->
-            updateWithSetMsg (Grain.SetDeleted val) gid now
+                SetContent val ->
+                    toGrainSetterSingletonResult (Grain.SetContent val)
 
-        SetParentId val ->
-            updateWithSetMsg (Grain.SetParentId val) gid now
+                SetDeleted val ->
+                    toGrainSetterSingletonResult (Grain.SetDeleted val)
+
+                SetParentId val ->
+                    toGrainSetterSingletonResult (Grain.SetParentId val)
+    in
+    updaters model
+        |> Result.map
+            (batchUpdateWithSetMessages
+                >> callWith2 now model
+            )
 
 
 
@@ -417,16 +433,6 @@ batchUpdate_ list model =
     List.foldl reducer (Result.Ok model) list
 
 
-updateWithSetMsg :
-    Grain.Set
-    -> GrainId
-    -> Posix
-    -> GrainStore
-    -> UpdateResult
-updateWithSetMsg grainUpdate gid now model =
-    updateWithChangeFn (Grain.update now grainUpdate) gid model
-
-
 type alias GrainSetter =
     ( Grain.Set, Grain )
 
@@ -447,10 +453,9 @@ batchUpdateWithSetMessages grainSetters now model =
 move :
     Direction
     -> GrainId
-    -> Posix
     -> GrainStore
-    -> UpdateResult
-move direction gid now model =
+    -> GrainSetterResult
+move direction gid model =
     let
         fn =
             case direction of
@@ -467,10 +472,6 @@ move direction gid now model =
                     moveOneLevelDown
     in
     fn gid model
-        |> Result.map
-            (batchUpdateWithSetMessages
-                >> callWith2 now model
-            )
 
 
 moveBy :
