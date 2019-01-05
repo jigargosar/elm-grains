@@ -383,6 +383,14 @@ batchUpdateWithSetMessages grainSetters now model =
     List.foldl reducer model grainSetters
 
 
+overGrain : (Grain -> Grain) -> Grain -> GrainStore -> GrainStore
+overGrain fn grain model =
+    get (Grain.id grain) model
+        |> Maybe.withDefault grain
+        |> fn
+        |> (blindInsertGrain >> callWith model)
+
+
 blindInsertGrain grain model =
     GrainIdLookup.insert (Grain.id grain) grain model
 
