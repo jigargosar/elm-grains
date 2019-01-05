@@ -243,7 +243,7 @@ updateWithPidAndChildren newGrain ( pid, children ) =
             parentIdUpdater :: childUpdaters
     in
     blindInsertGrain newGrain
-        >> applyGrainUpdaters updaters
+        >> batchUpdate_ updaters
 
 
 type Update
@@ -369,8 +369,8 @@ type alias GrainUpdater =
     ( Grain -> Grain, GrainId )
 
 
-applyGrainUpdaters : List GrainUpdater -> GrainStore -> UpdateResult
-applyGrainUpdaters list model =
+batchUpdate_ : List GrainUpdater -> GrainStore -> UpdateResult
+batchUpdate_ list model =
     let
         reducer ( changeFn, gid ) =
             Result.andThen (updateWithChangeFn changeFn gid)
@@ -442,7 +442,7 @@ moveBy offset gid now model =
                         Grain.id
                     )
     in
-    applyGrainUpdaters updaters model
+    batchUpdate_ updaters model
 
 
 moveOneLevelUp gid now model =
