@@ -179,10 +179,6 @@ addNew msg newGrain model =
 
     else
         let
-            --        pu =
-            --                        ( Grain.update now (Grain.SetParentId pid)
-            --                        , newGid
-            --                        )
             toSetMsgUpdaters ( pid, children ) =
                 ( Grain.SetParentId pid
                 , newGrain
