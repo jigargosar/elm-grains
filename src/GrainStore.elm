@@ -326,7 +326,7 @@ updateGrainWithId msg gid now model =
                     )
                 >> Result.fromMaybe "Err: updateGrainWithId: toGrainSetterSingleton"
 
-        updaters =
+        grainSettersResult =
             case msg of
                 Move direction ->
                     move direction gid
@@ -340,7 +340,7 @@ updateGrainWithId msg gid now model =
                 SetParentId val ->
                     toGrainSetterSingletonResult (Grain.SetParentId val)
     in
-    updaters model
+    grainSettersResult model
         |> Result.map
             (batchUpdateWithSetMessages
                 >> callWith2 now model
