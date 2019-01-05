@@ -271,10 +271,10 @@ move direction gid model =
                     moveBy 1
 
                 Direction.Left ->
-                    moveOneLevelUp
+                    moveLeft
 
                 Direction.Right ->
-                    moveOneLevelDown
+                    moveRight
     in
     fn gid model
 
@@ -294,7 +294,7 @@ moveBy offset gid model =
         |> Result.fromMaybe "Error: moveBy"
 
 
-moveOneLevelUp gid model =
+moveLeft gid model =
     get gid model
         |> Maybe.andThen
             (\grain ->
@@ -316,7 +316,7 @@ moveOneLevelUp gid model =
         |> Result.fromMaybe "Error: moveOneLevelUp"
 
 
-moveOneLevelDown gid model =
+moveRight gid model =
     getSortedLCRSiblingsOfGid gid model
         |> Maybe.andThen
             (\( prevSiblings, grain, _ ) ->
