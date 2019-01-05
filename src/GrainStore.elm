@@ -178,6 +178,14 @@ addNew msg newGrain model =
         Result.Err "Error: Add Grain. GrainId exists"
 
     else
+        let
+            --        pu =
+            --                        ( Grain.update now (Grain.SetParentId pid)
+            --                        , newGid
+            --                        )
+            updateWithPidAndChildren_ ( pid, children ) =
+                1
+        in
         model
             |> addAndGetPidAndChildren msg newGrain
             |> Maybe.unwrap
