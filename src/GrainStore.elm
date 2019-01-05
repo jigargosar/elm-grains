@@ -130,18 +130,29 @@ type Add
 
 getSiblingsAndSortIdxOfGid : GrainId -> GrainStore -> Maybe ( Int, List Grain )
 getSiblingsAndSortIdxOfGid gid model =
+    if GrainId.root == gid then
+        Nothing
+
+    else
+        get gid model
+            |> Maybe.andThen
+                (\grain ->
+                    let
+                        siblingGrains =
+                            GrainIdLookup.toList model
+                                |> List.filter (Grain.isSibling grain)
+                                |> List.sortWith Grain.defaultComparator
+                    in
+                    List.elemIndex grain siblingGrains
+                        |> Maybe.map (\idx -> ( idx, siblingGrains ))
+                )
+
+
+getSiblingsAndSortIdxOfParentOfGid : GrainId -> GrainStore -> Maybe ( Int, List Grain )
+getSiblingsAndSortIdxOfParentOfGid gid model =
     get gid model
-        |> Maybe.andThen
-            (\grain ->
-                let
-                    siblingGrains =
-                        GrainIdLookup.toList model
-                            |> List.filter (Grain.isSibling grain)
-                            |> List.sortWith Grain.defaultComparator
-                in
-                List.elemIndex grain siblingGrains
-                    |> Maybe.map (\idx -> ( idx, siblingGrains ))
-            )
+        |> Maybe.andThen Grain.parentIdAsGrainId
+        |> Maybe.andThen (getSiblingsAndSortIdxOfGid >> callWith model)
 
 
 getLCRSiblingsOfGid :
