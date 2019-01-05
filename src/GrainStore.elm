@@ -128,8 +128,8 @@ type Add
     | AddChild GrainId
 
 
-getSiblingsAndIdxOfGid : GrainId -> GrainStore -> Maybe ( Int, List Grain )
-getSiblingsAndIdxOfGid gid model =
+getSiblingsAndSortIdxOfGid : GrainId -> GrainStore -> Maybe ( Int, List Grain )
+getSiblingsAndSortIdxOfGid gid model =
     get gid model
         |> Maybe.andThen
             (\grain ->
