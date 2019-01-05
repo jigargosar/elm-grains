@@ -512,48 +512,28 @@ moveOneLevelUp gid now model =
 
 
 moveOneLevelDown gid now model =
-    let
-        _ =
-            getLCRSiblingsOfGid gid model
-                |> Maybe.andThen
-                    (\( prevSiblings, grain, _ ) ->
-                        List.last prevSiblings
-                            |> Maybe.map
-                                (getSortedChildGrainsOfGrain >> callWith model)
-                            |> Maybe.map
-                                (\( newParent, newSiblings ) ->
-                                    ( Grain.SetParentId
-                                        (Grain.parentId newParent)
-                                    , grain
-                                    )
-                                        :: (grain
-                                                :: newSiblings
-                                                |> grainListToSetSortIdxSetter
-                                           )
-                                )
-                    )
-
-        siblings : List Grain
-        siblings =
-            findFromRoot gid model
-                |> Maybe.unwrap []
-                    (Z.tree >> Tree.children >> List.map Tree.label)
-
-        newParentIdx : Int
-        newParentIdx =
-            List.findIndex (Grain.idEq gid) siblings
-                |> Maybe.unwrap -1 ((+) -1)
-                |> Debug.log "newParentIdx"
-    in
-    List.getAt newParentIdx siblings
-        |> Maybe.map
-            (Grain.idAsParentId
-                >> (\pid ->
-                        updateWithSetMsg
-                            (Grain.SetParentId pid)
-                            gid
-                            now
-                            model
-                   )
+    getLCRSiblingsOfGid gid model
+        |> Maybe.andThen
+            (\( prevSiblings, grain, _ ) ->
+                List.last prevSiblings
+                    |> Maybe.map
+                        (getSortedChildGrainsOfGrain >> callWith model)
+                    |> Maybe.map
+                        (\( newParent, newSiblings ) ->
+                            ( Grain.SetParentId
+                                (Grain.parentId newParent)
+                            , grain
+                            )
+                                :: (grain
+                                        :: newSiblings
+                                        |> grainListToSetSortIdxSetter
+                                   )
+                        )
             )
-        |> Maybe.withDefault (Result.Err "Grain Not Found")
+        |> Maybe.map
+            (batchUpdateWithSetMessages
+                >> callWith2
+                    now
+                    model
+            )
+        |> Result.fromMaybe "Error: moveOneLevelDown"
