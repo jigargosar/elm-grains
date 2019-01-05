@@ -477,8 +477,10 @@ moveBy offset gid now model =
             (\( idx, siblings ) ->
                 List.swapAt idx (idx + offset) siblings
                     |> grainListToSetSortIdxSetter
-                    |> batchUpdateWithSetMessages
-                    |> callWith2 now model
+            )
+        |> Maybe.map
+            (batchUpdateWithSetMessages
+                >> callWith2 now model
             )
         |> Result.fromMaybe "Error: moveBy"
 
@@ -508,7 +510,7 @@ moveOneLevelUp gid now model =
                     now
                     model
             )
-        |> Result.fromMaybe "Error: moveBy"
+        |> Result.fromMaybe "Error: moveOneLevelUp"
 
 
 moveOneLevelDown gid now model =
