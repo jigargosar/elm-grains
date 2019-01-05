@@ -328,23 +328,6 @@ load =
         >> Result.mapError D.errorToString
 
 
-type alias UpdateResult =
-    Result String GrainStore
-
-
-updateWithChangeFn :
-    (Grain -> Grain)
-    -> GrainId
-    -> GrainStore
-    -> UpdateResult
-updateWithChangeFn changeFn gid model =
-    if GrainIdLookup.member gid model then
-        Result.Ok <| GrainIdLookup.updateIfExists gid changeFn model
-
-    else
-        Result.Err "GrainNotFound"
-
-
 
 -- UPDATE HELPERS
 
@@ -367,6 +350,23 @@ idExists gid =
 
 type alias GrainUpdater =
     ( Grain -> Grain, GrainId )
+
+
+type alias UpdateResult =
+    Result String GrainStore
+
+
+updateWithChangeFn :
+    (Grain -> Grain)
+    -> GrainId
+    -> GrainStore
+    -> UpdateResult
+updateWithChangeFn changeFn gid model =
+    if GrainIdLookup.member gid model then
+        Result.Ok <| GrainIdLookup.updateIfExists gid changeFn model
+
+    else
+        Result.Err "GrainNotFound"
 
 
 batchUpdate_ : List GrainUpdater -> GrainStore -> UpdateResult
