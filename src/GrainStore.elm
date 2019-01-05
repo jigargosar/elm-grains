@@ -466,7 +466,7 @@ move direction gid now model =
                 Direction.Right ->
                     moveOneLevelDown
     in
-    fn gid now model
+    fn gid model
         |> Result.map
             (batchUpdateWithSetMessages
                 >> callWith2 now model
@@ -476,10 +476,9 @@ move direction gid now model =
 moveBy :
     Int
     -> GrainId
-    -> Posix
     -> GrainStore
     -> GrainSetterResult
-moveBy offset gid now model =
+moveBy offset gid model =
     getSiblingsAndSortIdxOfGid gid model
         |> Maybe.map
             (\( idx, siblings ) ->
@@ -489,7 +488,7 @@ moveBy offset gid now model =
         |> Result.fromMaybe "Error: moveBy"
 
 
-moveOneLevelUp gid now model =
+moveOneLevelUp gid model =
     get gid model
         |> Maybe.andThen
             (\grain ->
@@ -511,7 +510,7 @@ moveOneLevelUp gid now model =
         |> Result.fromMaybe "Error: moveOneLevelUp"
 
 
-moveOneLevelDown gid now model =
+moveOneLevelDown gid model =
     getLCRSiblingsOfGid gid model
         |> Maybe.andThen
             (\( prevSiblings, grain, _ ) ->
