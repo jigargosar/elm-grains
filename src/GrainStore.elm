@@ -166,11 +166,11 @@ getSiblingsAndSortIdxOfGid gid model =
 --        |> Maybe.andThen (getLCRSiblingsOfGid >> callWith model)
 
 
-getLCRSiblingsOfGid :
+getSortedLCRSiblingsOfGid :
     GrainId
     -> GrainStore
     -> Maybe ( List Grain, Grain, List Grain )
-getLCRSiblingsOfGid gid model =
+getSortedLCRSiblingsOfGid gid model =
     if GrainId.root == gid then
         Nothing
 
@@ -227,14 +227,14 @@ addNew msg newGrain model =
             addAndGetPidAndChildren =
                 case msg of
                     AddAfter gid ->
-                        getLCRSiblingsOfGid gid
+                        getSortedLCRSiblingsOfGid gid
                             >> Maybe.map
                                 (\( l, c, r ) ->
                                     ( Grain.parentId c, l ++ [ c, newGrain ] ++ r )
                                 )
 
                     AddBefore gid ->
-                        getLCRSiblingsOfGid gid
+                        getSortedLCRSiblingsOfGid gid
                             >> Maybe.map
                                 (\( l, c, r ) ->
                                     ( Grain.parentId c, l ++ [ newGrain, c ] ++ r )
@@ -488,7 +488,7 @@ moveOneLevelUp gid model =
         |> Maybe.andThen
             (\grain ->
                 Grain.parentIdAsGrainId grain
-                    |> Maybe.andThen (getLCRSiblingsOfGid >> callWith model)
+                    |> Maybe.andThen (getSortedLCRSiblingsOfGid >> callWith model)
                     |> Maybe.map
                         (\( l, parentGrain, r ) ->
                             ( Grain.SetParentId
@@ -506,7 +506,7 @@ moveOneLevelUp gid model =
 
 
 moveOneLevelDown gid model =
-    getLCRSiblingsOfGid gid model
+    getSortedLCRSiblingsOfGid gid model
         |> Maybe.andThen
             (\( prevSiblings, grain, _ ) ->
                 List.last prevSiblings
