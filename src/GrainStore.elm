@@ -222,13 +222,7 @@ addNew msg newGrain model =
                 ( Grain.SetParentId pid
                 , newGrain
                 )
-                    :: List.indexedMap
-                        (\idx g ->
-                            ( Grain.SetSortIdx idx
-                            , g
-                            )
-                        )
-                        children
+                    :: grainListToSetSortIdxSetter children
 
             blindInsertAndUpdate setMsgUpdaters =
                 let
@@ -246,6 +240,16 @@ addNew msg newGrain model =
                     >> callWith model
                 )
             |> Result.fromMaybe "Err: addNew"
+
+
+grainListToSetSortIdxSetter : List Grain -> List GrainSetter
+grainListToSetSortIdxSetter =
+    List.indexedMap
+        (\idx grain ->
+            ( Grain.SetSortIdx idx
+            , grain
+            )
+        )
 
 
 type Update
@@ -439,32 +443,15 @@ moveBy :
     -> GrainStore
     -> UpdateResult
 moveBy offset gid now model =
-    let
-        _ =
-            getLCRSiblingsOfGid gid model
-
-        siblings : List Grain
-        siblings =
-            findFromRoot gid model
-                |> Maybe.unwrap []
-                    (Z.tree >> Tree.children >> List.map Tree.label)
-
-        gIdx : Int
-        gIdx =
-            List.findIndex (Grain.idEq gid) siblings
-                |> Maybe.withDefault -1
-
-        updaters : List ( Grain -> Grain, GrainId )
-        updaters =
-            List.swapAt gIdx (gIdx + offset) siblings
-                |> Grain.listToEffectiveSortIndices
-                |> List.map
-                    (Tuple.mapBoth
-                        (Grain.SetSortIdx >> Grain.update now)
-                        Grain.id
-                    )
-    in
-    batchUpdate_ updaters model
+    getSiblingsAndSortIdxOfGid gid model
+        |> Maybe.map
+            (\( idx, siblings ) ->
+                List.swapAt idx (idx + offset) siblings
+                    |> grainListToSetSortIdxSetter
+                    |> batchUpdateWithSetMessages
+                    |> callWith2 now model
+            )
+        |> Result.fromMaybe "Error: moveBy"
 
 
 moveOneLevelUp gid now model =
