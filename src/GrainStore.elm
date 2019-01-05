@@ -353,16 +353,12 @@ load =
         >> Result.mapError D.errorToString
 
 
-
--- UPDATE HELPERS
-
-
 blindInsertGrain grain model =
     GrainIdLookup.insert (Grain.id grain) grain model
 
 
 blindRemoveGrain grain model =
-    GrainIdLookup.insert (Grain.id grain) grain model
+    GrainIdLookup.remove (Grain.id grain) model
 
 
 toRawList =
