@@ -188,9 +188,8 @@ addNew msg newGrain model =
         in
         model
             |> addAndGetPidAndChildren msg newGrain
-            |> Maybe.unwrap
-                (Result.Err "Err: addNew")
-                (updateWithPidAndChildren newGrain >> callWith model)
+            |> Maybe.map (updateWithPidAndChildren newGrain >> callWith model)
+            |> Result.fromMaybe "Err: addNew"
 
 
 addAndGetPidAndChildren msg newGrain =
@@ -222,12 +221,9 @@ updateWithPidAndChildren newGrain ( pid, children ) =
         now =
             Grain.createdAt newGrain
 
-        newGid =
-            Grain.id newGrain
-
         parentIdUpdater =
             ( Grain.SetParentId pid
-            , newGid
+            , newGrain
             )
 
         childUpdaters =
@@ -235,7 +231,7 @@ updateWithPidAndChildren newGrain ( pid, children ) =
                 |> List.indexedMap
                     (\idx g ->
                         ( Grain.SetSortIdx idx
-                        , Grain.id g
+                        , g
                         )
                     )
 
@@ -389,20 +385,20 @@ updateWithSetMsg grainUpdate gid now model =
 
 
 type alias GrainSetter =
-    ( Grain.Set, GrainId )
+    ( Grain.Set, Grain )
 
 
 batchUpdateWithSetMessages :
     List GrainSetter
     -> Posix
     -> GrainStore
-    -> UpdateResult
+    -> GrainStore
 batchUpdateWithSetMessages grainSetters now model =
     let
-        reducer ( changeFn, gid ) =
-            Result.andThen (updateWithSetMsg changeFn gid now)
+        reducer =
+            blindInsertGrain << Tuple2.uncurry (Grain.update now)
     in
-    List.foldl reducer (Result.Ok model) grainSetters
+    List.foldl reducer model grainSetters
 
 
 move :
