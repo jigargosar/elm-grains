@@ -377,14 +377,15 @@ batchUpdateWithSetMessages :
     -> GrainStore
 batchUpdateWithSetMessages grainSetters now model =
     let
+        reducer : GrainSetter -> GrainStore -> GrainStore
         reducer =
             blindInsertGrain << Tuple2.uncurry (Grain.update now)
     in
     List.foldl reducer model grainSetters
 
 
-overGrain : (Grain -> Grain) -> Grain -> GrainStore -> GrainStore
-overGrain fn grain model =
+mapGrain : (Grain -> Grain) -> Grain -> GrainStore -> GrainStore
+mapGrain fn grain model =
     get (Grain.id grain) model
         |> Maybe.withDefault grain
         |> fn
