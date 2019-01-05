@@ -119,77 +119,14 @@ get gid =
     GrainIdLookup.get gid
 
 
+
+-- UPDATE
+
+
 type Add
     = AddAfter GrainId
     | AddBefore GrainId
     | AddChild GrainId
-
-
-getSiblingsAndSortIdxOfGid : GrainId -> GrainStore -> Maybe ( Int, List Grain )
-getSiblingsAndSortIdxOfGid gid model =
-    if GrainId.root == gid then
-        Nothing
-
-    else
-        get gid model
-            |> Maybe.andThen
-                (\grain ->
-                    let
-                        siblingGrains =
-                            GrainIdLookup.toList model
-                                |> List.filter (Grain.isSibling grain)
-                                |> List.sortWith Grain.defaultComparator
-                    in
-                    List.elemIndex grain siblingGrains
-                        |> Maybe.map (\idx -> ( idx, siblingGrains ))
-                )
-
-
-getSortedLCRSiblingsOfGid :
-    GrainId
-    -> GrainStore
-    -> Maybe ( List Grain, Grain, List Grain )
-getSortedLCRSiblingsOfGid gid model =
-    if GrainId.root == gid then
-        Nothing
-
-    else
-        get gid model
-            |> Maybe.andThen
-                (\grain ->
-                    let
-                        siblingGrains =
-                            GrainIdLookup.toList model
-                                |> List.filter (Grain.isSibling grain)
-                                |> List.sortWith Grain.defaultComparator
-                    in
-                    List.elemIndex grain siblingGrains
-                        |> Maybe.map
-                            (\siblingIdx ->
-                                ( List.take siblingIdx siblingGrains
-                                , grain
-                                , List.drop (siblingIdx + 1) siblingGrains
-                                )
-                            )
-                )
-
-
-getSortedChildGrainsOfGid : GrainId -> GrainStore -> Maybe ( Grain, List Grain )
-getSortedChildGrainsOfGid gid model =
-    get gid model
-        |> Maybe.map
-            (getSortedChildGrainsOfGrain >> callWith model)
-
-
-getSortedChildGrainsOfGrain : Grain -> GrainStore -> ( Grain, List Grain )
-getSortedChildGrainsOfGrain parentGrain model =
-    let
-        children =
-            GrainIdLookup.toList model
-                |> List.filter (Grain.isChildOf parentGrain)
-                |> List.sortWith Grain.defaultComparator
-    in
-    ( parentGrain, children )
 
 
 addNew : Add -> Grain -> GrainStore -> UpdateResult
@@ -248,16 +185,6 @@ addNew msg newGrain model =
                     >> callWith model
                 )
             |> Result.fromMaybe "Err: addNew"
-
-
-grainListToSetSortIdxSetter : List Grain -> List GrainSetter
-grainListToSetSortIdxSetter =
-    List.indexedMap
-        (\idx grain ->
-            ( Grain.SetSortIdx idx
-            , grain
-            )
-        )
 
 
 type Update
@@ -433,19 +360,7 @@ updateFromFirebaseChangeList changeList model =
 
 
 
--- INTERNAL
-
-
-blindInsertGrain grain model =
-    GrainIdLookup.insert (Grain.id grain) grain model
-
-
-blindRemoveGrain grain model =
-    GrainIdLookup.remove (Grain.id grain) model
-
-
-idExists gid =
-    GrainIdLookup.member gid
+-- INTERNAL UPDATE
 
 
 type alias UpdateResult =
@@ -471,3 +386,96 @@ batchUpdateWithSetMessages grainSetters now model =
             blindInsertGrain << Tuple2.uncurry (Grain.update now)
     in
     List.foldl reducer model grainSetters
+
+
+blindInsertGrain grain model =
+    GrainIdLookup.insert (Grain.id grain) grain model
+
+
+blindRemoveGrain grain model =
+    GrainIdLookup.remove (Grain.id grain) model
+
+
+
+--- INTERNAL GETTERS
+
+
+idExists gid =
+    GrainIdLookup.member gid
+
+
+grainListToSetSortIdxSetter : List Grain -> List GrainSetter
+grainListToSetSortIdxSetter =
+    List.indexedMap
+        (\idx grain ->
+            ( Grain.SetSortIdx idx
+            , grain
+            )
+        )
+
+
+getSiblingsAndSortIdxOfGid : GrainId -> GrainStore -> Maybe ( Int, List Grain )
+getSiblingsAndSortIdxOfGid gid model =
+    if GrainId.root == gid then
+        Nothing
+
+    else
+        get gid model
+            |> Maybe.andThen
+                (\grain ->
+                    let
+                        siblingGrains =
+                            GrainIdLookup.toList model
+                                |> List.filter (Grain.isSibling grain)
+                                |> List.sortWith Grain.defaultComparator
+                    in
+                    List.elemIndex grain siblingGrains
+                        |> Maybe.map (\idx -> ( idx, siblingGrains ))
+                )
+
+
+getSortedLCRSiblingsOfGid :
+    GrainId
+    -> GrainStore
+    -> Maybe ( List Grain, Grain, List Grain )
+getSortedLCRSiblingsOfGid gid model =
+    if GrainId.root == gid then
+        Nothing
+
+    else
+        get gid model
+            |> Maybe.andThen
+                (\grain ->
+                    let
+                        siblingGrains =
+                            GrainIdLookup.toList model
+                                |> List.filter (Grain.isSibling grain)
+                                |> List.sortWith Grain.defaultComparator
+                    in
+                    List.elemIndex grain siblingGrains
+                        |> Maybe.map
+                            (\siblingIdx ->
+                                ( List.take siblingIdx siblingGrains
+                                , grain
+                                , List.drop (siblingIdx + 1) siblingGrains
+                                )
+                            )
+                )
+
+
+getSortedChildGrainsOfGid : GrainId -> GrainStore -> Maybe ( Grain, List Grain )
+getSortedChildGrainsOfGid gid model =
+    get gid model
+        |> Maybe.map
+            (getSortedChildGrainsOfGrain >> callWith model)
+
+
+getSortedChildGrainsOfGrain : Grain -> GrainStore -> ( Grain, List Grain )
+getSortedChildGrainsOfGrain parentGrain model =
+    let
+        children =
+            GrainIdLookup.toList model
+                |> List.filter (Grain.isChildOf parentGrain)
+                |> List.sortWith Grain.defaultComparator
+    in
+    ( parentGrain, children )
